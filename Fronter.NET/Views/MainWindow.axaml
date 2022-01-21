@@ -1,0 +1,98 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Fronter.NET.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:views="clr-namespace:Fronter.NET.Views"
+        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="400"
+        x:Class="Fronter.NET.Views.MainWindow"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="Converter Frontend"
+        
+        TransparencyLevelHint="AcrylicBlur"
+        Background="Transparent"
+        ExtendClientAreaToDecorationsHint="True">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel />
+    </Design.DataContext>
+
+    <DockPanel>
+        <ExperimentalAcrylicBorder IsHitTestVisible="False">
+            <ExperimentalAcrylicBorder.Material>
+                <ExperimentalAcrylicMaterial
+                    BackgroundSource="Digger"
+                    TintColor="Black"
+                    TintOpacity="1"
+                    MaterialOpacity="0.65" />
+            </ExperimentalAcrylicBorder.Material>
+        </ExperimentalAcrylicBorder>
+        
+        <Panel>
+        </Panel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_Converter">
+                <MenuItem Header="_Check for updates"/>
+                <Separator/>
+                <MenuItem Header="_Exit"/>
+            </MenuItem>
+            <MenuItem Header="_Language">
+                <MenuItem Header="English"/>
+                <MenuItem Header="French"/>
+            </MenuItem>
+            <MenuItem Header="_Help">
+                <MenuItem Header="About us"/>
+                <MenuItem Header="Support us on Patreon"/>
+            </MenuItem>
+        </Menu>
+        <TabControl>
+            <TabItem Header="Paths" VerticalContentAlignment="Center">
+                <views:PathsView/>
+            </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    <TextBlock VerticalAlignment="Center">Mods</TextBlock>
+                </TabItem.Header>
+                <StackPanel>
+                    
+                    <views:MarkdownView/>
+                    <TextBlock Text="Mod auto-detection disabled by configuration/not required." HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    <Button Name="Button1" Command="{Binding BuyMusicCommand}">A button in the triangle page!</Button>
+                    <Panel>
+                        <ExperimentalAcrylicBorder IsHitTestVisible="False">
+                            <ExperimentalAcrylicBorder.Material>
+                                <ExperimentalAcrylicMaterial
+                                    BackgroundSource="Digger"
+                                    TintColor="Black"
+                                    TintOpacity="1"
+                                    MaterialOpacity="0.65" />
+                            </ExperimentalAcrylicBorder.Material>
+                        </ExperimentalAcrylicBorder>
+                    </Panel>
+				</StackPanel>
+            </TabItem>
+            
+            <TabItem>
+                <TabItem.Header>
+                    <TextBlock VerticalAlignment="Center">Options</TextBlock>
+                </TabItem.Header>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Square : " HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    <Rectangle Fill="Blue" Width="63" Height="41"/>
+                </StackPanel>
+            </TabItem>
+            
+            <TabItem>
+                <TabItem.Header>
+                    <TextBlock VerticalAlignment="Center">Convert</TextBlock>
+                </TabItem.Header>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Square : " HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    <Rectangle Fill="Blue" Width="63" Height="41"/>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
+    
+
+</Window>

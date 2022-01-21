@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32113.165
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fronter.NET", "Fronter.NET\Fronter.NET.csproj", "{596F64CC-0EB8-4575-A5A5-32308E43CBDE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B6ADE496-9DDD-4373-ACC9-E6D1855E5362} = {B6ADE496-9DDD-4373-ACC9-E6D1855E5362}
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "commonItems", "commonItems.NET\commonItems\commonItems.csproj", "{B6ADE496-9DDD-4373-ACC9-E6D1855E5362}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{596F64CC-0EB8-4575-A5A5-32308E43CBDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{596F64CC-0EB8-4575-A5A5-32308E43CBDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{596F64CC-0EB8-4575-A5A5-32308E43CBDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{596F64CC-0EB8-4575-A5A5-32308E43CBDE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6ADE496-9DDD-4373-ACC9-E6D1855E5362}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6ADE496-9DDD-4373-ACC9-E6D1855E5362}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6ADE496-9DDD-4373-ACC9-E6D1855E5362}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6ADE496-9DDD-4373-ACC9-E6D1855E5362}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EEEBAD82-203B-45DA-8A66-81E9351DBC2F}
+	EndGlobalSection
+EndGlobal
