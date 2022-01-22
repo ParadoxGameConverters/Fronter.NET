@@ -2,7 +2,7 @@
 
 namespace Fronter.Models.Options;
 
-internal class CheckBoxOption {
+public class CheckBoxOption {
 	public CheckBoxOption(BufferedReader reader, int id) {
 		Id = id;
 
@@ -25,14 +25,14 @@ internal class CheckBoxOption {
 	}
 
 	public void SetValue() {
-		value = true;
+		Value = true;
 	}
 	public void UnsetValue() {
-		value = false;
+		Value = false;
 	}
 
 	public bool Defaulted { get; private set; } = false;
-	private bool value = false;
+	public bool Value { get; private set; } = false;
 	public int Id { get; private set; } = 0;
 	public string Name { get; private set; } = string.Empty;
 	public string Tooltip { get; private set; } = string.Empty;
