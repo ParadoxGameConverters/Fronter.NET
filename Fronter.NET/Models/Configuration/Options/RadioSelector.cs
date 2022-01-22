@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Fronter.Models.Options;
+namespace Fronter.Models.Configuration.Options;
 
 public class RadioSelector : Selector {
 	public RadioSelector(BufferedReader reader) {

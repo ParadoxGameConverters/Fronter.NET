@@ -1,6 +1,6 @@
 ﻿using commonItems;
 
-namespace Fronter.Models;
+namespace Fronter.Models.Configuration;
 
 public class RequiredFile : RequiredPath {
 	public RequiredFile(BufferedReader reader) {

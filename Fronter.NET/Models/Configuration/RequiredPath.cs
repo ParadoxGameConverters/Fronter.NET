@@ -1,6 +1,6 @@
-﻿using Fronter.NET.ViewModels;
+﻿using Fronter.ViewModels;
 
-namespace Fronter.Models;
+namespace Fronter.Models.Configuration;
 
 public class RequiredPath : ViewModelBase {
 	public bool Mandatory { get; protected set; } = false;

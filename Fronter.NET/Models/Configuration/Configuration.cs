@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using Fronter.Models.Configuration.Options;
+using System.Collections.Generic;
 
-namespace Fronter.Models;
+namespace Fronter.Models.Configuration;
 
 public class Configuration {
 	public string Name { get; private set; }

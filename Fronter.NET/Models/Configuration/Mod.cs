@@ -1,7 +1,7 @@
 ﻿using commonItems;
-using Fronter.NET.ViewModels;
+using Fronter.ViewModels;
 
-namespace Fronter.Models;
+namespace Fronter.Models.Configuration;
 
 public class Mod : ViewModelBase {
 	public Mod(string modPath) {

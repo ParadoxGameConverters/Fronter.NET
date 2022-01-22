@@ -1,6 +1,6 @@
 ﻿using commonItems;
 
-namespace Fronter.Models.Options;
+namespace Fronter.Models.Configuration.Options;
 
 public class RadioOption {
 	public RadioOption(BufferedReader reader, int id) {

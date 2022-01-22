@@ -1,4 +1,4 @@
-﻿namespace Fronter.NET.Services;
+﻿namespace Fronter.Services;
 
 public class FronterConfigurationLoader {
 

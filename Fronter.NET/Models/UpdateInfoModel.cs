@@ -1,4 +1,4 @@
-﻿using Fronter.NET.ViewModels;
+﻿using Fronter.ViewModels;
 
 namespace Fronter.Models {
 	public class UpdateInfoModel : ViewModelBase {

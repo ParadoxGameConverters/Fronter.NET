@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Fronter.NET.ViewModels
-{
-    public class MainWindowViewModel : ViewModelBase
-    {
-        public string Greeting => "Welcome to Avalonia!";
-    }
+﻿namespace Fronter.ViewModels {
+	public class MainWindowViewModel : ViewModelBase {
+		public string Greeting => "Welcome to Avalonia!";
+	}
 }

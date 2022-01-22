@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace Fronter.NET.Services;
+namespace Fronter.Services;
 
 public class Localization {
 	public Localization() {

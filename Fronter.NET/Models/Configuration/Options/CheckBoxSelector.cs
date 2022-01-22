@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Fronter.Models.Options;
+namespace Fronter.Models.Configuration.Options;
 
 public class CheckBoxSelector : Selector {
 	public CheckBoxSelector(BufferedReader reader) {
@@ -35,6 +35,15 @@ public class CheckBoxSelector : Selector {
 		return toReturn;
 	}
 
+	public void SetSelectedIds(ISet<int> selection) {
+		foreach (var option in CheckBoxOptions) {
+			if (selection.Contains(option.Id)) {
+				option.SetValue();
+			} else {
+				option.UnsetValue();
+			}
+		}
+	}
 	public void SetSelectedValues(ISet<string> selection) {
 		foreach (var option in CheckBoxOptions) {
 			if (selection.Contains(option.Name)) {

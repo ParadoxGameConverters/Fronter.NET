@@ -1,19 +1,14 @@
-﻿using Avalonia;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 
-namespace Fronter.NET.Views
-{
-    public class PathsView : UserControl
-    {
-        public PathsView()
-        {
-            InitializeComponent();
-        }
+namespace Fronter.Views {
+	public class PathsView : UserControl {
+		public PathsView() {
+			InitializeComponent();
+		}
 
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
-        }
-    }
+		private void InitializeComponent() {
+			AvaloniaXamlLoader.Load(this);
+		}
+	}
 }

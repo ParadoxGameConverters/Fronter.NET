@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using ReactiveUI;
+﻿using ReactiveUI;
 
-namespace Fronter.NET.ViewModels
-{
-    public class ViewModelBase : ReactiveObject
-    {
-    }
+namespace Fronter.ViewModels {
+	public class ViewModelBase : ReactiveObject {
+	}
 }
