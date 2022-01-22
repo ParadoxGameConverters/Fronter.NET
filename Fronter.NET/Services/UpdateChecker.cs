@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 
 namespace Fronter.Services;
 
-public class UpdateChecker {
-	public bool IsUpdateAvailable(string commitIdFilePath, string commitIdUrl) {
+public static class UpdateChecker {
+	public static bool IsUpdateAvailable(string commitIdFilePath, string commitIdUrl) {
 		if (!File.Exists(commitIdFilePath)) {
 			return false;
 		}
@@ -34,7 +34,7 @@ public class UpdateChecker {
 		return localCommitId != latestReleaseCommitId;
 	}
 
-	public UpdateInfoModel GetLatestReleaseInfo(string converterName) {
+	public static UpdateInfoModel GetLatestReleaseInfo(string converterName) {
 		var info = new UpdateInfoModel();
 		var apiUrl = $"https://api.github.com/repos/ParadoxGameConverters/{converterName}/releases/latest";
 
@@ -80,7 +80,7 @@ public class UpdateChecker {
 		return info;
 	}
 
-	public void StartUpdaterAndDie(string zipUrl, string converterBackendDirName) {
+	public static void StartUpdaterAndDie(string zipUrl, string converterBackendDirName) {
 		string destUpdaterPath = Path.Combine(".", "Updater", "updater-running");
 		if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
 			destUpdaterPath = $"{destUpdaterPath}.exe";
