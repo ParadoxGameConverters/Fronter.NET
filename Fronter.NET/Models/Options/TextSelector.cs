@@ -2,7 +2,7 @@
 
 namespace Fronter.Models.Options;
 
-public class TextSelector {
+public class TextSelector : Selector {
 	public TextSelector(BufferedReader reader) {
 		var parser = new Parser();
 		RegisterKeys(parser);
@@ -16,7 +16,6 @@ public class TextSelector {
 	}
 
 	public bool Editable { get; private set; } = true; // editable unless disabled
-	public int Id { get; set; } = 0;
 	public string Value { get; set; } = string.Empty;
 	public string Tooltip { get; private set; } = string.Empty;
 
