@@ -5,7 +5,6 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
     <ItemGroup>
-        <Folder Include="Models\" />
         <AvaloniaResource Include="Assets\**" />
         <AvaloniaResource Include="MdTxt\Test.md" />
         <None Remove=".gitignore" />
@@ -17,6 +16,7 @@
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="0.10.11" />
         <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.11" />
         <PackageReference Include="Markdown.Avalonia" Version="0.10.9" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\commonItems.NET\commonItems\commonItems.csproj" />
