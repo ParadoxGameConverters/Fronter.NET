@@ -1,6 +1,6 @@
 ﻿namespace Fronter.Services;
 
-internal class MessageSlicer {
+public class MessageSlicer {
 	public enum MessageSource {
 		UNINITIALIZED = 0,
 		UI = 1,
@@ -23,7 +23,7 @@ internal class MessageSlicer {
 		public string Message { get; set; }
 	}
 
-	public LogMessage SliceMessage(string message) {
+	public static LogMessage SliceMessage(string message) {
 		var logMessage = new LogMessage();
 		// Is this a version dump?
 		if (message.StartsWith('*')) {
@@ -44,18 +44,14 @@ internal class MessageSlicer {
 			return logMessage;
 		}
 		var logLevel = message.Substring(posOpen + 1, posClose - posOpen - 1);
-		if (logLevel == "INFO")
-			logMessage.LogLevel = LogLevel.Info;
-		else if (logLevel == "WARNING" || logLevel == "WARN")
-			logMessage.LogLevel = LogLevel.Warn;
-		else if (logLevel == "ERROR")
-			logMessage.LogLevel = LogLevel.Error;
-		else if (logLevel == "PROGRESS")
-			logMessage.LogLevel = LogLevel.Progress;
-		else if (logLevel == "NOTICE")
-			logMessage.LogLevel = LogLevel.Notice;
-		else
-			logMessage.LogLevel = LogLevel.Debug; // Debug or Unknown log level.
+		logMessage.LogLevel = logLevel switch {
+			"INFO" => LogLevel.Info,
+			"WARNING" or "WARN" => LogLevel.Warn,
+			"ERROR" => LogLevel.Error,
+			"PROGRESS" => LogLevel.Progress,
+			"NOTICE" => LogLevel.Notice,
+			_ => LogLevel.Debug
+		};
 
 		logMessage.Timestamp = message.Substring(0, 19);
 		logMessage.Message = message.Substring(posClose + 2, message.Length);
