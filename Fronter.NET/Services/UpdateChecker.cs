@@ -50,10 +50,14 @@ public static class UpdateChecker {
 		}
 
 		var httpClient = new HttpClient();
-		var getJsonTask = Task.Run(() => httpClient.GetStringAsync(apiUrl));
-		getJsonTask.Wait();
+		var requestMessage = new HttpRequestMessage(HttpMethod.Get, apiUrl);
+		requestMessage.Headers.Add("User-Agent", "ParadoxGameConverters");
 
-		var jsonObject = JsonConvert.DeserializeObject(getJsonTask.Result);
+		var responseMessage = httpClient.Send(requestMessage);
+		using var responseStream = responseMessage.Content.ReadAsStream();
+		using var responseReader = new StreamReader(responseStream);
+
+		var jsonObject = JsonConvert.DeserializeObject(responseReader.ReadToEnd());
 		if (jsonObject is null) {
 			return info;
 		}
@@ -61,8 +65,9 @@ public static class UpdateChecker {
 		dynamic dynJsonObject = jsonObject;
 		info.Description = dynJsonObject["body"];
 		info.Version = dynJsonObject["name"];
+
 		foreach (var asset in dynJsonObject["assets"]) {
-			string assetName = asset.Name;
+			string assetName = asset["name"];
 
 			assetName = assetName.ToLower();
 			if (!assetName.EndsWith($"-{osName}-x64.zip")) {
