@@ -23,6 +23,7 @@ public class Configuration {
 	public List<Option> Options { get; } = new();
 	public List<Mod> AutoLocatedMods { get; } = new();
 	public HashSet<string> PreloadedModFileNames { get; } = new();
+	private int optionCounter;
 
 	public Configuration() {
 		File.Delete("log.txt");

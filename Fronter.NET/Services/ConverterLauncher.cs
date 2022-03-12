@@ -56,5 +56,9 @@ internal class ConverterLauncher {
 		}
 	}
 
+	public void LoadConfiguration(Configuration configuration) {
+		this.configuration = configuration;
+	}
+
 	private Configuration configuration;
 }

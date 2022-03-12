@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Fronter.Models.Configuration;
 using Fronter.Services;
 using Fronter.ViewModels;
 using Fronter.Views;
@@ -11,9 +12,12 @@ namespace Fronter {
 			AvaloniaXamlLoader.Load(this);
 
 
-
 			// TODO: REMOVE LAUNCHER FROM HERE
-			new ConverterLauncher().LaunchConverter();
+			var configuration = new Configuration();
+
+			var converterLauncher = new ConverterLauncher();
+			converterLauncher.LoadConfiguration(configuration);
+			converterLauncher.LaunchConverter();
 		}
 
 		public override void OnFrameworkInitializationCompleted() {
