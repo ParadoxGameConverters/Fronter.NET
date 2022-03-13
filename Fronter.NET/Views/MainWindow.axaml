@@ -6,7 +6,7 @@
         xmlns:views="clr-namespace:Fronter.Views"
         mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="400"
         x:Class="Fronter.Views.MainWindow"
-        Icon="/Assets/avalonia-logo.ico"
+        Icon="/Assets/converter.ico"
         Title="Converter Frontend"
         
         TransparencyLevelHint="AcrylicBlur"
@@ -55,7 +55,6 @@
                 </TabItem.Header>
 
                 <StackPanel>
-                    <views:MarkdownView/>
                     <TextBlock Text="Mod auto-detection disabled by configuration/not required." HorizontalAlignment="Left" VerticalAlignment="Center"/>
                     <Button Name="Button1" Command="{Binding BuyMusicCommand}">A button in the triangle page!</Button>
                     <Panel>
