@@ -122,12 +122,14 @@ public static class UpdateChecker {
 			destUpdaterPath = $"{destUpdaterPath}.exe";
 			File.Move(
 				Path.Combine(".", "Updater", "updater.exe"),
-				destUpdaterPath
+				destUpdaterPath,
+				overwrite: true
 			);
 		} else {
 			File.Move(
 				Path.Combine(".", "Updater", "updater"),
-				destUpdaterPath
+				destUpdaterPath,
+				overwrite: true
 			);
 		}
 
