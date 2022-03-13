@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Fronter.Services;
@@ -85,9 +86,39 @@ public static class UpdateChecker {
 		return info;
 	}
 
+	public static string GetUpdateMessageBody(string baseBody, UpdateInfoModel updateInfo) {
+		return $"{baseBody}\n\nVersion: {updateInfo.Version}\n\n{StripMarkdownTags(updateInfo.Description)}";
+	}
+
+	/// <summary>
+	/// Strips Markdown tags from regular text
+	/// https://gist.github.com/dennisslimmers/4b63db37e640d74acb29d4e1f24e9acd
+	/// </summary>
+	/// <param name="content"></param>
+	private static string StripMarkdownTags(string content) {
+		// Headers
+		content = Regex.Replace(content, "/\n={2,}/g", "\n");
+		// Strikethrough
+		content = Regex.Replace(content, "/~~/g", "");
+		// Codeblocks
+		content = Regex.Replace(content, "/`{3}.*\n/g", "");
+		// HTML Tags
+		content = Regex.Replace(content, "/<[^>]*>/g", "");
+		// Remove setext-style headers
+		content = Regex.Replace(content, "/^[=\\-]{2,}\\s*$/g", "");
+		// Footnotes
+		content = Regex.Replace(content, "/\\[\\^.+?\\](\\: .*?$)?/g", "");
+		content = Regex.Replace(content, "/\\s{0,2}\\[.*?\\]: .*?$/g", "");
+		// Images
+		content = Regex.Replace(content, "/\\!\\[.*?\\][\\[\\(].*?[\\]\\)]/g", "");
+		// Links
+		content = Regex.Replace(content, "/\\[(.*?)\\][\\[\\(].*?[\\]\\)]/g", "$1");
+		return content;
+	}
+
 	public static void StartUpdaterAndDie(string zipUrl, string converterBackendDirName) {
 		string destUpdaterPath = Path.Combine(".", "Updater", "updater-running");
-		if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
+		if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
 			destUpdaterPath = $"{destUpdaterPath}.exe";
 			File.Move(
 				Path.Combine(".", "Updater", "updater.exe"),

@@ -9,6 +9,6 @@
     </UserControl.DataContext>
 
     <md:MarkdownScrollViewer
-        Markdown="{Binding MdText}"/>
+        x:Name="UpdateDescScrollViewer" Markdown="{Binding MdText}"/>
 
 </UserControl>

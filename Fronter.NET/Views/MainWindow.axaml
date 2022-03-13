@@ -53,8 +53,8 @@
                 <TabItem.Header>
                     <TextBlock VerticalAlignment="Center">Mods</TextBlock>
                 </TabItem.Header>
+
                 <StackPanel>
-                    
                     <views:MarkdownView/>
                     <TextBlock Text="Mod auto-detection disabled by configuration/not required." HorizontalAlignment="Left" VerticalAlignment="Center"/>
                     <Button Name="Button1" Command="{Binding BuyMusicCommand}">A button in the triangle page!</Button>
@@ -87,6 +87,8 @@
                     <TextBlock VerticalAlignment="Center">Convert</TextBlock>
                 </TabItem.Header>
                 <StackPanel Orientation="Horizontal">
+                    
+                    <Button DockPanel.Dock="Bottom" Click="MsBoxCustomImage_Click">Add an item</Button>
                     <TextBlock Text="Square : " HorizontalAlignment="Left" VerticalAlignment="Center"/>
                     <Rectangle Fill="Blue" Width="63" Height="41"/>
                 </StackPanel>

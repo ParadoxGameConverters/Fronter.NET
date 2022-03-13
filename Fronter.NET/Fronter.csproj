@@ -6,16 +6,25 @@
     </PropertyGroup>
     <ItemGroup>
         <AvaloniaResource Include="Assets\**" />
-        <AvaloniaResource Include="MdTxt\Test.md" />
         <None Remove=".gitignore" />
     </ItemGroup>
+    
+    
+    <ItemGroup><!-- TODO: REMOVE -->
+        <DebugResources Include="../DEBUG_RESOURCES/**/*.*" />
+    </ItemGroup>
+    <Target Name="CopyCustomContent" AfterTargets="Build"><!-- TODO: REMOVE -->
+        <Copy SourceFiles="@(DebugResources)" DestinationFolder="$(OutDir)/%(RecursiveDir)" SkipUnchangedFiles="true" />
+    </Target>
+    
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="0.10.11" />
-        <PackageReference Include="Avalonia.Desktop" Version="0.10.11" />
+        <PackageReference Include="Avalonia" Version="0.10.13" />
+        <PackageReference Include="Avalonia.Desktop" Version="0.10.13" />
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="0.10.11" />
-        <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.11" />
-        <PackageReference Include="Markdown.Avalonia" Version="0.10.9" />
+        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="0.10.13" />
+        <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.13" />
+        <PackageReference Include="Markdown.Avalonia" Version="0.10.10" />
+        <PackageReference Include="MessageBox.Avalonia" Version="1.7.1" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     </ItemGroup>
     <ItemGroup>

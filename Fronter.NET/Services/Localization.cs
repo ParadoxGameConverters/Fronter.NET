@@ -97,6 +97,9 @@ public class Localization {
 
 			while (!langFileReader.EndOfStream) {
 				var line = langFileReader.ReadLine();
+				if (line is null) {
+					break;
+				}
 
 				pos = line.IndexOf(':');
 				if (pos == -1)
