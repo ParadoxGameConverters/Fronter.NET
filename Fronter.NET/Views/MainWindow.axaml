@@ -32,7 +32,7 @@
         </Panel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_Converter">
-                <MenuItem Header="_Check for updates"/>
+                <MenuItem Header="_Check for updates" Command="{Binding CheckForUpdates}"/>
                 <Separator/>
                 <MenuItem Header="_Exit"/>
             </MenuItem>
@@ -42,7 +42,7 @@
             </MenuItem>
             <MenuItem Header="_Help">
                 <MenuItem Header="About us"/>
-                <MenuItem Header="Support us on Patreon"/>
+                <MenuItem Header="Support us on Patreon" Command="{Binding OpenPatreonPage}"/>
             </MenuItem>
         </Menu>
         <TabControl>
@@ -86,8 +86,6 @@
                     <TextBlock VerticalAlignment="Center">Convert</TextBlock>
                 </TabItem.Header>
                 <StackPanel Orientation="Horizontal">
-                    
-                    <Button DockPanel.Dock="Bottom" Click="MsBoxCustomImage_Click">Add an item</Button>
                     <TextBlock Text="Square : " HorizontalAlignment="Left" VerticalAlignment="Center"/>
                     <Rectangle Fill="Blue" Width="63" Height="41"/>
                 </StackPanel>
