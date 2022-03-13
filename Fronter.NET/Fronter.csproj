@@ -14,8 +14,12 @@
     <ItemGroup><!-- TODO: REMOVE -->
         <DebugResources Include="../DEBUG_RESOURCES/**/*.*" />
     </ItemGroup>
-    <Target Name="CopyCustomContent" AfterTargets="Build"><!-- TODO: REMOVE -->
+    <ItemGroup>
+        <Images Include="Assets/Images/**/*.*" />
+    </ItemGroup>
+    <Target Name="CopyCustomContent" AfterTargets="Build">
         <Copy SourceFiles="@(DebugResources)" DestinationFolder="$(OutDir)/%(RecursiveDir)" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(Images)" DestinationFolder="$(OutDir)/Assets/Images/%(RecursiveDir)" SkipUnchangedFiles="true" />
     </Target>
     
     <ItemGroup>

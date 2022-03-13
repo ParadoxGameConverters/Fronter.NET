@@ -41,7 +41,7 @@
                 <MenuItem Header="French"/>
             </MenuItem>
             <MenuItem Header="_Help">
-                <MenuItem Header="About us"/>
+                <MenuItem Header="About us" Command="{Binding OpenAboutDialog}"/>
                 <MenuItem Header="Support us on Patreon" Command="{Binding OpenPatreonPage}"/>
             </MenuItem>
         </Menu>

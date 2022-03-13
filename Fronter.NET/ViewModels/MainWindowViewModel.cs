@@ -12,6 +12,7 @@ using commonItems;
 using Fronter.Models.Configuration;
 using Fronter.Services;
 using MessageBox.Avalonia.DTO;
+using MessageBox.Avalonia.Enums;
 using MessageBox.Avalonia.Models;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -24,6 +25,16 @@ public class MainWindowViewModel : ViewModelBase {
 	private Configuration config = new Configuration();
 	private Localization loc = new Localization();
 
+	private static MainWindow? Window {
+		get {
+			if (Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
+				return (MainWindow)desktop.MainWindow;
+			}
+
+			return null;
+		}
+	}
+
 	public async void LaunchConverter() {
 		var converterLauncher = new ConverterLauncher();
 		converterLauncher.LoadConfiguration(config);
@@ -31,10 +42,8 @@ public class MainWindowViewModel : ViewModelBase {
 	}
 		
 	public async void CheckForUpdates() {
-		MainWindow mainWindow;
-		if (Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
-			mainWindow = (MainWindow)desktop.MainWindow;
-		} else {
+		var mainWindow = Window;
+		if (mainWindow is null) {
 			return;
 		}
 
@@ -75,7 +84,27 @@ public class MainWindowViewModel : ViewModelBase {
 		}
 	}
 
-	public async void OpenPatreonPage() {
+	public async void OpenAboutDialog() {
+		var mainWindow = Window;
+		if (mainWindow is null) {
+			return;
+		}
+		
+		var messageBoxWindow = MessageBox.Avalonia.MessageBoxManager
+			.GetMessageBoxStandardWindow(new MessageBoxStandardParams {
+				ContentTitle = loc.Translate("ABOUT_TITLE"),
+				Icon = Icon.Info,
+				ContentHeader = loc.Translate("ABOUT_HEADER"),
+				ContentMessage = loc.Translate("ABOUT_BODY"),
+				ButtonDefinitions = ButtonEnum.Ok,
+				SizeToContent = SizeToContent.WidthAndHeight,
+				MinHeight = 250,
+				ShowInCenter = true,
+				WindowStartupLocation = WindowStartupLocation.CenterOwner
+			});
+		await messageBoxWindow.ShowDialog(mainWindow);
+	}
+	public static async void OpenPatreonPage() {
 		BrowserLauncher.Open("https://www.patreon.com/ParadoxGameConverters");
 	}
 }
