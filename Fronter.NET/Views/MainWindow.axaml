@@ -4,8 +4,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:Fronter.ViewModels"
         xmlns:views="clr-namespace:Fronter.Views"
+        xmlns:system="clr-namespace:System;assembly=System"
         xmlns:generic="clr-namespace:System.Collections.Generic;assembly=mscorlib"
-        xmlns:system="clr-namespace:System;assembly=System.Runtime"
         mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="400"
         x:Class="Fronter.Views.MainWindow"
         Icon="/Assets/converter.ico"
@@ -18,6 +18,22 @@
     <Design.DataContext>
         <viewModels:MainWindowViewModel />
     </Design.DataContext>
+    
+    <!--
+    <Window.DataTemplates>
+        <DataTemplate>
+            <DataTemplate.DataType>
+                <x:Type x:Class="generic:List" x:TypeArguments="system:String,system:String"/>
+            </DataTemplate.DataType>
+            <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto">
+                <TextBlock Grid.Row="0" Grid.Column="0">First Name:</TextBlock>
+                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Key}"/>
+                <TextBlock Grid.Row="1" Grid.Column="0">Last Name:</TextBlock>
+                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding LastName}"/>
+            </Grid>
+        </DataTemplate>
+    </Window.DataTemplates>
+    -->
 
     <DockPanel>
         <ExperimentalAcrylicBorder IsHitTestVisible="False">
@@ -38,33 +54,14 @@
                 <Separator/>
                 <MenuItem Header="_Exit" Command="{Binding Exit}"/>
             </MenuItem>
-            <MenuItem Header="_Languages" Items="{Binding Languages}">
-                
-                <Window.DataTemplates>
-                    <DataTemplate>
-                        <DataTemplate.DataType>
-                            <x:Type TypeName="generic:KeyValuePair" x:TypeArguments="system:String,system:String"/>
-                        </DataTemplate.DataType>
-                        <MenuItem Header="{Binding Value}"/>
-                    </DataTemplate>
-                </Window.DataTemplates>
-                
-                <MenuItem.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel>
-                            <MenuItem Header="{Binding Value}"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </MenuItem.ItemTemplate>
-                <!-- 
+            <MenuItem Header="_Languages" Items="{Binding Languages}" Classes="SubItems">
                 <MenuItem.Styles>
                     <Style Selector="MenuItem.SubItems MenuItem">
                         <Setter Property="Header" Value="{Binding Value}"/>
                         <Setter Property="Command" Value="{Binding $parent[Window].DataContext.SetLanguage}"/>
                         <Setter Property="CommandParameter" Value="{Binding Key}"/>
                     </Style>
-                </MenuItem.Styles>      
-                 -->    
+                </MenuItem.Styles>  
             </MenuItem>  
             <!-- <MenuItem Header="_Language" Items="{Binding Languages}">
               
