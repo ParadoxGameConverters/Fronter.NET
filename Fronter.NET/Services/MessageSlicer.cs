@@ -1,4 +1,6 @@
-﻿namespace Fronter.Services;
+﻿using Fronter.Models;
+
+namespace Fronter.Services;
 
 public class MessageSlicer {
 	public enum MessageSource {
@@ -16,15 +18,8 @@ public class MessageSlicer {
 		Progress
 	}
 
-	public class LogMessage {
-		public string Timestamp { get; set; }
-		public LogLevel LogLevel { get; set; } = LogLevel.Info;
-		public MessageSource Source { get; set; } = MessageSource.UNINITIALIZED;
-		public string Message { get; set; }
-	}
-
-	public static LogMessage SliceMessage(string message) {
-		var logMessage = new LogMessage();
+	public static LogLine SliceMessage(string message) {
+		var logMessage = new LogLine();
 		// Is this a version dump?
 		if (message.StartsWith('*')) {
 			// This is not a standard message. File as info ad verbatim.

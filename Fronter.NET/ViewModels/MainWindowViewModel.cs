@@ -9,6 +9,7 @@ using MessageBox.Avalonia.ViewModels;
 using ReactiveUI;
 using System.Threading.Tasks;
 using commonItems;
+using Fronter.Models;
 using Fronter.Models.Configuration;
 using Fronter.Services;
 using MessageBox.Avalonia.DTO;
@@ -17,6 +18,7 @@ using MessageBox.Avalonia.Models;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -121,4 +123,13 @@ public class MainWindowViewModel : ViewModelBase {
 	public void SetLanguage(string languageKey) {
 		loc.SaveLanguage(languageKey);
 	}
+	
+	
+	
+	public ObservableCollection<LogLine> LogLines { get; } = new() { // TODO: REMOVE THIS PROPERTY FROM MAINWINDOW
+		// TODO: REMOVE DEBUG ITEMS
+		new LogLine() {Message = "Info message", Timestamp = "2000.1.2"},
+		new LogLine() {Message = "Debug messageaSAS", LogLevel = MessageSlicer.LogLevel.Debug},
+		new LogLine() {Message = "Debug messagea2", LogLevel = MessageSlicer.LogLevel.Debug}
+	};
 }

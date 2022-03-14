@@ -24,4 +24,5 @@ public class LogWatcher {
 	private string tailSource = string.Empty;
 	private bool terminate = false;
 	private bool transcriberMode = false;
+	private bool emitterMode = false;
 }

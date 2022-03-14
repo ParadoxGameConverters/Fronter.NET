@@ -11,27 +11,13 @@
         Icon="/Assets/converter.ico"
         Title="Converter Frontend"
         
-        TransparencyLevelHint="AcrylicBlur"
-        Background="Transparent"
-        ExtendClientAreaToDecorationsHint="True">
+        ExtendClientAreaToDecorationsHint="False">
 
     <Design.DataContext>
         <viewModels:MainWindowViewModel />
     </Design.DataContext>
 
     <DockPanel>
-        <ExperimentalAcrylicBorder IsHitTestVisible="False">
-            <ExperimentalAcrylicBorder.Material>
-                <ExperimentalAcrylicMaterial
-                    BackgroundSource="Digger"
-                    TintColor="Black"
-                    TintOpacity="1"
-                    MaterialOpacity="0.65" />
-            </ExperimentalAcrylicBorder.Material>
-        </ExperimentalAcrylicBorder>
-        
-        <Panel>
-        </Panel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_Converter">
                 <MenuItem Header="_Check for updates" Command="{Binding CheckForUpdates}"/>
@@ -52,52 +38,32 @@
                 <MenuItem Header="Support us on Patreon" Command="{Binding OpenPatreonPage}"/>
             </MenuItem>
         </Menu>
-        <TabControl>
+        <TabControl DockPanel.Dock="Top">
             <TabItem Header="Paths" VerticalContentAlignment="Center">
                 <views:PathsView/>
             </TabItem>
-            <TabItem>
-                <TabItem.Header>
-                    <TextBlock VerticalAlignment="Center">Mods</TextBlock>
-                </TabItem.Header>
-
+            <TabItem Header="Mods" VerticalContentAlignment="Center">
                 <StackPanel>
                     <TextBlock Text="Mod auto-detection disabled by configuration/not required." HorizontalAlignment="Left" VerticalAlignment="Center"/>
                     <Button Name="Button1" Command="{Binding BuyMusicCommand}">A button in the triangle page!</Button>
-                    <Panel>
-                        <ExperimentalAcrylicBorder IsHitTestVisible="False">
-                            <ExperimentalAcrylicBorder.Material>
-                                <ExperimentalAcrylicMaterial
-                                    BackgroundSource="Digger"
-                                    TintColor="Black"
-                                    TintOpacity="1"
-                                    MaterialOpacity="0.65" />
-                            </ExperimentalAcrylicBorder.Material>
-                        </ExperimentalAcrylicBorder>
-                    </Panel>
-				</StackPanel>
+                </StackPanel>
             </TabItem>
             
-            <TabItem>
-                <TabItem.Header>
-                    <TextBlock VerticalAlignment="Center">Options</TextBlock>
-                </TabItem.Header>
+            <TabItem Header="Options" VerticalContentAlignment="Center">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Square : " HorizontalAlignment="Left" VerticalAlignment="Center"/>
                     <Rectangle Fill="Blue" Width="63" Height="41"/>
                 </StackPanel>
             </TabItem>
             
-            <TabItem>
-                <TabItem.Header>
-                    <TextBlock VerticalAlignment="Center">Convert</TextBlock>
-                </TabItem.Header>
+            <TabItem Header="Convert" VerticalContentAlignment="Center">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Square : " HorizontalAlignment="Left" VerticalAlignment="Center"/>
                     <Rectangle Fill="Blue" Width="63" Height="41"/>
                 </StackPanel>
             </TabItem>
         </TabControl>
+        <views:LogView DockPanel.Dock="Bottom"></views:LogView>
     </DockPanel>
     
 
