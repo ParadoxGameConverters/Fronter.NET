@@ -18,22 +18,6 @@
     <Design.DataContext>
         <viewModels:MainWindowViewModel />
     </Design.DataContext>
-    
-    <!--
-    <Window.DataTemplates>
-        <DataTemplate>
-            <DataTemplate.DataType>
-                <x:Type x:Class="generic:List" x:TypeArguments="system:String,system:String"/>
-            </DataTemplate.DataType>
-            <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto">
-                <TextBlock Grid.Row="0" Grid.Column="0">First Name:</TextBlock>
-                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Key}"/>
-                <TextBlock Grid.Row="1" Grid.Column="0">Last Name:</TextBlock>
-                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding LastName}"/>
-            </Grid>
-        </DataTemplate>
-    </Window.DataTemplates>
-    -->
 
     <DockPanel>
         <ExperimentalAcrylicBorder IsHitTestVisible="False">
@@ -62,11 +46,7 @@
                         <Setter Property="CommandParameter" Value="{Binding Key}"/>
                     </Style>
                 </MenuItem.Styles>  
-            </MenuItem>  
-            <!-- <MenuItem Header="_Language" Items="{Binding Languages}">
-              
             </MenuItem>
-             -->
             <MenuItem Header="_Help">
                 <MenuItem Header="About us" Command="{Binding OpenAboutDialog}"/>
                 <MenuItem Header="Support us on Patreon" Command="{Binding OpenPatreonPage}"/>
