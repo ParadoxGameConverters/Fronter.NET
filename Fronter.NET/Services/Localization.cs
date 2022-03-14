@@ -18,9 +18,13 @@ public class Localization {
 		using var reader = new StreamReader(fileStream);
 		while (!reader.EndOfStream) {
 			var line = reader.ReadLine();
+			if (line is null) {
+				break;
+			}
 			var pos = line.IndexOf(':');
-			if (pos == -1)
+			if (pos == -1){
 				continue;
+			}
 			var language = line.Substring(2, pos - 2);
 			pos = line.IndexOf('\"');
 			var secpos = line.LastIndexOf('\"');

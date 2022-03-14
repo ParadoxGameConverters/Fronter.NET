@@ -14,13 +14,17 @@ using Fronter.Services;
 using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
 using MessageBox.Avalonia.Models;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Fronter.ViewModels; 
 
 public class MainWindowViewModel : ViewModelBase {
 	public string Greeting => "Welcome to Avalonia!";
+	public IEnumerable<string> LanguageNames => loc.LoadedLanguages.Select(l=>loc.TranslateLanguage(l));
 
 	private Configuration config = new Configuration();
 	private Localization loc = new Localization();
@@ -84,6 +88,11 @@ public class MainWindowViewModel : ViewModelBase {
 		}
 	}
 
+	public static void Exit() {
+		if (Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
+			desktop.Shutdown(0);
+		} 
+	}
 	public async void OpenAboutDialog() {
 		var mainWindow = Window;
 		if (mainWindow is null) {
@@ -106,5 +115,9 @@ public class MainWindowViewModel : ViewModelBase {
 	}
 	public static async void OpenPatreonPage() {
 		BrowserLauncher.Open("https://www.patreon.com/ParadoxGameConverters");
+	}
+	
+	public async void SetLanguage() {
+		var languages = loc.LoadedLanguages;
 	}
 }

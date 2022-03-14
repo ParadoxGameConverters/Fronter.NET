@@ -34,11 +34,16 @@
             <MenuItem Header="_Converter">
                 <MenuItem Header="_Check for updates" Command="{Binding CheckForUpdates}"/>
                 <Separator/>
-                <MenuItem Header="_Exit"/>
+                <MenuItem Header="_Exit" Command="{Binding Exit}"/>
             </MenuItem>
             <MenuItem Header="_Language">
-                <MenuItem Header="English"/>
-                <MenuItem Header="French"/>
+                <ItemsControl Items="{Binding LanguageNames}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <MenuItem Header="{Binding }"  />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </MenuItem>
             <MenuItem Header="_Help">
                 <MenuItem Header="About us" Command="{Binding OpenAboutDialog}"/>
