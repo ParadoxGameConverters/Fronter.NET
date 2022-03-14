@@ -4,6 +4,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:Fronter.ViewModels"
         xmlns:views="clr-namespace:Fronter.Views"
+        xmlns:generic="clr-namespace:System.Collections.Generic;assembly=mscorlib"
+        xmlns:system="clr-namespace:System;assembly=System.Runtime"
         mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="400"
         x:Class="Fronter.Views.MainWindow"
         Icon="/Assets/converter.ico"
@@ -36,15 +38,38 @@
                 <Separator/>
                 <MenuItem Header="_Exit" Command="{Binding Exit}"/>
             </MenuItem>
-            <MenuItem Header="_Language">
-                <ItemsControl Items="{Binding LanguageNames}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <MenuItem Header="{Binding }"  />
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+            <MenuItem Header="_Languages" Items="{Binding Languages}">
+                
+                <Window.DataTemplates>
+                    <DataTemplate>
+                        <DataTemplate.DataType>
+                            <x:Type TypeName="generic:KeyValuePair" x:TypeArguments="system:String,system:String"/>
+                        </DataTemplate.DataType>
+                        <MenuItem Header="{Binding Value}"/>
+                    </DataTemplate>
+                </Window.DataTemplates>
+                
+                <MenuItem.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel>
+                            <MenuItem Header="{Binding Value}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </MenuItem.ItemTemplate>
+                <!-- 
+                <MenuItem.Styles>
+                    <Style Selector="MenuItem.SubItems MenuItem">
+                        <Setter Property="Header" Value="{Binding Value}"/>
+                        <Setter Property="Command" Value="{Binding $parent[Window].DataContext.SetLanguage}"/>
+                        <Setter Property="CommandParameter" Value="{Binding Key}"/>
+                    </Style>
+                </MenuItem.Styles>      
+                 -->    
+            </MenuItem>  
+            <!-- <MenuItem Header="_Language" Items="{Binding Languages}">
+              
             </MenuItem>
+             -->
             <MenuItem Header="_Help">
                 <MenuItem Header="About us" Command="{Binding OpenAboutDialog}"/>
                 <MenuItem Header="Support us on Patreon" Command="{Binding OpenPatreonPage}"/>

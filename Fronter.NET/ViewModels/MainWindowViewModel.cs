@@ -14,6 +14,7 @@ using Fronter.Services;
 using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
 using MessageBox.Avalonia.Models;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -24,7 +25,7 @@ namespace Fronter.ViewModels;
 
 public class MainWindowViewModel : ViewModelBase {
 	public string Greeting => "Welcome to Avalonia!";
-	public IEnumerable<string> LanguageNames => loc.LoadedLanguages.Select(l=>loc.TranslateLanguage(l));
+	public IEnumerable<KeyValuePair<string, string>> Languages => loc.LoadedLanguages.ToDictionary(l=>l, l=>loc.TranslateLanguage(l)); // language key, language loc
 
 	private Configuration config = new Configuration();
 	private Localization loc = new Localization();
@@ -117,7 +118,7 @@ public class MainWindowViewModel : ViewModelBase {
 		BrowserLauncher.Open("https://www.patreon.com/ParadoxGameConverters");
 	}
 	
-	public async void SetLanguage() {
-		var languages = loc.LoadedLanguages;
+	public async void SetLanguage(string language) {
+		BrowserLauncher.Open($"http://{language}.com");
 	}
 }
