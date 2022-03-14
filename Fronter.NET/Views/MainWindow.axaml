@@ -38,9 +38,9 @@
                 <Separator/>
                 <MenuItem Header="_Exit" Command="{Binding Exit}"/>
             </MenuItem>
-            <MenuItem Header="_Languages" Items="{Binding Languages}" Classes="SubItems">
+            <MenuItem Header="_Languages" Items="{Binding Languages}" Classes="LanguageChoice">
                 <MenuItem.Styles>
-                    <Style Selector="MenuItem.SubItems MenuItem">
+                    <Style Selector="MenuItem.LanguageChoice MenuItem">
                         <Setter Property="Header" Value="{Binding Value}"/>
                         <Setter Property="Command" Value="{Binding $parent[Window].DataContext.SetLanguage}"/>
                         <Setter Property="CommandParameter" Value="{Binding Key}"/>

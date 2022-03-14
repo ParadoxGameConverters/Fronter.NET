@@ -36,12 +36,9 @@ public class Localization {
 
 		var fronterLanguagePath = Path.Combine("Configuration", "fronter-language.txt");
 		if (File.Exists(fronterLanguagePath)) {
-			using var userFileStream = File.OpenRead(fronterLanguagePath);
-			using var userFileReader = new StreamReader(userFileStream);
-			var line = reader.ReadLine();
-			if (line?.IndexOf("language=") == 0) {
-				SetLanguage = line[9..];
-			}
+			var parser = new Parser();
+			parser.RegisterKeyword("language", reader=>SetLanguage = reader.GetString());
+			parser.ParseFile(fronterLanguagePath);
 		}
 	}
 
@@ -65,16 +62,17 @@ public class Localization {
 		return !languages.ContainsKey(language) ? string.Empty : languages[language];
 	}
 
-	public void SaveLanguage(int id) {
-		if (id > LoadedLanguages.Count + 1)
+	public void SaveLanguage(string languageKey) {
+		if (!LoadedLanguages.Contains(languageKey)) {
 			return;
-		SetLanguage = LoadedLanguages[id];
+		}
+		SetLanguage = languageKey;
 
 		var langFilePath = Path.Combine("Configuration", "fronter-language.txt");
-		using var langFileStream = File.OpenWrite(langFilePath);
-		using var writer = new StreamWriter(langFilePath);
-
-		writer.WriteLine($"language={LoadedLanguages[id]}");
+		using var fs = new FileStream(langFilePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
+		using var writer = new StreamWriter(fs);
+		writer.WriteLine($"language={languageKey}");
+		writer.Close();
 	}
 	private void LoadLanguages() {
 		var fileNames = SystemUtils.GetAllFilesInFolder("Configuration");

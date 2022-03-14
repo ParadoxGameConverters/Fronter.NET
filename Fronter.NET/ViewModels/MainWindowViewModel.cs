@@ -118,7 +118,7 @@ public class MainWindowViewModel : ViewModelBase {
 		BrowserLauncher.Open("https://www.patreon.com/ParadoxGameConverters");
 	}
 	
-	public async void SetLanguage(string language) {
-		BrowserLauncher.Open($"http://{language}.com");
+	public void SetLanguage(string languageKey) {
+		loc.SaveLanguage(languageKey);
 	}
 }
