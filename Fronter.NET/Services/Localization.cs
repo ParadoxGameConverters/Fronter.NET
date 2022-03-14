@@ -47,12 +47,17 @@ public class Localization {
 		if (!translations.ContainsKey(key)) {
 			return string.Empty;
 		}
-		if (translations[key].ContainsKey(SetLanguage))
+
+		if (translations[key].ContainsKey(SetLanguage)) {
 			toReturn = translations[key][SetLanguage];
-		else if (translations[key].ContainsKey("english"))
+		}
+		else if (translations[key].ContainsKey("english")) {
+			Logger.Debug($"{SetLanguage} localization not found for key {key}, using english one");
 			toReturn = translations[key]["english"];
-		else
+		} else {
+			Logger.Debug($"{SetLanguage} localization not found for key {key}");
 			return string.Empty;
+		}
 
 		toReturn = Regex.Replace(toReturn, @"\\n", "\n");
 		return toReturn;
@@ -78,7 +83,7 @@ public class Localization {
 		var fileNames = SystemUtils.GetAllFilesInFolder("Configuration");
 
 		foreach (var fileName in fileNames) {
-			if (fileName.IndexOf(".yml", StringComparison.Ordinal) == -1)
+			if (!fileName.EndsWith(".yml"))
 				continue;
 
 			var langFilePath = Path.Combine("Configuration", fileName);
