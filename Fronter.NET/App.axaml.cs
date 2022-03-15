@@ -1,4 +1,5 @@
 ﻿using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using commonItems;
@@ -20,10 +21,11 @@ namespace Fronter {
 
 		public override void OnFrameworkInitializationCompleted() {
 			if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
-				var mainWindow = new MainWindow {
-					DataContext = new MainWindowViewModel(),
+				var mainWindowViewModel = new MainWindowViewModel();
+				desktop.MainWindow = new MainWindow {
+					DataContext = mainWindowViewModel
 				};
-				desktop.MainWindow = mainWindow;
+				mainWindowViewModel.StartWorkerThreads();
 			}
 
 			base.OnFrameworkInitializationCompleted();

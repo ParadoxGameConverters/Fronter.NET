@@ -3,6 +3,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:Fronter.ViewModels"
+             xmlns:sys="clr-namespace:System;assembly=System"
+             xmlns:views="clr-namespace:Fronter.Views"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Fronter.Views.LogView">
     
@@ -10,7 +12,8 @@
         <viewModels:LogViewModel />
     </Design.DataContext>
     <Grid>
-        <DataGrid Items="{Binding $parent[Window].DataContext.LogLines}" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="False">
+        <DataGrid Name="LogGrid" VerticalScrollBarVisibility="Visible" Items="{Binding $parent[Window].DataContext.LogLines}" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="False">
+            <DataGrid.GridLinesVisibility>All</DataGrid.GridLinesVisibility>
             <DataGrid.Columns >
                 <DataGridTextColumn Header="Timestamp" IsReadOnly="True" Binding="{Binding Timestamp }"/>
                 <DataGridTextColumn Header="Vehemence" IsReadOnly="True" Binding="{Binding LogLevel}" />

@@ -63,7 +63,16 @@
                 </StackPanel>
             </TabItem>
         </TabControl>
-        <views:LogView DockPanel.Dock="Bottom"></views:LogView>
+        <!--<views:LogView DockPanel.Dock="Bottom"></views:LogView> -->
+        
+        <DataGrid Name="LogGrid" VerticalScrollBarVisibility="Visible" Items="{Binding LogLines}" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="False">
+            <DataGrid.GridLinesVisibility>All</DataGrid.GridLinesVisibility>
+            <DataGrid.Columns >
+                <DataGridTextColumn Header="Timestamp" IsReadOnly="True" Binding="{Binding Timestamp }"/>
+                <DataGridTextColumn Header="Vehemence" IsReadOnly="True" Binding="{Binding LogLevel}" />
+                <DataGridTextColumn Header="Message" IsReadOnly="True" Binding="{Binding Message}" />
+            </DataGrid.Columns>
+        </DataGrid>
     </DockPanel>
     
 

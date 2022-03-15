@@ -1,5 +1,6 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Threading;
 using commonItems;
 using Fronter.Models.Configuration;
 using Fronter.Services;
@@ -21,6 +22,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Fronter.ViewModels; 
@@ -123,8 +125,33 @@ public class MainWindowViewModel : ViewModelBase {
 	public void SetLanguage(string languageKey) {
 		loc.SaveLanguage(languageKey);
 	}
-	
-	
+
+	public void AddItemToLog(string message) {
+		var newLine = new LogLine {
+			LogLevel = MessageSlicer.LogLevel.Error,
+			Message = message,
+			Source = MessageSlicer.MessageSource.UI
+		};
+		LogLines.Add(newLine);
+		
+		var logGrid = Window.FindControl<DataGrid>("LogGrid");
+		logGrid.ScrollIntoView(newLine, null);
+	}
+
+	public void AddItemsToLog() {
+		int counter = 0;
+		while (counter++ < 10000) {
+			var message = $"Message no. {counter}";
+			Dispatcher.UIThread.Post(
+				()=>AddItemToLog(message),
+				DispatcherPriority.MinValue
+			);
+		}
+	}
+	public void StartWorkerThreads() {
+		var logThread = new Thread(AddItemsToLog);
+		logThread.Start();
+	}
 	
 	public ObservableCollection<LogLine> LogLines { get; } = new() { // TODO: REMOVE THIS PROPERTY FROM MAINWINDOW
 		// TODO: REMOVE DEBUG ITEMS
