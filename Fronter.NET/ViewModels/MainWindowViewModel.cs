@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 using commonItems;
 using Fronter.Models;
 using Fronter.Models.Configuration;
-using Fronter.Services;
 using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
 using MessageBox.Avalonia.Models;
@@ -29,13 +28,11 @@ using System.Threading.Tasks;
 namespace Fronter.ViewModels;
 
 public class MainWindowViewModel : ViewModelBase {
-	public string Greeting => "Welcome to Avalonia!";
-
 	public IEnumerable<KeyValuePair<string, string>> Languages =>
 		loc.LoadedLanguages.ToDictionary(l => l, l => loc.TranslateLanguage(l)); // language key, language loc
 
 	private Configuration config = new Configuration();
-	private Localization loc = new Localization();
+	private Fronter.Services.Localization loc = new Fronter.Services.Localization();
 
 	private static MainWindow? Window {
 		get {
@@ -131,22 +128,19 @@ public class MainWindowViewModel : ViewModelBase {
 		loc.SaveLanguage(languageKey);
 	}
 
-	public void AddRowToLogGrid(string message) {
-		var newLine = new LogLine {
-			LogLevel = Logger.LogLevel.Error, Message = message, Source = MessageSlicer.MessageSource.UI
-		};
-		LogLines.Add(newLine);
+	public void AddRowToLogGrid(LogLine logLine) {
+		LogLines.Add(logLine);
 
 		var logGrid = Window?.FindControl<DataGrid>("LogGrid");
-		logGrid?.ScrollIntoView(newLine, null);
+		logGrid?.ScrollIntoView(logLine, null);
 	}
 
 	public void AddRowsToLogGrid() { // todo: remove debug
 		int counter = 0;
 		while (counter++ < 10000) {
-			var message = $"Message no. {counter}";
+			var logLine = new LogLine {Message = $"Message no. {counter}"};
 			Dispatcher.UIThread.Post(
-				() => AddRowToLogGrid(message),
+				() => AddRowToLogGrid(logLine),
 				DispatcherPriority.MinValue
 			);
 		}

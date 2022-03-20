@@ -19,10 +19,10 @@ namespace Fronter {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Localization {
+    public class Localization {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace Fronter {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Fronter.Localization", typeof(Localization).Assembly);
@@ -51,7 +51,7 @@ namespace Fronter {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -61,144 +61,369 @@ namespace Fronter {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to About.
         /// </summary>
-        internal static string ABOUT {
+        public static string ABOUT {
             get {
                 return ResourceManager.GetString("ABOUT", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to This converter, as all others, is free and available at our Github repository.\n\nGitHub. Forums. Wiki pages. Steam. If you need to find us, report bugs, offer suggestions or wish to participate, we&apos;re there..
         /// </summary>
-        internal static string ABOUT_BODY {
+        public static string ABOUT_BODY {
             get {
                 return ResourceManager.GetString("ABOUT_BODY", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to Copyright (c) 2022 The Paradox Game Converters Group.
         /// </summary>
-        internal static string ABOUT_HEADER {
+        public static string ABOUT_HEADER {
             get {
                 return ResourceManager.GetString("ABOUT_HEADER", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to Paradox Game Converters Group - Universal Frontend.
         /// </summary>
-        internal static string ABOUT_TITLE {
+        public static string ABOUT_TITLE {
             get {
                 return ResourceManager.GetString("ABOUT_TITLE", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to Browse.
         /// </summary>
-        internal static string CONVERTCONVERTING {
+        public static string BROWSE {
+            get {
+                return ResourceManager.GetString("BROWSE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Check for updates.
+        /// </summary>
+        public static string CHECKFORUPDATES {
+            get {
+                return ResourceManager.GetString("CHECKFORUPDATES", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Convert Save.
+        /// </summary>
+        public static string CONVERTBUTTON {
+            get {
+                return ResourceManager.GetString("CONVERTBUTTON", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Converting Save:.
+        /// </summary>
+        public static string CONVERTCONVERTING {
             get {
                 return ResourceManager.GetString("CONVERTCONVERTING", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to Copying Mod:.
         /// </summary>
-        internal static string CONVERTCOPYING {
+        public static string CONVERTCOPYING {
             get {
                 return ResourceManager.GetString("CONVERTCOPYING", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to Saving Configuration:.
         /// </summary>
-        internal static string CONVERTSAVING {
+        public static string CONVERTSAVING {
             get {
                 return ResourceManager.GetString("CONVERTSAVING", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to In Progress..
         /// </summary>
-        internal static string CONVERTSTATUSPRE {
+        public static string CONVERTSTATUSIN {
+            get {
+                return ResourceManager.GetString("CONVERTSTATUSIN", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed!.
+        /// </summary>
+        public static string CONVERTSTATUSPOSTFAIL {
+            get {
+                return ResourceManager.GetString("CONVERTSTATUSPOSTFAIL", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Finished..
+        /// </summary>
+        public static string CONVERTSTATUSPOSTSUCCESS {
+            get {
+                return ResourceManager.GetString("CONVERTSTATUSPOSTSUCCESS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not Started..
+        /// </summary>
+        public static string CONVERTSTATUSPRE {
             get {
                 return ResourceManager.GetString("CONVERTSTATUSPRE", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to Convert.
         /// </summary>
-        internal static string EXIT {
+        public static string CONVERTTAB {
+            get {
+                return ResourceManager.GetString("CONVERTTAB", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exit.
+        /// </summary>
+        public static string EXIT {
             get {
                 return ResourceManager.GetString("EXIT", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to Paradox Game Converters Group.
         /// </summary>
-        internal static string FOOTER {
+        public static string FOOTER {
             get {
                 return ResourceManager.GetString("FOOTER", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to Language.
         /// </summary>
-        internal static string LOGMESSAGE {
+        public static string LANGUAGE {
+            get {
+                return ResourceManager.GetString("LANGUAGE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Language saved.
+        /// </summary>
+        public static string LANGUAGESAVED {
+            get {
+                return ResourceManager.GetString("LANGUAGESAVED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Language has been saved, please restart frontend..
+        /// </summary>
+        public static string LANGUAGESAVEDBODY {
+            get {
+                return ResourceManager.GetString("LANGUAGESAVEDBODY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Filter Log Messages Below Severity.
+        /// </summary>
+        public static string LOGLEVEL {
+            get {
+                return ResourceManager.GetString("LOGLEVEL", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error.
+        /// </summary>
+        public static string LOGLEVEL0 {
+            get {
+                return ResourceManager.GetString("LOGLEVEL0", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Warning.
+        /// </summary>
+        public static string LOGLEVEL1 {
+            get {
+                return ResourceManager.GetString("LOGLEVEL1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Info.
+        /// </summary>
+        public static string LOGLEVEL2 {
+            get {
+                return ResourceManager.GetString("LOGLEVEL2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Debug.
+        /// </summary>
+        public static string LOGLEVEL3 {
+            get {
+                return ResourceManager.GetString("LOGLEVEL3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Message.
+        /// </summary>
+        public static string LOGMESSAGE {
             get {
                 return ResourceManager.GetString("LOGMESSAGE", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to Vehemence.
         /// </summary>
-        internal static string LOGSEVERITY {
+        public static string LOGSEVERITY {
             get {
                 return ResourceManager.GetString("LOGSEVERITY", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to Timestamp.
         /// </summary>
-        internal static string LOGTIME {
+        public static string LOGTIME {
             get {
                 return ResourceManager.GetString("LOGTIME", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to Converter.
         /// </summary>
-        internal static string MENUCONVERTER {
+        public static string MENUCONVERTER {
             get {
                 return ResourceManager.GetString("MENUCONVERTER", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to PGCG.
         /// </summary>
-        internal static string MENUPGCG {
+        public static string MENUPGCG {
             get {
                 return ResourceManager.GetString("MENUPGCG", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to Mod autodetection disabled by configuration/not required..
         /// </summary>
-        internal static string SUPPORT_US {
+        public static string MODSDISABLED {
+            get {
+                return ResourceManager.GetString("MODSDISABLED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mods autodetected:.
+        /// </summary>
+        public static string MODSFOUND {
+            get {
+                return ResourceManager.GetString("MODSFOUND", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mods not found in mod directory..
+        /// </summary>
+        public static string MODSNOTFOUND {
+            get {
+                return ResourceManager.GetString("MODSNOTFOUND", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mods.
+        /// </summary>
+        public static string MODSTAB {
+            get {
+                return ResourceManager.GetString("MODSTAB", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A new release is available. Do you want to update now?.
+        /// </summary>
+        public static string NEWVERSIONBODY {
+            get {
+                return ResourceManager.GetString("NEWVERSIONBODY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New release available.
+        /// </summary>
+        public static string NEWVERSIONTITLE {
+            get {
+                return ResourceManager.GetString("NEWVERSIONTITLE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No newer release has been found. Do you want to visit the forum and the latest release page to check for yourself?.
+        /// </summary>
+        public static string NONEWVERSIONBODY {
+            get {
+                return ResourceManager.GetString("NONEWVERSIONBODY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update not found.
+        /// </summary>
+        public static string NONEWVERSIONTITLE {
+            get {
+                return ResourceManager.GetString("NONEWVERSIONTITLE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Options.
+        /// </summary>
+        public static string OPTIONSTAB {
+            get {
+                return ResourceManager.GetString("OPTIONSTAB", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Paths.
+        /// </summary>
+        public static string PATHSTAB {
+            get {
+                return ResourceManager.GetString("PATHSTAB", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Support us on Patreon.
+        /// </summary>
+        public static string SUPPORT_US {
             get {
                 return ResourceManager.GetString("SUPPORT_US", resourceCulture);
             }
@@ -207,16 +432,16 @@ namespace Fronter {
         /// <summary>
         ///   Looks up a localized string similar to Paradox Game Converters: .
         /// </summary>
-        internal static string TITLETITLE {
+        public static string TITLETITLE {
             get {
                 return ResourceManager.GetString("TITLETITLE", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to  To .
         /// </summary>
-        internal static string TITLETO {
+        public static string TITLETO {
             get {
                 return ResourceManager.GetString("TITLETO", resourceCulture);
             }

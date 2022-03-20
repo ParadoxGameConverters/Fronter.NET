@@ -2,6 +2,7 @@
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using commonItems;
+using Fronter.Models;
 using Fronter.ViewModels;
 using Fronter.Views;
 using System;
@@ -47,12 +48,13 @@ public class LogWatcher : IDisposable {
 					var logMessage = MessageSlicer.SliceMessage(line);
 					//Logger.Notice($"logMessage:\t\t\t{logMessage.Message}"); // TODO: REMOVE DEBUG
 					if (TranscriberMode) {
-						Logger.Log(logMessage.LogLevel, logMessage.Message);
+						var logLevel = logMessage.LogLevel ?? Logger.LogLevel.Info;
+						Logger.Log(logLevel, logMessage.Message);
 					}
 
 					if (EmitterMode) {
 						Dispatcher.UIThread.Post(
-							() => windowDataContext?.AddRowToLogGrid(logMessage.Message),
+							() => windowDataContext?.AddRowToLogGrid(logMessage),
 							DispatcherPriority.MinValue
 						);
 					}

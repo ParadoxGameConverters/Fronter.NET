@@ -11,4 +11,116 @@
     <resheader name="writer">
         <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
     </resheader>
+    <data name="TITLETITLE" xml:space="preserve">
+        <value>Convertisseurs de Jeux Paradox: </value>
+    </data>
+    <data name="TITLETO" xml:space="preserve">
+        <value> à </value>
+    </data>
+    <data name="EXIT" xml:space="preserve">
+        <value>Sortir</value>
+    </data>
+    <data name="ABOUT" xml:space="preserve">
+        <value>Au sujet de</value>
+    </data>
+    <data name="SUPPORT_US" xml:space="preserve">
+        <value>Soutenez-nous sur Patreon</value>
+    </data>
+    <data name="MENUCONVERTER" xml:space="preserve">
+        <value>Convertisseur</value>
+    </data>
+    <data name="MENUPGCG" xml:space="preserve">
+        <value>Group-PCG</value>
+    </data>
+    <data name="FOOTER" xml:space="preserve">
+        <value>Group Paradox Game Converters</value>
+    </data>
+    <data name="ABOUT_TITLE" xml:space="preserve">
+        <value>Group Paradox Game Converters - Frontend Universelle</value>
+    </data>
+    <data name="ABOUT_BODY" xml:space="preserve">
+        <value>Copyright (c) 2022 The Paradox Game Converters Group"
+ ABOUT_BODY: "Ce convertisseur, comme tous les autres, est gratuit et disponible dans notre référentiel Github.\n\nGithub. Forums. Pages wiki. Steam. Si vous avez besoin de nous trouver, de signaler des bugs, de proposer des suggestions ou si vous souhaitez participer, nous sommes là.</value>
+    </data>
+    <data name="LOGTIME" xml:space="preserve">
+        <value>Horodatage</value>
+    </data>
+    <data name="LOGSEVERITY" xml:space="preserve">
+        <value>Type</value>
+    </data>
+    <data name="LOGMESSAGE" xml:space="preserve">
+        <value>Message</value>
+    </data>
+    <data name="CONVERTSAVING" xml:space="preserve">
+        <value>Enregistrement de la Configuration:</value>
+    </data>
+    <data name="CONVERTCONVERTING" xml:space="preserve">
+        <value>Conversion de la Sauvegarde:</value>
+    </data>
+    <data name="CONVERTCOPYING" xml:space="preserve">
+        <value>Copie de la Mod:</value>
+    </data>
+    <data name="CONVERTSTATUSPRE" xml:space="preserve">
+        <value>Pas Commencé(e).</value>
+    </data>
+    <data name="CONVERTSTATUSIN" xml:space="preserve">
+        <value>En Cours.</value>
+    </data>
+    <data name="CONVERTSTATUSPOSTSUCCESS" xml:space="preserve">
+        <value>Terminé(e).</value>
+    </data>
+    <data name="CONVERTSTATUSPOSTFAIL" xml:space="preserve">
+        <value>Échoué(e)!</value>
+    </data>
+    <data name="CONVERTBUTTON" xml:space="preserve">
+        <value>Convertir la Sauvegarde</value>
+    </data>
+    <data name="LANGUAGE" xml:space="preserve">
+        <value>Langue</value>
+    </data>
+    <data name="LANGUAGESAVED" xml:space="preserve">
+        <value>Langue enregistrée</value>
+    </data>
+    <data name="LANGUAGESAVEDBODY" xml:space="preserve">
+        <value>La langue a été enregistrée, veuillez redémarrer le programme.</value>
+    </data>
+    <data name="PATHSTAB" xml:space="preserve">
+        <value>Chemins</value>
+    </data>
+    <data name="OPTIONSTAB" xml:space="preserve">
+        <value>Options</value>
+    </data>
+    <data name="CONVERTTAB" xml:space="preserve">
+        <value>Conversion</value>
+    </data>
+    <data name="MODSTAB" xml:space="preserve">
+        <value>Mods</value>
+    </data>
+    <data name="MODSDISABLED" xml:space="preserve">
+        <value>Détection automatique des mods désactivée par la configuration / non requisée.</value>
+    </data>
+    <data name="MODSNOTFOUND" xml:space="preserve">
+        <value>Mods introuvables dans le répertoire.</value>
+    </data>
+    <data name="MODSFOUND" xml:space="preserve">
+        <value>Mods détectés automatiquement:</value>
+    </data>
+    <data name="BROWSE" xml:space="preserve">
+        <value>Parcourir</value>
+    </data>
+    <data name="LOGLEVEL" xml:space="preserve">
+        <value>Filtrer les messages du journal sous la gravité</value>
+    </data>
+    <data name="LOGLEVEL0" xml:space="preserve">
+        <value>Erreur</value>
+    </data>
+    <data name="LOGLEVEL1" xml:space="preserve">
+        <value>Attention</value>
+    </data>
+    <data name="LOGLEVEL2" xml:space="preserve">
+        <value>Info</value>
+    </data>
+    <data name="LOGLEVEL3" xml:space="preserve">
+        <value>Déboug</value>
+    </data>
 </root>

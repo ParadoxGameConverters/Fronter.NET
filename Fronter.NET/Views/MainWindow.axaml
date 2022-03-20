@@ -4,6 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:Fronter.ViewModels"
         xmlns:views="clr-namespace:Fronter.Views"
+        xmlns:fronter="clr-namespace:Fronter"
         mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="400"
         x:Class="Fronter.Views.MainWindow"
         Icon="/Assets/converter.ico"
@@ -33,7 +34,7 @@
             </MenuItem>
             <MenuItem Header="_Help">
                 <MenuItem Header="About us" Command="{Binding OpenAboutDialog}"/>
-                <MenuItem Header="Support us on Patreon" Command="{Binding OpenPatreonPage}"/>
+                <MenuItem Header="{x:Static fronter:Localization.SUPPORT_US}" Command="{Binding OpenPatreonPage}"/>
             </MenuItem>
         </Menu>
         <TabControl DockPanel.Dock="Top">
