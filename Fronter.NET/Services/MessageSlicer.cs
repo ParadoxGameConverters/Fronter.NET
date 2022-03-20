@@ -1,4 +1,6 @@
-﻿using Fronter.Models;
+﻿using commonItems;
+using Fronter.Models;
+using Splat;
 
 namespace Fronter.Services;
 
@@ -7,15 +9,6 @@ public class MessageSlicer {
 		UNINITIALIZED = 0,
 		UI = 1,
 		CONVERTER = 2
-	}
-
-	public enum LogLevel {
-		Debug,
-		Info,
-		Warn,
-		Error,
-		Notice,
-		Progress
 	}
 
 	public static LogLine SliceMessage(string message) {
@@ -38,19 +31,25 @@ public class MessageSlicer {
 			logMessage.Message = message;
 			return logMessage;
 		}
+		
 		var logLevelStr = message.Substring(posOpen + 1, posClose - posOpen - 1);
-		logMessage.LogLevel = logLevelStr switch {
-			"DEBUG" => LogLevel.Debug,
-			"INFO" => LogLevel.Info,
-			"WARNING" or "WARN" => LogLevel.Warn,
-			"ERROR" => LogLevel.Error,
-			"PROGRESS" => LogLevel.Progress,
-			"NOTICE" => LogLevel.Notice,
-			_ => LogLevel.Debug
-		};
+		logMessage.LogLevel = GetLogLevel(logLevelStr);
 
 		logMessage.Timestamp = message.Substring(0, 19);
-		logMessage.Message = message.Substring(posClose + 2, message.Length);
+		logMessage.Message = message.Substring(posClose + 2);
+		
 		return logMessage;
+	}
+
+	private static Logger.LogLevel GetLogLevel(string levelStr) {
+		return levelStr switch {
+			"DEBUG" => Logger.LogLevel.Debug,
+			"INFO" => Logger.LogLevel.Info,
+			"WARNING" or "WARN" => Logger.LogLevel.Warn,
+			"ERROR" => Logger.LogLevel.Error,
+			"PROGRESS" => Logger.LogLevel.Progress,
+			"NOTICE" => Logger.LogLevel.Notice,
+			_ => Logger.LogLevel.Debug
+		};
 	}
 }

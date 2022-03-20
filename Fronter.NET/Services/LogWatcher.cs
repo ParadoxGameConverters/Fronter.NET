@@ -13,9 +13,9 @@ public class LogWatcher : IDisposable {
 	public LogWatcher(string logFile) {
 		tailSource = logFile;
 		Logger.Debug("TAILSOURCE ASSIGNED");
-		using var fs = new FileStream(tailSource, FileMode.Open, FileAccess.Read, FileShare.Delete);
+		logStream = new FileStream(tailSource, FileMode.Open, FileAccess.Read, FileShare.Delete);
 		Logger.Debug("FILESTREAM CREATED");
-		logStreamReader = new StreamReader(fs);
+		logStreamReader = new StreamReader(logStream);
 		Logger.Debug("StreamReader CREATED");
 		
 		if (Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
@@ -29,41 +29,52 @@ public class LogWatcher : IDisposable {
 		GC.SuppressFinalize(this);
 	}
 	public void WatchLog() {
-		Logger.Debug($"WATCHING {tailSource}!!!");
+		try {
+			//Logger.Notice($"WATCHING {tailSource}!!!"); // TODO: REMOVE DEBUG
 
-		var oneLastRun = false;
-		while (!terminate || oneLastRun) {
-			while (!logStreamReader.EndOfStream) {
-				var line = logStreamReader.ReadLine();
-				if (line is null) {
-					continue;
+			var oneLastRun = false;
+			Logger.Notice($"oneLastRun: {oneLastRun}"); // TODO: REMOVE DEBUG
+			while (!terminate || oneLastRun) {
+				//Logger.Notice($"INSIDE FIRST LOOP"); // TODO: REMOVE DEBUG
+				while (!logStreamReader.EndOfStream) {
+					//Logger.Notice($"INSIDE SECOND LOOP"); // TODO: REMOVE DEBUG
+					var line = logStreamReader.ReadLine();
+					if (line is null) {
+						continue;
+					}
+					//Logger.Notice($"LOG LINE:\t\t\t{line}"); // TODO: REMOVE DEBUG
+
+					var logMessage = MessageSlicer.SliceMessage(line);
+					//Logger.Notice($"logMessage:\t\t\t{logMessage.Message}"); // TODO: REMOVE DEBUG
+					if (TranscriberMode) {
+						Logger.Log(logMessage.LogLevel, logMessage.Message);
+					}
+
+					if (EmitterMode) {
+						Dispatcher.UIThread.Post(
+							() => windowDataContext?.AddRowToLogGrid(logMessage.Message),
+							DispatcherPriority.MinValue
+						);
+					}
 				}
 
-				var logMessage = MessageSlicer.SliceMessage(line);
-				if (TranscriberMode) {
-					Logger.Debug(logMessage.Message); // TODO: MAKE LEVEL MATCH logMessage.LogLevel
-				}
-
-				if (EmitterMode) {
-					Dispatcher.UIThread.Post(
-						() => windowDataContext?.AddRowToLogGrid(logMessage.Message),
-						DispatcherPriority.MinValue
-					);
+				if (terminate) {
+					if (oneLastRun) {
+						break;
+					}
+					oneLastRun = true;
 				}
 			}
-
-			if (terminate) {
-				if (oneLastRun) {
-					break;
-				}
-				oneLastRun = true;
-			}
+		} catch (Exception e) {
+			Console.WriteLine(e);
+			throw;
 		}
+		
 	}
 
 	private readonly string tailSource;
-	public bool TranscriberMode { get; set; } = false;
-	public bool EmitterMode { get; set; } = false;
+	public bool TranscriberMode { get; set; } = true;
+	public bool EmitterMode { get; set; } = true;
 
 	public void Terminate() {
 		terminate = true;
@@ -71,5 +82,7 @@ public class LogWatcher : IDisposable {
 	private bool terminate = false;
 
 	private MainWindowViewModel? windowDataContext;
+
+	private FileStream logStream;
 	private StreamReader logStreamReader;
 }

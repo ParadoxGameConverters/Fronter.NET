@@ -133,7 +133,7 @@ public class MainWindowViewModel : ViewModelBase {
 
 	public void AddRowToLogGrid(string message) {
 		var newLine = new LogLine {
-			LogLevel = MessageSlicer.LogLevel.Error, Message = message, Source = MessageSlicer.MessageSource.UI
+			LogLevel = Logger.LogLevel.Error, Message = message, Source = MessageSlicer.MessageSource.UI
 		};
 		LogLines.Add(newLine);
 
