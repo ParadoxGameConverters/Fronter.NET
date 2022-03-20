@@ -4,8 +4,6 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:Fronter.ViewModels"
         xmlns:views="clr-namespace:Fronter.Views"
-        xmlns:system="clr-namespace:System;assembly=System"
-        xmlns:generic="clr-namespace:System.Collections.Generic;assembly=mscorlib"
         mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="400"
         x:Class="Fronter.Views.MainWindow"
         Icon="/Assets/converter.ico"
@@ -67,7 +65,7 @@
         
         <DataGrid Name="LogGrid" VerticalScrollBarVisibility="Visible" Items="{Binding LogLines}" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="False">
             <DataGrid.GridLinesVisibility>All</DataGrid.GridLinesVisibility>
-            <DataGrid.Columns >
+            <DataGrid.Columns>
                 <DataGridTextColumn Header="Timestamp" IsReadOnly="True" Binding="{Binding Timestamp }"/>
                 <DataGridTextColumn Header="Vehemence" IsReadOnly="True" Binding="{Binding LogLevel}" />
                 <DataGridTextColumn Header="Message" IsReadOnly="True" Binding="{Binding Message}" />

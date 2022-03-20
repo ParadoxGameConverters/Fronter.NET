@@ -38,8 +38,9 @@ public class MessageSlicer {
 			logMessage.Message = message;
 			return logMessage;
 		}
-		var logLevel = message.Substring(posOpen + 1, posClose - posOpen - 1);
-		logMessage.LogLevel = logLevel switch {
+		var logLevelStr = message.Substring(posOpen + 1, posClose - posOpen - 1);
+		logMessage.LogLevel = logLevelStr switch {
+			"DEBUG" => LogLevel.Debug,
 			"INFO" => LogLevel.Info,
 			"WARNING" or "WARN" => LogLevel.Warn,
 			"ERROR" => LogLevel.Error,

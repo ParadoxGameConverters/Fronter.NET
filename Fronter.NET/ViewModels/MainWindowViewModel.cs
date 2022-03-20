@@ -21,15 +21,18 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Fronter.ViewModels; 
+namespace Fronter.ViewModels;
 
 public class MainWindowViewModel : ViewModelBase {
 	public string Greeting => "Welcome to Avalonia!";
-	public IEnumerable<KeyValuePair<string, string>> Languages => loc.LoadedLanguages.ToDictionary(l=>l, l=>loc.TranslateLanguage(l)); // language key, language loc
+
+	public IEnumerable<KeyValuePair<string, string>> Languages =>
+		loc.LoadedLanguages.ToDictionary(l => l, l => loc.TranslateLanguage(l)); // language key, language loc
 
 	private Configuration config = new Configuration();
 	private Localization loc = new Localization();
@@ -49,7 +52,7 @@ public class MainWindowViewModel : ViewModelBase {
 		converterLauncher.LoadConfiguration(config);
 		converterLauncher.LaunchConverter();
 	}
-		
+
 	public async void CheckForUpdates() {
 		var mainWindow = Window;
 		if (mainWindow is null) {
@@ -58,12 +61,13 @@ public class MainWindowViewModel : ViewModelBase {
 
 		Logger.Debug($"{nameof(config.UpdateCheckerEnabled)}: {config.UpdateCheckerEnabled}");
 		Logger.Debug($"{nameof(config.CheckForUpdatesOnStartup)}: {config.CheckForUpdatesOnStartup}");
-		Logger.Debug($"is update available: {UpdateChecker.IsUpdateAvailable("commit_id.txt", config.PagesCommitIdUrl)}");
+		Logger.Debug(
+			$"is update available: {UpdateChecker.IsUpdateAvailable("commit_id.txt", config.PagesCommitIdUrl)}");
 		if (config.UpdateCheckerEnabled &&
 		    config.CheckForUpdatesOnStartup &&
 		    UpdateChecker.IsUpdateAvailable("commit_id.txt", config.PagesCommitIdUrl)) {
 			var info = UpdateChecker.GetLatestReleaseInfo(config.Name);
-				
+
 			const string updateNow = "Update now";
 			const string maybeLater = "Maybe later";
 			var msgBody = UpdateChecker.GetUpdateMessageBody(loc.Translate("NEWVERSIONBODY"), info);
@@ -74,10 +78,9 @@ public class MainWindowViewModel : ViewModelBase {
 					ContentTitle = loc.Translate("NEWVERSIONTITLE"),
 					ContentMessage = msgBody,
 					//Markdown = true, // TODO: ENABLE THIS WHEN https://github.com/AvaloniaCommunity/MessageBox.Avalonia/pull/99 IS MERGED
-					ButtonDefinitions = new[]
-					{
-						new ButtonDefinition { Name = updateNow, IsDefault = true },
-						new ButtonDefinition { Name = maybeLater, IsCancel = true }
+					ButtonDefinitions = new[] {
+						new ButtonDefinition {Name = updateNow, IsDefault = true},
+						new ButtonDefinition {Name = maybeLater, IsCancel = true}
 					},
 				});
 			var result = await messageBoxWindow.ShowDialog(mainWindow);
@@ -96,14 +99,15 @@ public class MainWindowViewModel : ViewModelBase {
 	public static void Exit() {
 		if (Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
 			desktop.Shutdown(0);
-		} 
+		}
 	}
+
 	public async void OpenAboutDialog() {
 		var mainWindow = Window;
 		if (mainWindow is null) {
 			return;
 		}
-		
+
 		var messageBoxWindow = MessageBox.Avalonia.MessageBoxManager
 			.GetMessageBoxStandardWindow(new MessageBoxStandardParams {
 				ContentTitle = loc.Translate("ABOUT_TITLE"),
@@ -118,45 +122,41 @@ public class MainWindowViewModel : ViewModelBase {
 			});
 		await messageBoxWindow.ShowDialog(mainWindow);
 	}
+
 	public static async void OpenPatreonPage() {
 		BrowserLauncher.Open("https://www.patreon.com/ParadoxGameConverters");
 	}
-	
+
 	public void SetLanguage(string languageKey) {
 		loc.SaveLanguage(languageKey);
 	}
 
-	public void AddItemToLog(string message) {
+	public void AddRowToLogGrid(string message) {
 		var newLine = new LogLine {
-			LogLevel = MessageSlicer.LogLevel.Error,
-			Message = message,
-			Source = MessageSlicer.MessageSource.UI
+			LogLevel = MessageSlicer.LogLevel.Error, Message = message, Source = MessageSlicer.MessageSource.UI
 		};
 		LogLines.Add(newLine);
-		
-		var logGrid = Window.FindControl<DataGrid>("LogGrid");
-		logGrid.ScrollIntoView(newLine, null);
+
+		var logGrid = Window?.FindControl<DataGrid>("LogGrid");
+		logGrid?.ScrollIntoView(newLine, null);
 	}
 
-	public void AddItemsToLog() {
+	public void AddRowsToLogGrid() { // todo: remove debug
 		int counter = 0;
 		while (counter++ < 10000) {
 			var message = $"Message no. {counter}";
 			Dispatcher.UIThread.Post(
-				()=>AddItemToLog(message),
+				() => AddRowToLogGrid(message),
 				DispatcherPriority.MinValue
 			);
 		}
 	}
+
 	public void StartWorkerThreads() {
-		var logThread = new Thread(AddItemsToLog);
+		var logWatcher = new LogWatcher("ImperatorToCK3/log.txt");
+		var logThread = new Thread(logWatcher.WatchLog);
 		logThread.Start();
 	}
-	
-	public ObservableCollection<LogLine> LogLines { get; } = new() { // TODO: REMOVE THIS PROPERTY FROM MAINWINDOW
-		// TODO: REMOVE DEBUG ITEMS
-		new LogLine() {Message = "Info message", Timestamp = "2000.1.2"},
-		new LogLine() {Message = "Debug messageaSAS", LogLevel = MessageSlicer.LogLevel.Debug},
-		new LogLine() {Message = "Debug messagea2", LogLevel = MessageSlicer.LogLevel.Debug}
-	};
+
+	public ObservableCollection<LogLine> LogLines { get; } = new();
 }
