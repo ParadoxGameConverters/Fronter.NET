@@ -1,0 +1,24 @@
+l_english:
+ IMPERATORDEJURE: "Whether or not to base CK3 de jure on Imperator setup."
+ IMPERATORDEJURETIP: "CK3 de jure is recommended."
+ IMPERATORDEJURE1: "Regions to kingdoms"
+ IMPERATORDEJURE1TIP: "Make Imperator regions CK3 de jure kingdoms."
+ IMPERATORDEJURE2: "Countries"
+ IMPERATORDEJURE2TIP: "Base CK3 de jure on Imperator countries."
+ IMPERATORDEJURE3: "No"
+ IMPERATORDEJURE3TIP: "Keep vanilla CK3 de jure."
+
+ #CONVERTCHARACTERBIRTHANDDEATHDATES: "Base for character birth date conversion"
+ #CONVERTCHARACTERBIRTHANDDEATHDATES_TIP: "Characters' birth dates can be based on either their birth dates in Imperator or their Imperator age."
+ #CONVERTCHARACTERBIRTHANDDEATHDATES_1: "Birth date"
+ #CONVERTCHARACTERBIRTHANDDEATHDATES_1_TIP: "Recommended when you're converting without a big time gap."
+ #CONVERTCHARACTERBIRTHANDDEATHDATES_2: "Age"
+ #CONVERTCHARACTERBIRTHANDDEATHDATES_2_TIP: "Recommended when you're converting much earlier than the CK3 bookmark date."
+
+ MODNAME: "Mod Output Name (optional):"
+ MODNAMETIP: "Please, stick to Latin letters."
+ MODNAMETIP2: "Optional name for the converted mod (default name is the one of the savegame)."
+
+ BOOKMARKDATE: "CK3 bookmark date (AD, optional)"
+ BOOKMARKDATETIP: "Anno Domini date of the generated CK3 bookmark, can not be earlier than the Anno Domini Imperator save date. Leave empty to default to Imperator save's current date."
+ BOOKMARKDATETIP2: "year.month.day format"

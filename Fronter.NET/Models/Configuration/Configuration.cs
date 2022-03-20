@@ -7,18 +7,18 @@ using System.Linq;
 namespace Fronter.Models.Configuration;
 
 public class Configuration {
-	public string Name { get; private set; }
-	public string ConverterFolder { get; private set; }
-	public string BackendExePath { get; private set; } // relative to ConverterFolder
-	public string DisplayName { get; private set; }
-	public string SourceGame { get; private set; }
-	public string TargetGame { get; private set; }
-	public string AutoGenerateModsFrom { get; private set; }
+	public string Name { get; private set; } = string.Empty;
+	public string ConverterFolder { get; private set; } = string.Empty;
+	public string BackendExePath { get; private set; } = string.Empty; // relative to ConverterFolder
+	public string DisplayName { get; private set; } = string.Empty;
+	public string SourceGame { get; private set; } = string.Empty;
+	public string TargetGame { get; private set; } = string.Empty;
+	public string AutoGenerateModsFrom { get; private set; } = string.Empty;
 	public bool UpdateCheckerEnabled { get; private set; } = false;
 	public bool CheckForUpdatesOnStartup { get; private set; } = false;
-	public string ConverterReleaseForumThread { get; private set; }
-	public string LatestGitHubConverterReleaseUrl { get; private set; }
-	public string PagesCommitIdUrl { get; private set; }
+	public string ConverterReleaseForumThread { get; private set; } = string.Empty;
+	public string LatestGitHubConverterReleaseUrl { get; private set; } = string.Empty;
+	public string PagesCommitIdUrl { get; private set; } = string.Empty;
 	public Dictionary<string, RequiredFile> RequiredFiles { get; } = new();
 	public Dictionary<string, RequiredFolder> RequiredFolders { get; } = new();
 	public List<Option> Options { get; } = new();
@@ -29,24 +29,28 @@ public class Configuration {
 	public Configuration() {
 		var parser = new Parser();
 		RegisterKeys(parser);
-		if (File.Exists("Configuration/fronter-configuration.txt")) {
-			parser.ParseFile("Configuration/fronter-configuration.txt");
+		var fronterConfigurationPath = Path.Combine("Configuration", "fronter-configuration.txt");
+		if (File.Exists(fronterConfigurationPath)) {
+			parser.ParseFile(fronterConfigurationPath);
 			Logger.Info("Frontend configuration loaded.");
 		} else {
-			Logger.Warn("Configuration/fronter-configuration.txt not found!");
+			Logger.Warn($"{fronterConfigurationPath} not found!");
 		}
-		if (File.Exists("Configuration/fronter-options.txt")) {
-			parser.ParseFile("Configuration/fronter-options.txt");
+
+		var fronterOptionsPath = Path.Combine("Configuration", "fronter-options.txt");
+		if (File.Exists(fronterOptionsPath)) {
+			parser.ParseFile(fronterOptionsPath);
 			Logger.Info("Frontend options loaded.");
 		} else {
-			Logger.Warn("Configuration/fronter-options.txt not found!");
+			Logger.Warn($"{fronterOptionsPath} not found!");
 		}
 		parser.ClearRegisteredRules();
 
 		RegisterPreloadKeys(parser);
-		if (!string.IsNullOrEmpty(ConverterFolder) && File.Exists(ConverterFolder + "/configuration.txt")) {
+		var converterConfigurationPath = Path.Combine(ConverterFolder, "configuration.txt");
+		if (!string.IsNullOrEmpty(ConverterFolder) && File.Exists(converterConfigurationPath)) {
 			Logger.Info("Previous configuration located, preloading selections.");
-			parser.ParseFile(ConverterFolder + "/configuration.txt");
+			parser.ParseFile(converterConfigurationPath);
 		}
 	}
 
@@ -75,8 +79,7 @@ public class Configuration {
 				Logger.Error("Required File has no mandatory field: name!");
 		});
 		parser.RegisterKeyword("option", reader => {
-			++optionCounter;
-			var newOption = new Option(reader, optionCounter);
+			var newOption = new Option(reader, ++optionCounter);
 			Options.Add(newOption);
 		});
 		parser.RegisterKeyword("displayName", reader => {

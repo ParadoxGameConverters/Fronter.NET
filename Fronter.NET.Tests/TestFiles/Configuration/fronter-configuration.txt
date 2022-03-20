@@ -1,0 +1,54 @@
+﻿name = ImperatorToCK3
+converterFolder = ImperatorToCK3
+backendExePath = ImperatorToCK3Converter
+displayName = IMPDISPLAYNAME
+sourceGame = IMPGAME
+targetGame = CK3GAME
+enableUpdateChecker = true
+checkForUpdatesOnStartup = true
+latestGitHubConverterReleaseUrl = "https://github.com/ParadoxGameConverters/ImperatorToCK3/releases/latest"
+converterReleaseForumThread = "https://forum.paradoxplaza.com/forum/threads/imperator-to-ck3-release-thread.1415172"
+pagesCommitIdUrl = "https://paradoxgameconverters.com/commit_ids/ImperatorToCK3.txt"
+
+requiredFolder = {
+	name = ImperatorDirectory
+	displayName = IMPFOLDER
+	tooltip = IMPFOLDERTIP
+	mandatory = true
+	searchPathType = steamFolder
+	searchPathID = 859580
+}
+requiredFolder = {
+	name = ImperatorDocDirectory
+	displayName = IMPDOC
+	tooltip = IMPDOCTIP
+	mandatory = true
+	searchPathType = windowsUsersFolder
+	searchPath = "Paradox Interactive\Imperator"
+}
+requiredFolder = {
+	name = CK3directory
+	displayName = CK3FOLDER
+	tooltip = CK3FOLDERTIP
+	mandatory = true
+	searchPathType = steamFolder
+	searchPathID = 1158310
+}
+requiredFolder = {
+	name = targetGameModPath
+	displayName = CK3MOD
+	tooltip = CK3MODTIP
+	mandatory = true
+	searchPathType = windowsUsersFolder
+	searchPath = "Paradox Interactive\Crusader Kings III\mod"
+}
+requiredFile = {
+	name = SaveGame
+	displayName = IMPSAVE
+	tooltip = IMPSAVETIP
+	mandatory = true
+	outputtable = true
+	searchPathType = windowsUsersFolder
+	searchPath = "Paradox Interactive\Imperator\save games"
+	allowedExtension = "*.rome"
+}

@@ -1,0 +1,47 @@
+option = {
+	name = ImperatorDeJure
+	displayName = IMPERATORDEJURE
+	tooltip = IMPERATORDEJURETIP
+	radioSelector = {
+		radioOption = {
+			name = 1
+			displayName = IMPERATORDEJURE1
+			tooltip = IMPERATORDEJURE1TIP
+			default = false
+		}
+		#radioOption = {
+		#	name = 2
+		#	displayName = IMPERATORDEJURE2
+		#	tooltip = IMPERATORDEJURE2TIP
+		#	default = false
+		#}
+		radioOption = {
+			name = 3
+			displayName = IMPERATORDEJURE3
+			tooltip = IMPERATORDEJURE3TIP
+			default = true		
+		}
+	}
+}
+
+option = {
+	name = output_name
+	displayName = MODNAME
+	tooltip = MODNAMETIP
+	textSelector = {	
+		value = ""
+		editable = true
+		tooltip = MODNAMETIP2
+	}
+}
+
+option = {
+	name = bookmark_date
+	displayName = BOOKMARKDATE
+	tooltip = BOOKMARKDATETIP
+	textSelector = {	
+		value = "867.1.1"
+		editable = true
+		tooltip = BOOKMARKDATETIP2
+	}
+}
