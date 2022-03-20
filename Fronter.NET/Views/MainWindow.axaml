@@ -50,7 +50,6 @@
             <TabItem Header="Target Mods" VerticalContentAlignment="Center">
                 <StackPanel>
                     <TextBlock Text="Mod auto-detection disabled by configuration/not required." HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                    <Button Name="Button1" Command="{Binding BuyMusicCommand}">A button in the triangle page!</Button>
                 </StackPanel>
             </TabItem>
             
@@ -62,13 +61,13 @@
             </TabItem>
             
             <TabItem Header="Convert" VerticalContentAlignment="Center">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Square : " HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                    <Rectangle Fill="Blue" Width="63" Height="41"/>
-                </StackPanel>
+                <Grid ColumnDefinitions="1*,1*,1*" RowDefinitions="Auto"  Margin="4">
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Square : " HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Rectangle  Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" Fill="Blue" Height="41"/>
+                    <Button Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center" Name="ConvertButton" Command="{Binding BuyMusicCommand}">Convert!</Button>
+                </Grid>
             </TabItem>
         </TabControl>
-        <!--<views:LogView DockPanel.Dock="Bottom"></views:LogView> -->
         
         <DataGrid Name="LogGrid" VerticalScrollBarVisibility="Visible" Items="{Binding LogLines}" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="False">
             <DataGrid.GridLinesVisibility>All</DataGrid.GridLinesVisibility>
@@ -79,6 +78,4 @@
             </DataGrid.Columns>
         </DataGrid>
     </DockPanel>
-    
-
 </Window>
