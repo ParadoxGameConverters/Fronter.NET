@@ -18,7 +18,7 @@
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_Converter">
-                <MenuItem Header="_Check for updates" Command="{Binding CheckForUpdates}"/>
+                <MenuItem Header="_Check for Updates" Command="{Binding CheckForUpdates}"/>
                 <Separator/>
                 <MenuItem Header="_Exit" Command="{Binding Exit}"/>
             </MenuItem>
@@ -38,9 +38,16 @@
         </Menu>
         <TabControl DockPanel.Dock="Top">
             <TabItem Header="Paths" VerticalContentAlignment="Center">
-                <views:PathsView/>
+                <DockPanel>
+                    <Button DockPanel.Dock="Bottom">Add an item</Button>
+                    <StackPanel>
+                        <CheckBox Margin="4">Walk the dog</CheckBox>
+                        <CheckBox Margin="4">Walk the dog</CheckBox>
+                        <CheckBox Margin="4">Buy some milk</CheckBox>
+                    </StackPanel>
+                </DockPanel>
             </TabItem>
-            <TabItem Header="Mods" VerticalContentAlignment="Center">
+            <TabItem Header="Target Mods" VerticalContentAlignment="Center">
                 <StackPanel>
                     <TextBlock Text="Mod auto-detection disabled by configuration/not required." HorizontalAlignment="Left" VerticalAlignment="Center"/>
                     <Button Name="Button1" Command="{Binding BuyMusicCommand}">A button in the triangle page!</Button>
