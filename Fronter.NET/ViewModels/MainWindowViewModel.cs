@@ -11,8 +11,6 @@ using ReactiveUI;
 using System.Threading.Tasks;
 using commonItems;
 using Fronter.Models;
-using Fronter.Models.Configuration;
-using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
 using MessageBox.Avalonia.Models;
 using System;
@@ -58,8 +56,7 @@ public class MainWindowViewModel : ViewModelBase {
 
 		Logger.Debug($"{nameof(config.UpdateCheckerEnabled)}: {config.UpdateCheckerEnabled}");
 		Logger.Debug($"{nameof(config.CheckForUpdatesOnStartup)}: {config.CheckForUpdatesOnStartup}");
-		Logger.Debug(
-			$"is update available: {UpdateChecker.IsUpdateAvailable("commit_id.txt", config.PagesCommitIdUrl)}");
+		Logger.Debug($"is update available: {UpdateChecker.IsUpdateAvailable("commit_id.txt", config.PagesCommitIdUrl)}");
 		if (config.UpdateCheckerEnabled &&
 		    config.CheckForUpdatesOnStartup &&
 		    UpdateChecker.IsUpdateAvailable("commit_id.txt", config.PagesCommitIdUrl)) {

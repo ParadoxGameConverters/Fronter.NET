@@ -39,8 +39,7 @@
         <value>Group Paradox Game Converters - Frontend Universelle</value>
     </data>
     <data name="ABOUT_BODY" xml:space="preserve">
-        <value>Copyright (c) 2022 The Paradox Game Converters Group"
- ABOUT_BODY: "Ce convertisseur, comme tous les autres, est gratuit et disponible dans notre référentiel Github.\n\nGithub. Forums. Pages wiki. Steam. Si vous avez besoin de nous trouver, de signaler des bugs, de proposer des suggestions ou si vous souhaitez participer, nous sommes là.</value>
+        <value>Ce convertisseur, comme tous les autres, est gratuit et disponible dans notre référentiel Github.\n\nGithub. Forums. Pages wiki. Steam. Si vous avez besoin de nous trouver, de signaler des bugs, de proposer des suggestions ou si vous souhaitez participer, nous sommes là.</value>
     </data>
     <data name="LOGTIME" xml:space="preserve">
         <value>Horodatage</value>
@@ -122,5 +121,8 @@
     </data>
     <data name="LOGLEVEL3" xml:space="preserve">
         <value>Déboug</value>
+    </data>
+    <data name="ABOUT_HEADER" xml:space="preserve">
+        <value>Copyright (c) 2022 The Paradox Game Converters Group</value>
     </data>
 </root>
