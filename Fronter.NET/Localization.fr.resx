@@ -47,9 +47,6 @@
     <data name="LOGSEVERITY" xml:space="preserve">
         <value>Type</value>
     </data>
-    <data name="LOGMESSAGE" xml:space="preserve">
-        <value>Message</value>
-    </data>
     <data name="CONVERTSAVING" xml:space="preserve">
         <value>Enregistrement de la Configuration:</value>
     </data>
@@ -86,14 +83,8 @@
     <data name="PATHSTAB" xml:space="preserve">
         <value>Chemins</value>
     </data>
-    <data name="OPTIONSTAB" xml:space="preserve">
-        <value>Options</value>
-    </data>
     <data name="CONVERTTAB" xml:space="preserve">
         <value>Conversion</value>
-    </data>
-    <data name="MODSTAB" xml:space="preserve">
-        <value>Mods</value>
     </data>
     <data name="MODSDISABLED" xml:space="preserve">
         <value>Détection automatique des mods désactivée par la configuration / non requisée.</value>
@@ -116,13 +107,19 @@
     <data name="LOGLEVEL1" xml:space="preserve">
         <value>Attention</value>
     </data>
-    <data name="LOGLEVEL2" xml:space="preserve">
-        <value>Info</value>
-    </data>
     <data name="LOGLEVEL3" xml:space="preserve">
         <value>Déboug</value>
     </data>
     <data name="ABOUT_HEADER" xml:space="preserve">
         <value>Copyright (c) 2022 The Paradox Game Converters Group</value>
+    </data>
+    <data name="MODSTAB" xml:space="preserve">
+        <value>Mods</value>
+    </data>
+    <data name="LOGMESSAGE" xml:space="preserve">
+        <value>Message</value>
+    </data>
+    <data name="LOGLEVEL2" xml:space="preserve">
+        <value>Info</value>
     </data>
 </root>

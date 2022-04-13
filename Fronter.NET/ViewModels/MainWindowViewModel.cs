@@ -71,7 +71,7 @@ public class MainWindowViewModel : ViewModelBase {
 					ContentHeader = "An update is available!",
 					ContentTitle = loc.Translate("NEWVERSIONTITLE"),
 					ContentMessage = msgBody,
-					//Markdown = true, // TODO: ENABLE THIS WHEN https://github.com/AvaloniaCommunity/MessageBox.Avalonia/pull/99 IS MERGED
+					Markdown = true,
 					ButtonDefinitions = new[] {
 						new ButtonDefinition {Name = updateNow, IsDefault = true},
 						new ButtonDefinition {Name = maybeLater, IsCancel = true}
