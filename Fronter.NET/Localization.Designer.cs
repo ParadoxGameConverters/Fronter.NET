@@ -322,6 +322,15 @@ namespace Fronter {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Help.
+        /// </summary>
+        public static string MENUHELP {
+            get {
+                return ResourceManager.GetString("MENUHELP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to PGCG.
         /// </summary>
         public static string MENUPGCG {
@@ -331,7 +340,7 @@ namespace Fronter {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Mod autodetection disabled by configuration/not required..
+        ///   Looks up a localized string similar to Mod auto-detection disabled by configuration/not required..
         /// </summary>
         public static string MODSDISABLED {
             get {
@@ -340,7 +349,7 @@ namespace Fronter {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Mods autodetected:.
+        ///   Looks up a localized string similar to Mods auto-detected:.
         /// </summary>
         public static string MODSFOUND {
             get {

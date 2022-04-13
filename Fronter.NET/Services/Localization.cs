@@ -37,7 +37,7 @@ public class Localization {
 		var fronterLanguagePath = Path.Combine("Configuration", "fronter-language.txt");
 		if (File.Exists(fronterLanguagePath)) {
 			var parser = new Parser();
-			parser.RegisterKeyword("language", reader=>SetLanguage = reader.GetString());
+			parser.RegisterKeyword("language", reader => SetLanguage = reader.GetString());
 			parser.ParseFile(fronterLanguagePath);
 		}
 	}

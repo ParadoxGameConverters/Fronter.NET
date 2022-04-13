@@ -18,12 +18,12 @@
 
     <DockPanel>
         <Menu DockPanel.Dock="Top">
-            <MenuItem Header="_Converter">
-                <MenuItem Header="_Check for Updates" Command="{Binding CheckForUpdates}"/>
+            <MenuItem Header="{x:Static fronter:Localization.MENUCONVERTER}">
+                <MenuItem Header="{x:Static fronter:Localization.CHECKFORUPDATES}" Command="{Binding CheckForUpdates}"/>
                 <Separator/>
-                <MenuItem Header="_Exit" Command="{Binding Exit}"/>
+                <MenuItem Header="{x:Static fronter:Localization.EXIT}" Command="{Binding Exit}"/>
             </MenuItem>
-            <MenuItem Header="_Languages" Items="{Binding Languages}" Classes="LanguageChoice">
+            <MenuItem Header="{x:Static fronter:Localization.LANGUAGE}" Items="{Binding Languages}" Classes="LanguageChoice">
                 <MenuItem.Styles>
                     <Style Selector="MenuItem.LanguageChoice MenuItem">
                         <Setter Property="Header" Value="{Binding Value}"/>
@@ -32,13 +32,13 @@
                     </Style>
                 </MenuItem.Styles>  
             </MenuItem>
-            <MenuItem Header="_Help">
-                <MenuItem Header="About us" Command="{Binding OpenAboutDialog}"/>
+            <MenuItem Header="{x:Static fronter:Localization.MENUHELP}">
+                <MenuItem Header="{x:Static fronter:Localization.ABOUT}" Command="{Binding OpenAboutDialog}"/>
                 <MenuItem Header="{x:Static fronter:Localization.SUPPORT_US}" Command="{Binding OpenPatreonPage}"/>
             </MenuItem>
         </Menu>
         <TabControl DockPanel.Dock="Top">
-            <TabItem Header="Paths" VerticalContentAlignment="Center">
+            <TabItem Header="{x:Static fronter:Localization.PATHSTAB}" VerticalContentAlignment="Center">
                 <DockPanel>
                     <Button DockPanel.Dock="Bottom">Add an item</Button>
                     <StackPanel>
@@ -48,34 +48,34 @@
                     </StackPanel>
                 </DockPanel>
             </TabItem>
-            <TabItem Header="Target Mods" VerticalContentAlignment="Center">
+            <TabItem Header="{x:Static fronter:Localization.MODSTAB}" VerticalContentAlignment="Center">
                 <StackPanel>
-                    <TextBlock Text="Mod auto-detection disabled by configuration/not required." HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    <TextBlock Text="{x:Static fronter:Localization.MODSDISABLED}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                 </StackPanel>
             </TabItem>
             
-            <TabItem Header="Options" VerticalContentAlignment="Center">
+            <TabItem Header="{x:Static fronter:Localization.OPTIONSTAB}" VerticalContentAlignment="Center">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Square : " HorizontalAlignment="Left" VerticalAlignment="Center"/>
                     <Rectangle Fill="Blue" Width="63" Height="41"/>
                 </StackPanel>
             </TabItem>
             
-            <TabItem Header="Convert" VerticalContentAlignment="Center">
+            <TabItem Header="{x:Static fronter:Localization.CONVERTTAB}" VerticalContentAlignment="Center">
                 <Grid ColumnDefinitions="1*,1*,1*" RowDefinitions="Auto"  Margin="4">
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="Square : " HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <Rectangle  Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" Fill="Blue" Height="41"/>
+                    <Rectangle Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" Fill="Blue" Height="41"/>
                     <Button Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center" Name="ConvertButton" Command="{Binding BuyMusicCommand}">Convert!</Button>
                 </Grid>
             </TabItem>
         </TabControl>
         
-        <DataGrid Name="LogGrid" VerticalScrollBarVisibility="Visible" Items="{Binding LogLines}" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="False">
+        <DataGrid Name="LogGrid" Margin="0,20,0,0" VerticalScrollBarVisibility="Visible" Items="{Binding LogLines}" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="False">
             <DataGrid.GridLinesVisibility>All</DataGrid.GridLinesVisibility>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Timestamp" IsReadOnly="True" Binding="{Binding Timestamp }"/>
-                <DataGridTextColumn Header="Vehemence" IsReadOnly="True" Binding="{Binding LogLevel}" />
-                <DataGridTextColumn Header="Message" IsReadOnly="True" Binding="{Binding Message}" />
+                <DataGridTextColumn Header="{x:Static fronter:Localization.LOGTIME}" IsReadOnly="True" Binding="{Binding Timestamp }"/>
+                <DataGridTextColumn Header="{x:Static fronter:Localization.LOGSEVERITY}" IsReadOnly="True" Binding="{Binding LogLevel}" />
+                <DataGridTextColumn Header="{x:Static fronter:Localization.LOGMESSAGE}" IsReadOnly="True" Binding="{Binding Message}" />
             </DataGrid.Columns>
         </DataGrid>
     </DockPanel>

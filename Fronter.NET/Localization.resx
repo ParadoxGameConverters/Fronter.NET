@@ -106,13 +106,13 @@
         <value>Mods</value>
     </data>
     <data name="MODSDISABLED" xml:space="preserve">
-        <value>Mod autodetection disabled by configuration/not required.</value>
+        <value>Mod auto-detection disabled by configuration/not required.</value>
     </data>
     <data name="MODSNOTFOUND" xml:space="preserve">
         <value>Mods not found in mod directory.</value>
     </data>
     <data name="MODSFOUND" xml:space="preserve">
-        <value>Mods autodetected:</value>
+        <value>Mods auto-detected:</value>
     </data>
     <data name="BROWSE" xml:space="preserve">
         <value>Browse</value>
@@ -146,5 +146,8 @@
     </data>
     <data name="NONEWVERSIONBODY" xml:space="preserve">
         <value>No newer release has been found. Do you want to visit the forum and the latest release page to check for yourself?</value>
+    </data>
+    <data name="MENUHELP" xml:space="preserve">
+        <value>Help</value>
     </data>
 </root>
