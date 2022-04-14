@@ -29,7 +29,7 @@ namespace Fronter {
 					DataContext = mainWindowViewModel
 				};
 				
-				mainWindowViewModel.StartWorkerThreads();
+				//mainWindowViewModel.StartWorkerThreads(); // TODO: REENABLE
 			}
 
 			base.OnFrameworkInitializationCompleted();
