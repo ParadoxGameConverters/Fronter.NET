@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace Fronter {
 	public class App : Application {
-		public static Services.Localization Loc { get; }
+		public static Services.Localization Loc { get; } = new();
 
 		public override void Initialize() {
 			File.Delete("log.txt");

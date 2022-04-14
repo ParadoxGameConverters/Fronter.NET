@@ -5,6 +5,7 @@
         xmlns:viewModels="clr-namespace:Fronter.ViewModels"
         xmlns:views="clr-namespace:Fronter.Views"
         xmlns:fronter="clr-namespace:Fronter"
+        xmlns:extensions="clr-namespace:Fronter.Extensions"
         mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="400"
         x:Class="Fronter.Views.MainWindow"
         Icon="/Assets/converter.ico"
@@ -18,7 +19,7 @@
 
     <DockPanel>
         <Menu DockPanel.Dock="Top">
-            <MenuItem Header="{x:Static fronter:Localization.MENUCONVERTER}">
+            <MenuItem Header="{extensions:Loc MENUCONVERTER}">
                 <MenuItem Header="{x:Static fronter:Localization.CHECKFORUPDATES}" Command="{Binding CheckForUpdates}"/>
                 <Separator/>
                 <MenuItem Header="{x:Static fronter:Localization.EXIT}" Command="{Binding Exit}"/>
@@ -56,7 +57,7 @@
             </MenuItem>
         </Menu>
         <TabControl DockPanel.Dock="Top">
-            <TabItem Header="{x:Static fronter:Localization.PATHSTAB}" VerticalContentAlignment="Center">
+            <TabItem Header="{extensions:Loc PATHSTAB}" VerticalContentAlignment="Center">
                 <DockPanel>
                     <Button DockPanel.Dock="Bottom">Add an item</Button>
                     <StackPanel>

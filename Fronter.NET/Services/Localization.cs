@@ -1,4 +1,5 @@
 ﻿using commonItems;
+using Fronter.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -135,7 +136,7 @@ public class Localization {
 		get => setLanguage;
 		private set {
 			setLanguage = value;
-			Thread.CurrentThread.CurrentUICulture = languages[value];
+			TranslationSource.Instance.CurrentCulture = languages[value];
 		}
 	}
 }
