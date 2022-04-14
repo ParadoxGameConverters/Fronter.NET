@@ -9,6 +9,7 @@
         x:Class="Fronter.Views.MainWindow"
         Icon="/Assets/converter.ico"
         Title="Converter Frontend"
+        Foreground="{DynamicResource ThemeForegroundBrush}"
         
         ExtendClientAreaToDecorationsHint="False">
 
@@ -32,6 +33,24 @@
                     </Style>
                 </MenuItem.Styles>  
             </MenuItem>
+            <MenuItem Header="{x:Static fronter:Localization.MENU_THEME}">
+                <MenuItem
+                    Header="{x:Static fronter:Localization.THEME_LIGHT}"
+                    Command="{Binding SetTheme}"
+                    CommandParameter="Light"
+                />
+                <MenuItem
+                    Header="{x:Static fronter:Localization.THEME_DARK}"
+                    Command="{Binding SetTheme}"
+                    CommandParameter="Dark"
+                />
+                <MenuItem
+                    Header="{x:Static fronter:Localization.THEME_HIGH_CONTRAST}"
+                    Command="{Binding SetTheme}"
+                    CommandParameter="HighContrast"
+                />
+            </MenuItem>
+                
             <MenuItem Header="{x:Static fronter:Localization.MENUHELP}">
                 <MenuItem Header="{x:Static fronter:Localization.ABOUT}" Command="{Binding OpenAboutDialog}"/>
                 <MenuItem Header="{x:Static fronter:Localization.SUPPORT_US}" Command="{Binding OpenPatreonPage}"/>

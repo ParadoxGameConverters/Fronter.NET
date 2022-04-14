@@ -6,7 +6,6 @@
     <Application.DataTemplates>
         <fronter:ViewLocator/>
     </Application.DataTemplates>
-
     <Application.Styles>
         <sty:FluentAvaloniaTheme />
         <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Default.xaml"/>

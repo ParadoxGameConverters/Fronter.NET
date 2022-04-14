@@ -14,11 +14,11 @@ using System.Threading.Tasks;
 
 namespace Fronter {
 	public class App : Application {
+		public static Services.Localization Loc { get; }
+
 		public override void Initialize() {
 			File.Delete("log.txt");
 			AvaloniaXamlLoader.Load(this);
-
-			var loc = new Services.Localization();
 		}
 
 		public override void OnFrameworkInitializationCompleted() {
@@ -27,6 +27,7 @@ namespace Fronter {
 				desktop.MainWindow = new MainWindow {
 					DataContext = mainWindowViewModel
 				};
+				
 				mainWindowViewModel.StartWorkerThreads();
 			}
 

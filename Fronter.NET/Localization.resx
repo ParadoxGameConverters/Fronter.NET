@@ -150,4 +150,16 @@
     <data name="MENUHELP" xml:space="preserve">
         <value>Help</value>
     </data>
+    <data name="THEME_LIGHT" xml:space="preserve">
+        <value>Light</value>
+    </data>
+    <data name="THEME_DARK" xml:space="preserve">
+        <value>Dark</value>
+    </data>
+    <data name="THEME_HIGH_CONTRAST" xml:space="preserve">
+        <value>High contrast</value>
+    </data>
+    <data name="MENU_THEME" xml:space="preserve">
+        <value>Theme</value>
+    </data>
 </root>

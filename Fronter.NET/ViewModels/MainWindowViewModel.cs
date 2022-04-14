@@ -1,4 +1,5 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using commonItems;
@@ -10,7 +11,9 @@ using MessageBox.Avalonia.ViewModels;
 using ReactiveUI;
 using System.Threading.Tasks;
 using commonItems;
+using FluentAvalonia.Styling;
 using Fronter.Models;
+using MessageBox.Avalonia;
 using MessageBox.Avalonia.Enums;
 using MessageBox.Avalonia.Models;
 using System;
@@ -28,13 +31,32 @@ namespace Fronter.ViewModels;
 public class MainWindowViewModel : ViewModelBase {
 	public IEnumerable<KeyValuePair<string, string>> Languages =>
 		loc.LoadedLanguages.ToDictionary(l => l, l => loc.TranslateLanguage(l)); // language key, language loc
-
+	
 	private Configuration config = new Configuration();
-	private Fronter.Services.Localization loc = new Fronter.Services.Localization();
+	private Services.Localization loc = new Services.Localization();
+
+	public MainWindowViewModel() {
+		var theme = AvaloniaLocator.Current.GetService<FluentAvaloniaTheme>();
+		if (theme is not null) {
+			var fronterThemePath = Path.Combine("Configuration", "fronter-theme.txt");
+			if (File.Exists(fronterThemePath)) {
+				var parser = new Parser();
+				parser.RegisterKeyword("theme", reader => theme.RequestedTheme = reader.GetString());
+				parser.ParseFile(fronterThemePath);
+			}
+
+			theme.RequestedThemeChanged += (sender, args) => {
+				using var fs = new FileStream(fronterThemePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
+				using var writer = new StreamWriter(fs);
+				writer.WriteLine($"theme={args.NewTheme}");
+				writer.Close();
+			};
+		}
+	}
 
 	private static MainWindow? Window {
 		get {
-			if (Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
+			if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
 				return (MainWindow)desktop.MainWindow;
 			}
 
@@ -64,12 +86,12 @@ public class MainWindowViewModel : ViewModelBase {
 
 			const string updateNow = "Update now";
 			const string maybeLater = "Maybe later";
-			var msgBody = UpdateChecker.GetUpdateMessageBody(loc.Translate("NEWVERSIONBODY"), info);
-			var messageBoxWindow = MessageBox.Avalonia.MessageBoxManager
+			var msgBody = UpdateChecker.GetUpdateMessageBody(Localization.NEWVERSIONBODY, info);
+			var messageBoxWindow = MessageBoxManager
 				.GetMessageBoxCustomWindow(new MessageBoxCustomParams {
-					Icon = MessageBox.Avalonia.Enums.Icon.Info,
+					Icon = Icon.Info,
 					ContentHeader = "An update is available!",
-					ContentTitle = loc.Translate("NEWVERSIONTITLE"),
+					ContentTitle = Localization.NEWVERSIONTITLE,
 					ContentMessage = msgBody,
 					Markdown = true,
 					ButtonDefinitions = new[] {
@@ -91,7 +113,7 @@ public class MainWindowViewModel : ViewModelBase {
 	}
 
 	public static void Exit() {
-		if (Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
+		if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
 			desktop.Shutdown(0);
 		}
 	}
@@ -102,12 +124,12 @@ public class MainWindowViewModel : ViewModelBase {
 			return;
 		}
 
-		var messageBoxWindow = MessageBox.Avalonia.MessageBoxManager
+		var messageBoxWindow = MessageBoxManager
 			.GetMessageBoxStandardWindow(new MessageBoxStandardParams {
-				ContentTitle = loc.Translate("ABOUT_TITLE"),
+				ContentTitle = Localization.ABOUT_TITLE,
 				Icon = Icon.Info,
-				ContentHeader = loc.Translate("ABOUT_HEADER"),
-				ContentMessage = loc.Translate("ABOUT_BODY"),
+				ContentHeader = Localization.ABOUT_HEADER,
+				ContentMessage = Localization.ABOUT_BODY,
 				ButtonDefinitions = ButtonEnum.Ok,
 				SizeToContent = SizeToContent.WidthAndHeight,
 				MinHeight = 250,
@@ -124,6 +146,15 @@ public class MainWindowViewModel : ViewModelBase {
 	public void SetLanguage(string languageKey) {
 		loc.SaveLanguage(languageKey);
 	}
+
+	public void SetTheme(string themeName) {
+		var theme = AvaloniaLocator.Current.GetService<FluentAvaloniaTheme>();
+		if (theme is null) {
+			return;
+		}
+		theme.RequestedTheme = themeName;
+	}
+	
 
 	public void AddRowToLogGrid(LogLine logLine) {
 		LogLines.Add(logLine);

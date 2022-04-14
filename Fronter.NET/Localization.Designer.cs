@@ -313,6 +313,15 @@ namespace Fronter {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Theme.
+        /// </summary>
+        public static string MENU_THEME {
+            get {
+                return ResourceManager.GetString("MENU_THEME", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Converter.
         /// </summary>
         public static string MENUCONVERTER {
@@ -435,6 +444,33 @@ namespace Fronter {
         public static string SUPPORT_US {
             get {
                 return ResourceManager.GetString("SUPPORT_US", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dark.
+        /// </summary>
+        public static string THEME_DARK {
+            get {
+                return ResourceManager.GetString("THEME_DARK", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to High contrast.
+        /// </summary>
+        public static string THEME_HIGH_CONTRAST {
+            get {
+                return ResourceManager.GetString("THEME_HIGH_CONTRAST", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Light.
+        /// </summary>
+        public static string THEME_LIGHT {
+            get {
+                return ResourceManager.GetString("THEME_LIGHT", resourceCulture);
             }
         }
         
