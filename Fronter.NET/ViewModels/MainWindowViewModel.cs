@@ -35,25 +35,6 @@ public class MainWindowViewModel : ViewModelBase {
 	private Configuration config = new Configuration();
 	private Services.Localization loc = new Services.Localization();
 
-	public MainWindowViewModel() {
-		var theme = AvaloniaLocator.Current.GetService<FluentAvaloniaTheme>();
-		if (theme is not null) {
-			var fronterThemePath = Path.Combine("Configuration", "fronter-theme.txt");
-			if (File.Exists(fronterThemePath)) {
-				var parser = new Parser();
-				parser.RegisterKeyword("theme", reader => theme.RequestedTheme = reader.GetString());
-				parser.ParseFile(fronterThemePath);
-			}
-
-			theme.RequestedThemeChanged += (sender, args) => {
-				using var fs = new FileStream(fronterThemePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
-				using var writer = new StreamWriter(fs);
-				writer.WriteLine($"theme={args.NewTheme}");
-				writer.Close();
-			};
-		}
-	}
-
 	private static MainWindow? Window {
 		get {
 			if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {

@@ -9,7 +9,6 @@
         x:Class="Fronter.Views.MainWindow"
         Icon="/Assets/converter.ico"
         Title="Converter Frontend"
-        Foreground="{DynamicResource ThemeForegroundBrush}"
         
         ExtendClientAreaToDecorationsHint="False">
 
