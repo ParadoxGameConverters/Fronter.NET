@@ -1,37 +1,28 @@
 ﻿using commonItems;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace Fronter.Services;
 
 public class Localization {
 	public Localization() {
-		var languagesPath = Path.Combine("Configuration", "converter_languages.yml");
+		var languagesPath = Path.Combine("Resources", "languages.txt");
 		if (!File.Exists(languagesPath)) {
-			Logger.Error("No localization found!");
+			Logger.Error("No languages dictionary found!");
 			return;
 		}
 
-		using var fileStream = File.OpenRead(languagesPath);
-		using var reader = new StreamReader(fileStream);
-		while (!reader.EndOfStream) {
-			var line = reader.ReadLine();
-			if (line is null) {
-				break;
-			}
-			var pos = line.IndexOf(':');
-			if (pos == -1){
-				continue;
-			}
-			var language = line.Substring(2, pos - 2);
-			pos = line.IndexOf('\"');
-			var secpos = line.LastIndexOf('\"');
-			var langText = line.Substring(pos + 1, secpos - pos - 1);
-			languages.Add(language, langText);
-			LoadedLanguages.Add(language);
-		}
+		var languagesParser = new Parser();
+		languagesParser.RegisterRegex(CommonRegexes.String, (langReader, langKey) => {
+			languages.Add(langKey, CultureInfo.GetCultureInfo(langReader.GetString()));
+			LoadedLanguages.Add(langKey);
+		});
+		languagesParser.ParseFile(languagesPath);
+		
 		LoadLanguages();
 
 		var fronterLanguagePath = Path.Combine("Configuration", "fronter-language.txt");
@@ -64,7 +55,7 @@ public class Localization {
 	}
 
 	public string TranslateLanguage(string language) {
-		return !languages.ContainsKey(language) ? string.Empty : languages[language];
+		return !languages.ContainsKey(language) ? string.Empty : languages[language].NativeName;
 	}
 
 	public void SaveLanguage(string languageKey) {
@@ -136,7 +127,15 @@ public class Localization {
 	}
 
 	public List<string> LoadedLanguages { get; } = new();
-	private Dictionary<string, string> languages = new();
+	private Dictionary<string, CultureInfo> languages = new();
 	private Dictionary<string, Dictionary<string, string>> translations = new();
-	public string SetLanguage { get; private set; } = "english";
+
+	private string setLanguage = "english";
+	public string SetLanguage {
+		get => setLanguage;
+		private set {
+			setLanguage = value;
+			Thread.CurrentThread.CurrentUICulture = languages[value];
+		}
+	}
 }

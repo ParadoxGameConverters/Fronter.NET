@@ -17,6 +17,8 @@ namespace Fronter {
 		public override void Initialize() {
 			File.Delete("log.txt");
 			AvaloniaXamlLoader.Load(this);
+
+			var loc = new Services.Localization();
 		}
 
 		public override void OnFrameworkInitializationCompleted() {
