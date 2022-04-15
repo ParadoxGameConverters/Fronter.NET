@@ -1,5 +1,7 @@
 ﻿using commonItems;
 using Fronter.Models.Configuration.Options;
+using ReactiveUI;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -148,5 +150,58 @@ public class Configuration {
 			}
 		});
 		parser.RegisterRegex(CommonRegexes.Catchall, ParserHelpers.IgnoreAndLogItem);
+	}
+
+	private bool ExportConfiguration() {
+		if (string.IsNullOrEmpty(ConverterFolder)) {
+			Logger.Error("Converter folder is not set!");
+			return false;
+		}
+		if (!Directory.Exists(ConverterFolder)) {
+			Logger.Error("Could not find converter folder!");
+			return false;
+		}
+
+		var outConfPath = Path.Combine(ConverterFolder, "configuration.txt");
+		try {
+			using var writer = new StreamWriter(outConfPath);
+			foreach (var (folderName, folder) in RequiredFolders) {
+				writer.WriteLine($"{folderName} = \"{folder.Value}\"");
+			}
+
+			foreach (var (fileName, file) in RequiredFiles) {
+				if (!file.Outputtable) {
+					continue;
+				}
+				writer.WriteLine($"{fileName} = \"{file.Value}\"");
+			}
+
+			if (!string.IsNullOrEmpty(AutoGenerateModsFrom)) {
+				writer.WriteLine("selectedMods={");
+				foreach (var mod in AutoLocatedMods) {
+					if (PreloadedModFileNames.Contains(mod.FileName)) {
+						writer.WriteLine($"\t\"{mod.FileName}\"");
+					}
+				}
+				writer.WriteLine("}");
+			}
+
+			foreach (var option in Options) {
+				if (option.CheckBoxSelector is not null) {
+					writer.Write($"{option.Name} = {{ ");
+					foreach (var value in option.GetValues()) {
+						writer.Write($"\"{value}\" ");
+					}
+					writer.WriteLine("}");
+				} else {
+					writer.WriteLine($"{option.Name} = \"{option.GetValue()}\"");
+				}
+			}
+
+			return true;
+		} catch (Exception ex) {
+			Logger.Error($"Could not open configuration.txt! Error: {ex}");
+			return false;
+		}
 	}
 }
