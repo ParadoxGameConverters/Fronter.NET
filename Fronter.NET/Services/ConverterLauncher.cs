@@ -7,8 +7,8 @@ namespace Fronter.Services;
 
 internal class ConverterLauncher {
 	public void LaunchConverter() {
-		//var converterFolder = Path.Combine();
-		var backendExePath = Path.Combine();
+		var converterFolder = configuration.ConverterFolder;
+		var backendExePath = configuration.BackendExePath;
 		var backendExePathRelativeToFrontend = Path.Combine(configuration.ConverterFolder, configuration.BackendExePath);
 
 		var extension = CommonFunctions.GetExtension(backendExePathRelativeToFrontend);
@@ -24,13 +24,10 @@ internal class ConverterLauncher {
 			Logger.Error("Could not find converter executable!");
 		}
 
-
-
+		
 		if (extension == "jar") {
 			backendExePathRelativeToFrontend = $"java.exe -jar {backendExePathRelativeToFrontend}";
 		}
-
-
 
 
 		using Process process = new();

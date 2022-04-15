@@ -25,11 +25,9 @@ public class MessageSlicer {
 			return logMessage;
 		}
 
-		var timestampPart = message.Substring(0, posOpen).Trim();
+		var timestampPart = message[..posOpen].Trim();
 		if (dateTimeRegex.IsMatch(timestampPart)) {
-			Logger.Debug($"DATETIME MATCH IN {message}");
 		} else {
-			Logger.Debug($"NO   DATETIME MATCH IN {message}");
 			logMessage.Message = message;
 			return logMessage;
 		}
@@ -37,8 +35,8 @@ public class MessageSlicer {
 		logMessage.Timestamp = timestampPart;
 		var logLevelStr = message.Substring(posOpen + 1, posClose - posOpen - 1);
 		logMessage.LogLevel = GetLogLevel(logLevelStr);
-		if (message.Length > posClose + 3) {
-			logMessage.Message = message.Substring(posClose + 2);
+		if (message.Length >= posClose + 2) {
+			logMessage.Message = message[(posClose + 2)..];
 		}
 		
 		return logMessage;

@@ -90,7 +90,7 @@
                 <Grid ColumnDefinitions="1*,1*,1*" RowDefinitions="Auto"  Margin="4">
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="Square : " HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     <Rectangle Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" Fill="Blue" Height="41"/>
-                    <Button Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center" Name="ConvertButton" Command="{Binding BuyMusicCommand}">Convert!</Button>
+                    <Button Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center" Name="ConvertButton" Command="{Binding LaunchConverter}">Convert!</Button>
                 </Grid>
             </TabItem>
         </TabControl>

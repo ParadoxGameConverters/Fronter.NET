@@ -119,7 +119,6 @@ public class MainWindowViewModel : ViewModelBase {
 
 	public void SetLanguage(string languageKey) {
 		loc.SaveLanguage(languageKey);
-		//this.RaisePropertyChanged(nameof(TranslationSourceA));
 	}
 
 	public void SetTheme(string themeName) {
@@ -143,8 +142,6 @@ public class MainWindowViewModel : ViewModelBase {
 			AddRowToLogGrid(logLine);
 		} else {
 			lastLogRow.Message += $"\n{logLine.Message}";
-			var logGrid = Window?.FindControl<DataGrid>("LogGrid");
-			logGrid?.ScrollIntoView(logLine, null);
 		}
 	}
 
