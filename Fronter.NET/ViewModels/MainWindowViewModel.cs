@@ -14,6 +14,7 @@ using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
 using MessageBox.Avalonia.Models;
 using ReactiveUI;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -27,6 +28,22 @@ public class MainWindowViewModel : ViewModelBase {
 
 	private Configuration config = new Configuration();
 	private Services.Localization loc = new Services.Localization();
+
+	private LogLevel logFilterLevel = LogLevel.Warn;
+	public LogLevel LogFilterLevel {
+		get => logFilterLevel;
+		set => this.RaiseAndSetIfChanged(ref logFilterLevel, value);
+	}
+
+	public void ToggleLogFilterLevel(string value) {
+		LogFilterLevel = (LogLevel)Enum.Parse(typeof(LogLevel), value);
+	}
+
+	private ushort progress = 30; // todo: remove debug value
+	public ushort Progress {
+		get => progress;
+		set => this.RaiseAndSetIfChanged(ref progress, value);
+	}
 
 	private static MainWindow? Window {
 		get {

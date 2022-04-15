@@ -45,7 +45,7 @@ public class LogWatcher : IDisposable {
 					var logLine = MessageSlicer.SliceMessage(line);
 					//Logger.Notice($"logMessage:\t\t\t{logMessage.Message}"); // TODO: REMOVE DEBUG
 					if (TranscriberMode) {
-						var logLevel = logLine.LogLevel ?? Logger.LogLevel.Info;
+						var logLevel = logLine.LogLevel ?? LogLevel.Info;
 						Logger.Log(logLevel, logLine.Message);
 					}
 

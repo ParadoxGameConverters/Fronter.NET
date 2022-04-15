@@ -7,7 +7,7 @@ namespace Fronter.Models;
 
 public class LogLine : ReactiveObject {
 	public string Timestamp { get; set; } = string.Empty;
-	public Logger.LogLevel? LogLevel { get; set; }
+	public LogLevel? LogLevel { get; set; }
 	public MessageSlicer.MessageSource Source { get; set; } = MessageSlicer.MessageSource.UNINITIALIZED;
 
 	private string message = string.Empty;

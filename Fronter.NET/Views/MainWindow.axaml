@@ -6,10 +6,13 @@
         xmlns:views="clr-namespace:Fronter.Views"
         xmlns:fronter="clr-namespace:Fronter"
         xmlns:ns="clr-namespace:Fronter.Extensions"
-        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="400"
+        xmlns:vc="clr-namespace:Fronter.ValueConverters"
+        xmlns:commons="clr-namespace:commonItems;assembly=commonItems"
+        mc:Ignorable="d" d:DesignWidth="710" d:DesignHeight="400"
         x:Class="Fronter.Views.MainWindow"
         Icon="/Assets/converter.ico"
         Title="Converter Frontend"
+        MinWidth="710"
         
         ExtendClientAreaToDecorationsHint="False">
 
@@ -87,10 +90,56 @@
             </TabItem>
             
             <TabItem Header="{ns:Loc CONVERTTAB}" VerticalContentAlignment="Center">
-                <Grid ColumnDefinitions="1*,1*,1*" RowDefinitions="Auto"  Margin="4">
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Square : " HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <Rectangle Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" Fill="Blue" Height="41"/>
-                    <Button Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center" Name="ConvertButton" Command="{Binding LaunchConverter}">Convert!</Button>
+                <Grid ColumnDefinitions="1*,2*" RowDefinitions="Auto" Margin="2,4,2,4"  ShowGridLines="True">
+                    <StackPanel Grid.Row="0" Grid.Column="0">
+                        <StackPanel.Resources>
+                            <vc:EnumToBooleanConverter x:Key="EnumBooleanConverter"/>
+                        </StackPanel.Resources>
+                        <TextBlock Text="{ns:Loc LOGLEVEL}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        
+                        <RadioButton IsChecked="{Binding Path=LogFilterLevel, Mode=OneWay, Converter={x:Static vc:EnumToBooleanConverter.Instance}, ConverterParameter={x:Static commons:LogLevel.Error}}"
+                                     Command="{Binding ToggleLogFilterLevel}"
+                                     CommandParameter="Error"
+                                     VerticalContentAlignment="Center"
+                                     Content="Error"
+                                     Margin="1">
+                        </RadioButton>
+                        <RadioButton IsChecked="{Binding Path=LogFilterLevel, Mode=OneWay, Converter={x:Static vc:EnumToBooleanConverter.Instance}, ConverterParameter={x:Static commons:LogLevel.Warn}}"
+                                     Command="{Binding ToggleLogFilterLevel}"
+                                     CommandParameter="Warn"
+                                     VerticalContentAlignment="Center"
+                                     Content="Warn"
+                                     Margin="1">
+                        </RadioButton>
+                        <RadioButton IsChecked="{Binding Path=LogFilterLevel, Mode=OneWay, Converter={x:Static vc:EnumToBooleanConverter.Instance}, ConverterParameter={x:Static commons:LogLevel.Info}}"
+                                     Command="{Binding ToggleLogFilterLevel}"
+                                     CommandParameter="Info"
+                                     VerticalContentAlignment="Center"
+                                     Content="Info"
+                                     Margin="1">
+                        </RadioButton>
+                        <!--<RadioButton IsChecked="{Binding Path=LogFilterLevel, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=3}">Error</RadioButton>
+                        <RadioButton IsChecked="{Binding Path=LogFilterLevel, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=2}">Warn</RadioButton>
+                        <RadioButton IsChecked="{Binding Path=LogFilterLevel, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=1}">Info</RadioButton>
+                        <RadioButton IsChecked="{Binding Path=LogFilterLevel, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=0}">Debug</RadioButton>-->
+                        <TextBlock Text="{Binding LogFilterLevel}"></TextBlock>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical" >
+                        <Grid ColumnDefinitions="1.8*, 1*" RowDefinitions="1*,1*,1*" Margin="10, 4, 0, 4">
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{ns:Loc CONVERTSAVING}"></TextBlock>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{ns:Loc CONVERTSTATUSPRE}"></TextBlock>
+                            
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="{ns:Loc CONVERTCONVERTING}"></TextBlock>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{ns:Loc CONVERTSTATUSPRE}"></TextBlock>
+                            
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="{ns:Loc CONVERTCOPYING}"></TextBlock>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{ns:Loc CONVERTSTATUSPRE}"></TextBlock>
+                        </Grid>
+                        <ProgressBar Margin="4" Height="20" BorderThickness="2" Value="{Binding Progress}"/>
+                        <TextBlock Text="{Binding Progress, StringFormat={}{0}%}" HorizontalAlignment="Center"></TextBlock>
+                        <Button Margin="4,15,4,4" HorizontalAlignment="Center" Name="ConvertButton" Command="{Binding LaunchConverter}">Convert!</Button>
+                    </StackPanel>
                 </Grid>
             </TabItem>
         </TabControl>

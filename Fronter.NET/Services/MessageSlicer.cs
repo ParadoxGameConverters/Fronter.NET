@@ -2,6 +2,7 @@
 using Fronter.Models;
 using Splat;
 using System.Text.RegularExpressions;
+using LogLevel = commonItems.LogLevel;
 
 namespace Fronter.Services;
 
@@ -42,14 +43,14 @@ public class MessageSlicer {
 		return logMessage;
 	}
 
-	private static Logger.LogLevel? GetLogLevel(string levelStr) {
+	private static LogLevel? GetLogLevel(string levelStr) {
 		return levelStr switch {
-			"DEBUG" => Logger.LogLevel.Debug,
-			"INFO" => Logger.LogLevel.Info,
-			"WARNING" or "WARN" => Logger.LogLevel.Warn,
-			"ERROR" => Logger.LogLevel.Error,
-			"PROGRESS" => Logger.LogLevel.Progress,
-			"NOTICE" => Logger.LogLevel.Notice,
+			"DEBUG" => LogLevel.Debug,
+			"INFO" => LogLevel.Info,
+			"WARNING" or "WARN" => LogLevel.Warn,
+			"ERROR" => LogLevel.Error,
+			"PROGRESS" => LogLevel.Progress,
+			"NOTICE" => LogLevel.Notice,
 			_ => null
 		};
 	}
