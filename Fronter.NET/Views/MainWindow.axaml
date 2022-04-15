@@ -68,7 +68,7 @@
         <TabControl DockPanel.Dock="Top" MinHeight="150">
             <TabItem Header="{ns:Loc PATHSTAB}" VerticalContentAlignment="Center">
                 <DockPanel>
-                    <Button DockPanel.Dock="Bottom">Add an item</Button>
+                    <Button DockPanel.Dock="Bottom" Command="{Binding DEBUGADDTOLOG}">Add an item</Button>
                     <StackPanel>
                         <CheckBox Margin="4">Walk the dog</CheckBox>
                         <CheckBox Margin="4">Walk the dog</CheckBox>
@@ -98,28 +98,28 @@
                                      Command="{Binding ToggleLogFilterLevel}"
                                      CommandParameter="Error"
                                      VerticalContentAlignment="Center"
-                                     Content="Error"
+                                     Content="{ns:Loc LOGLEVEL0}"
                                      Margin="1">
                         </RadioButton>
                         <RadioButton IsChecked="{Binding Path=LogFilterLevel, Mode=OneWay, Converter={x:Static vc:EnumToBooleanConverter.Instance}, ConverterParameter={x:Static commons:LogLevel.Warn}}"
                                      Command="{Binding ToggleLogFilterLevel}"
                                      CommandParameter="Warn"
                                      VerticalContentAlignment="Center"
-                                     Content="Warn"
+                                     Content="{ns:Loc LOGLEVEL1}"
                                      Margin="1">
                         </RadioButton>
                         <RadioButton IsChecked="{Binding Path=LogFilterLevel, Mode=OneWay, Converter={x:Static vc:EnumToBooleanConverter.Instance}, ConverterParameter={x:Static commons:LogLevel.Info}}"
                                      Command="{Binding ToggleLogFilterLevel}"
                                      CommandParameter="Info"
                                      VerticalContentAlignment="Center"
-                                     Content="Info"
+                                     Content="{ns:Loc LOGLEVEL2}"
                                      Margin="1">
                         </RadioButton>
                         <RadioButton IsChecked="{Binding Path=LogFilterLevel, Mode=OneWay, Converter={x:Static vc:EnumToBooleanConverter.Instance}, ConverterParameter={x:Static commons:LogLevel.Debug}}"
                                      Command="{Binding ToggleLogFilterLevel}"
                                      CommandParameter="Debug"
                                      VerticalContentAlignment="Center"
-                                     Content="Debug"
+                                     Content="{ns:Loc LOGLEVEL3}"
                                      Margin="1">
                         </RadioButton>
                     </StackPanel>

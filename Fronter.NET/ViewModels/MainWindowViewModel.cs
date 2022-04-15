@@ -45,7 +45,6 @@ public class MainWindowViewModel : ViewModelBase {
 	public MainWindowViewModel() {
 		LogLines.ToObservableChangeSet()
 			.Filter(line => line.LogLevel >= LogFilterLevel)
-			.ObserveOn(AvaloniaScheduler.Instance)
 			.Bind(out filteredLogLines)
 			.Subscribe();
 	}
@@ -54,7 +53,6 @@ public class MainWindowViewModel : ViewModelBase {
 		LogFilterLevel = (LogLevel)Enum.Parse(typeof(LogLevel), value);
 		LogLines.ToObservableChangeSet()
 			.Filter(line => line.LogLevel >= LogFilterLevel)
-			.ObserveOn(AvaloniaScheduler.Instance)
 			.Bind(out filteredLogLines)
 			.Subscribe();
 		this.RaisePropertyChanged(nameof(FilteredLogLines));
@@ -80,6 +78,14 @@ public class MainWindowViewModel : ViewModelBase {
 		var converterLauncher = new ConverterLauncher();
 		converterLauncher.LoadConfiguration(config);
 		converterLauncher.LaunchConverter();
+	}
+
+	public void DEBUGADDTOLOG() {
+		AddRowToLogGrid(new LogLine() {
+			LogLevel = LogLevel.Info,
+			Message = "TEST FROM BUTTON",
+			Timestamp = DateTime.Now.ToString("yyyy’-‘MM’-‘dd’ ’HH’:’mm’:’ss")
+		});
 	}
 
 	public async void CheckForUpdates() {
