@@ -20,11 +20,11 @@
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="{extensions:Loc MENUCONVERTER}">
-                <MenuItem Header="{x:Static fronter:Localization.CHECKFORUPDATES}" Command="{Binding CheckForUpdates}"/>
+                <MenuItem Header="{extensions:Loc CHECKFORUPDATES}" Command="{Binding CheckForUpdates}"/>
                 <Separator/>
-                <MenuItem Header="{x:Static fronter:Localization.EXIT}" Command="{Binding Exit}"/>
+                <MenuItem Header="{extensions:Loc EXIT}" Command="{Binding Exit}"/>
             </MenuItem>
-            <MenuItem Header="{x:Static fronter:Localization.LANGUAGE}" Items="{Binding Languages}" Classes="LanguageChoice">
+            <MenuItem Header="{extensions:Loc LANGUAGE}" Items="{Binding Languages}" Classes="LanguageChoice">
                 <MenuItem.Styles>
                     <Style Selector="MenuItem.LanguageChoice MenuItem">
                         <Setter Property="Header" Value="{Binding Value}"/>
@@ -33,27 +33,27 @@
                     </Style>
                 </MenuItem.Styles>  
             </MenuItem>
-            <MenuItem Header="{x:Static fronter:Localization.MENU_THEME}">
+            <MenuItem Header="{extensions:Loc MENU_THEME}">
                 <MenuItem
-                    Header="{x:Static fronter:Localization.THEME_LIGHT}"
+                    Header="{extensions:Loc THEME_LIGHT}"
                     Command="{Binding SetTheme}"
                     CommandParameter="Light"
                 />
                 <MenuItem
-                    Header="{x:Static fronter:Localization.THEME_DARK}"
+                    Header="{extensions:Loc THEME_DARK}"
                     Command="{Binding SetTheme}"
                     CommandParameter="Dark"
                 />
                 <MenuItem
-                    Header="{x:Static fronter:Localization.THEME_HIGH_CONTRAST}"
+                    Header="{extensions:Loc THEME_HIGH_CONTRAST}"
                     Command="{Binding SetTheme}"
                     CommandParameter="HighContrast"
                 />
             </MenuItem>
                 
-            <MenuItem Header="{x:Static fronter:Localization.MENUHELP}">
-                <MenuItem Header="{x:Static fronter:Localization.ABOUT}" Command="{Binding OpenAboutDialog}"/>
-                <MenuItem Header="{x:Static fronter:Localization.SUPPORT_US}" Command="{Binding OpenPatreonPage}"/>
+            <MenuItem Header="{extensions:Loc MENUHELP}">
+                <MenuItem Header="{extensions:Loc ABOUT}" Command="{Binding OpenAboutDialog}"/>
+                <MenuItem Header="{extensions:Loc SUPPORT_US}" Command="{Binding OpenPatreonPage}"/>
             </MenuItem>
         </Menu>
         <TabControl DockPanel.Dock="Top">
@@ -67,20 +67,20 @@
                     </StackPanel>
                 </DockPanel>
             </TabItem>
-            <TabItem Header="{x:Static fronter:Localization.MODSTAB}" VerticalContentAlignment="Center">
+            <TabItem Header="{extensions:Loc MODSTAB}" VerticalContentAlignment="Center">
                 <StackPanel>
-                    <TextBlock Text="{x:Static fronter:Localization.MODSDISABLED}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    <TextBlock Text="{extensions:Loc MODSDISABLED}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                 </StackPanel>
             </TabItem>
             
-            <TabItem Header="{x:Static fronter:Localization.OPTIONSTAB}" VerticalContentAlignment="Center">
+            <TabItem Header="{extensions:Loc OPTIONSTAB}" VerticalContentAlignment="Center">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Square : " HorizontalAlignment="Left" VerticalAlignment="Center"/>
                     <Rectangle Fill="Blue" Width="63" Height="41"/>
                 </StackPanel>
             </TabItem>
             
-            <TabItem Header="{x:Static fronter:Localization.CONVERTTAB}" VerticalContentAlignment="Center">
+            <TabItem Header="{extensions:Loc CONVERTTAB}" VerticalContentAlignment="Center">
                 <Grid ColumnDefinitions="1*,1*,1*" RowDefinitions="Auto"  Margin="4">
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="Square : " HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     <Rectangle Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" Fill="Blue" Height="41"/>
@@ -92,9 +92,9 @@
         <DataGrid Name="LogGrid" Margin="0,20,0,0" VerticalScrollBarVisibility="Visible" Items="{Binding LogLines}" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="False">
             <DataGrid.GridLinesVisibility>All</DataGrid.GridLinesVisibility>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="{x:Static fronter:Localization.LOGTIME}" IsReadOnly="True" Binding="{Binding Timestamp }"/>
-                <DataGridTextColumn Header="{x:Static fronter:Localization.LOGSEVERITY}" IsReadOnly="True" Binding="{Binding LogLevel}" />
-                <DataGridTextColumn Header="{x:Static fronter:Localization.LOGMESSAGE}" IsReadOnly="True" Binding="{Binding Message}" />
+                <DataGridTextColumn Header="{extensions:Loc LOGTIME}" IsReadOnly="True" Binding="{Binding Timestamp }"/>
+                <DataGridTextColumn Header="{extensions:Loc LOGSEVERITY}" IsReadOnly="True" Binding="{Binding LogLevel}" />
+                <DataGridTextColumn Header="{extensions:Loc LOGMESSAGE}" IsReadOnly="True" Binding="{Binding Message}" />
             </DataGrid.Columns>
         </DataGrid>
     </DockPanel>

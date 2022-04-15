@@ -59,6 +59,12 @@ public class Localization {
 		return !languages.ContainsKey(language) ? string.Empty : languages[language].NativeName;
 	}
 
+	public string this[string key] {
+		get {
+			return Translate(key);
+		}
+	}
+
 	public void SaveLanguage(string languageKey) {
 		if (!LoadedLanguages.Contains(languageKey)) {
 			return;

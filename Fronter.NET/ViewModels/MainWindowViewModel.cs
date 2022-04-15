@@ -12,6 +12,7 @@ using ReactiveUI;
 using System.Threading.Tasks;
 using commonItems;
 using FluentAvalonia.Styling;
+using Fronter.Extensions;
 using Fronter.Models;
 using MessageBox.Avalonia;
 using MessageBox.Avalonia.Enums;
@@ -21,8 +22,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Resources;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -123,9 +126,10 @@ public class MainWindowViewModel : ViewModelBase {
 	public static async void OpenPatreonPage() {
 		BrowserLauncher.Open("https://www.patreon.com/ParadoxGameConverters");
 	}
-
+	
 	public void SetLanguage(string languageKey) {
 		loc.SaveLanguage(languageKey);
+		this.RaisePropertyChanged(nameof(TranslationSourceA));
 	}
 
 	public void SetTheme(string themeName) {
@@ -136,6 +140,7 @@ public class MainWindowViewModel : ViewModelBase {
 		theme.RequestedTheme = themeName;
 	}
 	
+	public TranslationSource TranslationSourceA => TranslationSource.Instance;
 
 	public void AddRowToLogGrid(LogLine logLine) {
 		LogLines.Add(logLine);
