@@ -92,9 +92,6 @@
             <TabItem Header="{ns:Loc CONVERTTAB}" VerticalContentAlignment="Center">
                 <Grid ColumnDefinitions="1*,2*" RowDefinitions="Auto" Margin="2,4,2,4"  ShowGridLines="True">
                     <StackPanel Grid.Row="0" Grid.Column="0">
-                        <StackPanel.Resources>
-                            <vc:EnumToBooleanConverter x:Key="EnumBooleanConverter"/>
-                        </StackPanel.Resources>
                         <TextBlock Text="{ns:Loc LOGLEVEL}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                         
                         <RadioButton IsChecked="{Binding Path=LogFilterLevel, Mode=OneWay, Converter={x:Static vc:EnumToBooleanConverter.Instance}, ConverterParameter={x:Static commons:LogLevel.Error}}"
@@ -118,11 +115,13 @@
                                      Content="Info"
                                      Margin="1">
                         </RadioButton>
-                        <!--<RadioButton IsChecked="{Binding Path=LogFilterLevel, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=3}">Error</RadioButton>
-                        <RadioButton IsChecked="{Binding Path=LogFilterLevel, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=2}">Warn</RadioButton>
-                        <RadioButton IsChecked="{Binding Path=LogFilterLevel, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=1}">Info</RadioButton>
-                        <RadioButton IsChecked="{Binding Path=LogFilterLevel, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=0}">Debug</RadioButton>-->
-                        <TextBlock Text="{Binding LogFilterLevel}"></TextBlock>
+                        <RadioButton IsChecked="{Binding Path=LogFilterLevel, Mode=OneWay, Converter={x:Static vc:EnumToBooleanConverter.Instance}, ConverterParameter={x:Static commons:LogLevel.Debug}}"
+                                     Command="{Binding ToggleLogFilterLevel}"
+                                     CommandParameter="Debug"
+                                     VerticalContentAlignment="Center"
+                                     Content="Debug"
+                                     Margin="1">
+                        </RadioButton>
                     </StackPanel>
                     
                     <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical" >
@@ -144,7 +143,7 @@
             </TabItem>
         </TabControl>
         
-        <DataGrid Name="LogGrid" Margin="0,20,0,0" VerticalScrollBarVisibility="Visible" Items="{Binding LogLines}" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="False">
+        <DataGrid Name="LogGrid" Margin="0,20,0,0" VerticalScrollBarVisibility="Visible" Items="{Binding FilteredLogLines}" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="False">
             <DataGrid.GridLinesVisibility>All</DataGrid.GridLinesVisibility>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="{ns:Loc LOGTIME}" IsReadOnly="True" Binding="{Binding Timestamp}" CellStyleClasses="verticalTop" />

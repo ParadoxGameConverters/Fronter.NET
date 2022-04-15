@@ -19,6 +19,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
+using DynamicData;
+using DynamicData.Binding;
+using System.Reactive.Linq;
 
 namespace Fronter.ViewModels;
 
@@ -32,11 +35,29 @@ public class MainWindowViewModel : ViewModelBase {
 	private LogLevel logFilterLevel = LogLevel.Warn;
 	public LogLevel LogFilterLevel {
 		get => logFilterLevel;
-		set => this.RaiseAndSetIfChanged(ref logFilterLevel, value);
+		private set => this.RaiseAndSetIfChanged(ref logFilterLevel, value);
 	}
 
+	public ObservableCollection<LogLine> LogLines { get; } = new();
+	private ReadOnlyObservableCollection<LogLine> filteredLogLines;
+	public ReadOnlyObservableCollection<LogLine> FilteredLogLines => filteredLogLines;
+
+	public MainWindowViewModel() {
+		LogLines.ToObservableChangeSet()
+			.Filter(line => line.LogLevel >= LogFilterLevel)
+			.ObserveOn(AvaloniaScheduler.Instance)
+			.Bind(out filteredLogLines)
+			.Subscribe();
+	}
+	
 	public void ToggleLogFilterLevel(string value) {
 		LogFilterLevel = (LogLevel)Enum.Parse(typeof(LogLevel), value);
+		LogLines.ToObservableChangeSet()
+			.Filter(line => line.LogLevel >= LogFilterLevel)
+			.ObserveOn(AvaloniaScheduler.Instance)
+			.Bind(out filteredLogLines)
+			.Subscribe();
+		this.RaisePropertyChanged(nameof(FilteredLogLines));
 	}
 
 	private ushort progress = 30; // todo: remove debug value
@@ -167,6 +188,4 @@ public class MainWindowViewModel : ViewModelBase {
 		var logThread = new Thread(logWatcher.WatchLog);
 		logThread.Start();
 	}
-
-	public ObservableCollection<LogLine> LogLines { get; } = new();
 }
