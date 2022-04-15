@@ -1,6 +1,4 @@
-﻿using commonItems;
-using Fronter.Models;
-using Splat;
+﻿using Fronter.Models;
 using System.Text.RegularExpressions;
 using LogLevel = commonItems.LogLevel;
 

@@ -21,7 +21,6 @@ using System.Linq;
 using System.Threading;
 using DynamicData;
 using DynamicData.Binding;
-using System.Reactive.Linq;
 
 namespace Fronter.ViewModels;
 
@@ -84,7 +83,7 @@ public class MainWindowViewModel : ViewModelBase {
 		AddRowToLogGrid(new LogLine() {
 			LogLevel = LogLevel.Info,
 			Message = "TEST FROM BUTTON",
-			Timestamp = DateTime.Now.ToString("yyyy’-‘MM’-‘dd’ ’HH’:’mm’:’ss")
+			Timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
 		});
 	}
 
