@@ -1,7 +1,5 @@
-﻿using commonItems;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Globalization;
-using System.Reflection;
 
 namespace Fronter.Extensions;
 
@@ -11,7 +9,7 @@ public class TranslationSource : INotifyPropertyChanged {
 
 	private CultureInfo? currentCulture = null;
 
-	public string? this[string key] => Localization.ResourceManager.GetString(key, currentCulture);
+	public string? this[string key] => Localization.ResourceManager.GetString(key, currentCulture)?.Replace("\\n", "\n");
 
 	public CultureInfo? CurrentCulture {
 		get => currentCulture;
@@ -19,10 +17,10 @@ public class TranslationSource : INotifyPropertyChanged {
 			if (currentCulture is not null && currentCulture.Equals(value)) {
 				return;
 			}
-			
+
 			currentCulture = value;
 
-			PropertyChanged?.Invoke(this,new PropertyChangedEventArgs("Item"));
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Item"));
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
 		}
 	}

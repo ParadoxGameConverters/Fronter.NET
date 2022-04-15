@@ -3,38 +3,28 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using commonItems;
-using Fronter.Models.Configuration;
-using Fronter.Services;
-using Fronter.Views;
-using MessageBox.Avalonia.DTO;
-using MessageBox.Avalonia.ViewModels;
-using ReactiveUI;
-using System.Threading.Tasks;
-using commonItems;
 using FluentAvalonia.Styling;
 using Fronter.Extensions;
 using Fronter.Models;
+using Fronter.Models.Configuration;
+using Fronter.Services;
+using Fronter.Views;
 using MessageBox.Avalonia;
+using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
 using MessageBox.Avalonia.Models;
-using System;
-using System.Collections;
+using ReactiveUI;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Resources;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Fronter.ViewModels;
 
 public class MainWindowViewModel : ViewModelBase {
 	public IEnumerable<KeyValuePair<string, string>> Languages =>
 		loc.LoadedLanguages.ToDictionary(l => l, l => loc.TranslateLanguage(l)); // language key, language loc
-	
+
 	private Configuration config = new Configuration();
 	private Services.Localization loc = new Services.Localization();
 
@@ -64,8 +54,8 @@ public class MainWindowViewModel : ViewModelBase {
 		Logger.Debug($"{nameof(config.CheckForUpdatesOnStartup)}: {config.CheckForUpdatesOnStartup}");
 		Logger.Debug($"is update available: {UpdateChecker.IsUpdateAvailable("commit_id.txt", config.PagesCommitIdUrl)}");
 		if (config.UpdateCheckerEnabled &&
-		    config.CheckForUpdatesOnStartup &&
-		    UpdateChecker.IsUpdateAvailable("commit_id.txt", config.PagesCommitIdUrl)) {
+			config.CheckForUpdatesOnStartup &&
+			UpdateChecker.IsUpdateAvailable("commit_id.txt", config.PagesCommitIdUrl)) {
 			var info = UpdateChecker.GetLatestReleaseInfo(config.Name);
 
 			const string updateNow = "Update now";
@@ -110,10 +100,10 @@ public class MainWindowViewModel : ViewModelBase {
 
 		var messageBoxWindow = MessageBoxManager
 			.GetMessageBoxStandardWindow(new MessageBoxStandardParams {
-				ContentTitle = Localization.ABOUT_TITLE,
+				ContentTitle = TranslationSource.Instance["ABOUT_TITLE"],
 				Icon = Icon.Info,
-				ContentHeader = Localization.ABOUT_HEADER,
-				ContentMessage = Localization.ABOUT_BODY,
+				ContentHeader = TranslationSource.Instance["ABOUT_HEADER"],
+				ContentMessage = TranslationSource.Instance["ABOUT_BODY"],
 				ButtonDefinitions = ButtonEnum.Ok,
 				SizeToContent = SizeToContent.WidthAndHeight,
 				MinHeight = 250,
@@ -126,10 +116,10 @@ public class MainWindowViewModel : ViewModelBase {
 	public static async void OpenPatreonPage() {
 		BrowserLauncher.Open("https://www.patreon.com/ParadoxGameConverters");
 	}
-	
+
 	public void SetLanguage(string languageKey) {
 		loc.SaveLanguage(languageKey);
-		this.RaisePropertyChanged(nameof(TranslationSourceA));
+		//this.RaisePropertyChanged(nameof(TranslationSourceA));
 	}
 
 	public void SetTheme(string themeName) {
@@ -139,24 +129,22 @@ public class MainWindowViewModel : ViewModelBase {
 		}
 		theme.RequestedTheme = themeName;
 	}
-	
-	public TranslationSource TranslationSourceA => TranslationSource.Instance;
 
+	private LogLine? lastLogRow;
 	public void AddRowToLogGrid(LogLine logLine) {
 		LogLines.Add(logLine);
 
 		var logGrid = Window?.FindControl<DataGrid>("LogGrid");
 		logGrid?.ScrollIntoView(logLine, null);
+		lastLogRow = logLine;
 	}
-
-	public void AddRowsToLogGrid() { // todo: remove debug
-		int counter = 0;
-		while (counter++ < 10000) {
-			var logLine = new LogLine {Message = $"Message no. {counter}"};
-			Dispatcher.UIThread.Post(
-				() => AddRowToLogGrid(logLine),
-				DispatcherPriority.MinValue
-			);
+	public void AppendToLastLogRow(LogLine logLine) {
+		if (lastLogRow is null) {
+			AddRowToLogGrid(logLine);
+		} else {
+			lastLogRow.Message += $"\n{logLine.Message}";
+			var logGrid = Window?.FindControl<DataGrid>("LogGrid");
+			logGrid?.ScrollIntoView(logLine, null);
 		}
 	}
 

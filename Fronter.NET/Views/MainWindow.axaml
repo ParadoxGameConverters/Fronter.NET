@@ -5,7 +5,7 @@
         xmlns:viewModels="clr-namespace:Fronter.ViewModels"
         xmlns:views="clr-namespace:Fronter.Views"
         xmlns:fronter="clr-namespace:Fronter"
-        xmlns:extensions="clr-namespace:Fronter.Extensions"
+        xmlns:ns="clr-namespace:Fronter.Extensions"
         mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="400"
         x:Class="Fronter.Views.MainWindow"
         Icon="/Assets/converter.ico"
@@ -16,15 +16,21 @@
     <Design.DataContext>
         <viewModels:MainWindowViewModel />
     </Design.DataContext>
+    
+    <Window.Styles>
+        <Style Selector="DataGridCell.verticalTop">
+            <Setter Property="VerticalContentAlignment" Value="Top" />
+        </Style>
+    </Window.Styles>
 
     <DockPanel>
         <Menu DockPanel.Dock="Top">
-            <MenuItem Header="{extensions:Loc MENUCONVERTER}">
-                <MenuItem Header="{extensions:Loc CHECKFORUPDATES}" Command="{Binding CheckForUpdates}"/>
+            <MenuItem Header="{ns:Loc MENUCONVERTER}">
+                <MenuItem Header="{ns:Loc CHECKFORUPDATES}" Command="{Binding CheckForUpdates}"/>
                 <Separator/>
-                <MenuItem Header="{extensions:Loc EXIT}" Command="{Binding Exit}"/>
+                <MenuItem Header="{ns:Loc EXIT}" Command="{Binding Exit}"/>
             </MenuItem>
-            <MenuItem Header="{extensions:Loc LANGUAGE}" Items="{Binding Languages}" Classes="LanguageChoice">
+            <MenuItem Header="{ns:Loc LANGUAGE}" Items="{Binding Languages}" Classes="LanguageChoice">
                 <MenuItem.Styles>
                     <Style Selector="MenuItem.LanguageChoice MenuItem">
                         <Setter Property="Header" Value="{Binding Value}"/>
@@ -33,31 +39,31 @@
                     </Style>
                 </MenuItem.Styles>  
             </MenuItem>
-            <MenuItem Header="{extensions:Loc MENU_THEME}">
+            <MenuItem Header="{ns:Loc MENU_THEME}">
                 <MenuItem
-                    Header="{extensions:Loc THEME_LIGHT}"
+                    Header="{ns:Loc THEME_LIGHT}"
                     Command="{Binding SetTheme}"
                     CommandParameter="Light"
                 />
                 <MenuItem
-                    Header="{extensions:Loc THEME_DARK}"
+                    Header="{ns:Loc THEME_DARK}"
                     Command="{Binding SetTheme}"
                     CommandParameter="Dark"
                 />
                 <MenuItem
-                    Header="{extensions:Loc THEME_HIGH_CONTRAST}"
+                    Header="{ns:Loc THEME_HIGH_CONTRAST}"
                     Command="{Binding SetTheme}"
                     CommandParameter="HighContrast"
                 />
             </MenuItem>
                 
-            <MenuItem Header="{extensions:Loc MENUHELP}">
-                <MenuItem Header="{extensions:Loc ABOUT}" Command="{Binding OpenAboutDialog}"/>
-                <MenuItem Header="{extensions:Loc SUPPORT_US}" Command="{Binding OpenPatreonPage}"/>
+            <MenuItem Header="{ns:Loc MENUHELP}">
+                <MenuItem Header="{ns:Loc ABOUT}" Command="{Binding OpenAboutDialog}"/>
+                <MenuItem Header="{ns:Loc SUPPORT_US}" Command="{Binding OpenPatreonPage}"/>
             </MenuItem>
         </Menu>
-        <TabControl DockPanel.Dock="Top">
-            <TabItem Header="{extensions:Loc PATHSTAB}" VerticalContentAlignment="Center">
+        <TabControl DockPanel.Dock="Top" MinHeight="150">
+            <TabItem Header="{ns:Loc PATHSTAB}" VerticalContentAlignment="Center">
                 <DockPanel>
                     <Button DockPanel.Dock="Bottom">Add an item</Button>
                     <StackPanel>
@@ -67,20 +73,20 @@
                     </StackPanel>
                 </DockPanel>
             </TabItem>
-            <TabItem Header="{extensions:Loc MODSTAB}" VerticalContentAlignment="Center">
+            <TabItem Header="{ns:Loc MODSTAB}" VerticalContentAlignment="Center">
                 <StackPanel>
-                    <TextBlock Text="{extensions:Loc MODSDISABLED}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    <TextBlock Text="{ns:Loc MODSDISABLED}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                 </StackPanel>
             </TabItem>
             
-            <TabItem Header="{extensions:Loc OPTIONSTAB}" VerticalContentAlignment="Center">
+            <TabItem Header="{ns:Loc OPTIONSTAB}" VerticalContentAlignment="Center">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Square : " HorizontalAlignment="Left" VerticalAlignment="Center"/>
                     <Rectangle Fill="Blue" Width="63" Height="41"/>
                 </StackPanel>
             </TabItem>
             
-            <TabItem Header="{extensions:Loc CONVERTTAB}" VerticalContentAlignment="Center">
+            <TabItem Header="{ns:Loc CONVERTTAB}" VerticalContentAlignment="Center">
                 <Grid ColumnDefinitions="1*,1*,1*" RowDefinitions="Auto"  Margin="4">
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="Square : " HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     <Rectangle Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" Fill="Blue" Height="41"/>
@@ -92,9 +98,9 @@
         <DataGrid Name="LogGrid" Margin="0,20,0,0" VerticalScrollBarVisibility="Visible" Items="{Binding LogLines}" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="False">
             <DataGrid.GridLinesVisibility>All</DataGrid.GridLinesVisibility>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="{extensions:Loc LOGTIME}" IsReadOnly="True" Binding="{Binding Timestamp }"/>
-                <DataGridTextColumn Header="{extensions:Loc LOGSEVERITY}" IsReadOnly="True" Binding="{Binding LogLevel}" />
-                <DataGridTextColumn Header="{extensions:Loc LOGMESSAGE}" IsReadOnly="True" Binding="{Binding Message}" />
+                <DataGridTextColumn Header="{ns:Loc LOGTIME}" IsReadOnly="True" Binding="{Binding Timestamp}" CellStyleClasses="verticalTop" />
+                <DataGridTextColumn Header="{ns:Loc LOGSEVERITY}" IsReadOnly="True" Binding="{Binding LogLevel}" CellStyleClasses="verticalTop" />
+                <DataGridTextColumn Header="{ns:Loc LOGMESSAGE}" IsReadOnly="True" Binding="{Binding Message}" CellStyleClasses="verticalTop" />
             </DataGrid.Columns>
         </DataGrid>
     </DockPanel>

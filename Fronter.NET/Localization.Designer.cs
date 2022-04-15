@@ -70,7 +70,7 @@ namespace Fronter {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This converter, as all others, is free and available at our Github repository.\n\nGitHub. Forums. Wiki pages. Steam. If you need to find us, report bugs, offer suggestions or wish to participate, we&apos;re there..
+        ///   Looks up a localized string similar to This converter, as all others, is free and available at our GitHub repository.\n\nGitHub. Forums. Wiki pages. Steam. If you need to find us, report bugs, offer suggestions or wish to participate, we&apos;re there..
         /// </summary>
         public static string ABOUT_BODY {
             get {

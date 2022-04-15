@@ -1,14 +1,11 @@
-﻿using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
+﻿using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using commonItems;
-using Fronter.Models;
 using Fronter.ViewModels;
-using Fronter.Views;
 using System;
 using System.IO;
 
-namespace Fronter.Services; 
+namespace Fronter.Services;
 
 public class LogWatcher : IDisposable {
 	public LogWatcher(string logFile) {
@@ -18,9 +15,9 @@ public class LogWatcher : IDisposable {
 		Logger.Debug("FILESTREAM CREATED");
 		logStreamReader = new StreamReader(logStream);
 		Logger.Debug("StreamReader CREATED");
-		
+
 		if (Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
-			windowDataContext = (MainWindowViewModel?)((MainWindow)desktop.MainWindow).DataContext;
+			windowDataContext = (MainWindowViewModel?)desktop.MainWindow.DataContext;
 			Logger.Debug("windowDataContext CREATED");
 		}
 	}
@@ -45,18 +42,25 @@ public class LogWatcher : IDisposable {
 					}
 					//Logger.Notice($"LOG LINE:\t\t\t{line}"); // TODO: REMOVE DEBUG
 
-					var logMessage = MessageSlicer.SliceMessage(line);
+					var logLine = MessageSlicer.SliceMessage(line);
 					//Logger.Notice($"logMessage:\t\t\t{logMessage.Message}"); // TODO: REMOVE DEBUG
 					if (TranscriberMode) {
-						var logLevel = logMessage.LogLevel ?? Logger.LogLevel.Info;
-						Logger.Log(logLevel, logMessage.Message);
+						var logLevel = logLine.LogLevel ?? Logger.LogLevel.Info;
+						Logger.Log(logLevel, logLine.Message);
 					}
 
 					if (EmitterMode) {
-						Dispatcher.UIThread.Post(
-							() => windowDataContext?.AddRowToLogGrid(logMessage),
-							DispatcherPriority.MinValue
-						);
+						if (logLine.LogLevel is null) {
+							Dispatcher.UIThread.Post(
+								() => windowDataContext?.AppendToLastLogRow(logLine),
+								DispatcherPriority.MinValue
+							);
+						} else {
+							Dispatcher.UIThread.Post(
+								() => windowDataContext?.AddRowToLogGrid(logLine),
+								DispatcherPriority.MinValue
+							);
+						}
 					}
 				}
 
@@ -71,7 +75,6 @@ public class LogWatcher : IDisposable {
 			Console.WriteLine(e);
 			throw;
 		}
-		
 	}
 
 	private readonly string tailSource;

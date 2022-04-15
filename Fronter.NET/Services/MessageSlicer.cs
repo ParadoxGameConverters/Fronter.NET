@@ -1,6 +1,7 @@
 ﻿using commonItems;
 using Fronter.Models;
 using Splat;
+using System.Text.RegularExpressions;
 
 namespace Fronter.Services;
 
@@ -11,37 +12,39 @@ public class MessageSlicer {
 		CONVERTER = 2
 	}
 
+	private static Regex dateTimeRegex = new Regex(@"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})$");
+
 	public static LogLine SliceMessage(string message) {
 		var logMessage = new LogLine();
-		// Is this a version dump?
-		if (message.StartsWith('*')) {
-			// This is not a standard message. File as info ad verbatim.
-			logMessage.Message = message;
-			return logMessage;
-		}
+		
 		var posOpen = message.IndexOf('[');
-		if (posOpen is not (>= 20 and <= 24)) {
-			// This is not a standard message. File as info ad verbatim.
+		var posClose = message.IndexOf(']');
+
+		if (posOpen < 0 || posOpen > posClose) {
 			logMessage.Message = message;
 			return logMessage;
 		}
-		var posClose = message.IndexOf(']');
-		if (posClose == -1) {
-			// Something's very wrong with this message.
+
+		var timestampPart = message.Substring(0, posOpen).Trim();
+		if (dateTimeRegex.IsMatch(timestampPart)) {
+			Logger.Debug($"DATETIME MATCH IN {message}");
+		} else {
+			Logger.Debug($"NO   DATETIME MATCH IN {message}");
 			logMessage.Message = message;
 			return logMessage;
 		}
 		
+		logMessage.Timestamp = timestampPart;
 		var logLevelStr = message.Substring(posOpen + 1, posClose - posOpen - 1);
 		logMessage.LogLevel = GetLogLevel(logLevelStr);
-
-		logMessage.Timestamp = message.Substring(0, 19);
-		logMessage.Message = message.Substring(posClose + 2);
+		if (message.Length > posClose + 3) {
+			logMessage.Message = message.Substring(posClose + 2);
+		}
 		
 		return logMessage;
 	}
 
-	private static Logger.LogLevel GetLogLevel(string levelStr) {
+	private static Logger.LogLevel? GetLogLevel(string levelStr) {
 		return levelStr switch {
 			"DEBUG" => Logger.LogLevel.Debug,
 			"INFO" => Logger.LogLevel.Info,
@@ -49,7 +52,7 @@ public class MessageSlicer {
 			"ERROR" => Logger.LogLevel.Error,
 			"PROGRESS" => Logger.LogLevel.Progress,
 			"NOTICE" => Logger.LogLevel.Notice,
-			_ => Logger.LogLevel.Debug
+			_ => null
 		};
 	}
 }
