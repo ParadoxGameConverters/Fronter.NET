@@ -27,6 +27,8 @@
     </Target>
     
     <ItemGroup>
+        <PackageReference Include="Aura.UI" Version="0.1.5-dev-04" />
+        <PackageReference Include="Aura.UI.FluentTheme" Version="0.1.5-dev-04" />
         <PackageReference Include="Avalonia" Version="0.10.13" />
         <PackageReference Include="Avalonia.Desktop" Version="0.10.13" />
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
@@ -52,6 +54,10 @@
         <DesignTime>True</DesignTime>
         <AutoGen>True</AutoGen>
         <DependentUpon>Localization.resx</DependentUpon>
+      </Compile>
+      <Compile Update="Views\OptionsView.axaml.cs">
+        <DependentUpon>OptionsView.axaml</DependentUpon>
+        <SubType>Code</SubType>
       </Compile>
     </ItemGroup>
 </Project>

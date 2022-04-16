@@ -21,9 +21,9 @@ public class TranslationSource : INotifyPropertyChanged {
 			currentCulture = value;
 
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Item"));
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
+			//PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
 		}
 	}
 
-	public event PropertyChangedEventHandler PropertyChanged;
+	public event PropertyChangedEventHandler? PropertyChanged;
 }

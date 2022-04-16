@@ -1,0 +1,29 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:Fronter.ViewModels"
+             xmlns:ns="clr-namespace:Fronter.Extensions"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Fronter.Views.OptionsView">
+    <Design.DataContext>
+        <viewModels:OptionsViewModel />
+    </Design.DataContext>
+    <ItemsControl Items="{Binding Items}">
+        <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+                <WrapPanel Orientation="Vertical"/>
+            </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+            <DataTemplate>
+                <GroupBox Header="SFSDFSDFSDF"  MinHeight="20" MinWidth="20" Background="Red">
+                    <TextBlock Text="{ns:DynLoc DisplayName}"></TextBlock>
+                </GroupBox>
+                <!-- <TextBlock Text="{Binding DisplayName}"></TextBlock> -->
+                <!--<controls:GroupBox Header="GROUPBOX HEADER" MinHeight="20" MinWidth="20" Background="Red">
+                </controls:GroupBox>-->
+            </DataTemplate>
+        </ItemsControl.ItemTemplate>
+    </ItemsControl>
+</UserControl>

@@ -7,7 +7,8 @@
         <fronter:ViewLocator/>
     </Application.DataTemplates>
     <Application.Styles>
-        <sty:FluentAvaloniaTheme />
         <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Default.xaml"/>
+        <StyleInclude Source="avares://Aura.UI.FluentTheme/AuraUI.xaml"/>
+        <sty:FluentAvaloniaTheme />
     </Application.Styles>
 </Application>

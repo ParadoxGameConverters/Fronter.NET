@@ -28,8 +28,10 @@ public class MainWindowViewModel : ViewModelBase {
 	public IEnumerable<KeyValuePair<string, string>> Languages =>
 		loc.LoadedLanguages.ToDictionary(l => l, l => loc.TranslateLanguage(l)); // language key, language loc
 
-	private Configuration config = new Configuration();
+	public Configuration Config { get; private set; } = new();
 	private Services.Localization loc = new Services.Localization();
+	
+	public OptionsViewModel Options { get; }
 
 	private LogLevel logFilterLevel = LogLevel.Warn;
 	public LogLevel LogFilterLevel {
@@ -42,6 +44,8 @@ public class MainWindowViewModel : ViewModelBase {
 	public ReadOnlyObservableCollection<LogLine> FilteredLogLines => filteredLogLines;
 
 	public MainWindowViewModel() {
+		Options = new OptionsViewModel(Config.Options);
+		
 		LogLines.ToObservableChangeSet()
 			.Filter(line => line.LogLevel >= LogFilterLevel)
 			.Bind(out filteredLogLines)
@@ -76,7 +80,7 @@ public class MainWindowViewModel : ViewModelBase {
 
 	public async void LaunchConverter() {
 		var converterLauncher = new ConverterLauncher();
-		converterLauncher.LoadConfiguration(config);
+		converterLauncher.LoadConfiguration(Config);
 		converterLauncher.LaunchConverter();
 	}
 
@@ -94,13 +98,13 @@ public class MainWindowViewModel : ViewModelBase {
 			return;
 		}
 
-		Logger.Debug($"{nameof(config.UpdateCheckerEnabled)}: {config.UpdateCheckerEnabled}");
-		Logger.Debug($"{nameof(config.CheckForUpdatesOnStartup)}: {config.CheckForUpdatesOnStartup}");
-		Logger.Debug($"is update available: {UpdateChecker.IsUpdateAvailable("commit_id.txt", config.PagesCommitIdUrl)}");
-		if (config.UpdateCheckerEnabled &&
-			config.CheckForUpdatesOnStartup &&
-			UpdateChecker.IsUpdateAvailable("commit_id.txt", config.PagesCommitIdUrl)) {
-			var info = UpdateChecker.GetLatestReleaseInfo(config.Name);
+		Logger.Debug($"{nameof(Config.UpdateCheckerEnabled)}: {Config.UpdateCheckerEnabled}");
+		Logger.Debug($"{nameof(Config.CheckForUpdatesOnStartup)}: {Config.CheckForUpdatesOnStartup}");
+		Logger.Debug($"is update available: {UpdateChecker.IsUpdateAvailable("commit_id.txt", Config.PagesCommitIdUrl)}");
+		if (Config.UpdateCheckerEnabled &&
+		    Config.CheckForUpdatesOnStartup &&
+		    UpdateChecker.IsUpdateAvailable("commit_id.txt", Config.PagesCommitIdUrl)) {
+			var info = UpdateChecker.GetLatestReleaseInfo(Config.Name);
 
 			const string updateNow = "Update now";
 			const string maybeLater = "Maybe later";
@@ -121,10 +125,10 @@ public class MainWindowViewModel : ViewModelBase {
 			Logger.Progress(result);
 			if (result == updateNow) {
 				if (info.ZipUrl is not null) {
-					UpdateChecker.StartUpdaterAndDie(info.ZipUrl, config.ConverterFolder);
+					UpdateChecker.StartUpdaterAndDie(info.ZipUrl, Config.ConverterFolder);
 				} else {
-					BrowserLauncher.Open(config.ConverterReleaseForumThread);
-					BrowserLauncher.Open(config.LatestGitHubConverterReleaseUrl);
+					BrowserLauncher.Open(Config.ConverterReleaseForumThread);
+					BrowserLauncher.Open(Config.LatestGitHubConverterReleaseUrl);
 				}
 			}
 		}

@@ -15,7 +15,7 @@ public class LogLevelToColorNameConverter : IValueConverter {
 			LogLevel.Notice => Brushes.CornflowerBlue,
 			LogLevel.Error => Brushes.IndianRed,
 			LogLevel.Warn => Brushes.Orange,
-			LogLevel.Info => Brushes.Transparent,
+			LogLevel.Info => Brushes.AntiqueWhite,
 			LogLevel.Debug => Brushes.SlateGray,
 			_ => AvaloniaProperty.UnsetValue
 		};

@@ -4,6 +4,7 @@ using Avalonia.Data;
 using Avalonia.Data.Core;
 using Avalonia.Markup.Xaml;
 using AvaloniaEdit.Utils;
+using Fronter.ValueConverters;
 using ReactiveUI;
 using System;
 using System.ComponentModel;
@@ -14,6 +15,16 @@ namespace Fronter.Extensions;
 public class LocExtension : Binding {
 	public LocExtension(string locKey): base($"[{locKey}]") {
 		this.Source = TranslationSource.Instance;
+	}
+
+	public Binding ProvideValue() {
+		return this;
+	}
+}
+
+public class DynLocExtension : Binding {
+	public DynLocExtension(string bindingPath) : base(bindingPath, BindingMode.OneWay) {
+		this.Converter = new LocKeyToValueConverter();
 	}
 
 	public Binding ProvideValue() {

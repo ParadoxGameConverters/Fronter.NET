@@ -26,7 +26,7 @@
     <Window.Styles>
         <Style Selector="DataGridCell.verticalTop">
             <Setter Property="VerticalContentAlignment" Value="Top" />
-            <Setter Property="Background" Value="{Binding LogLevel, Converter={StaticResource LogLevelToColorNameConverter}}"></Setter>
+            <Setter Property="Background" Value="{Binding LogLevel, Mode=OneWay, Converter={StaticResource LogLevelToColorNameConverter}}"></Setter>
         </Style>
     </Window.Styles>
 
@@ -87,10 +87,7 @@
             </TabItem>
             
             <TabItem Header="{ns:Loc OPTIONSTAB}" VerticalContentAlignment="Center">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Square : " HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                    <Rectangle Fill="Blue" Width="63" Height="41"/>
-                </StackPanel>
+                <views:OptionsView Content="{Binding Options}"></views:OptionsView>
             </TabItem>
             
             <TabItem Header="{ns:Loc CONVERTTAB}" VerticalContentAlignment="Center">
