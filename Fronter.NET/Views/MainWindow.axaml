@@ -20,15 +20,9 @@
         <viewModels:MainWindowViewModel />
     </Design.DataContext>
     
-    <Window.Resources>
+    <!--<Window.Resources>
         <vc:LogLevelToColorNameConverter x:Key="LogLevelToColorNameConverter"/>
-    </Window.Resources>
-    <Window.Styles>
-        <Style Selector="DataGridCell.verticalTop">
-            <Setter Property="VerticalContentAlignment" Value="Top" />
-            <Setter Property="Background" Value="{Binding LogLevel, Mode=OneWay, Converter={StaticResource LogLevelToColorNameConverter}}"></Setter>
-        </Style>
-    </Window.Styles>
+    </Window.Resources>-->
 
     <DockPanel>
         <Menu DockPanel.Dock="Top">
@@ -145,6 +139,12 @@
         </TabControl>
         
         <DataGrid Name="LogGrid" Margin="0,20,0,0" VerticalScrollBarVisibility="Visible" Items="{Binding FilteredLogLines}" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="False">
+            <DataGrid.Styles>
+                <Style Selector="DataGridCell.verticalTop">
+                    <Setter Property="VerticalContentAlignment" Value="Top" />
+                    <!-- <Setter Property="Background" Value="{Binding LogLevel, Converter={StaticResource LogLevelToColorNameConverter}}"></Setter> -->
+                </Style>
+            </DataGrid.Styles>
             <DataGrid.GridLinesVisibility>All</DataGrid.GridLinesVisibility>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="{ns:Loc LOGTIME}" IsReadOnly="True" Binding="{Binding Timestamp}" CellStyleClasses="verticalTop" />
