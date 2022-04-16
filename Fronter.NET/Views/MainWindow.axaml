@@ -8,6 +8,7 @@
         xmlns:ns="clr-namespace:Fronter.Extensions"
         xmlns:vc="clr-namespace:Fronter.ValueConverters"
         xmlns:commons="clr-namespace:commonItems;assembly=commonItems"
+        xmlns:styles="clr-namespace:Material.Styles;assembly=Material.Styles"
         mc:Ignorable="d" d:DesignWidth="710" d:DesignHeight="400"
         x:Class="Fronter.Views.MainWindow"
         Icon="/Assets/converter.ico"
@@ -19,10 +20,6 @@
     <Design.DataContext>
         <viewModels:MainWindowViewModel />
     </Design.DataContext>
-    
-    <!--<Window.Resources>
-        <vc:LogLevelToColorNameConverter x:Key="LogLevelToColorNameConverter"/>
-    </Window.Resources>-->
 
     <DockPanel>
         <Menu DockPanel.Dock="Top">
@@ -50,11 +47,6 @@
                     Header="{ns:Loc THEME_DARK}"
                     Command="{Binding SetTheme}"
                     CommandParameter="Dark"
-                />
-                <MenuItem
-                    Header="{ns:Loc THEME_HIGH_CONTRAST}"
-                    Command="{Binding SetTheme}"
-                    CommandParameter="HighContrast"
                 />
             </MenuItem>
                 
@@ -130,19 +122,22 @@
                             <TextBlock Grid.Row="2" Grid.Column="0" Text="{ns:Loc CONVERTCOPYING}"></TextBlock>
                             <TextBlock Grid.Row="2" Grid.Column="1" Text="{ns:Loc CONVERTSTATUSPRE}"></TextBlock>
                         </Grid>
-                        <ProgressBar Margin="4" Height="20" Value="{Binding Progress}" Foreground="ForestGreen" BorderThickness="1" BorderBrush="Gray"/>
+                        <ProgressBar Margin="4" Height="20" Value="{Binding Progress}" BorderThickness="1" BorderBrush="Gray"/>
                         <TextBlock Text="{Binding Progress, StringFormat={}{0}%}" HorizontalAlignment="Center"></TextBlock>
-                        <Button Margin="4,15,4,4" HorizontalAlignment="Center" Name="ConvertButton" Command="{Binding LaunchConverter}">Convert!</Button>
+                        <Button Margin="4,15,4,4" HorizontalAlignment="Center"  Classes="Outline Light" Name="ConvertButton" Command="{Binding LaunchConverter}">Convert!</Button>
                     </StackPanel>
                 </Grid>
             </TabItem>
         </TabControl>
         
         <DataGrid Name="LogGrid" Margin="0,20,0,0" VerticalScrollBarVisibility="Visible" Items="{Binding FilteredLogLines}" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="False">
+            <DataGrid.Resources>
+                <vc:LogLevelToColorNameConverter x:Key="LogLevelToColorNameConverter"/>
+            </DataGrid.Resources>
             <DataGrid.Styles>
                 <Style Selector="DataGridCell.verticalTop">
                     <Setter Property="VerticalContentAlignment" Value="Top" />
-                    <!-- <Setter Property="Background" Value="{Binding LogLevel, Converter={StaticResource LogLevelToColorNameConverter}}"></Setter> -->
+                    <Setter Property="Background" Value="{Binding LogLevel, Converter={StaticResource LogLevelToColorNameConverter}}"></Setter>
                 </Style>
             </DataGrid.Styles>
             <DataGrid.GridLinesVisibility>All</DataGrid.GridLinesVisibility>

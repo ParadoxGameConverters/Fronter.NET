@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:Fronter.ViewModels"
              xmlns:ns="clr-namespace:Fronter.Extensions"
+             xmlns:styles="clr-namespace:Material.Styles;assembly=Material.Styles"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Fronter.Views.OptionsView">
     <Design.DataContext>
@@ -17,9 +18,9 @@
         </ItemsControl.ItemsPanel>
         <ItemsControl.ItemTemplate>
             <DataTemplate>
-                <GroupBox Header="SFSDFSDFSDF"  MinHeight="20" MinWidth="20" Background="Red">
+                <styles:Card>
                     <TextBlock Text="{ns:DynLoc DisplayName}"></TextBlock>
-                </GroupBox>
+                </styles:Card>
                 <!-- <TextBlock Text="{Binding DisplayName}"></TextBlock> -->
                 <!--<controls:GroupBox Header="GROUPBOX HEADER" MinHeight="20" MinWidth="20" Background="Red">
                 </controls:GroupBox>-->

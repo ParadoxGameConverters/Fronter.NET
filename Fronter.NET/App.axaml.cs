@@ -1,59 +1,65 @@
 ﻿using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using commonItems;
-using FluentAvalonia.Styling;
-using Fronter.Models.Configuration;
-using Fronter.Services;
 using Fronter.ViewModels;
 using Fronter.Views;
-using MessageBox.Avalonia.DTO;
+using Material.Dialog;
+using Material.Styles.Themes;
+using Material.Styles.Themes.Base;
+using Newtonsoft.Json;
 using System;
 using System.IO;
-using System.Threading.Tasks;
+using Color = Avalonia.Media.Color;
 
-namespace Fronter {
-	public class App : Application {
-		public static Services.Localization Loc { get; } = new();
+namespace Fronter;
 
-		public override void Initialize() {
-			File.Delete("log.txt");
-			AvaloniaXamlLoader.Load(this);
+public class App : Application {
+	public static Services.Localization Loc { get; } = new();
+
+	public override void Initialize() {
+		File.Delete("log.txt");
+		AvaloniaXamlLoader.Load(this);
+	}
+
+	public override void OnFrameworkInitializationCompleted() {
+		if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
+			var mainWindowViewModel = new MainWindowViewModel();
+			desktop.MainWindow = new MainWindow {DataContext = mainWindowViewModel};
+
+			mainWindowViewModel.StartWorkerThreads();
 		}
 
-		public override void OnFrameworkInitializationCompleted() {
-			if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
-				var mainWindowViewModel = new MainWindowViewModel();
-				desktop.MainWindow = new MainWindow {
-					DataContext = mainWindowViewModel
-				};
-				
-				mainWindowViewModel.StartWorkerThreads();
-			}
+		base.OnFrameworkInitializationCompleted();
 
-			base.OnFrameworkInitializationCompleted();
+		LoadTheme();
+	}
 
-			LoadTheme();
+	private void LoadTheme() {
+		var themeBootstrap = this.LocateMaterialTheme<MaterialThemeBase>();
+		themeBootstrap.CurrentTheme = LoadOrCreateDefaultTheme();
+
+		themeBootstrap.CurrentThemeChanged.Subscribe(newTheme => {
+			var configText = JsonConvert.SerializeObject(newTheme);
+			File.WriteAllText("theme-config.json", configText);
+		});
+	}
+	private static ITheme LoadOrCreateDefaultTheme() {
+		try {
+			var text = File.ReadAllText("theme-config.json");
+			var loadedTheme = JsonConvert.DeserializeObject<Theme>(text);
+			return loadedTheme ?? CreateTheme(BaseThemeMode.Inherit);
+		} catch (Exception) {
+			// In case of any exception or file missing, etc
+			// Fallback to creating default theme
+			return CreateTheme(BaseThemeMode.Inherit);
 		}
+	}
 
-		private void LoadTheme() {
-			var theme = AvaloniaLocator.Current.GetService<FluentAvaloniaTheme>();
-			if (theme is not null) {
-				var fronterThemePath = Path.Combine("Configuration", "fronter-theme.txt");
-				if (File.Exists(fronterThemePath)) {
-					var parser = new Parser();
-					parser.RegisterKeyword("theme", reader => theme.RequestedTheme = reader.GetString());
-					parser.ParseFile(fronterThemePath);
-				}
+	// colors based on https://material.io/design/color/the-color-system.html
+	private static readonly Color PrimaryColor = Color.FromRgb(98, 0, 238);
+	private static readonly Color SecondaryColor = Color.FromRgb(3, 218, 198);
 
-				theme.RequestedThemeChanged += (sender, args) => {
-					using var fs = new FileStream(fronterThemePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
-					using var writer = new StreamWriter(fs);
-					writer.WriteLine($"theme={args.NewTheme}");
-					writer.Close();
-				};
-			}
-		}
+	public static ITheme CreateTheme(BaseThemeMode mode) {
+		return Theme.Create(mode.GetBaseTheme(), PrimaryColor, SecondaryColor);
 	}
 }

@@ -3,7 +3,6 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using commonItems;
-using FluentAvalonia.Styling;
 using Fronter.Extensions;
 using Fronter.Models;
 using Fronter.Models.Configuration;
@@ -21,6 +20,9 @@ using System.Linq;
 using System.Threading;
 using DynamicData;
 using DynamicData.Binding;
+using Material.Dialog;
+using Material.Styles.Themes;
+using Material.Styles.Themes.Base;
 
 namespace Fronter.ViewModels;
 
@@ -170,11 +172,13 @@ public class MainWindowViewModel : ViewModelBase {
 	}
 
 	public void SetTheme(string themeName) {
-		var theme = AvaloniaLocator.Current.GetService<FluentAvaloniaTheme>();
+		var theme = Application.Current?.LocateMaterialTheme<MaterialThemeBase>();
 		if (theme is null) {
 			return;
 		}
-		theme.RequestedTheme = themeName;
+
+		var newMode = (BaseThemeMode)Enum.Parse(typeof(BaseThemeMode), themeName, true);
+		theme.CurrentTheme = App.CreateTheme(newMode);
 	}
 
 	private LogLine? lastLogRow;
