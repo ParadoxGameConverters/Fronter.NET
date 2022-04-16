@@ -55,6 +55,7 @@ public class MainWindowViewModel : ViewModelBase {
 			.Bind(out filteredLogLines)
 			.Subscribe();
 		this.RaisePropertyChanged(nameof(FilteredLogLines));
+		Dispatcher.UIThread.Post(ScrollToLogEnd, DispatcherPriority.MinValue);
 	}
 
 	private ushort progress = 30; // todo: remove debug value
@@ -175,10 +176,9 @@ public class MainWindowViewModel : ViewModelBase {
 	private LogLine? lastLogRow;
 	public void AddRowToLogGrid(LogLine logLine) {
 		LogLines.Add(logLine);
-
-		var logGrid = Window?.FindControl<DataGrid>("LogGrid");
-		logGrid?.ScrollIntoView(logLine, null);
 		lastLogRow = logLine;
+
+		ScrollToLogEnd();
 	}
 	public void AppendToLastLogRow(LogLine logLine) {
 		if (lastLogRow is null) {
@@ -186,6 +186,11 @@ public class MainWindowViewModel : ViewModelBase {
 		} else {
 			lastLogRow.Message += $"\n{logLine.Message}";
 		}
+	}
+
+	private void ScrollToLogEnd() {
+		var logGrid = Window?.FindControl<DataGrid>("LogGrid");
+		logGrid?.ScrollIntoView(lastLogRow, null);
 	}
 
 	public void StartWorkerThreads() {

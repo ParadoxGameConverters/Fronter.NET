@@ -20,9 +20,13 @@
         <viewModels:MainWindowViewModel />
     </Design.DataContext>
     
+    <Window.Resources>
+        <vc:LogLevelToColorNameConverter x:Key="LogLevelToColorNameConverter"/>
+    </Window.Resources>
     <Window.Styles>
         <Style Selector="DataGridCell.verticalTop">
             <Setter Property="VerticalContentAlignment" Value="Top" />
+            <Setter Property="Background" Value="{Binding LogLevel, Converter={StaticResource LogLevelToColorNameConverter}}"></Setter>
         </Style>
     </Window.Styles>
 
@@ -135,7 +139,7 @@
                             <TextBlock Grid.Row="2" Grid.Column="0" Text="{ns:Loc CONVERTCOPYING}"></TextBlock>
                             <TextBlock Grid.Row="2" Grid.Column="1" Text="{ns:Loc CONVERTSTATUSPRE}"></TextBlock>
                         </Grid>
-                        <ProgressBar Margin="4" Height="20" BorderThickness="2" Value="{Binding Progress}"/>
+                        <ProgressBar Margin="4" Height="20" Value="{Binding Progress}" Foreground="ForestGreen" BorderThickness="1" BorderBrush="Gray"/>
                         <TextBlock Text="{Binding Progress, StringFormat={}{0}%}" HorizontalAlignment="Center"></TextBlock>
                         <Button Margin="4,15,4,4" HorizontalAlignment="Center" Name="ConvertButton" Command="{Binding LaunchConverter}">Convert!</Button>
                     </StackPanel>
