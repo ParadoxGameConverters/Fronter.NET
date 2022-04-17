@@ -56,7 +56,7 @@ public class TranslationSource : ReactiveObject {
 
 		
 
-		toReturn = Regex.Replace(toReturn, "\\n", "\n");
+		toReturn = Regex.Replace(toReturn, @"\\n", "\n");
 		return toReturn;
 	}
 

@@ -50,7 +50,7 @@
                 />
             </MenuItem>
                 
-            <MenuItem Header="{ns:Loc MENUHELP}">
+            <MenuItem Header="{ns:Loc MENU_HELP}">
                 <MenuItem Header="{ns:Loc ABOUT}" Command="{Binding OpenAboutDialog}"/>
                 <MenuItem Header="{ns:Loc SUPPORT_US}" Command="{Binding OpenPatreonPage}"/>
             </MenuItem>
