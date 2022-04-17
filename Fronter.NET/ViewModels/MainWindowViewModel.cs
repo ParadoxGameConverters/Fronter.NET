@@ -27,11 +27,11 @@ using Material.Styles.Themes.Base;
 namespace Fronter.ViewModels;
 
 public class MainWindowViewModel : ViewModelBase {
-	public IEnumerable<KeyValuePair<string, string>> Languages =>
-		loc.LoadedLanguages.ToDictionary(l => l, l => loc.TranslateLanguage(l)); // language key, language loc
+	private TranslationSource loc = TranslationSource.Instance;
+	public IEnumerable<KeyValuePair<string, string>> Languages => loc.LoadedLanguages
+		.ToDictionary(l => l, l => loc.TranslateLanguage(l));
 
 	public Configuration Config { get; private set; } = new();
-	private Services.Localization loc = new Services.Localization();
 	
 	public OptionsViewModel Options { get; }
 

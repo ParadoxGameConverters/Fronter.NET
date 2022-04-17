@@ -130,21 +130,24 @@
             </TabItem>
         </TabControl>
         
+        <Separator/>
         <DataGrid Name="LogGrid" Margin="0,20,0,0" VerticalScrollBarVisibility="Visible" Items="{Binding FilteredLogLines}" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="False">
             <DataGrid.Resources>
                 <vc:LogLevelToColorNameConverter x:Key="LogLevelToColorNameConverter"/>
             </DataGrid.Resources>
             <DataGrid.Styles>
-                <Style Selector="DataGridCell.verticalTop">
+                <Style Selector="DataGridCell">
                     <Setter Property="VerticalContentAlignment" Value="Top" />
+                </Style>
+                <Style Selector="DataGridRow">
                     <Setter Property="Background" Value="{Binding LogLevel, Converter={StaticResource LogLevelToColorNameConverter}}"></Setter>
                 </Style>
             </DataGrid.Styles>
             <DataGrid.GridLinesVisibility>All</DataGrid.GridLinesVisibility>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="{ns:Loc LOGTIME}" IsReadOnly="True" Binding="{Binding Timestamp}" CellStyleClasses="verticalTop" />
-                <DataGridTextColumn Header="{ns:Loc LOGSEVERITY}" IsReadOnly="True" Binding="{Binding LogLevel}" CellStyleClasses="verticalTop" />
-                <DataGridTextColumn Header="{ns:Loc LOGMESSAGE}" IsReadOnly="True" Binding="{Binding Message}" CellStyleClasses="verticalTop" />
+                <DataGridTextColumn Header="{ns:Loc LOGTIME}" IsReadOnly="True" Binding="{Binding Timestamp}" />
+                <DataGridTextColumn Header="{ns:Loc LOGSEVERITY}" IsReadOnly="True" Binding="{Binding LogLevel}" />
+                <DataGridTextColumn Header="{ns:Loc LOGMESSAGE}" IsReadOnly="True" Binding="{Binding Message}" />
             </DataGrid.Columns>
         </DataGrid>
     </DockPanel>

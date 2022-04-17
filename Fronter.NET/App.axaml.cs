@@ -14,8 +14,6 @@ using Color = Avalonia.Media.Color;
 namespace Fronter;
 
 public class App : Application {
-	public static Services.Localization Loc { get; } = new();
-
 	public override void Initialize() {
 		File.Delete("log.txt");
 		AvaloniaXamlLoader.Load(this);
@@ -56,8 +54,8 @@ public class App : Application {
 	}
 
 	// colors based on https://material.io/design/color/the-color-system.html
-	private static readonly Color PrimaryColor = Color.FromRgb(98, 0, 238);
-	private static readonly Color SecondaryColor = Color.FromRgb(3, 218, 198);
+	private static readonly Color PrimaryColor = Color.FromRgb(255, 106, 0);
+	private static readonly Color SecondaryColor = Color.FromRgb(216, 90, 0);
 
 	public static ITheme CreateTheme(BaseThemeMode mode) {
 		return Theme.Create(mode.GetBaseTheme(), PrimaryColor, SecondaryColor);

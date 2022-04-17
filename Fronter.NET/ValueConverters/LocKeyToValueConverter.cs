@@ -2,17 +2,18 @@
 using Avalonia.Data.Converters;
 using Fronter.Extensions;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 
 namespace Fronter.ValueConverters; 
 
-public class LocKeyToValueConverter : IValueConverter {
-	public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) {
-		var locKey = (string?)value;
-		return locKey is null ? AvaloniaProperty.UnsetValue : TranslationSource.Instance[locKey];
-	}
-
-	public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
-		throw new NotImplementedException();
+public class LocKeyToValueConverter : IMultiValueConverter {
+	public object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture) {
+		if (values[0] is not string locKey) {
+			return AvaloniaProperty.UnsetValue;
+		}
+		// Logger.Warn($"LocKeyToValueConverter lockey:   {locKey} // TODO: REMOVE DEBUG
+		
+		return TranslationSource.Instance[locKey];
 	}
 }

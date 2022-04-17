@@ -19,7 +19,7 @@
         <ItemsControl.ItemTemplate>
             <DataTemplate>
                 <styles:Card>
-                    <TextBlock Text="{ns:DynLoc DisplayName}"></TextBlock>
+                    <TextBlock Text="{ns:OptionsLoc DisplayName}"></TextBlock>
                 </styles:Card>
                 <!-- <TextBlock Text="{Binding DisplayName}"></TextBlock> -->
                 <!--<controls:GroupBox Header="GROUPBOX HEADER" MinHeight="20" MinWidth="20" Background="Red">
