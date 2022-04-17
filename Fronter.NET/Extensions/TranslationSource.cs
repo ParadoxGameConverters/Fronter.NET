@@ -56,7 +56,7 @@ public class TranslationSource : ReactiveObject {
 
 		
 
-		toReturn = Regex.Replace(toReturn, @"\\n", "\n");
+		toReturn = Regex.Replace(toReturn, @"\\n", Environment.NewLine);
 		return toReturn;
 	}
 
@@ -154,8 +154,6 @@ public class TranslationSource : ReactiveObject {
 			currentLanguage = value;
 			this.RaisePropertyChanged(nameof(CurrentLanguage));
 			this.RaisePropertyChanged("Item");
-			CurrentCulture = languages[value];
 		}
 	}
-	public CultureInfo CurrentCulture { get; private set; }
 }

@@ -11,19 +11,43 @@
         <viewModels:OptionsViewModel />
     </Design.DataContext>
     <ItemsControl Items="{Binding Items}">
+        <ItemsControl.Styles>
+            <Style Selector="styles|Card">
+                <Setter Property="Margin" Value="2,10" />
+                <Setter Property="MaxWidth" Value="400"></Setter>
+            </Style>
+        </ItemsControl.Styles>
         <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
-                <WrapPanel Orientation="Vertical"/>
+                <WrapPanel Orientation="Vertical">
+                </WrapPanel>
             </ItemsPanelTemplate>
         </ItemsControl.ItemsPanel>
         <ItemsControl.ItemTemplate>
             <DataTemplate>
                 <styles:Card>
-                    <TextBlock Text="{ns:OptionsLoc DisplayName}"></TextBlock>
+                    <StackPanel>
+                        <TextBlock Text="{ns:DynamicLoc DisplayName}"></TextBlock>
+                        <TextBlock Text="{ns:DynamicLoc Tooltip}"></TextBlock>
+                        
+                        <!-- TODO: LIST OF CHECKBOCEX
+                        <CheckBox Text="{Binding TextSelector.Value, FallbackValue={}}" IsEnabled="{Binding TextSelector.Editable, FallbackValue=false}" IsVisible="{Binding TextSelector, Converter={x:Static ObjectConverters.IsNotNull}}"></CheckBox>-->
+                        <ListBox Items="{Binding CheckBoxSelector.CheckBoxOptions, FallbackValue={}}" IsVisible="{Binding CheckBoxSelector, Converter={x:Static ObjectConverters.IsNotNull}}" SelectionMode="Multiple">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="Red" CornerRadius="4" Padding="4">
+                                        <TextBlock Text="{ns:DynamicLoc DisplayName}"/>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+
+                        <!-- TODO: LIST OF RADIO BUTTONS -->
+                        <ListBox Items="{Binding RadioSelector.RadioOptions, FallbackValue={}}" IsVisible="{Binding RadioSelector, Converter={x:Static ObjectConverters.IsNotNull}}" SelectionMode="Single"></ListBox>
+                       
+                        <TextBox Text="{Binding TextSelector.Value, FallbackValue={}}" IsEnabled="{Binding TextSelector.Editable, FallbackValue=false}" IsVisible="{Binding TextSelector, Converter={x:Static ObjectConverters.IsNotNull}}"></TextBox>
+                    </StackPanel>
                 </styles:Card>
-                <!-- <TextBlock Text="{Binding DisplayName}"></TextBlock> -->
-                <!--<controls:GroupBox Header="GROUPBOX HEADER" MinHeight="20" MinWidth="20" Background="Red">
-                </controls:GroupBox>-->
             </DataTemplate>
         </ItemsControl.ItemTemplate>
     </ItemsControl>

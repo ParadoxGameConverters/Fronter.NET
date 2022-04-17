@@ -110,12 +110,12 @@ public class MainWindowViewModel : ViewModelBase {
 
 			const string updateNow = "Update now";
 			const string maybeLater = "Maybe later";
-			var msgBody = UpdateChecker.GetUpdateMessageBody(Localization.NEWVERSIONBODY, info);
+			var msgBody = UpdateChecker.GetUpdateMessageBody(loc.Translate("NEWVERSIONBODY"), info);
 			var messageBoxWindow = MessageBoxManager
 				.GetMessageBoxCustomWindow(new MessageBoxCustomParams {
 					Icon = Icon.Info,
 					ContentHeader = "An update is available!",
-					ContentTitle = Localization.NEWVERSIONTITLE,
+					ContentTitle = loc.Translate("NEWVERSIONTITLE"),
 					ContentMessage = msgBody,
 					Markdown = true,
 					ButtonDefinitions = new[] {

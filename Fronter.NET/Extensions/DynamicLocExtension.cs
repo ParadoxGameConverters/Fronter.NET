@@ -3,8 +3,8 @@ using Fronter.ValueConverters;
 
 namespace Fronter.Extensions;
 
-public class OptionsLocExtension : MultiBinding {
-	public OptionsLocExtension(string path) {
+public class DynamicLocExtension : MultiBinding {
+	public DynamicLocExtension(string path) {
 		Bindings.Add(new Binding(path));
 		
 		var binding = new Binding {Path = "CurrentLanguage", Source = TranslationSource.Instance};
