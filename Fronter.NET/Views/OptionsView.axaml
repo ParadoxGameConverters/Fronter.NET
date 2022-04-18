@@ -31,34 +31,26 @@
                         <TextBlock Text="{ns:DynamicLoc DisplayName}"></TextBlock>
                         <TextBlock Text="{ns:DynamicLoc Tooltip}"></TextBlock>
                         
-                        <ListBox Items="{Binding CheckBoxSelector.CheckBoxOptions, FallbackValue={}}"
+                        <ItemsControl 
+                            Items="{Binding CheckBoxSelector.CheckBoxOptions, FallbackValue={}}"
                             IsVisible="{Binding CheckBoxSelector, Converter={x:Static ObjectConverters.IsNotNull}}" 
-                            SelectionMode="Multiple,Toggle"
-                            MaxHeight="200"
                         >
-                            <ListBox.ItemTemplate>
+                            <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border>
-                                        <!--Content="{ns:DynamicLoc DisplayName}"-->
-                                        <CheckBox
-                                            Content="{Binding Value}"
-                                            IsChecked="{Binding IsSelected, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ListBoxItem, Mode=FindAncestor}}" 
-                                            IsHitTestVisible="False"
-                                            Focusable="False"
-                                            />
-                                    </Border>
+                                    <CheckBox
+                                        Content="{ns:DynamicLoc DisplayName}"
+                                        IsChecked="{Binding Value, Mode=TwoWay}"
+                                    />
                                 </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                            
                         <ListBox Items="{Binding RadioSelector.RadioOptions, FallbackValue={}}" IsVisible="{Binding RadioSelector, Converter={x:Static ObjectConverters.IsNotNull}}" SelectionMode="Single">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <Border>
-                                        <!--Content="{ns:DynamicLoc DisplayName}"-->
-                                        <!--IsChecked="{Binding IsSelected, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ListBoxItem, Mode=FindAncestor}}"-->
                                         <RadioButton
-                                            Content="{Binding Value}"
+                                            Content="{ns:DynamicLoc DisplayName}"
                                             IsChecked="{Binding IsSelected, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ListBoxItem, Mode=FindAncestor}}"
                                             IsHitTestVisible="False"
                                             Focusable="False"
