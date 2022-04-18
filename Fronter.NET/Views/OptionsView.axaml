@@ -36,7 +36,7 @@
                                 >
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Border ToolTip.Tip="{Binding Tooltip}">
+                                            <Border ToolTip.Tip="{ns:DynamicLoc Tooltip}">
                                                 <CheckBox
                                                     Content="{ns:DynamicLoc DisplayName}"
                                                     IsChecked="{Binding Value, Mode=TwoWay}"
@@ -49,7 +49,7 @@
                             <ListBox Items="{Binding RadioSelector.RadioOptions, FallbackValue={}}" IsVisible="{Binding RadioSelector, Converter={x:Static ObjectConverters.IsNotNull}}" SelectionMode="Single">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
-                                        <Border ToolTip.Tip="{Binding Tooltip}">
+                                        <Border ToolTip.Tip="{ns:DynamicLoc Tooltip}">
                                             <RadioButton
                                                 Content="{ns:DynamicLoc DisplayName}"
                                                 IsChecked="{Binding IsSelected, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ListBoxItem, Mode=FindAncestor}}"
@@ -61,7 +61,7 @@
                                 </ListBox.ItemTemplate>
                             </ListBox>
                            
-                            <Border ToolTip.Tip="{Binding TextSelector.Tooltip, FallbackValue={}}" IsVisible="{Binding TextSelector, Converter={x:Static ObjectConverters.IsNotNull}}">
+                            <Border ToolTip.Tip="{ns:DynamicLoc TextSelector.Tooltip, FallbackValue={}}" IsVisible="{Binding TextSelector, Converter={x:Static ObjectConverters.IsNotNull}}">
                                 <TextBox Text="{Binding TextSelector.Value, FallbackValue={}}" IsEnabled="{Binding TextSelector.Editable, FallbackValue=false}"></TextBox>
                             </Border>
                         </StackPanel>
