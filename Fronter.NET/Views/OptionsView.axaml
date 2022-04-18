@@ -39,10 +39,11 @@
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <Border>
+                                        <!--Content="{ns:DynamicLoc DisplayName}"-->
                                         <CheckBox
-                                            Content="{ns:DynamicLoc DisplayName}"
+                                            Content="{Binding Value}"
                                             IsChecked="{Binding IsSelected, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ListBoxItem, Mode=FindAncestor}}" 
-                                            IsHitTestVisible="False" 
+                                            IsHitTestVisible="False"
                                             Focusable="False"
                                             />
                                     </Border>
@@ -54,10 +55,14 @@
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <Border>
+                                        <!--Content="{ns:DynamicLoc DisplayName}"-->
+                                        <!--IsChecked="{Binding IsSelected, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ListBoxItem, Mode=FindAncestor}}"-->
                                         <RadioButton
-                                            Content="{ns:DynamicLoc DisplayName}"
-                                            IsChecked="{Binding IsSelected, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ListBoxItem, Mode=FindAncestor}}" IsHitTestVisible="False" 
-                                            Focusable="False" />
+                                            Content="{Binding Value}"
+                                            IsChecked="{Binding IsSelected, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ListBoxItem, Mode=FindAncestor}}"
+                                            IsHitTestVisible="False"
+                                            Focusable="False"
+                                            PropertyChanged="AvaloniaObject_OnPropertyChanged"/>
                                     </Border>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>

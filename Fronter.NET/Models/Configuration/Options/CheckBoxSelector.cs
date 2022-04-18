@@ -13,7 +13,7 @@ public class CheckBoxSelector : Selector {
 	private void RegisterKeys(Parser parser) {
 		parser.RegisterKeyword("checkBoxOption", reader => {
 			++optionCounter;
-			var newOption = new CheckBoxOption(reader, optionCounter);
+			var newOption = new TogglableOption(reader, optionCounter);
 			CheckBoxOptions.Add(newOption);
 		});
 		parser.RegisterRegex(CommonRegexes.Catchall, ParserHelpers.IgnoreAndLogItem);
@@ -21,7 +21,7 @@ public class CheckBoxSelector : Selector {
 
 	public HashSet<string> GetSelectedValues() {
 		var toReturn = new HashSet<string>();
-		foreach (CheckBoxOption option in CheckBoxOptions.Where(option => option.Value)) {
+		foreach (TogglableOption option in CheckBoxOptions.Where(option => option.Value)) {
 			toReturn.Add(option.Name);
 		}
 		return toReturn;
@@ -29,7 +29,7 @@ public class CheckBoxSelector : Selector {
 
 	public HashSet<int> GetSelectedIds() {
 		var toReturn = new HashSet<int>();
-		foreach (CheckBoxOption option in CheckBoxOptions.Where(option => option.Value)) {
+		foreach (TogglableOption option in CheckBoxOptions.Where(option => option.Value)) {
 			toReturn.Add(option.Id);
 		}
 		return toReturn;
@@ -38,23 +38,23 @@ public class CheckBoxSelector : Selector {
 	public void SetSelectedIds(ISet<int> selection) {
 		foreach (var option in CheckBoxOptions) {
 			if (selection.Contains(option.Id)) {
-				option.SetValue();
+				option.Value = true;
 			} else {
-				option.UnsetValue();
+				option.Value = false;
 			}
 		}
 	}
 	public void SetSelectedValues(ISet<string> selection) {
 		foreach (var option in CheckBoxOptions) {
 			if (selection.Contains(option.Name)) {
-				option.SetValue();
+				option.Value = true;
 			} else {
-				option.UnsetValue();
+				option.Value = false;
 			}
 		}
 	}
 
 	private int optionCounter = 0;
 	public bool Preloaded { get; set; } = false;
-	public List<CheckBoxOption> CheckBoxOptions { get; } = new();
+	public List<TogglableOption> CheckBoxOptions { get; } = new();
 }
