@@ -66,13 +66,6 @@ public class RadioSelector : Selector {
 			foreach (var option in RadioOptions) {
 				option.Value = option == value;
 			}
-			
-			//todo: remove debug loop
-			foreach (var option in RadioOptions) {
-				Logger.Info($"========================================");
-				Logger.Info($"RADIOSELECTOR VALUE CHANGED: {value.DisplayName}");
-				Logger.Debug($"{option.DisplayName}: {option.Value}");
-			}
 		}
 	}
 

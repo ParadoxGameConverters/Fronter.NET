@@ -29,8 +29,7 @@
                     <styles:Card>
                         <StackPanel>
                             <TextBlock Text="{ns:DynamicLoc DisplayName}"></TextBlock>
-                            
-                                <ItemsControl 
+                            <ItemsControl 
                                     Items="{Binding CheckBoxSelector.CheckBoxOptions, FallbackValue={}}"
                                     IsVisible="{Binding CheckBoxSelector, Converter={x:Static ObjectConverters.IsNotNull}}" 
                                 >
@@ -52,13 +51,37 @@
                                 SelectedItem="{Binding RadioSelector.SelectedOption, FallbackValue={}}"
                                 AutoScrollToSelectedItem="True"
                             >
+                                <ComboBox.Styles>
+                                    <Style Selector="MenuItem.OptionName">
+                                        <Setter Property="MaxHeight" Value="20"></Setter>
+                                        <Setter Property="IsHitTestVisible" Value="False"></Setter>
+                                    </Style>
+                                    <Style Selector="ComboBoxItem">
+                                        <Setter Property="Padding" Value="0"></Setter>
+                                        <Setter Property="Margin" Value="0"></Setter>
+                                    </Style>
+                                    <Style Selector="ComboBoxItem Panel.OptionNamePanel">
+                                        <Setter Property="MinWidth" Value="300"></Setter>
+                                    </Style>
+                                    <Style Selector="ComboBoxItem Panel.OptionNamePanel MenuItem.OptionName">
+                                        <Setter Property="MaxWidth" Value="300"></Setter>
+                                        <Setter Property="MinHeight" Value="30"></Setter>
+                                        <Setter Property="IsHitTestVisible" Value="True"></Setter>
+                                    </Style>
+                                </ComboBox.Styles>
+                                <ComboBox.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel/>
+                                    </ItemsPanelTemplate>
+                                </ComboBox.ItemsPanel>
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate>
-                                        <Border Background="Red" ToolTip.Tip="{ns:DynamicLoc Tooltip}">
-                                            <TextBlock
-                                                HorizontalAlignment="Stretch"
-                                                Text="{ns:DynamicLoc DisplayName}"/>
-                                        </Border>
+                                        <Panel
+                                            Classes="OptionNamePanel"
+                                            ToolTip.Tip="{ns:DynamicLoc Tooltip}"
+                                        >
+                                            <MenuItem Classes="OptionName" Header="{ns:DynamicLoc DisplayName}" />
+                                        </Panel>
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
