@@ -6,10 +6,9 @@
              xmlns:ns="clr-namespace:Fronter.Extensions"
              xmlns:styles="clr-namespace:Material.Styles;assembly=Material.Styles"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="Fronter.Views.OptionsView">
-    <Design.DataContext>
-        <viewModels:OptionsViewModel />
-    </Design.DataContext>
+             x:Class="Fronter.Views.OptionsView"
+             x:DataType="viewModels:OptionsViewModel"
+             x:CompileBindings="True">
     <ItemsControl Items="{Binding Items}">
         <ItemsControl.Styles>
             <Style Selector="styles|Card">
@@ -26,43 +25,48 @@
         </ItemsControl.ItemsPanel>
         <ItemsControl.ItemTemplate>
             <DataTemplate>
-                <styles:Card>
-                    <StackPanel>
-                        <TextBlock Text="{ns:DynamicLoc DisplayName}"></TextBlock>
-                        <TextBlock Text="{ns:DynamicLoc Tooltip}"></TextBlock>
-                        
-                        <ItemsControl 
-                            Items="{Binding CheckBoxSelector.CheckBoxOptions, FallbackValue={}}"
-                            IsVisible="{Binding CheckBoxSelector, Converter={x:Static ObjectConverters.IsNotNull}}" 
-                        >
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <CheckBox
-                                        Content="{ns:DynamicLoc DisplayName}"
-                                        IsChecked="{Binding Value, Mode=TwoWay}"
-                                    />
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                <Border ToolTip.Tip="{ns:DynamicLoc Tooltip}">
+                    <styles:Card>
+                        <StackPanel>
+                            <TextBlock Text="{ns:DynamicLoc DisplayName}"></TextBlock>
                             
-                        <ListBox Items="{Binding RadioSelector.RadioOptions, FallbackValue={}}" IsVisible="{Binding RadioSelector, Converter={x:Static ObjectConverters.IsNotNull}}" SelectionMode="Single">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <Border>
-                                        <RadioButton
-                                            Content="{ns:DynamicLoc DisplayName}"
-                                            IsChecked="{Binding IsSelected, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ListBoxItem, Mode=FindAncestor}}"
-                                            IsHitTestVisible="False"
-                                            Focusable="False"
-                                            PropertyChanged="AvaloniaObject_OnPropertyChanged"/>
-                                    </Border>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                       
-                        <TextBox Text="{Binding TextSelector.Value, FallbackValue={}}" IsEnabled="{Binding TextSelector.Editable, FallbackValue=false}" IsVisible="{Binding TextSelector, Converter={x:Static ObjectConverters.IsNotNull}}"></TextBox>
-                    </StackPanel>
-                </styles:Card>
+                                <ItemsControl 
+                                    Items="{Binding CheckBoxSelector.CheckBoxOptions, FallbackValue={}}"
+                                    IsVisible="{Binding CheckBoxSelector, Converter={x:Static ObjectConverters.IsNotNull}}" 
+                                >
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border ToolTip.Tip="{Binding Tooltip}">
+                                                <CheckBox
+                                                    Content="{ns:DynamicLoc DisplayName}"
+                                                    IsChecked="{Binding Value, Mode=TwoWay}"
+                                                />
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                
+                            <ListBox Items="{Binding RadioSelector.RadioOptions, FallbackValue={}}" IsVisible="{Binding RadioSelector, Converter={x:Static ObjectConverters.IsNotNull}}" SelectionMode="Single">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border ToolTip.Tip="{Binding Tooltip}">
+                                            <RadioButton
+                                                Content="{ns:DynamicLoc DisplayName}"
+                                                IsChecked="{Binding IsSelected, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ListBoxItem, Mode=FindAncestor}}"
+                                                IsHitTestVisible="False"
+                                                Focusable="False"
+                                                PropertyChanged="AvaloniaObject_OnPropertyChanged"/>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                           
+                            <Border ToolTip.Tip="{Binding TextSelector.Tooltip, FallbackValue={}}" IsVisible="{Binding TextSelector, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                <TextBox Text="{Binding TextSelector.Value, FallbackValue={}}" IsEnabled="{Binding TextSelector.Editable, FallbackValue=false}"></TextBox>
+                            </Border>
+                        </StackPanel>
+                    </styles:Card>
+                </Border>
             </DataTemplate>
         </ItemsControl.ItemTemplate>
     </ItemsControl>
