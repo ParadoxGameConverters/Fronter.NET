@@ -13,13 +13,14 @@
     <ItemsControl Items="{Binding Items}">
         <ItemsControl.Styles>
             <Style Selector="styles|Card">
-                <Setter Property="Margin" Value="2,10" />
-                <Setter Property="MaxWidth" Value="400"></Setter>
+                <Setter Property="Margin" Value="10,10" />
+                <Setter Property="MaxWidth" Value="400" />
+                <Setter Property="MaxHeight" Value="500"></Setter>
             </Style>
         </ItemsControl.Styles>
         <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
-                <WrapPanel Orientation="Vertical">
+                <WrapPanel Orientation="Vertical" MaxHeight="520">
                 </WrapPanel>
             </ItemsPanelTemplate>
         </ItemsControl.ItemsPanel>
@@ -30,20 +31,37 @@
                         <TextBlock Text="{ns:DynamicLoc DisplayName}"></TextBlock>
                         <TextBlock Text="{ns:DynamicLoc Tooltip}"></TextBlock>
                         
-                        <!-- TODO: LIST OF CHECKBOCEX
-                        <CheckBox Text="{Binding TextSelector.Value, FallbackValue={}}" IsEnabled="{Binding TextSelector.Editable, FallbackValue=false}" IsVisible="{Binding TextSelector, Converter={x:Static ObjectConverters.IsNotNull}}"></CheckBox>-->
-                        <ListBox Items="{Binding CheckBoxSelector.CheckBoxOptions, FallbackValue={}}" IsVisible="{Binding CheckBoxSelector, Converter={x:Static ObjectConverters.IsNotNull}}" SelectionMode="Multiple">
+                        <ListBox Items="{Binding CheckBoxSelector.CheckBoxOptions, FallbackValue={}}"
+                            IsVisible="{Binding CheckBoxSelector, Converter={x:Static ObjectConverters.IsNotNull}}" 
+                            SelectionMode="Multiple,Toggle"
+                            MaxHeight="200"
+                        >
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Background="Red" CornerRadius="4" Padding="4">
-                                        <TextBlock Text="{ns:DynamicLoc DisplayName}"/>
+                                    <Border>
+                                        <CheckBox
+                                            Content="{ns:DynamicLoc DisplayName}"
+                                            IsChecked="{Binding IsSelected, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ListBoxItem, Mode=FindAncestor}}" 
+                                            IsHitTestVisible="False" 
+                                            Focusable="False"
+                                            />
                                     </Border>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
 
-                        <!-- TODO: LIST OF RADIO BUTTONS -->
-                        <ListBox Items="{Binding RadioSelector.RadioOptions, FallbackValue={}}" IsVisible="{Binding RadioSelector, Converter={x:Static ObjectConverters.IsNotNull}}" SelectionMode="Single"></ListBox>
+                        <ListBox Items="{Binding RadioSelector.RadioOptions, FallbackValue={}}" IsVisible="{Binding RadioSelector, Converter={x:Static ObjectConverters.IsNotNull}}" SelectionMode="Single">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border>
+                                        <RadioButton
+                                            Content="{ns:DynamicLoc DisplayName}"
+                                            IsChecked="{Binding IsSelected, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ListBoxItem, Mode=FindAncestor}}" IsHitTestVisible="False" 
+                                            Focusable="False" />
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
                        
                         <TextBox Text="{Binding TextSelector.Value, FallbackValue={}}" IsEnabled="{Binding TextSelector.Editable, FallbackValue=false}" IsVisible="{Binding TextSelector, Converter={x:Static ObjectConverters.IsNotNull}}"></TextBox>
                     </StackPanel>

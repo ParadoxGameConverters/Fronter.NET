@@ -134,7 +134,7 @@ public class TranslationSource : ReactiveObject {
 				Logger.Info($"{key} : {text}");
 
 				if (translations.TryGetValue(key, out var dictionary)) {
-					dictionary.Add(language, text);
+					dictionary[language] = text;
 				} else {
 					var newDict = new Dictionary<string, string> { [language] = text };
 					translations.Add(key, newDict);
