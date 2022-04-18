@@ -13,7 +13,7 @@ public class CheckBoxSelector : Selector {
 	private void RegisterKeys(Parser parser) {
 		parser.RegisterKeyword("checkBoxOption", reader => {
 			++optionCounter;
-			var newOption = new TogglableOption(reader, optionCounter);
+			var newOption = new ToggleableOption(reader, optionCounter);
 			CheckBoxOptions.Add(newOption);
 		});
 		parser.RegisterRegex(CommonRegexes.Catchall, ParserHelpers.IgnoreAndLogItem);
@@ -21,7 +21,7 @@ public class CheckBoxSelector : Selector {
 
 	public HashSet<string> GetSelectedValues() {
 		var toReturn = new HashSet<string>();
-		foreach (TogglableOption option in CheckBoxOptions.Where(option => option.Value)) {
+		foreach (ToggleableOption option in CheckBoxOptions.Where(option => option.Value)) {
 			toReturn.Add(option.Name);
 		}
 		return toReturn;
@@ -29,7 +29,7 @@ public class CheckBoxSelector : Selector {
 
 	public HashSet<int> GetSelectedIds() {
 		var toReturn = new HashSet<int>();
-		foreach (TogglableOption option in CheckBoxOptions.Where(option => option.Value)) {
+		foreach (ToggleableOption option in CheckBoxOptions.Where(option => option.Value)) {
 			toReturn.Add(option.Id);
 		}
 		return toReturn;
@@ -56,5 +56,5 @@ public class CheckBoxSelector : Selector {
 
 	private int optionCounter = 0;
 	public bool Preloaded { get; set; } = false;
-	public List<TogglableOption> CheckBoxOptions { get; } = new();
+	public List<ToggleableOption> CheckBoxOptions { get; } = new();
 }

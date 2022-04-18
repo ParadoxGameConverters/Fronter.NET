@@ -13,21 +13,21 @@ public class RadioSelector : Selector {
 	private void RegisterKeys(Parser parser) {
 		parser.RegisterKeyword("radioOption", reader => {
 			++optionCounter;
-			var newOption = new TogglableOption(reader, optionCounter);
+			var newOption = new ToggleableOption(reader, optionCounter);
 			RadioOptions.Add(newOption);
 		});
 		parser.RegisterRegex(CommonRegexes.Catchall, ParserHelpers.IgnoreAndLogItem);
 	}
 
 	public string GetSelectedValue() {
-		foreach (TogglableOption option in RadioOptions.Where(option => option.Value)) {
+		foreach (ToggleableOption option in RadioOptions.Where(option => option.Value)) {
 			return option.Name;
 		}
 		return string.Empty;
 	}
 
 	public int GetSelectedId() {
-		foreach (TogglableOption option in RadioOptions.Where(option => option.Value)) {
+		foreach (ToggleableOption option in RadioOptions.Where(option => option.Value)) {
 			return option.Id;
 		}
 		return 0;
@@ -60,6 +60,22 @@ public class RadioSelector : Selector {
 			Logger.Warn("Attempted setting a radio selector value that does not exist!");
 	}
 
+	public ToggleableOption? SelectedOption {
+		get => RadioOptions.FirstOrDefault(option => option!.Value, null);
+		set {
+			foreach (var option in RadioOptions) {
+				option.Value = option == value;
+			}
+			
+			//todo: remove debug loop
+			foreach (var option in RadioOptions) {
+				Logger.Info($"========================================");
+				Logger.Info($"RADIOSELECTOR VALUE CHANGED: {value.DisplayName}");
+				Logger.Debug($"{option.DisplayName}: {option.Value}");
+			}
+		}
+	}
+
 	private int optionCounter = 0;
-	public List<TogglableOption> RadioOptions { get; } = new();
+	public List<ToggleableOption> RadioOptions { get; } = new();
 }

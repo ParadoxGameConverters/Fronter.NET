@@ -45,21 +45,23 @@
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
-                                
-                            <ListBox Items="{Binding RadioSelector.RadioOptions, FallbackValue={}}" IsVisible="{Binding RadioSelector, Converter={x:Static ObjectConverters.IsNotNull}}" SelectionMode="Single">
-                                <ListBox.ItemTemplate>
+                            
+                            <ComboBox
+                                Items="{Binding RadioSelector.RadioOptions, FallbackValue={}}"
+                                IsVisible="{Binding RadioSelector, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                SelectedItem="{Binding RadioSelector.SelectedOption, FallbackValue={}}"
+                                AutoScrollToSelectedItem="True"
+                            >
+                                <ComboBox.ItemTemplate>
                                     <DataTemplate>
-                                        <Border ToolTip.Tip="{ns:DynamicLoc Tooltip}">
-                                            <RadioButton
-                                                Content="{ns:DynamicLoc DisplayName}"
-                                                IsChecked="{Binding IsSelected, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ListBoxItem, Mode=FindAncestor}}"
-                                                IsHitTestVisible="False"
-                                                Focusable="False"
-                                                PropertyChanged="AvaloniaObject_OnPropertyChanged"/>
+                                        <Border Background="Red" ToolTip.Tip="{ns:DynamicLoc Tooltip}">
+                                            <TextBlock
+                                                HorizontalAlignment="Stretch"
+                                                Text="{ns:DynamicLoc DisplayName}"/>
                                         </Border>
                                     </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
                            
                             <Border ToolTip.Tip="{ns:DynamicLoc TextSelector.Tooltip, FallbackValue={}}" IsVisible="{Binding TextSelector, Converter={x:Static ObjectConverters.IsNotNull}}">
                                 <TextBox Text="{Binding TextSelector.Value, FallbackValue={}}" IsEnabled="{Binding TextSelector.Editable, FallbackValue=false}"></TextBox>
