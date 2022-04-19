@@ -98,11 +98,9 @@ public class MainWindowViewModel : ViewModelBase {
 	}
 
 	public async void LaunchConverter() {
-		ConvertStatus = "CONVERTSTATUSIN";
-		
 		var converterLauncher = new ConverterLauncher();
 		converterLauncher.LoadConfiguration(Config);
-		//converterLauncher.LaunchConverter();
+		converterLauncher.LaunchConverter();
 	}
 
 	public void DEBUGADDTOLOG() {

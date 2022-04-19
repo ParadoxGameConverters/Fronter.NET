@@ -57,14 +57,7 @@
         </Menu>
         <TabControl DockPanel.Dock="Top" MinHeight="150">
             <TabItem Header="{ns:Loc PATHSTAB}" VerticalContentAlignment="Center">
-                <DockPanel>
-                    <Button DockPanel.Dock="Bottom" Command="{Binding DEBUGADDTOLOG}">Add an item</Button>
-                    <StackPanel>
-                        <CheckBox Margin="4">Walk the dog</CheckBox>
-                        <CheckBox Margin="4">Walk the dog</CheckBox>
-                        <CheckBox Margin="4">Buy some milk</CheckBox>
-                    </StackPanel>
-                </DockPanel>
+                <views:PathPickerView/>
             </TabItem>
             <TabItem Header="{ns:Loc MODSTAB}" VerticalContentAlignment="Center">
                 <StackPanel>
