@@ -1,5 +1,7 @@
 ﻿using commonItems;
 using Fronter.Models.Configuration;
+using Microsoft.CodeAnalysis;
+using System;
 using System.Diagnostics;
 using System.IO;
 
@@ -7,36 +9,36 @@ namespace Fronter.Services;
 
 internal class ConverterLauncher {
 	public void LaunchConverter() {
-		var converterFolder = configuration.ConverterFolder;
-		var backendExePath = configuration.BackendExePath;
-		var backendExePathRelativeToFrontend = Path.Combine(configuration.ConverterFolder, configuration.BackendExePath);
+		var converterFolder = config.ConverterFolder;
+		var backendExePath = config.BackendExePath;
+		var backendExePathRelativeToFrontend = Path.Combine(converterFolder, backendExePath);
 
 		var extension = CommonFunctions.GetExtension(backendExePathRelativeToFrontend);
-		if (string.IsNullOrEmpty(extension)) {
+		if (string.IsNullOrEmpty(extension) && OperatingSystem.IsWindows()) {
 			backendExePathRelativeToFrontend += ".exe";
 		}
 
 		if (string.IsNullOrEmpty(backendExePath)) {
 			Logger.Error("Converter location has not been set!");
+			return;
 		}
 
 		if (!File.Exists(backendExePathRelativeToFrontend)) {
 			Logger.Error("Could not find converter executable!");
+			return;
 		}
 
-		
-		if (extension == "jar") {
-			backendExePathRelativeToFrontend = $"java.exe -jar {backendExePathRelativeToFrontend}";
-		}
 
+		var backendExeName = CommonFunctions.TrimPath(backendExePath);
+		var workDir = CommonFunctions.GetPath(backendExePath);
 
 		using Process process = new();
 		string currentDir = Directory.GetCurrentDirectory();
 		string executablePath = backendExePathRelativeToFrontend;
 
-		process.StartInfo.WorkingDirectory = CommonFunctions.GetPath(backendExePathRelativeToFrontend);
+		process.StartInfo.WorkingDirectory = workDir;
 		process.StartInfo.UseShellExecute = false;
-		process.StartInfo.FileName = executablePath;
+		process.StartInfo.FileName = backendExeName;
 		process.StartInfo.CreateNoWindow = true;
 
 		var timer = new Stopwatch();
@@ -45,17 +47,17 @@ internal class ConverterLauncher {
 		process.WaitForExit();
 		timer.Stop();
 
-		Logger.Info($"Converter exited at {timer.Elapsed.TotalSeconds} seconds.");
-
-		if (process.ExitCode != 0) {
+		if (process.ExitCode == 0) {
+			Logger.Info($"Converter exited at {timer.Elapsed.TotalSeconds} seconds.");
+		} else {
 			Logger.Error("Converter Error! See log.txt for details.");
 			Logger.Error("If you require assistance please upload log.txt to forums for a detailed post-mortem.");
 		}
 	}
 
-	public void LoadConfiguration(Configuration configuration) {
-		this.configuration = configuration;
+	public void LoadConfiguration(Configuration config) {
+		this.config = config;
 	}
 
-	private Configuration configuration;
+	private Configuration config;
 }

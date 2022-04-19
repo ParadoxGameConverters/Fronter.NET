@@ -20,7 +20,6 @@ using System.Linq;
 using System.Threading;
 using DynamicData;
 using DynamicData.Binding;
-using Material.Dialog;
 using Material.Styles.Themes;
 using Material.Styles.Themes.Base;
 
@@ -45,6 +44,24 @@ public class MainWindowViewModel : ViewModelBase {
 	private ReadOnlyObservableCollection<LogLine> filteredLogLines;
 	public ReadOnlyObservableCollection<LogLine> FilteredLogLines => filteredLogLines;
 
+	private string saveStatus = "CONVERTSTATUSPRE";
+	private string convertStatus = "CONVERTSTATUSPRE";
+	private string copyStatus = "CONVERTSTATUSPRE";
+
+	public string SaveStatus { // TODO: MOVE THESE TO VIEW
+		get => saveStatus;
+		set => this.RaiseAndSetIfChanged(ref saveStatus, value);
+	}
+	public string ConvertStatus {
+		get => convertStatus;
+		set => this.RaiseAndSetIfChanged(ref convertStatus, value);
+	}
+	public string CopyStatus {
+		get => copyStatus;
+		set => this.RaiseAndSetIfChanged(ref copyStatus, value);
+	}
+	
+	
 	public MainWindowViewModel() {
 		Options = new OptionsViewModel(Config.Options);
 		
@@ -81,9 +98,11 @@ public class MainWindowViewModel : ViewModelBase {
 	}
 
 	public async void LaunchConverter() {
+		ConvertStatus = "CONVERTSTATUSIN";
+		
 		var converterLauncher = new ConverterLauncher();
 		converterLauncher.LoadConfiguration(Config);
-		converterLauncher.LaunchConverter();
+		//converterLauncher.LaunchConverter();
 	}
 
 	public void DEBUGADDTOLOG() {

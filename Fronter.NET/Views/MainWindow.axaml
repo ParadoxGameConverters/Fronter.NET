@@ -114,17 +114,17 @@
                     <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical" >
                         <Grid ColumnDefinitions="1.8*, 1*" RowDefinitions="1*,1*,1*" Margin="10, 4, 0, 4">
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="{ns:Loc CONVERTSAVING}"></TextBlock>
-                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{ns:Loc CONVERTSTATUSPRE}"></TextBlock>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{ns:DynamicLoc SaveStatus}"></TextBlock>
                             
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="{ns:Loc CONVERTCONVERTING}"></TextBlock>
-                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{ns:Loc CONVERTSTATUSPRE}"></TextBlock>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{ns:DynamicLoc ConvertStatus}"></TextBlock>
                             
                             <TextBlock Grid.Row="2" Grid.Column="0" Text="{ns:Loc CONVERTCOPYING}"></TextBlock>
-                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{ns:Loc CONVERTSTATUSPRE}"></TextBlock>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{ns:DynamicLoc CopyStatus}"></TextBlock>
                         </Grid>
                         <ProgressBar Margin="4" Height="20" Value="{Binding Progress}" BorderThickness="1" BorderBrush="Gray"/>
                         <TextBlock Text="{Binding Progress, StringFormat={}{0}%}" HorizontalAlignment="Center"></TextBlock>
-                        <Button Margin="4,15,4,4" HorizontalAlignment="Center"  Classes="Outline Light" Name="ConvertButton" Command="{Binding LaunchConverter}">Convert!</Button>
+                        <Button Margin="4,15,4,4" HorizontalAlignment="Center" Name="ConvertButton" Command="{Binding LaunchConverter}">Convert!</Button>
                     </StackPanel>
                 </Grid>
             </TabItem>
