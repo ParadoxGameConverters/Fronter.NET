@@ -86,10 +86,9 @@ public class TranslationSource : ReactiveObject {
 		var fileNames = SystemUtils.GetAllFilesInFolder("Configuration");
 
 		foreach (var fileName in fileNames) {
-			if (!fileName.EndsWith(".yml"))
+			if (!fileName.EndsWith(".yml")) {
 				continue;
-			
-			Logger.Progress($"loading {fileName}");
+			}
 
 			var langFilePath = Path.Combine("Configuration", fileName);
 			using var langFileStream = File.OpenRead(langFilePath);
@@ -106,7 +105,6 @@ public class TranslationSource : ReactiveObject {
 				continue;
 			}
 			var language = firstLine.Substring(2, pos - 2);
-			Logger.Debug(language);
 
 			while (!langFileReader.EndOfStream) {
 				var line = langFileReader.ReadLine();
@@ -130,8 +128,6 @@ public class TranslationSource : ReactiveObject {
 					continue;
 				}
 				var text = line.Substring(pos + 1, secpos - pos - 1);
-
-				Logger.Info($"{key} : {text}");
 
 				if (translations.TryGetValue(key, out var dictionary)) {
 					dictionary[language] = text;

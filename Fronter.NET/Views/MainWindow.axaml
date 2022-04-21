@@ -57,7 +57,7 @@
         </Menu>
         <TabControl DockPanel.Dock="Top" MinHeight="150">
             <TabItem Header="{ns:Loc PATHSTAB}" VerticalContentAlignment="Center">
-                <views:PathPickerView/>
+                <views:PathPickerView DataContext="{Binding Config}"/>
             </TabItem>
             <TabItem Header="{ns:Loc MODSTAB}" VerticalContentAlignment="Center">
                 <StackPanel>
@@ -66,7 +66,7 @@
             </TabItem>
             
             <TabItem Header="{ns:Loc OPTIONSTAB}" VerticalContentAlignment="Center">
-                <views:OptionsView Content="{Binding Options}"></views:OptionsView>
+                <views:OptionsView Content="{Binding Options}" />
             </TabItem>
             
             <TabItem Header="{ns:Loc CONVERTTAB}" VerticalContentAlignment="Center">

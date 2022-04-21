@@ -21,8 +21,8 @@ public class Configuration {
 	public string ConverterReleaseForumThread { get; private set; } = string.Empty;
 	public string LatestGitHubConverterReleaseUrl { get; private set; } = string.Empty;
 	public string PagesCommitIdUrl { get; private set; } = string.Empty;
-	public Dictionary<string, RequiredFile> RequiredFiles { get; } = new();
-	public Dictionary<string, RequiredFolder> RequiredFolders { get; } = new();
+	public List<RequiredFile> RequiredFiles { get; } = new();
+	public List<RequiredFolder> RequiredFolders { get; } = new();
 	public List<Option> Options { get; } = new();
 	public List<Mod> AutoLocatedMods { get; } = new();
 	public HashSet<string> PreloadedModFileNames { get; } = new();
@@ -68,17 +68,21 @@ public class Configuration {
 		});
 		parser.RegisterKeyword("requiredFolder", reader => {
 			var newFolder = new RequiredFolder(reader);
-			if (!string.IsNullOrEmpty(newFolder.Name))
-				RequiredFolders.Add(newFolder.Name, newFolder);
-			else
+			if (!string.IsNullOrEmpty(newFolder.Name)) {
+				RequiredFolders.Add(newFolder);
+			}
+			else {
 				Logger.Error("Required Folder has no mandatory field: name!");
+			}
 		});
 		parser.RegisterKeyword("requiredFile", reader => {
 			var newFile = new RequiredFile(reader);
-			if (!string.IsNullOrEmpty(newFile.Name))
-				RequiredFiles.Add(newFile.Name, newFile);
-			else
+			if (!string.IsNullOrEmpty(newFile.Name)) {
+				RequiredFiles.Add(newFile);
+			}
+			else {
 				Logger.Error("Required File has no mandatory field: name!");
+			}
 		});
 		parser.RegisterKeyword("option", reader => {
 			var newOption = new Option(reader, ++optionCounter);
@@ -115,7 +119,7 @@ public class Configuration {
 	}
 
 	private void RegisterPreloadKeys(Parser parser) {
-		parser.RegisterRegex("[a-zA-Z0-9_-]+", (reader, incomingKey) => {
+		parser.RegisterRegex(CommonRegexes.String, (reader, incomingKey) => {
 			var valueStr = reader.GetStringOfItem();
 			var valueReader = new BufferedReader(valueStr.ToString());
 			var theString = valueReader.GetString();
@@ -125,14 +129,16 @@ public class Configuration {
 				return;
 			}
 
-			foreach (var (requiredFolderName, folder) in RequiredFolders) {
-				if (requiredFolderName == incomingKey)
+			foreach (var folder in RequiredFolders) {
+				if (folder.Name == incomingKey) {
 					folder.Value = theString;
+				}
 			}
 
-			foreach (var (requiredFileName, file) in RequiredFiles) {
-				if (requiredFileName == incomingKey)
+			foreach (var file in RequiredFiles) {
+				if (file.Name == incomingKey) {
 					file.Value = theString;
+				}
 			}
 			foreach (var option in Options) {
 				if (option.Name == incomingKey && option.CheckBoxSelector is null) {
@@ -152,6 +158,33 @@ public class Configuration {
 		parser.RegisterRegex(CommonRegexes.Catchall, ParserHelpers.IgnoreAndLogItem);
 	}
 
+	public void InitializePaths() {
+		var userDir = Environment.GetEnvironmentVariable("USERPROFILE");
+		if (userDir is null) {
+			userDir = Environment.GetEnvironmentVariable("HOME");
+		}
+		string? documentsDir = null;
+		if (userDir is not null) {
+			documentsDir = Path.Combine(userDir, "Documents");
+		}
+			
+		foreach (var folder in RequiredFolders) {
+			if (!string.IsNullOrEmpty(folder.Value)) {
+				continue;
+			}
+			
+			if (folder.SearchPathType == "windowsUsersFolder" && documentsDir is not null) {
+				folder.Value = Path.Combine(documentsDir, folder.SearchPath);
+			} else if (folder.SearchPathType == "steamFolder") {
+				var possiblePath = commonIte
+			}  
+			else if (folder.SearchPathType == "direct") {
+				folder.Value = folder.SearchPath;
+			}
+		}
+
+	}
+
 	private bool ExportConfiguration() {
 		if (string.IsNullOrEmpty(ConverterFolder)) {
 			Logger.Error("Converter folder is not set!");
@@ -165,15 +198,15 @@ public class Configuration {
 		var outConfPath = Path.Combine(ConverterFolder, "configuration.txt");
 		try {
 			using var writer = new StreamWriter(outConfPath);
-			foreach (var (folderName, folder) in RequiredFolders) {
-				writer.WriteLine($"{folderName} = \"{folder.Value}\"");
+			foreach (var folder in RequiredFolders) {
+				writer.WriteLine($"{folder.Name} = \"{folder.Value}\"");
 			}
 
-			foreach (var (fileName, file) in RequiredFiles) {
+			foreach (var file in RequiredFiles) {
 				if (!file.Outputtable) {
 					continue;
 				}
-				writer.WriteLine($"{fileName} = \"{file.Value}\"");
+				writer.WriteLine($"{file.Name} = \"{file.Value}\"");
 			}
 
 			if (!string.IsNullOrEmpty(AutoGenerateModsFrom)) {
