@@ -1,10 +1,14 @@
 ﻿using commonItems;
 using Fronter.Models.Configuration.Options;
+using Microsoft.CodeAnalysis;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Fronter.Models.Configuration;
 
@@ -47,6 +51,8 @@ public class Configuration {
 			Logger.Warn($"{fronterOptionsPath} not found!");
 		}
 		parser.ClearRegisteredRules();
+		
+		InitializePaths();
 
 		RegisterPreloadKeys(parser);
 		var converterConfigurationPath = Path.Combine(ConverterFolder, "configuration.txt");
@@ -159,30 +165,35 @@ public class Configuration {
 	}
 
 	public void InitializePaths() {
-		var userDir = Environment.GetEnvironmentVariable("USERPROFILE");
-		if (userDir is null) {
-			userDir = Environment.GetEnvironmentVariable("HOME");
+		if (!OperatingSystem.IsWindows()) {
+			return;
 		}
-		string? documentsDir = null;
-		if (userDir is not null) {
-			documentsDir = Path.Combine(userDir, "Documents");
-		}
-			
+		
+		string documentsDir = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
 		foreach (var folder in RequiredFolders) {
 			if (!string.IsNullOrEmpty(folder.Value)) {
 				continue;
 			}
 			
-			if (folder.SearchPathType == "windowsUsersFolder" && documentsDir is not null) {
+			if (folder.SearchPathType == "windowsUsersFolder") {
 				folder.Value = Path.Combine(documentsDir, folder.SearchPath);
 			} else if (folder.SearchPathType == "steamFolder") {
-				var possiblePath = commonIte
-			}  
-			else if (folder.SearchPathType == "direct") {
+				var possiblePath = CommonFunctions.GetSteamInstallPath(folder.SearchPathId);
+				if (possiblePath is not null) {
+					folder.Value = possiblePath;
+					if (!string.IsNullOrEmpty(folder.SearchPath)) {
+						folder.Value = Path.Combine(folder.Value, folder.SearchPath);
+					}
+				}
+			} else if (folder.SearchPathType == "direct") {
 				folder.Value = folder.SearchPath;
 			}
+			
+			/*if (!Directory.Exists(folder.Value)) { // TODO: REENABLE THIS
+				folder.Value = string.Empty;
+			}*/
 		}
-
 	}
 
 	private bool ExportConfiguration() {
