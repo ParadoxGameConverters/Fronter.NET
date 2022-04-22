@@ -179,20 +179,51 @@ public class Configuration {
 			if (folder.SearchPathType == "windowsUsersFolder") {
 				folder.Value = Path.Combine(documentsDir, folder.SearchPath);
 			} else if (folder.SearchPathType == "steamFolder") {
-				var possiblePath = CommonFunctions.GetSteamInstallPath(folder.SearchPathId);
-				if (possiblePath is not null) {
-					folder.Value = possiblePath;
-					if (!string.IsNullOrEmpty(folder.SearchPath)) {
-						folder.Value = Path.Combine(folder.Value, folder.SearchPath);
-					}
+				if (!int.TryParse(folder.SearchPathId, out int steamId)) {
+					continue;
+				}
+				
+				var possiblePath = CommonFunctions.GetSteamInstallPath(steamId);
+				if (possiblePath is null) {
+					continue;
+				}
+
+				folder.Value = possiblePath;
+				if (!string.IsNullOrEmpty(folder.SearchPath)) {
+					folder.Value = Path.Combine(folder.Value, folder.SearchPath);
 				}
 			} else if (folder.SearchPathType == "direct") {
 				folder.Value = folder.SearchPath;
 			}
 			
-			/*if (!Directory.Exists(folder.Value)) { // TODO: REENABLE THIS
+			if (!Directory.Exists(folder.Value)) {
 				folder.Value = string.Empty;
-			}*/
+			}
+		}
+
+		foreach (var file in RequiredFiles) {
+			if (!string.IsNullOrEmpty(file.Value)) {
+				file.InitialDirectory = CommonFunctions.GetPath(file.Value);
+			} else if (file.SearchPathType == "windowsUsersFolder") {
+				file.InitialDirectory = Path.Combine(documentsDir, file.SearchPath);
+				if (!string.IsNullOrEmpty(file.FileName)) {
+					file.Value = Path.Combine(file.InitialDirectory, file.FileName);
+				}
+			} else if (file.SearchPathType == "converterFolder") {
+				var currentDir = Directory.GetCurrentDirectory();
+				file.InitialDirectory = Path.Combine(currentDir, file.SearchPath);
+				if (!string.IsNullOrEmpty(file.FileName)) {
+					file.Value = Path.Combine(file.InitialDirectory, file.FileName);
+				}
+			}
+
+			if (!File.Exists(file.Value)) {
+				file.Value = string.Empty;
+			}
+
+			if (!Directory.Exists(file.InitialDirectory)) {
+				file.InitialDirectory = null;
+			}
 		}
 	}
 

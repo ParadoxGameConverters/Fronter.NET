@@ -50,8 +50,8 @@
                                 <TextBlock Text="{ns:DynamicLoc DisplayName}" Classes="PathTextBlockStyle" ToolTip.Tip="{ns:DynamicLoc Tooltip}" />
                                 <TextBox Text="{Binding Value}" Grid.Column="1"
                                          Classes="FolderPathTextBoxStyle" />
-                                <Button Content="Browse..." Grid.Column="2" Classes="PathBrowseButtonStyle"
-                                        Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Path=DataContext.OpenFolderCommand}"
+                                <Button Content="{ns:Loc BROWSE}" Grid.Column="2" Classes="PathBrowseButtonStyle"
+                                        Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ItemsControl}}, Path=DataContext.OpenFolderDialog}"
                                         CommandParameter="{Binding}" />
                             </Grid>
                         </DataTemplate>
@@ -65,8 +65,8 @@
                                 <TextBlock Text="{ns:DynamicLoc DisplayName}" Classes="PathTextBlockStyle" ToolTip.Tip="{ns:DynamicLoc Tooltip}" />
                                 <TextBox Text="{Binding Value}" Grid.Column="1"
                                          Classes="FolderPathTextBoxStyle" />
-                                <Button Content="Browse..." Grid.Column="2" Classes="PathBrowseButtonStyle"
-                                        Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Path=DataContext.OpenFileCommand}"
+                                <Button Content="{ns:Loc BROWSE}" Grid.Column="2" Classes="PathBrowseButtonStyle"
+                                        Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ItemsControl}}, Path=DataContext.OpenFileDialog}"
                                         CommandParameter="{Binding}" />
                             </Grid>
                         </DataTemplate>

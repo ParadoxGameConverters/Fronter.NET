@@ -1,12 +1,4 @@
-﻿using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Data;
-using Avalonia.Data.Core;
-using Avalonia.Markup.Xaml;
-using AvaloniaEdit.Utils;
-using ReactiveUI;
-using System;
-using System.ComponentModel;
+﻿using Avalonia.Data;
 
 namespace Fronter.Extensions;
 

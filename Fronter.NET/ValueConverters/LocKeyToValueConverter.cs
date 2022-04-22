@@ -12,7 +12,6 @@ public class LocKeyToValueConverter : IMultiValueConverter {
 		if (values[0] is not string locKey) {
 			return AvaloniaProperty.UnsetValue;
 		}
-		// Logger.Warn($"LocKeyToValueConverter lockey:   {locKey} // TODO: REMOVE DEBUG
 		
 		return TranslationSource.Instance[locKey];
 	}

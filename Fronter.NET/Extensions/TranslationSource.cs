@@ -53,8 +53,6 @@ public class TranslationSource : ReactiveObject {
 			return string.Empty;
 		}
 
-		
-
 		toReturn = Regex.Replace(toReturn, @"\\n", Environment.NewLine);
 		return toReturn;
 	}

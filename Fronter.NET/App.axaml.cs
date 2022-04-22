@@ -21,8 +21,10 @@ public class App : Application {
 
 	public override void OnFrameworkInitializationCompleted() {
 		if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
+			var window = MainWindow.Instance;
+			desktop.MainWindow = window;
 			var mainWindowViewModel = new MainWindowViewModel();
-			desktop.MainWindow = new MainWindow {DataContext = mainWindowViewModel};
+			window.DataContext = mainWindowViewModel;
 
 			mainWindowViewModel.StartWorkerThreads();
 		}

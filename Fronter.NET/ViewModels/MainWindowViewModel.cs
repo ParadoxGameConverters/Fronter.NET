@@ -32,6 +32,7 @@ public class MainWindowViewModel : ViewModelBase {
 
 	public Configuration Config { get; private set; } = new();
 	
+	public PathPickerViewModel PathPicker { get; }
 	public OptionsViewModel Options { get; }
 
 	private LogLevel logFilterLevel = LogLevel.Warn;
@@ -63,6 +64,7 @@ public class MainWindowViewModel : ViewModelBase {
 	
 	
 	public MainWindowViewModel() {
+		PathPicker = new PathPickerViewModel(Config);
 		Options = new OptionsViewModel(Config.Options);
 		
 		LogLines.ToObservableChangeSet()
@@ -87,16 +89,6 @@ public class MainWindowViewModel : ViewModelBase {
 		set => this.RaiseAndSetIfChanged(ref progress, value);
 	}
 
-	private static MainWindow? Window {
-		get {
-			if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
-				return (MainWindow)desktop.MainWindow;
-			}
-
-			return null;
-		}
-	}
-
 	public async void LaunchConverter() {
 		var converterLauncher = new ConverterLauncher();
 		converterLauncher.LoadConfiguration(Config);
@@ -112,11 +104,6 @@ public class MainWindowViewModel : ViewModelBase {
 	}
 
 	public async void CheckForUpdates() {
-		var mainWindow = Window;
-		if (mainWindow is null) {
-			return;
-		}
-
 		Logger.Debug($"{nameof(Config.UpdateCheckerEnabled)}: {Config.UpdateCheckerEnabled}");
 		Logger.Debug($"{nameof(Config.CheckForUpdatesOnStartup)}: {Config.CheckForUpdatesOnStartup}");
 		Logger.Debug($"is update available: {UpdateChecker.IsUpdateAvailable("commit_id.txt", Config.PagesCommitIdUrl)}");
@@ -140,7 +127,7 @@ public class MainWindowViewModel : ViewModelBase {
 						new ButtonDefinition {Name = maybeLater, IsCancel = true}
 					},
 				});
-			var result = await messageBoxWindow.ShowDialog(mainWindow);
+			var result = await messageBoxWindow.ShowDialog(MainWindow.Instance);
 			Logger.Progress(result);
 			if (result == updateNow) {
 				if (info.ZipUrl is not null) {
@@ -160,11 +147,6 @@ public class MainWindowViewModel : ViewModelBase {
 	}
 
 	public async void OpenAboutDialog() {
-		var mainWindow = Window;
-		if (mainWindow is null) {
-			return;
-		}
-
 		var messageBoxWindow = MessageBoxManager
 			.GetMessageBoxStandardWindow(new MessageBoxStandardParams {
 				ContentTitle = TranslationSource.Instance["ABOUT_TITLE"],
@@ -177,7 +159,7 @@ public class MainWindowViewModel : ViewModelBase {
 				ShowInCenter = true,
 				WindowStartupLocation = WindowStartupLocation.CenterOwner
 			});
-		await messageBoxWindow.ShowDialog(mainWindow);
+		await messageBoxWindow.ShowDialog(MainWindow.Instance);
 	}
 
 	public static async void OpenPatreonPage() {
@@ -214,7 +196,7 @@ public class MainWindowViewModel : ViewModelBase {
 	}
 
 	private void ScrollToLogEnd() {
-		var logGrid = Window?.FindControl<DataGrid>("LogGrid");
+		var logGrid = MainWindow.Instance.FindControl<DataGrid>("LogGrid");
 		logGrid?.ScrollIntoView(lastLogRow, null);
 	}
 

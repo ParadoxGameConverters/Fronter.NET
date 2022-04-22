@@ -20,14 +20,9 @@ public class RequiredPath : ViewModelBase {
 	public string SearchPathType { get; protected set; } = string.Empty;
 	public string SearchPath { get; protected set; } = string.Empty;
 	
-	public string valueStr = string.Empty;
-	public string Value {
+	private string valueStr = string.Empty;
+	public virtual string Value {
 		get => valueStr;
-		set {
-			if (!Directory.Exists(value)) {
-				throw new DataValidationException($"Directory does not exist!"); // TODO: REMOVE DEBUG
-			}
-			this.RaiseAndSetIfChanged(ref valueStr, value);
-		}
+		set => this.RaiseAndSetIfChanged(ref valueStr, value);
 	}
 }
