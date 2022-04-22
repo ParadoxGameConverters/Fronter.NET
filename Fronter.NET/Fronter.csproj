@@ -34,7 +34,7 @@
         <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.13" />
         <PackageReference Include="DynamicData" Version="7.6.7" />
         <PackageReference Include="Markdown.Avalonia" Version="0.10.10" />
-        <PackageReference Include="Material.Avalonia" Version="3.0.0-rc0.87-nightly" />
+        <PackageReference Include="Material.Avalonia" Version="3.0.0-rc0.90-nightly" />
         <PackageReference Include="MessageBox.Avalonia" Version="2.0.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     </ItemGroup>

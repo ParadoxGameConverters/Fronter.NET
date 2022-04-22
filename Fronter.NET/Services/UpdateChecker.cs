@@ -117,23 +117,22 @@ public static class UpdateChecker {
 	}
 
 	public static void StartUpdaterAndDie(string zipUrl, string converterBackendDirName) {
-		string destUpdaterPath = Path.Combine(".", "Updater", "updater-running");
+		var updaterDirPath = Path.Combine(".", "Updater");
+		var updaterRunningDirPath = Path.Combine(".", "Updater-running");
+		if (!SystemUtils.TryDeleteFolder(updaterRunningDirPath)) {
+			return;
+		}
+		if (!SystemUtils.TryCopyFolder(updaterDirPath, updaterRunningDirPath)) {
+			return;
+		}
+
+		string destUpdaterPath = Path.Combine(updaterRunningDirPath, "updater");
 		if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
-			destUpdaterPath = $"{destUpdaterPath}.exe";
-			File.Move(
-				Path.Combine(".", "Updater", "updater.exe"),
-				destUpdaterPath,
-				overwrite: true
-			);
-		} else {
-			File.Move(
-				Path.Combine(".", "Updater", "updater"),
-				destUpdaterPath,
-				overwrite: true
-			);
+			destUpdaterPath += ".exe";
 		}
 
 		Process.Start(destUpdaterPath, $"{zipUrl} {converterBackendDirName}");
+		
 		// Die. The updater will start Fronter after a successful update.
 		System.Environment.Exit(0);
 	}

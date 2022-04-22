@@ -23,31 +23,26 @@ public class ConfigurationTests {
 	public void RequiredFoldersAndFilesAreLoaded() {
 		var config = new Configuration();
 		Assert.Collection(config.RequiredFolders,
-			kvPair => {
-				(string key, RequiredFolder folder) = kvPair;
-				Assert.Equal("ImperatorDirectory",key);
+			folder => {
+				Assert.Equal("ImperatorDirectory", folder.Name);
 				Assert.Equal("IMPFOLDER", folder.DisplayName);
 			},
-			kvPair => {
-				(string key, RequiredFolder folder) = kvPair;
-				Assert.Equal("ImperatorDocDirectory",key);
+			folder => {
+				Assert.Equal("ImperatorDocDirectory", folder.Name);
 				Assert.Equal("IMPDOCTIP", folder.Tooltip);
 			},
-			kvPair => {
-				(string key, RequiredFolder folder) = kvPair;
-				Assert.Equal("CK3directory",key);
+			folder => {
+				Assert.Equal("CK3directory", folder.Name);
 				Assert.True(folder.Mandatory);
 			},
-			kvPair => {
-				(string key, RequiredFolder folder) = kvPair;
-				Assert.Equal("targetGameModPath",key);
+			folder => {
+				Assert.Equal("targetGameModPath", folder.Name);
 				Assert.Equal("Paradox Interactive\\Crusader Kings III\\mod", folder.SearchPath);
 			}
 		);
 		
 		Assert.Collection(config.RequiredFiles,
-			kvPair => {
-				(string key, RequiredFile file) = kvPair;
+			file => {
 				Assert.Equal("SaveGame", file.Name);
 				Assert.Equal("IMPSAVE", file.DisplayName);
 				Assert.Equal("IMPSAVETIP", file.Tooltip);
