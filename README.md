@@ -1,5 +1,6 @@
 # Frontend 3.0
-### Universal Paradox Game Converters Group Frontend. 
+### Universal Paradox Game Converters Group Frontend.
+[![Coverage Status](https://coveralls.io/repos/github/ParadoxGameConverters/Fronter.NET/badge.svg?branch=main)](https://coveralls.io/github/ParadoxGameConverters/Fronter.NET?branch=main)
 
 It *should* work on Windows, Linux and Mac but some functions won't be usable,
 namely anything dealing with windows registry and related file/folder paths.
