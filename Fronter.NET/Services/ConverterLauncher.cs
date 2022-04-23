@@ -1,6 +1,7 @@
-﻿using commonItems;
+﻿using Avalonia.Threading;
+using commonItems;
 using Fronter.Models.Configuration;
-using Microsoft.CodeAnalysis;
+using Fronter.ViewModels;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -8,46 +9,66 @@ using System.IO;
 namespace Fronter.Services;
 
 internal class ConverterLauncher {
-	internal ConverterLauncher(Configuration config) {
-		this.config = config;
+	internal ConverterLauncher(MainWindowViewModel mainWindowViewModel) {
+		parent = mainWindowViewModel;
+		config = mainWindowViewModel.Config;
 	}
 	public void LaunchConverter() {
 		var converterFolder = config.ConverterFolder;
 		var backendExePath = config.BackendExePath;
-		var backendExePathRelativeToFrontend = Path.Combine(converterFolder, backendExePath);
-
-		var extension = CommonFunctions.GetExtension(backendExePathRelativeToFrontend);
-		if (string.IsNullOrEmpty(extension) && OperatingSystem.IsWindows()) {
-			backendExePathRelativeToFrontend += ".exe";
-		}
 
 		if (string.IsNullOrEmpty(backendExePath)) {
 			Logger.Error("Converter location has not been set!");
 			return;
 		}
 
+		var extension = CommonFunctions.GetExtension(backendExePath);
+		if (string.IsNullOrEmpty(extension) && OperatingSystem.IsWindows()) {
+			backendExePath += ".exe";
+		}
+		var backendExePathRelativeToFrontend = Path.Combine(converterFolder, backendExePath);
+
 		if (!File.Exists(backendExePathRelativeToFrontend)) {
 			Logger.Error("Could not find converter executable!");
 			return;
 		}
 
-
-		var backendExeName = CommonFunctions.TrimPath(backendExePath);
-		var workDir = CommonFunctions.GetPath(backendExePath);
-
-		using Process process = new();
-		string currentDir = Directory.GetCurrentDirectory();
-		string executablePath = backendExePathRelativeToFrontend;
-
-		process.StartInfo.WorkingDirectory = workDir;
-		process.StartInfo.UseShellExecute = false;
-		process.StartInfo.FileName = backendExeName;
-		process.StartInfo.CreateNoWindow = true;
+		var startInfo = new ProcessStartInfo() {
+			FileName = backendExePathRelativeToFrontend,
+			WorkingDirectory = CommonFunctions.GetPath(backendExePathRelativeToFrontend),
+			CreateNoWindow = true,
+			UseShellExecute = false,
+			RedirectStandardOutput = true,
+		};
+		using Process process = new() { StartInfo = startInfo };
+		process.OutputDataReceived += (sender, args) => {
+			var logLine = MessageSlicer.SliceMessage(args.Data ?? string.Empty);
+			
+			if (logLine.LogLevel is null) {
+				Dispatcher.UIThread.Post(
+					() => parent.AppendToLastLogRow(logLine),
+					DispatcherPriority.MinValue
+				);
+			} else {
+				Dispatcher.UIThread.Post(
+					() => parent.AddRowToLogGrid(logLine),
+					DispatcherPriority.MinValue
+				);
+				if (logLine.LogLevel == LogLevel.Progress) {
+					if (ushort.TryParse(logLine.Message.Trim().TrimEnd('%'), out var progressValue)) {
+						parent.Progress = progressValue;
+					}
+				}
+			}
+		};
 
 		var timer = new Stopwatch();
 		timer.Start();
+		
 		process.Start();
+		process.BeginOutputReadLine();
 		process.WaitForExit();
+		
 		timer.Stop();
 
 		if (process.ExitCode == 0) {
@@ -58,5 +79,6 @@ internal class ConverterLauncher {
 		}
 	}
 
+	private readonly MainWindowViewModel parent;
 	private readonly Configuration config;
 }

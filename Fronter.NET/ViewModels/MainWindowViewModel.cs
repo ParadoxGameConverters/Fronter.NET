@@ -22,6 +22,7 @@ using DynamicData;
 using DynamicData.Binding;
 using Material.Styles.Themes;
 using Material.Styles.Themes.Base;
+using System.IO;
 using System.Xml.Xsl;
 
 namespace Fronter.ViewModels;
@@ -84,30 +85,47 @@ public class MainWindowViewModel : ViewModelBase {
 		Dispatcher.UIThread.Post(ScrollToLogEnd, DispatcherPriority.MinValue);
 	}
 
-	private ushort progress = 30; // todo: remove debug value
+	private ushort progress = 0;
 	public ushort Progress {
 		get => progress;
 		set => this.RaiseAndSetIfChanged(ref progress, value);
 	}
 
-	public async void LaunchConverter() {
-		Config.ExportConfiguration();
-		var converterLauncher = new ConverterLauncher(Config);
-		converterLauncher.LaunchConverter();
+	public bool VerifyMandatoryPaths() {
+		foreach (var folder in Config.RequiredFolders) {
+			if (!folder.Mandatory || Directory.Exists(folder.Value)) {
+				continue;
+			}
+
+			Logger.Error($"Mandatory folder {folder.Name} at {folder.Value} not found.");
+			return false;
+		}
+
+		foreach (var file in Config.RequiredFiles) {
+			if (!file.Mandatory || File.Exists(file.Value)) {
+				continue;
+			}
+
+			Logger.Error($"Mandatory file {file.Name} at {file.Value} not found.");
+			return false;
+		}
+
+		return true;
 	}
 
-	public void DEBUGADDTOLOG() {
-		AddRowToLogGrid(new LogLine() {
-			LogLevel = LogLevel.Info,
-			Message = "TEST FROM BUTTON",
-			Timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
-		});
+	public void LaunchConverter() {
+		LogLines.Clear();
+		if (!VerifyMandatoryPaths()) {
+			return;
+		}
+		Config.ExportConfiguration();
+		
+		var converterLauncher = new ConverterLauncher(this);
+		var converterThread = new Thread(converterLauncher.LaunchConverter);
+		converterThread.Start();
 	}
 
 	public async void CheckForUpdates() {
-		Logger.Debug($"{nameof(Config.UpdateCheckerEnabled)}: {Config.UpdateCheckerEnabled}");
-		Logger.Debug($"{nameof(Config.CheckForUpdatesOnStartup)}: {Config.CheckForUpdatesOnStartup}");
-		Logger.Debug($"is update available: {UpdateChecker.IsUpdateAvailable("commit_id.txt", Config.PagesCommitIdUrl)}");
 		if (Config.UpdateCheckerEnabled &&
 		    Config.CheckForUpdatesOnStartup &&
 		    UpdateChecker.IsUpdateAvailable("commit_id.txt", Config.PagesCommitIdUrl)) {
@@ -129,7 +147,6 @@ public class MainWindowViewModel : ViewModelBase {
 					},
 				});
 			var result = await messageBoxWindow.ShowDialog(MainWindow.Instance);
-			Logger.Progress(result);
 			if (result == updateNow) {
 				if (info.ZipUrl is not null) {
 					UpdateChecker.StartUpdaterAndDie(info.ZipUrl, Config.ConverterFolder);
@@ -202,8 +219,8 @@ public class MainWindowViewModel : ViewModelBase {
 	}
 
 	public void StartWorkerThreads() {
-		var logWatcher = new LogWatcher("ImperatorToCK3/log.txt");
-		var logThread = new Thread(logWatcher.WatchLog);
-		logThread.Start();
+		//var logWatcher = new LogWatcher("ImperatorToCK3/log.txt");
+		//var logThread = new Thread(logWatcher.WatchLog);
+		//logThread.Start();
 	}
 }

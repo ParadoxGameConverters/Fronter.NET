@@ -4,14 +4,14 @@ using LogLevel = commonItems.LogLevel;
 
 namespace Fronter.Services;
 
-public class MessageSlicer {
+public static class MessageSlicer {
 	public enum MessageSource {
 		UNINITIALIZED = 0,
 		UI = 1,
 		CONVERTER = 2
 	}
 
-	private static Regex dateTimeRegex = new Regex(@"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})$");
+	private static Regex dateTimeRegex = new(@"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})$");
 
 	public static LogLine SliceMessage(string message) {
 		var logMessage = new LogLine();

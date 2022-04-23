@@ -127,18 +127,18 @@ public class Configuration {
 	private void RegisterPreloadKeys(Parser parser) {
 		parser.RegisterRegex(CommonRegexes.String, (reader, incomingKey) => {
 			var valueStringOfItem = reader.GetStringOfItem();
-			var valueStr = valueStringOfItem.ToString();
+			var valueStr = StringUtils.RemQuotes(valueStringOfItem.ToString());
 			var valueReader = new BufferedReader(valueStr);
 
 			foreach (var folder in RequiredFolders) {
 				if (folder.Name == incomingKey) {
-					folder.Value = StringUtils.RemQuotes(valueStr);
+					folder.Value = valueStr;
 				}
 			}
 
 			foreach (var file in RequiredFiles) {
 				if (file.Name == incomingKey) {
-					file.Value = StringUtils.RemQuotes(valueStr);
+					file.Value = valueStr;
 				}
 			}
 			foreach (var option in Options) {
