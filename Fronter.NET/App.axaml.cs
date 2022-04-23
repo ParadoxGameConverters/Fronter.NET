@@ -25,8 +25,6 @@ public class App : Application {
 			desktop.MainWindow = window;
 			var mainWindowViewModel = new MainWindowViewModel();
 			window.DataContext = mainWindowViewModel;
-
-			mainWindowViewModel.StartWorkerThreads();
 		}
 
 		base.OnFrameworkInitializationCompleted();

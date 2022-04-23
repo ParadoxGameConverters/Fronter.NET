@@ -1,14 +1,20 @@
 ﻿using commonItems;
 using Fronter.Services;
+using log4net.Core;
 using ReactiveUI;
 using System.ComponentModel;
 
 namespace Fronter.Models; 
 
 public class LogLine : ReactiveObject {
+	public enum MessageSource {
+		Uninitialized = 0,
+		UI = 1,
+		Converter = 2
+	}
 	public string Timestamp { get; set; } = string.Empty;
-	public LogLevel? LogLevel { get; set; }
-	public MessageSlicer.MessageSource Source { get; set; } = MessageSlicer.MessageSource.UNINITIALIZED;
+	public Level? Level { get; set; }
+	public MessageSource Source { get; set; } = MessageSource.Uninitialized;
 
 	private string message = string.Empty;
 	public string Message {

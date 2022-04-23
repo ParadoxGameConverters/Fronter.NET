@@ -20,6 +20,9 @@ using System.Linq;
 using System.Threading;
 using DynamicData;
 using DynamicData.Binding;
+using Fronter.LogAppenders;
+using log4net;
+using log4net.Core;
 using Material.Styles.Themes;
 using Material.Styles.Themes.Base;
 using System.IO;
@@ -37,21 +40,16 @@ public class MainWindowViewModel : ViewModelBase {
 	public PathPickerViewModel PathPicker { get; }
 	public OptionsViewModel Options { get; }
 
-	private LogLevel logFilterLevel = LogLevel.Warn;
-	public LogLevel LogFilterLevel {
-		get => logFilterLevel;
-		private set => this.RaiseAndSetIfChanged(ref logFilterLevel, value);
+	public Level LogFilterLevel {
+		get => LogGridAppender.LogFilterLevel;
+		private set => this.RaiseAndSetIfChanged(ref LogGridAppender.LogFilterLevel, value);
 	}
-
-	public ObservableCollection<LogLine> LogLines { get; } = new();
-	private ReadOnlyObservableCollection<LogLine> filteredLogLines;
-	public ReadOnlyObservableCollection<LogLine> FilteredLogLines => filteredLogLines;
 
 	private string saveStatus = "CONVERTSTATUSPRE";
 	private string convertStatus = "CONVERTSTATUSPRE";
 	private string copyStatus = "CONVERTSTATUSPRE";
 
-	public string SaveStatus { // TODO: MOVE THESE TO VIEW
+	public string SaveStatus {
 		get => saveStatus;
 		set => this.RaiseAndSetIfChanged(ref saveStatus, value);
 	}
@@ -66,21 +64,23 @@ public class MainWindowViewModel : ViewModelBase {
 	
 	
 	public MainWindowViewModel() {
+		var appenders = LogManager.GetRepository().GetAppenders();
+		foreach (var appender in appenders) {
+			Logger.Progress(appender.Name);
+			if (appender.Name == "grid") {
+				LogGridAppender = appender as LogGridAppender;
+				LogGridAppender.LogGrid = MainWindow.Instance.FindControl<DataGrid>("LogGrid");
+			}
+		}
+		
 		PathPicker = new PathPickerViewModel(Config);
 		Options = new OptionsViewModel(Config.Options);
-		
-		LogLines.ToObservableChangeSet()
-			.Filter(line => line.LogLevel >= LogFilterLevel)
-			.Bind(out filteredLogLines)
-			.Subscribe();
 	}
-	
+
+	public ReadOnlyObservableCollection<LogLine> FilteredLogLines => LogGridAppender.FilteredLogLines;
 	public void ToggleLogFilterLevel(string value) {
-		LogFilterLevel = (LogLevel)Enum.Parse(typeof(LogLevel), value);
-		LogLines.ToObservableChangeSet()
-			.Filter(line => line.LogLevel >= LogFilterLevel)
-			.Bind(out filteredLogLines)
-			.Subscribe();
+		LogFilterLevel = LogManager.GetRepository().LevelMap[value];
+		LogGridAppender.ToggleLogFilterLevel();
 		this.RaisePropertyChanged(nameof(FilteredLogLines));
 		Dispatcher.UIThread.Post(ScrollToLogEnd, DispatcherPriority.MinValue);
 	}
@@ -114,7 +114,7 @@ public class MainWindowViewModel : ViewModelBase {
 	}
 
 	public void LaunchConverter() {
-		LogLines.Clear();
+		LogGridAppender.LogLines.Clear();
 		if (!VerifyMandatoryPaths()) {
 			return;
 		}
@@ -198,29 +198,9 @@ public class MainWindowViewModel : ViewModelBase {
 		theme.CurrentTheme = App.CreateTheme(newMode);
 	}
 
-	private LogLine? lastLogRow;
-	public void AddRowToLogGrid(LogLine logLine) {
-		LogLines.Add(logLine);
-		lastLogRow = logLine;
-
-		ScrollToLogEnd();
-	}
-	public void AppendToLastLogRow(LogLine logLine) {
-		if (lastLogRow is null) {
-			AddRowToLogGrid(logLine);
-		} else {
-			lastLogRow.Message += $"\n{logLine.Message}";
-		}
-	}
+	public LogGridAppender LogGridAppender { get; }
 
 	private void ScrollToLogEnd() {
-		var logGrid = MainWindow.Instance.FindControl<DataGrid>("LogGrid");
-		logGrid?.ScrollIntoView(lastLogRow, null);
-	}
-
-	public void StartWorkerThreads() {
-		//var logWatcher = new LogWatcher("ImperatorToCK3/log.txt");
-		//var logThread = new Thread(logWatcher.WatchLog);
-		//logThread.Start();
+		LogGridAppender.ScrollToLogEnd();
 	}
 }

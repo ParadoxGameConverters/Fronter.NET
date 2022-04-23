@@ -59,14 +59,9 @@
             <TabItem Header="{ns:Loc PATHSTAB}" VerticalContentAlignment="Center">
                 <views:PathPickerView DataContext="{Binding PathPicker}"/>
             </TabItem>
-            <TabItem Header="{ns:Loc MODSTAB}" VerticalContentAlignment="Center">
-                <StackPanel>
-                    <TextBlock Text="{ns:Loc MODSDISABLED}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                </StackPanel>
-            </TabItem>
             
             <TabItem Header="{ns:Loc OPTIONSTAB}" VerticalContentAlignment="Center">
-                <views:OptionsView Content="{Binding Options}" />
+                <views:OptionsView DataContext="{Binding Options}" />
             </TabItem>
             
             <TabItem Header="{ns:Loc CONVERTTAB}" VerticalContentAlignment="Center">

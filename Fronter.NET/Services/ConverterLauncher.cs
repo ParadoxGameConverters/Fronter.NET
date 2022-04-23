@@ -1,5 +1,6 @@
 ﻿using Avalonia.Threading;
 using commonItems;
+using Fronter.Models;
 using Fronter.Models.Configuration;
 using Fronter.ViewModels;
 using System;
@@ -43,23 +44,8 @@ internal class ConverterLauncher {
 		using Process process = new() { StartInfo = startInfo };
 		process.OutputDataReceived += (sender, args) => {
 			var logLine = MessageSlicer.SliceMessage(args.Data ?? string.Empty);
-			
-			if (logLine.LogLevel is null) {
-				Dispatcher.UIThread.Post(
-					() => parent.AppendToLastLogRow(logLine),
-					DispatcherPriority.MinValue
-				);
-			} else {
-				Dispatcher.UIThread.Post(
-					() => parent.AddRowToLogGrid(logLine),
-					DispatcherPriority.MinValue
-				);
-				if (logLine.LogLevel == LogLevel.Progress) {
-					if (ushort.TryParse(logLine.Message.Trim().TrimEnd('%'), out var progressValue)) {
-						parent.Progress = progressValue;
-					}
-				}
-			}
+			logLine.Source = LogLine.MessageSource.Converter;
+			Logger.Log(logLine.Level, logLine.Message); // TODO: CREATE A SEPARATE LOGGER TO DISTINGUISH CONVERTER MESSAGES
 		};
 
 		var timer = new Stopwatch();

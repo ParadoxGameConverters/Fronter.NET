@@ -14,7 +14,7 @@
     </Design.DataContext>
     
     <UserControl.Styles>
-        <Style Selector="TextBox.FolderPathTextBoxStyle">
+        <Style Selector="TextBox.PathTextBoxStyle">
             <Setter Property="Margin" Value="6,2,0,0" />
             <Setter Property="VerticalAlignment" Value="Top" />
             <Setter Property="HorizontalAlignment" Value="Stretch" />
@@ -38,10 +38,7 @@
     </UserControl.Styles>
 
     <Grid RowDefinitions="Auto,*">
-
-        <TextBlock Grid.Column="0" Grid.Row="0" Text="Locate required files and folders:" VerticalAlignment="Top"
-                   HorizontalAlignment="Left" Margin="10, 10, 10, 10" FontWeight="Bold" />
-        <ScrollViewer Grid.Column="0" Grid.Row="1" >
+        <ScrollViewer Grid.Column="0" Grid.Row="0" >
             <StackPanel>
                 <ItemsControl Items="{Binding RequiredFolders}">
                     <ItemsControl.ItemTemplate>
@@ -49,7 +46,7 @@
                             <Grid ColumnDefinitions="Auto,*,Auto">
                                 <TextBlock Text="{ns:DynamicLoc DisplayName}" Classes="PathTextBlockStyle" ToolTip.Tip="{ns:DynamicLoc Tooltip}" />
                                 <TextBox Text="{Binding Value}" Grid.Column="1"
-                                         Classes="FolderPathTextBoxStyle"
+                                         Classes="PathTextBoxStyle"
                                          ToolTip.Tip="{ns:DynamicLoc Tooltip}"/>
                                 <Button Content="{ns:Loc BROWSE}" Grid.Column="2" Classes="PathBrowseButtonStyle"
                                         Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ItemsControl}}, Path=DataContext.OpenFolderDialog}"
@@ -65,7 +62,7 @@
                             <Grid ColumnDefinitions="Auto,*,Auto">
                                 <TextBlock Text="{ns:DynamicLoc DisplayName}" Classes="PathTextBlockStyle" ToolTip.Tip="{ns:DynamicLoc Tooltip}" />
                                 <TextBox Text="{Binding Value}" Grid.Column="1"
-                                         Classes="FolderPathTextBoxStyle"
+                                         Classes="PathTextBoxStyle"
                                          ToolTip.Tip="{ns:DynamicLoc Tooltip}"/>
                                 <Button Content="{ns:Loc BROWSE}" Grid.Column="2" Classes="PathBrowseButtonStyle"
                                         Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ItemsControl}}, Path=DataContext.OpenFileDialog}"

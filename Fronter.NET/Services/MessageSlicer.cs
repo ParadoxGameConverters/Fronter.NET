@@ -1,16 +1,12 @@
 ﻿using Fronter.Models;
+using log4net;
+using log4net.Core;
 using System.Text.RegularExpressions;
 using LogLevel = commonItems.LogLevel;
 
 namespace Fronter.Services;
 
 public static class MessageSlicer {
-	public enum MessageSource {
-		UNINITIALIZED = 0,
-		UI = 1,
-		CONVERTER = 2
-	}
-
 	private static Regex dateTimeRegex = new(@"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})$");
 
 	public static LogLine SliceMessage(string message) {
@@ -33,7 +29,7 @@ public static class MessageSlicer {
 		
 		logMessage.Timestamp = timestampPart;
 		var logLevelStr = message.Substring(posOpen + 1, posClose - posOpen - 1);
-		logMessage.LogLevel = GetLogLevel(logLevelStr);
+		logMessage.Level = GetLogLevel(logLevelStr);
 		if (message.Length >= posClose + 2) {
 			logMessage.Message = message[(posClose + 2)..];
 		}
@@ -41,15 +37,7 @@ public static class MessageSlicer {
 		return logMessage;
 	}
 
-	private static LogLevel? GetLogLevel(string levelStr) {
-		return levelStr switch {
-			"DEBUG" => LogLevel.Debug,
-			"INFO" => LogLevel.Info,
-			"WARNING" or "WARN" => LogLevel.Warn,
-			"ERROR" => LogLevel.Error,
-			"PROGRESS" => LogLevel.Progress,
-			"NOTICE" => LogLevel.Notice,
-			_ => null
-		};
+	private static Level? GetLogLevel(string levelStr) {
+		return LogManager.GetRepository().LevelMap[levelStr];
 	}
 }
