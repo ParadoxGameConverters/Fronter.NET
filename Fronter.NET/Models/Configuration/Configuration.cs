@@ -126,29 +126,24 @@ public class Configuration {
 
 	private void RegisterPreloadKeys(Parser parser) {
 		parser.RegisterRegex(CommonRegexes.String, (reader, incomingKey) => {
-			var valueStr = reader.GetStringOfItem();
-			var valueReader = new BufferedReader(valueStr.ToString());
-			var theString = valueReader.GetString();
-
-			if (incomingKey == "configuration") {
-				Logger.Warn("You have an old configuration file. Preload will not be possible.");
-				return;
-			}
+			var valueStringOfItem = reader.GetStringOfItem();
+			var valueStr = valueStringOfItem.ToString();
+			var valueReader = new BufferedReader(valueStr);
 
 			foreach (var folder in RequiredFolders) {
 				if (folder.Name == incomingKey) {
-					folder.Value = theString;
+					folder.Value = StringUtils.RemQuotes(valueStr);
 				}
 			}
 
 			foreach (var file in RequiredFiles) {
 				if (file.Name == incomingKey) {
-					file.Value = theString;
+					file.Value = StringUtils.RemQuotes(valueStr);
 				}
 			}
 			foreach (var option in Options) {
 				if (option.Name == incomingKey && option.CheckBoxSelector is null) {
-					option.SetValue(theString);
+					option.SetValue(valueStr);
 				} else if (option.Name == incomingKey && option.CheckBoxSelector is not null) {
 					var selections = valueReader.GetStrings();
 					var values = selections.ToHashSet();
@@ -172,12 +167,14 @@ public class Configuration {
 		string documentsDir = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
 		foreach (var folder in RequiredFolders) {
+			string? initialValue = null;
+			
 			if (!string.IsNullOrEmpty(folder.Value)) {
 				continue;
 			}
 			
 			if (folder.SearchPathType == "windowsUsersFolder") {
-				folder.Value = Path.Combine(documentsDir, folder.SearchPath);
+				initialValue = Path.Combine(documentsDir, folder.SearchPath);
 			} else if (folder.SearchPathType == "steamFolder") {
 				if (!int.TryParse(folder.SearchPathId, out int steamId)) {
 					continue;
@@ -188,46 +185,49 @@ public class Configuration {
 					continue;
 				}
 
-				folder.Value = possiblePath;
+				initialValue = possiblePath;
 				if (!string.IsNullOrEmpty(folder.SearchPath)) {
-					folder.Value = Path.Combine(folder.Value, folder.SearchPath);
+					initialValue = Path.Combine(initialValue, folder.SearchPath);
 				}
 			} else if (folder.SearchPathType == "direct") {
-				folder.Value = folder.SearchPath;
+				initialValue = folder.SearchPath;
 			}
 			
-			if (!Directory.Exists(folder.Value)) {
-				folder.Value = string.Empty;
+			if (Directory.Exists(initialValue)) {
+				folder.Value = initialValue;
 			}
 		}
 
 		foreach (var file in RequiredFiles) {
+			string? initialDirectory = null;
+			string? initialValue = null;
+
 			if (!string.IsNullOrEmpty(file.Value)) {
-				file.InitialDirectory = CommonFunctions.GetPath(file.Value);
+				initialDirectory = CommonFunctions.GetPath(file.Value);
 			} else if (file.SearchPathType == "windowsUsersFolder") {
-				file.InitialDirectory = Path.Combine(documentsDir, file.SearchPath);
+				initialDirectory = Path.Combine(documentsDir, file.SearchPath);
 				if (!string.IsNullOrEmpty(file.FileName)) {
-					file.Value = Path.Combine(file.InitialDirectory, file.FileName);
+					initialValue = Path.Combine(initialDirectory, file.FileName);
 				}
 			} else if (file.SearchPathType == "converterFolder") {
 				var currentDir = Directory.GetCurrentDirectory();
-				file.InitialDirectory = Path.Combine(currentDir, file.SearchPath);
+				initialDirectory = Path.Combine(currentDir, file.SearchPath);
 				if (!string.IsNullOrEmpty(file.FileName)) {
-					file.Value = Path.Combine(file.InitialDirectory, file.FileName);
+					initialValue = Path.Combine(initialDirectory, file.FileName);
 				}
 			}
 
-			if (!File.Exists(file.Value)) {
-				file.Value = string.Empty;
+			if (string.IsNullOrEmpty(file.Value) && File.Exists(initialValue)) {
+				file.Value = initialValue;
 			}
 
-			if (!Directory.Exists(file.InitialDirectory)) {
-				file.InitialDirectory = null;
+			if (Directory.Exists(initialDirectory)) {
+				file.InitialDirectory = initialDirectory;
 			}
 		}
 	}
 
-	private bool ExportConfiguration() {
+	public bool ExportConfiguration() {
 		if (string.IsNullOrEmpty(ConverterFolder)) {
 			Logger.Error("Converter folder is not set!");
 			return false;

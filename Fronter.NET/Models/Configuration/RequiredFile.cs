@@ -32,8 +32,8 @@ public class RequiredFile : RequiredPath {
 	public override string Value {
 		get => base.Value;
 		set {
-			if (!File.Exists(value)) {
-				throw new DataValidationException("File does not exist!");
+			if (!string.IsNullOrEmpty(value) && !File.Exists(value)) {
+				throw new DataValidationException($"File does not exist!");
 			}
 
 			base.Value = value;

@@ -8,6 +8,9 @@ using System.IO;
 namespace Fronter.Services;
 
 internal class ConverterLauncher {
+	internal ConverterLauncher(Configuration config) {
+		this.config = config;
+	}
 	public void LaunchConverter() {
 		var converterFolder = config.ConverterFolder;
 		var backendExePath = config.BackendExePath;
@@ -55,9 +58,5 @@ internal class ConverterLauncher {
 		}
 	}
 
-	public void LoadConfiguration(Configuration config) {
-		this.config = config;
-	}
-
-	private Configuration config;
+	private readonly Configuration config;
 }

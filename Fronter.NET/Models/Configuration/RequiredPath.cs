@@ -1,7 +1,5 @@
-﻿using Avalonia.Data;
-using Fronter.ViewModels;
+﻿using Fronter.ViewModels;
 using ReactiveUI;
-using System.IO;
 
 namespace Fronter.Models.Configuration;
 

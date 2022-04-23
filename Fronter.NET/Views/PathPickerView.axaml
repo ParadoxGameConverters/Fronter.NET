@@ -49,7 +49,8 @@
                             <Grid ColumnDefinitions="Auto,*,Auto">
                                 <TextBlock Text="{ns:DynamicLoc DisplayName}" Classes="PathTextBlockStyle" ToolTip.Tip="{ns:DynamicLoc Tooltip}" />
                                 <TextBox Text="{Binding Value}" Grid.Column="1"
-                                         Classes="FolderPathTextBoxStyle" />
+                                         Classes="FolderPathTextBoxStyle"
+                                         ToolTip.Tip="{ns:DynamicLoc Tooltip}"/>
                                 <Button Content="{ns:Loc BROWSE}" Grid.Column="2" Classes="PathBrowseButtonStyle"
                                         Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ItemsControl}}, Path=DataContext.OpenFolderDialog}"
                                         CommandParameter="{Binding}" />
@@ -64,7 +65,8 @@
                             <Grid ColumnDefinitions="Auto,*,Auto">
                                 <TextBlock Text="{ns:DynamicLoc DisplayName}" Classes="PathTextBlockStyle" ToolTip.Tip="{ns:DynamicLoc Tooltip}" />
                                 <TextBox Text="{Binding Value}" Grid.Column="1"
-                                         Classes="FolderPathTextBoxStyle" />
+                                         Classes="FolderPathTextBoxStyle"
+                                         ToolTip.Tip="{ns:DynamicLoc Tooltip}"/>
                                 <Button Content="{ns:Loc BROWSE}" Grid.Column="2" Classes="PathBrowseButtonStyle"
                                         Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ItemsControl}}, Path=DataContext.OpenFileDialog}"
                                         CommandParameter="{Binding}" />

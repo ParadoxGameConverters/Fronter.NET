@@ -123,8 +123,7 @@
             </TabItem>
         </TabControl>
         
-        <Separator/>
-        <DataGrid Name="LogGrid" Margin="0,20,0,0" VerticalScrollBarVisibility="Visible" Items="{Binding FilteredLogLines}" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="False">
+        <DataGrid Name="LogGrid" DockPanel.Dock="Bottom" Margin="0,20,0,0" VerticalScrollBarVisibility="Visible" Items="{Binding FilteredLogLines}" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="False">
             <DataGrid.Resources>
                 <vc:LogLevelToColorNameConverter x:Key="LogLevelToColorNameConverter"/>
             </DataGrid.Resources>

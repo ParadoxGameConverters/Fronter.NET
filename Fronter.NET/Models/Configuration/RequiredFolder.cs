@@ -31,7 +31,7 @@ public class RequiredFolder : RequiredPath {
 	public override string Value {
 		get => base.Value;
 		set {
-			if (!Directory.Exists(value)) {
+			if (!string.IsNullOrEmpty(value) && !Directory.Exists(value)) {
 				throw new DataValidationException($"Directory does not exist!");
 			}
 

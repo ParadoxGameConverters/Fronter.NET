@@ -22,6 +22,7 @@ using DynamicData;
 using DynamicData.Binding;
 using Material.Styles.Themes;
 using Material.Styles.Themes.Base;
+using System.Xml.Xsl;
 
 namespace Fronter.ViewModels;
 
@@ -90,8 +91,8 @@ public class MainWindowViewModel : ViewModelBase {
 	}
 
 	public async void LaunchConverter() {
-		var converterLauncher = new ConverterLauncher();
-		converterLauncher.LoadConfiguration(Config);
+		Config.ExportConfiguration();
+		var converterLauncher = new ConverterLauncher(Config);
 		converterLauncher.LaunchConverter();
 	}
 
