@@ -1,4 +1,6 @@
-﻿using commonItems;
+﻿using Avalonia.Data;
+using commonItems;
+using System.IO;
 
 namespace Fronter.Models.Configuration;
 
@@ -25,4 +27,15 @@ public class RequiredFolder : RequiredPath {
 	public override bool Outputtable { get; protected set; } = true;
 
 	public string SearchPathId { get; private set; } = string.Empty;
+
+	public override string Value {
+		get => base.Value;
+		set {
+			if (!string.IsNullOrEmpty(value) && !Directory.Exists(value)) {
+				throw new DataValidationException("Directory does not exist!");
+			}
+
+			base.Value = value;
+		}
+	}
 }

@@ -1,73 +1,159 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using commonItems;
+using FluentAvalonia.Styling;
+using Fronter.Extensions;
+using Fronter.LogAppenders;
+using Fronter.Models;
 using Fronter.Models.Configuration;
 using Fronter.Services;
 using Fronter.Views;
+using log4net;
+using log4net.Core;
+using MessageBox.Avalonia;
 using MessageBox.Avalonia.DTO;
-using MessageBox.Avalonia.ViewModels;
-using ReactiveUI;
-using System.Threading.Tasks;
-using commonItems;
-using Fronter.Models;
 using MessageBox.Avalonia.Enums;
 using MessageBox.Avalonia.Models;
-using System;
-using System.Collections;
+using ReactiveUI;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Fronter.ViewModels;
 
 public class MainWindowViewModel : ViewModelBase {
-	public IEnumerable<KeyValuePair<string, string>> Languages =>
-		loc.LoadedLanguages.ToDictionary(l => l, l => loc.TranslateLanguage(l)); // language key, language loc
+	private TranslationSource loc = TranslationSource.Instance;
+	public IEnumerable<KeyValuePair<string, string>> Languages => loc.LoadedLanguages
+		.ToDictionary(l => l, l => loc.TranslateLanguage(l));
 
-	private Configuration config = new Configuration();
-	private Fronter.Services.Localization loc = new Fronter.Services.Localization();
+	public Configuration Config { get; }
 
-	private static MainWindow? Window {
-		get {
-			if (Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
-				return (MainWindow)desktop.MainWindow;
-			}
+	public PathPickerViewModel PathPicker { get; }
+	public OptionsViewModel Options { get; }
 
-			return null;
-		}
+	public Level LogFilterLevel {
+		get => LogGridAppender.LogFilterLevel;
+		private set => this.RaiseAndSetIfChanged(ref LogGridAppender.LogFilterLevel, value);
 	}
 
-	public async void LaunchConverter() {
-		var converterLauncher = new ConverterLauncher();
-		converterLauncher.LoadConfiguration(config);
-		converterLauncher.LaunchConverter();
+	private string saveStatus = "CONVERTSTATUSPRE";
+	private string convertStatus = "CONVERTSTATUSPRE";
+	private string copyStatus = "CONVERTSTATUSPRE";
+
+	public string SaveStatus {
+		get => saveStatus;
+		set => this.RaiseAndSetIfChanged(ref saveStatus, value);
+	}
+	public string ConvertStatus {
+		get => convertStatus;
+		set => this.RaiseAndSetIfChanged(ref convertStatus, value);
+	}
+	public string CopyStatus {
+		get => copyStatus;
+		set => this.RaiseAndSetIfChanged(ref copyStatus, value);
+	}
+
+
+	public MainWindowViewModel() {
+		Config = new Configuration();
+
+		var appenders = LogManager.GetRepository().GetAppenders();
+		var gridAppender = appenders.First(a => a.Name == "grid");
+		if (gridAppender is not LogGridAppender logGridAppender) {
+			throw new LogException($"Log appender \"{gridAppender.Name}\" is not a {typeof(LogGridAppender)}");
+		}
+		LogGridAppender = logGridAppender;
+		LogGridAppender.LogGrid = MainWindow.Instance.FindControl<DataGrid>("LogGrid");
+
+		PathPicker = new PathPickerViewModel(Config);
+		Options = new OptionsViewModel(Config.Options);
+	}
+
+	public ReadOnlyObservableCollection<LogLine> FilteredLogLines => LogGridAppender.FilteredLogLines;
+	public void ToggleLogFilterLevel(string value) {
+		LogFilterLevel = LogManager.GetRepository().LevelMap[value];
+		LogGridAppender.ToggleLogFilterLevel();
+		this.RaisePropertyChanged(nameof(FilteredLogLines));
+		Dispatcher.UIThread.Post(ScrollToLogEnd, DispatcherPriority.MinValue);
+	}
+
+	private ushort progress = 0;
+	public ushort Progress {
+		get => progress;
+		set => this.RaiseAndSetIfChanged(ref progress, value);
+	}
+
+	public bool VerifyMandatoryPaths() {
+		foreach (var folder in Config.RequiredFolders) {
+			if (!folder.Mandatory || Directory.Exists(folder.Value)) {
+				continue;
+			}
+
+			Logger.Error($"Mandatory folder {folder.Name} at {folder.Value} not found.");
+			return false;
+		}
+
+		foreach (var file in Config.RequiredFiles) {
+			if (!file.Mandatory || File.Exists(file.Value)) {
+				continue;
+			}
+
+			Logger.Error($"Mandatory file {file.Name} at {file.Value} not found.");
+			return false;
+		}
+
+		return true;
+	}
+
+	public void LaunchConverter() {
+		Progress = 0;
+		SaveStatus = "CONVERTSTATUSPRE";
+		ConvertStatus = "CONVERTSTATUSPRE";
+		CopyStatus = "CONVERTSTATUSPRE";
+
+		if (!VerifyMandatoryPaths()) {
+			return;
+		}
+		Config.ExportConfiguration();
+
+		var converterLauncher = new ConverterLauncher(Config);
+		bool success;
+		var converterThread = new Thread(() => {
+			ConvertStatus = "CONVERTSTATUSIN";
+			success = converterLauncher.LaunchConverter();
+			if (success) {
+				ConvertStatus = "CONVERTSTATUSPOSTSUCCESS";
+				var modCopier = new ModCopier(Config);
+				bool copySuccess;
+				var copyThread = new Thread(() => {
+					CopyStatus = "CONVERTSTATUSIN";
+					copySuccess = modCopier.CopyMod();
+					CopyStatus = copySuccess ? "CONVERTSTATUSPOSTSUCCESS" : "CONVERTSTATUSPOSTFAIL";
+				});
+				copyThread.Start();
+			} else {
+				ConvertStatus = "CONVERTSTATUSPOSTFAIL";
+			}
+		});
+		converterThread.Start();
 	}
 
 	public async void CheckForUpdates() {
-		var mainWindow = Window;
-		if (mainWindow is null) {
-			return;
-		}
-
-		Logger.Debug($"{nameof(config.UpdateCheckerEnabled)}: {config.UpdateCheckerEnabled}");
-		Logger.Debug($"{nameof(config.CheckForUpdatesOnStartup)}: {config.CheckForUpdatesOnStartup}");
-		Logger.Debug($"is update available: {UpdateChecker.IsUpdateAvailable("commit_id.txt", config.PagesCommitIdUrl)}");
-		if (config.UpdateCheckerEnabled &&
-		    config.CheckForUpdatesOnStartup &&
-		    UpdateChecker.IsUpdateAvailable("commit_id.txt", config.PagesCommitIdUrl)) {
-			var info = UpdateChecker.GetLatestReleaseInfo(config.Name);
+		if (Config.UpdateCheckerEnabled &&
+			Config.CheckForUpdatesOnStartup &&
+			UpdateChecker.IsUpdateAvailable("commit_id.txt", Config.PagesCommitIdUrl)) {
+			var info = UpdateChecker.GetLatestReleaseInfo(Config.Name);
 
 			const string updateNow = "Update now";
 			const string maybeLater = "Maybe later";
 			var msgBody = UpdateChecker.GetUpdateMessageBody(loc.Translate("NEWVERSIONBODY"), info);
-			var messageBoxWindow = MessageBox.Avalonia.MessageBoxManager
+			var messageBoxWindow = MessageBoxManager
 				.GetMessageBoxCustomWindow(new MessageBoxCustomParams {
-					Icon = MessageBox.Avalonia.Enums.Icon.Info,
+					Icon = Icon.Info,
 					ContentHeader = "An update is available!",
 					ContentTitle = loc.Translate("NEWVERSIONTITLE"),
 					ContentMessage = msgBody,
@@ -77,47 +163,41 @@ public class MainWindowViewModel : ViewModelBase {
 						new ButtonDefinition {Name = maybeLater, IsCancel = true}
 					},
 				});
-			var result = await messageBoxWindow.ShowDialog(mainWindow);
-			Logger.Progress(result);
+			var result = await messageBoxWindow.ShowDialog(MainWindow.Instance);
 			if (result == updateNow) {
 				if (info.ZipUrl is not null) {
-					UpdateChecker.StartUpdaterAndDie(info.ZipUrl, config.ConverterFolder);
+					UpdateChecker.StartUpdaterAndDie(info.ZipUrl, Config.ConverterFolder);
 				} else {
-					BrowserLauncher.Open(config.ConverterReleaseForumThread);
-					BrowserLauncher.Open(config.LatestGitHubConverterReleaseUrl);
+					BrowserLauncher.Open(Config.ConverterReleaseForumThread);
+					BrowserLauncher.Open(Config.LatestGitHubConverterReleaseUrl);
 				}
 			}
 		}
 	}
 
 	public static void Exit() {
-		if (Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
+		if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
 			desktop.Shutdown(0);
 		}
 	}
 
 	public async void OpenAboutDialog() {
-		var mainWindow = Window;
-		if (mainWindow is null) {
-			return;
-		}
-
-		var messageBoxWindow = MessageBox.Avalonia.MessageBoxManager
+		var messageBoxWindow = MessageBoxManager
 			.GetMessageBoxStandardWindow(new MessageBoxStandardParams {
-				ContentTitle = loc.Translate("ABOUT_TITLE"),
+				ContentTitle = TranslationSource.Instance["ABOUT_TITLE"],
 				Icon = Icon.Info,
-				ContentHeader = loc.Translate("ABOUT_HEADER"),
-				ContentMessage = loc.Translate("ABOUT_BODY"),
+				ContentHeader = TranslationSource.Instance["ABOUT_HEADER"],
+				ContentMessage = TranslationSource.Instance["ABOUT_BODY"],
 				ButtonDefinitions = ButtonEnum.Ok,
 				SizeToContent = SizeToContent.WidthAndHeight,
 				MinHeight = 250,
 				ShowInCenter = true,
 				WindowStartupLocation = WindowStartupLocation.CenterOwner
 			});
-		await messageBoxWindow.ShowDialog(mainWindow);
+		await messageBoxWindow.ShowDialog(MainWindow.Instance);
 	}
 
-	public static async void OpenPatreonPage() {
+	public static void OpenPatreonPage() {
 		BrowserLauncher.Open("https://www.patreon.com/ParadoxGameConverters");
 	}
 
@@ -125,29 +205,17 @@ public class MainWindowViewModel : ViewModelBase {
 		loc.SaveLanguage(languageKey);
 	}
 
-	public void AddRowToLogGrid(LogLine logLine) {
-		LogLines.Add(logLine);
-
-		var logGrid = Window?.FindControl<DataGrid>("LogGrid");
-		logGrid?.ScrollIntoView(logLine, null);
-	}
-
-	public void AddRowsToLogGrid() { // todo: remove debug
-		int counter = 0;
-		while (counter++ < 10000) {
-			var logLine = new LogLine {Message = $"Message no. {counter}"};
-			Dispatcher.UIThread.Post(
-				() => AddRowToLogGrid(logLine),
-				DispatcherPriority.MinValue
-			);
+	public void SetTheme(string themeName) {
+		var theme = AvaloniaLocator.Current.GetService<FluentAvaloniaTheme>();
+		if (theme is null) {
+			return;
 		}
+		theme.RequestedTheme = themeName;
 	}
 
-	public void StartWorkerThreads() {
-		var logWatcher = new LogWatcher("ImperatorToCK3/log.txt");
-		var logThread = new Thread(logWatcher.WatchLog);
-		logThread.Start();
-	}
+	public LogGridAppender LogGridAppender { get; }
 
-	public ObservableCollection<LogLine> LogLines { get; } = new();
+	private void ScrollToLogEnd() {
+		LogGridAppender.ScrollToLogEnd();
+	}
 }

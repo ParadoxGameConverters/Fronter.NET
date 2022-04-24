@@ -1,9 +1,10 @@
 ﻿using commonItems;
+using ReactiveUI;
 
 namespace Fronter.Models.Configuration.Options;
 
-public class RadioOption {
-	public RadioOption(BufferedReader reader, int id) {
+public class ToggleableOption : ReactiveObject {
+	public ToggleableOption(BufferedReader reader, int id) {
 		Id = id;
 
 		var parser = new Parser();
@@ -15,25 +16,20 @@ public class RadioOption {
 		parser.RegisterKeyword("tooltip", reader => Tooltip = reader.GetString());
 		parser.RegisterKeyword("displayName", reader => DisplayName = reader.GetString());
 		parser.RegisterKeyword("default", reader => {
-			Defaulted = reader.GetString() == "true";
-			if (Defaulted) {
+			var value = reader.GetString() == "true";
+			PendingInitialValue = value;
+			if (value) {
 				Value = true;
 			}
 		});
 		parser.RegisterRegex(CommonRegexes.Catchall, ParserHelpers.IgnoreAndLogItem);
 	}
 
-	public void SetValue() {
-		Value = true;
-	}
-	public void UnsetValue() {
-		Value = false;
-	}
-
 	public string Name { get; private set; } = string.Empty;
 	public string DisplayName { get; private set; } = string.Empty;
 	public string Tooltip { get; private set; } = string.Empty;
-	public bool Value { get; private set; } = false;
-	public bool Defaulted { get; private set; } = false;
+	public bool? PendingInitialValue { get; set; }
+	private bool boolValue = false;
+	public bool Value { get => boolValue; set => this.RaiseAndSetIfChanged(ref boolValue, value); }
 	public int Id { get; private set; } = 0;
 }

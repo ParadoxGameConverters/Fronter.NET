@@ -1,4 +1,6 @@
-﻿using commonItems;
+﻿using Avalonia.Data;
+using commonItems;
+using System.IO;
 
 namespace Fronter.Models.Configuration;
 
@@ -25,4 +27,16 @@ public class RequiredFile : RequiredPath {
 
 	public string FileName { get; private set; } = string.Empty;
 	public string AllowedExtension { get; private set; } = string.Empty;
+	public string? InitialDirectory { get; set; }
+	
+	public override string Value {
+		get => base.Value;
+		set {
+			if (!string.IsNullOrEmpty(value) && !File.Exists(value)) {
+				throw new DataValidationException("File does not exist!");
+			}
+
+			base.Value = value;
+		}
+	}
 }

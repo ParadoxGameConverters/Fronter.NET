@@ -1,5 +1,6 @@
 # Frontend 3.0
 ### Universal Paradox Game Converters Group Frontend.
+[![CodeFactor](https://www.codefactor.io/repository/github/paradoxgameconverters/fronter.net/badge)](https://www.codefactor.io/repository/github/paradoxgameconverters/fronter.net)
 [![Coverage Status](https://coveralls.io/repos/github/ParadoxGameConverters/Fronter.NET/badge.svg?branch=main)](https://coveralls.io/github/ParadoxGameConverters/Fronter.NET?branch=main)
 
 It *should* work on Windows, Linux and Mac but some functions won't be usable,
@@ -23,7 +24,7 @@ backendExePath = CK2ToEU4Converter # Relative to converterFolder. If file extens
 displayName = DISPLAYNAME
 sourceGame = SOURCEGAME
 targetGame = TARGETGAME
-autoGenerateModsFrom = CK2ModsDirectory
+copyToTargetGameModDirectory = true
 
 requiredFile = {
 	name = SaveGame

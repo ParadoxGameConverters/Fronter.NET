@@ -1,77 +1,77 @@
 ﻿using commonItems;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace Fronter.Services;
+namespace Fronter.Extensions; 
 
-public class Localization {
-	public Localization() {
-		var languagesPath = Path.Combine("Configuration", "converter_languages.yml");
+// idea based on https://gist.github.com/jakubfijalkowski/0771bfbd26ce68456d3e
+public class TranslationSource : ReactiveObject {
+	private TranslationSource() {
+		var languagesPath = Path.Combine("Resources", "languages.txt");
 		if (!File.Exists(languagesPath)) {
-			Logger.Error("No localization found!");
+			Logger.Error("No languages dictionary found!");
 			return;
 		}
 
-		using var fileStream = File.OpenRead(languagesPath);
-		using var reader = new StreamReader(fileStream);
-		while (!reader.EndOfStream) {
-			var line = reader.ReadLine();
-			if (line is null) {
-				break;
-			}
-			var pos = line.IndexOf(':');
-			if (pos == -1){
-				continue;
-			}
-			var language = line.Substring(2, pos - 2);
-			pos = line.IndexOf('\"');
-			var secpos = line.LastIndexOf('\"');
-			var langText = line.Substring(pos + 1, secpos - pos - 1);
-			languages.Add(language, langText);
-			LoadedLanguages.Add(language);
-		}
+		var languagesParser = new Parser();
+		languagesParser.RegisterRegex(CommonRegexes.String, (langReader, langKey) => {
+			languages.Add(langKey, CultureInfo.GetCultureInfo(langReader.GetString()));
+			LoadedLanguages.Add(langKey);
+		});
+		languagesParser.ParseFile(languagesPath);
+		
 		LoadLanguages();
 
 		var fronterLanguagePath = Path.Combine("Configuration", "fronter-language.txt");
 		if (File.Exists(fronterLanguagePath)) {
 			var parser = new Parser();
-			parser.RegisterKeyword("language", reader => SetLanguage = reader.GetString());
+			parser.RegisterKeyword("language", reader => CurrentLanguage = reader.GetString());
 			parser.ParseFile(fronterLanguagePath);
 		}
 	}
 
+	public static TranslationSource Instance { get; } = new();
+
 	public string Translate(string key) {
 		string toReturn;
-		if (!translations.ContainsKey(key)) {
-			return string.Empty;
-		}
 
-		if (translations[key].ContainsKey(SetLanguage)) {
-			toReturn = translations[key][SetLanguage];
-		}
-		else if (translations[key].ContainsKey("english")) {
-			Logger.Debug($"{SetLanguage} localization not found for key {key}, using english one");
-			toReturn = translations[key]["english"];
+		if (translations.TryGetValue(key, out var dictionary)) {
+			if (dictionary.TryGetValue(CurrentLanguage, out var text)) {
+				toReturn = text;
+			} else if (dictionary.TryGetValue("english", out var englishText)) {
+				Logger.Debug($"{CurrentLanguage} localization not found for key {key}, using english one");
+				toReturn = englishText;
+			} else {
+				Logger.Debug($"{CurrentLanguage} localization not found for key {key}");
+				return string.Empty;
+			}
 		} else {
-			Logger.Debug($"{SetLanguage} localization not found for key {key}");
 			return string.Empty;
 		}
 
-		toReturn = Regex.Replace(toReturn, @"\\n", "\n");
+		toReturn = Regex.Replace(toReturn, @"\\n", Environment.NewLine);
 		return toReturn;
 	}
 
 	public string TranslateLanguage(string language) {
-		return !languages.ContainsKey(language) ? string.Empty : languages[language];
+		return !languages.ContainsKey(language) ? string.Empty : languages[language].NativeName;
+	}
+
+	public string this[string key] {
+		get {
+			return Translate(key);
+		}
 	}
 
 	public void SaveLanguage(string languageKey) {
 		if (!LoadedLanguages.Contains(languageKey)) {
 			return;
 		}
-		SetLanguage = languageKey;
+		CurrentLanguage = languageKey;
 
 		var langFilePath = Path.Combine("Configuration", "fronter-language.txt");
 		using var fs = new FileStream(langFilePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
@@ -83,8 +83,9 @@ public class Localization {
 		var fileNames = SystemUtils.GetAllFilesInFolder("Configuration");
 
 		foreach (var fileName in fileNames) {
-			if (!fileName.EndsWith(".yml"))
+			if (!fileName.EndsWith(".yml")) {
 				continue;
+			}
 
 			var langFilePath = Path.Combine("Configuration", fileName);
 			using var langFileStream = File.OpenRead(langFilePath);
@@ -109,9 +110,10 @@ public class Localization {
 				}
 
 				pos = line.IndexOf(':');
-				if (pos == -1)
+				if (pos == -1) {
 					continue;
-				var key = line.Substring(1, pos - 1);
+				}
+				var key = line[..pos].Trim();
 				pos = line.IndexOf('\"');
 				if (pos == -1) {
 					Logger.Error($"Invalid localization line: {line}");
@@ -124,9 +126,8 @@ public class Localization {
 				}
 				var text = line.Substring(pos + 1, secpos - pos - 1);
 
-
 				if (translations.TryGetValue(key, out var dictionary)) {
-					dictionary.Add(language, text);
+					dictionary[language] = text;
 				} else {
 					var newDict = new Dictionary<string, string> { [language] = text };
 					translations.Add(key, newDict);
@@ -136,7 +137,16 @@ public class Localization {
 	}
 
 	public List<string> LoadedLanguages { get; } = new();
-	private Dictionary<string, string> languages = new();
-	private Dictionary<string, Dictionary<string, string>> translations = new();
-	public string SetLanguage { get; private set; } = "english";
+	private Dictionary<string, CultureInfo> languages = new();
+	private readonly Dictionary<string, Dictionary<string, string>> translations = new(); // key, <language, text>
+
+	private string currentLanguage = "english";
+	public string CurrentLanguage {
+		get => currentLanguage;
+		private set {
+			currentLanguage = value;
+			this.RaisePropertyChanged(nameof(CurrentLanguage));
+			this.RaisePropertyChanged("Item");
+		}
+	}
 }

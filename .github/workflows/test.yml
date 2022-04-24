@@ -1,0 +1,51 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test_and_check_coverage:
+    runs-on: windows-2022
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        submodules: recursive
+    # install dependencies, build, and test
+    - name: Setup Dotnet for use with actions
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '6.*'
+    - name: Test
+      run: |
+       cd Fronter.NET.Tests
+       dotnet test /p:CollectCoverage=true /p:CoverletOutput=TestResults/ /p:CoverletOutputFormat=lcov /p:Exclude=[commonItems]*
+    - name: Publish coverage report to coveralls.io
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        path-to-lcov: Fronter.NET.Tests/TestResults/coverage.info
+
+
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        submodules: recursive
+    # install dependencies, build, and test
+    - name: Setup Dotnet for use with actions
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '6.*'
+    - name: Test
+      run: |
+       cd Fronter.NET.Tests
+       dotnet test

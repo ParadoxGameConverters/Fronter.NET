@@ -4,11 +4,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:Fronter.ViewModels"
         xmlns:views="clr-namespace:Fronter.Views"
-        xmlns:fronter="clr-namespace:Fronter"
-        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="400"
+        xmlns:ns="clr-namespace:Fronter.Extensions"
+        xmlns:vc="clr-namespace:Fronter.ValueConverters"
+        xmlns:log4netCore="clr-namespace:log4net.Core;assembly=log4net"
+        mc:Ignorable="d" d:DesignWidth="710" d:DesignHeight="400"
         x:Class="Fronter.Views.MainWindow"
         Icon="/Assets/converter.ico"
         Title="Converter Frontend"
+        MinWidth="710"
         
         ExtendClientAreaToDecorationsHint="False">
 
@@ -17,66 +20,132 @@
     </Design.DataContext>
 
     <DockPanel>
+        <DockPanel.Background>
+            <ImageBrush Source="/Assets/Images/background.png" Stretch="UniformToFill" Opacity="0.05" />
+        </DockPanel.Background>
         <Menu DockPanel.Dock="Top">
-            <MenuItem Header="{x:Static fronter:Localization.MENUCONVERTER}">
-                <MenuItem Header="{x:Static fronter:Localization.CHECKFORUPDATES}" Command="{Binding CheckForUpdates}"/>
+            <MenuItem Header="{ns:Loc MENUCONVERTER}">
+                <MenuItem Header="{ns:Loc CHECKFORUPDATES}" Command="{Binding CheckForUpdates}"/>
                 <Separator/>
-                <MenuItem Header="{x:Static fronter:Localization.EXIT}" Command="{Binding Exit}"/>
+                <MenuItem Header="{ns:Loc EXIT}" Command="{Binding Exit}"/>
             </MenuItem>
-            <MenuItem Header="{x:Static fronter:Localization.LANGUAGE}" Items="{Binding Languages}" Classes="LanguageChoice">
+            <MenuItem Header="{ns:Loc LANGUAGE}" Items="{Binding Languages}" Classes="LanguageChoice">
                 <MenuItem.Styles>
                     <Style Selector="MenuItem.LanguageChoice MenuItem">
                         <Setter Property="Header" Value="{Binding Value}"/>
-                        <Setter Property="Command" Value="{Binding $parent[Window].DataContext.SetLanguage}"/>
+                        <Setter Property="Command" Value="{Binding $parent[Window].DataContext.SetLanguage, FallbackValue={}}"/>
                         <Setter Property="CommandParameter" Value="{Binding Key}"/>
                     </Style>
                 </MenuItem.Styles>  
             </MenuItem>
-            <MenuItem Header="{x:Static fronter:Localization.MENUHELP}">
-                <MenuItem Header="{x:Static fronter:Localization.ABOUT}" Command="{Binding OpenAboutDialog}"/>
-                <MenuItem Header="{x:Static fronter:Localization.SUPPORT_US}" Command="{Binding OpenPatreonPage}"/>
+            <MenuItem Header="{ns:Loc MENU_THEME}">
+                <MenuItem
+                    Header="{ns:Loc THEME_LIGHT}"
+                    Command="{Binding SetTheme}"
+                    CommandParameter="Light"
+                />
+                <MenuItem
+                    Header="{ns:Loc THEME_DARK}"
+                    Command="{Binding SetTheme}"
+                    CommandParameter="Dark"
+                />
+                <MenuItem
+                    Header="{ns:Loc THEME_HIGH_CONTRAST}"
+                    Command="{Binding SetTheme}"
+                    CommandParameter="HighContrast"
+                />
+            </MenuItem>
+                
+            <MenuItem Header="{ns:Loc MENU_HELP}">
+                <MenuItem Header="{ns:Loc ABOUT}" Command="{Binding OpenAboutDialog}"/>
+                <MenuItem Header="{ns:Loc SUPPORT_US}" Command="{Binding OpenPatreonPage}"/>
             </MenuItem>
         </Menu>
-        <TabControl DockPanel.Dock="Top">
-            <TabItem Header="{x:Static fronter:Localization.PATHSTAB}" VerticalContentAlignment="Center">
-                <DockPanel>
-                    <Button DockPanel.Dock="Bottom">Add an item</Button>
-                    <StackPanel>
-                        <CheckBox Margin="4">Walk the dog</CheckBox>
-                        <CheckBox Margin="4">Walk the dog</CheckBox>
-                        <CheckBox Margin="4">Buy some milk</CheckBox>
-                    </StackPanel>
-                </DockPanel>
-            </TabItem>
-            <TabItem Header="{x:Static fronter:Localization.MODSTAB}" VerticalContentAlignment="Center">
-                <StackPanel>
-                    <TextBlock Text="{x:Static fronter:Localization.MODSDISABLED}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                </StackPanel>
-            </TabItem>
-            
-            <TabItem Header="{x:Static fronter:Localization.OPTIONSTAB}" VerticalContentAlignment="Center">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Square : " HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                    <Rectangle Fill="Blue" Width="63" Height="41"/>
-                </StackPanel>
-            </TabItem>
-            
-            <TabItem Header="{x:Static fronter:Localization.CONVERTTAB}" VerticalContentAlignment="Center">
-                <Grid ColumnDefinitions="1*,1*,1*" RowDefinitions="Auto"  Margin="4">
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Square : " HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <Rectangle Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" Fill="Blue" Height="41"/>
-                    <Button Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center" Name="ConvertButton" Command="{Binding BuyMusicCommand}">Convert!</Button>
-                </Grid>
-            </TabItem>
-        </TabControl>
         
-        <DataGrid Name="LogGrid" Margin="0,20,0,0" VerticalScrollBarVisibility="Visible" Items="{Binding LogLines}" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="False">
-            <DataGrid.GridLinesVisibility>All</DataGrid.GridLinesVisibility>
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="{x:Static fronter:Localization.LOGTIME}" IsReadOnly="True" Binding="{Binding Timestamp }"/>
-                <DataGridTextColumn Header="{x:Static fronter:Localization.LOGSEVERITY}" IsReadOnly="True" Binding="{Binding LogLevel}" />
-                <DataGridTextColumn Header="{x:Static fronter:Localization.LOGMESSAGE}" IsReadOnly="True" Binding="{Binding Message}" />
-            </DataGrid.Columns>
-        </DataGrid>
+        <Grid RowDefinitions="6*,4*" DockPanel.Dock="Bottom">
+            <TabControl Grid.Column="0" Grid.Row="0" MinHeight="150">
+                <TabItem Header="{ns:Loc PATHSTAB}" VerticalContentAlignment="Center">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <views:PathPickerView DataContext="{Binding PathPicker}"/>
+                    </ScrollViewer>
+                </TabItem>
+                
+                <TabItem Header="{ns:Loc OPTIONSTAB}" VerticalContentAlignment="Center" >
+                    <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
+                        <views:OptionsView DataContext="{Binding Options}" />
+                    </ScrollViewer>
+                </TabItem>
+                
+                <TabItem Header="{ns:Loc CONVERTTAB}" VerticalContentAlignment="Center">
+                    <Grid ColumnDefinitions="1*,2*" RowDefinitions="Auto" Margin="2,4,2,4">
+                        <StackPanel Grid.Row="0" Grid.Column="0">
+                            <TextBlock Text="{ns:Loc LOGLEVEL}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                            
+                            <RadioButton IsChecked="{Binding Path=LogFilterLevel, FallbackValue=False, Mode=OneWay, Converter={x:Static vc:EnumToBooleanConverter.Instance}, ConverterParameter={x:Static log4netCore:Level.Error}}"
+                                         Command="{Binding ToggleLogFilterLevel}"
+                                         CommandParameter="Error"
+                                         VerticalContentAlignment="Center"
+                                         Content="{ns:Loc LOGLEVEL0}"
+                                         Margin="1">
+                            </RadioButton>
+                            <RadioButton IsChecked="{Binding Path=LogFilterLevel, FallbackValue=False, Mode=OneWay, Converter={x:Static vc:EnumToBooleanConverter.Instance}, ConverterParameter={x:Static log4netCore:Level.Warn}}"
+                                         Command="{Binding ToggleLogFilterLevel}"
+                                         CommandParameter="Warn"
+                                         VerticalContentAlignment="Center"
+                                         Content="{ns:Loc LOGLEVEL1}"
+                                         Margin="1">
+                            </RadioButton>
+                            <RadioButton IsChecked="{Binding Path=LogFilterLevel, FallbackValue=False, Mode=OneWay, Converter={x:Static vc:EnumToBooleanConverter.Instance}, ConverterParameter={x:Static log4netCore:Level.Info}}"
+                                         Command="{Binding ToggleLogFilterLevel}"
+                                         CommandParameter="Info"
+                                         VerticalContentAlignment="Center"
+                                         Content="{ns:Loc LOGLEVEL2}"
+                                         Margin="1">
+                            </RadioButton>
+                            <RadioButton IsChecked="{Binding Path=LogFilterLevel, FallbackValue=False, Mode=OneWay, Converter={x:Static vc:EnumToBooleanConverter.Instance}, ConverterParameter={x:Static log4netCore:Level.Debug}}"
+                                         Command="{Binding ToggleLogFilterLevel}"
+                                         CommandParameter="Debug"
+                                         VerticalContentAlignment="Center"
+                                         Content="{ns:Loc LOGLEVEL3}"
+                                         Margin="1">
+                            </RadioButton>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical" >
+                            <Grid ColumnDefinitions="1.8*, 1*" RowDefinitions="1*,1*,1*" Margin="10, 4, 0, 4">
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="{ns:Loc CONVERTSAVING}"></TextBlock>
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{ns:DynamicLoc SaveStatus}"></TextBlock>
+                                
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="{ns:Loc CONVERTCONVERTING}"></TextBlock>
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{ns:DynamicLoc ConvertStatus}"></TextBlock>
+                                
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="{ns:Loc CONVERTCOPYING}"></TextBlock>
+                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{ns:DynamicLoc CopyStatus}"></TextBlock>
+                            </Grid>
+                            <ProgressBar Margin="4" Height="20" Value="{Binding Progress}" BorderThickness="1" BorderBrush="Gray"/>
+                            <TextBlock Text="{Binding Progress, StringFormat={}{0}%}" HorizontalAlignment="Center"></TextBlock>
+                            <Button Margin="4,15,4,4" HorizontalAlignment="Center" Name="ConvertButton" Command="{Binding LaunchConverter}">Convert!</Button>
+                        </StackPanel>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+        
+            <DataGrid Name="LogGrid" Grid.Column="0" Grid.Row="1" Margin="0,20,0,0" VerticalScrollBarVisibility="Visible" Items="{Binding FilteredLogLines}" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="False">
+                <DataGrid.Resources>
+                    <vc:LogLevelToColorNameConverter x:Key="LogLevelToColorNameConverter"/>
+                </DataGrid.Resources>
+                <DataGrid.Styles>
+                    <Style Selector="DataGridRow">
+                        <Setter Property="Background" Value="{Binding Level, Converter={StaticResource LogLevelToColorNameConverter}}"></Setter>
+                    </Style>
+                </DataGrid.Styles>
+                <DataGrid.GridLinesVisibility>All</DataGrid.GridLinesVisibility>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="{ns:Loc LOGTIME}" IsReadOnly="True" Binding="{Binding Timestamp}" />
+                    <DataGridTextColumn Header="{ns:Loc LOGSEVERITY}" IsReadOnly="True" Binding="{Binding LevelName}" />
+                    <DataGridTextColumn Header="{ns:Loc LOGMESSAGE}" IsReadOnly="True" Binding="{Binding Message}" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
     </DockPanel>
 </Window>
