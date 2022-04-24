@@ -14,20 +14,16 @@ namespace Fronter.Services;
 internal class ConverterLauncher {
 	private static readonly ILog Logger = LogManager.GetLogger("Converter Launcher");
 	private Level? lastLevelFromBackend = null;
-	internal ConverterLauncher(MainWindowViewModel mainWindowViewModel) {
-		parent = mainWindowViewModel;
-		config = mainWindowViewModel.Config;
+	internal ConverterLauncher(Configuration config) {
+		this.config = config;
 	}
-	public void LaunchConverter() {
-		SetConversionStatus("CONVERTSTATUSIN");
-		
+	public bool LaunchConverter() {
 		var converterFolder = config.ConverterFolder;
 		var backendExePath = config.BackendExePath;
 
 		if (string.IsNullOrEmpty(backendExePath)) {
 			Logger.Error("Converter location has not been set!");
-			SetConversionStatus("CONVERTSTATUSPOSTFAIL");
-			return;
+			return false;
 		}
 
 		var extension = CommonFunctions.GetExtension(backendExePath);
@@ -38,8 +34,7 @@ internal class ConverterLauncher {
 
 		if (!File.Exists(backendExePathRelativeToFrontend)) {
 			Logger.Error("Could not find converter executable!");
-			SetConversionStatus("CONVERTSTATUSPOSTFAIL");
-			return;
+			return false;
 		}
 
 		var startInfo = new ProcessStartInfo() {
@@ -69,19 +64,13 @@ internal class ConverterLauncher {
 		timer.Stop();
 
 		if (process.ExitCode == 0) {
-			SetConversionStatus("CONVERTSTATUSPOSTSUCCESS");
 			Logger.Info($"Converter exited at {timer.Elapsed.TotalSeconds} seconds.");
-		} else {
-			SetConversionStatus("CONVERTSTATUSPOSTFAIL");
-			Logger.Error("Converter Error! See log.txt for details.");
-			Logger.Error("If you require assistance please upload log.txt to forums for a detailed post-mortem.");
+			return true;
 		}
-	}
-	
-	private void SetConversionStatus(string locKey) {
-		parent.ConvertStatus = locKey;
-	}
 
-	private readonly MainWindowViewModel parent;
+		Logger.Error("Converter Error! See log.txt for details.");
+		Logger.Error("If you require assistance please upload log.txt to forums for a detailed post-mortem.");
+		return false;
+	}
 	private readonly Configuration config;
 }

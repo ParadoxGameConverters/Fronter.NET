@@ -126,8 +126,25 @@ public class MainWindowViewModel : ViewModelBase {
 		}
 		Config.ExportConfiguration();
 		
-		var converterLauncher = new ConverterLauncher(this);
-		var converterThread = new Thread(converterLauncher.LaunchConverter);
+		var converterLauncher = new ConverterLauncher(Config);
+		bool success = false;
+		var converterThread = new Thread(() => {
+			ConvertStatus = "CONVERTSTATUSIN";
+			success = converterLauncher.LaunchConverter();
+			if (success) {
+				ConvertStatus = "CONVERTSTATUSPOSTSUCCESS";
+				var modCopier = new ModCopier(Config);
+				bool copySuccess = false;
+				var copyThread = new Thread(() => {
+					CopyStatus = "CONVERTSTATUSIN";
+					copySuccess = modCopier.CopyMod();
+					CopyStatus = copySuccess ? "CONVERTSTATUSPOSTSUCCESS" : "CONVERTSTATUSPOSTFAIL";
+				});
+				copyThread.Start();
+			} else {
+				ConvertStatus = "CONVERTSTATUSPOSTFAIL";
+			}
+		});
 		converterThread.Start();
 	}
 
@@ -186,7 +203,7 @@ public class MainWindowViewModel : ViewModelBase {
 		await messageBoxWindow.ShowDialog(MainWindow.Instance);
 	}
 
-	public static async void OpenPatreonPage() {
+	public static void OpenPatreonPage() {
 		BrowserLauncher.Open("https://www.patreon.com/ParadoxGameConverters");
 	}
 
