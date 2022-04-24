@@ -1,0 +1,24 @@
+name: Build
+
+on:
+  pull_request:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-2022]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+    # install dependencies, build, and test
+    - name: Setup Dotnet for use with actions
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '6.*'
+    - name: "Build"
+      run: |
+       cd Fronter.NET
+       dotnet build

@@ -19,7 +19,7 @@
         </ItemsControl.Styles>
         <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
-                <WrapPanel Orientation="Vertical" MaxHeight="520">
+                <WrapPanel Orientation="Vertical">
                 </WrapPanel>
             </ItemsPanelTemplate>
         </ItemsControl.ItemsPanel>

@@ -22,7 +22,7 @@
 
     <DockPanel>
         <DockPanel.Background>
-            <ImageBrush Source="/Assets/Images/main_image.png" Stretch="UniformToFill" Opacity="0.05" />
+            <ImageBrush Source="/Assets/Images/background.png" Stretch="UniformToFill" Opacity="0.05" />
         </DockPanel.Background>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="{ns:Loc MENUCONVERTER}">
@@ -57,87 +57,94 @@
                 <MenuItem Header="{ns:Loc SUPPORT_US}" Command="{Binding OpenPatreonPage}"/>
             </MenuItem>
         </Menu>
-        <TabControl DockPanel.Dock="Top" MinHeight="150">
-            <TabItem Header="{ns:Loc PATHSTAB}" VerticalContentAlignment="Center">
-                <views:PathPickerView DataContext="{Binding PathPicker}"/>
-            </TabItem>
-            
-            <TabItem Header="{ns:Loc OPTIONSTAB}" VerticalContentAlignment="Center">
-                <views:OptionsView DataContext="{Binding Options}" />
-            </TabItem>
-            
-            <TabItem Header="{ns:Loc CONVERTTAB}" VerticalContentAlignment="Center">
-                <Grid ColumnDefinitions="1*,2*" RowDefinitions="Auto" Margin="2,4,2,4">
-                    <StackPanel Grid.Row="0" Grid.Column="0">
-                        <TextBlock Text="{ns:Loc LOGLEVEL}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                        
-                        <RadioButton IsChecked="{Binding Path=LogFilterLevel, FallbackValue=False, Mode=OneWay, Converter={x:Static vc:EnumToBooleanConverter.Instance}, ConverterParameter={x:Static log4netCore:Level.Error}}"
-                                     Command="{Binding ToggleLogFilterLevel}"
-                                     CommandParameter="Error"
-                                     VerticalContentAlignment="Center"
-                                     Content="{ns:Loc LOGLEVEL0}"
-                                     Margin="1">
-                        </RadioButton>
-                        <RadioButton IsChecked="{Binding Path=LogFilterLevel, FallbackValue=False, Mode=OneWay, Converter={x:Static vc:EnumToBooleanConverter.Instance}, ConverterParameter={x:Static log4netCore:Level.Warn}}"
-                                     Command="{Binding ToggleLogFilterLevel}"
-                                     CommandParameter="Warn"
-                                     VerticalContentAlignment="Center"
-                                     Content="{ns:Loc LOGLEVEL1}"
-                                     Margin="1">
-                        </RadioButton>
-                        <RadioButton IsChecked="{Binding Path=LogFilterLevel, FallbackValue=False, Mode=OneWay, Converter={x:Static vc:EnumToBooleanConverter.Instance}, ConverterParameter={x:Static log4netCore:Level.Info}}"
-                                     Command="{Binding ToggleLogFilterLevel}"
-                                     CommandParameter="Info"
-                                     VerticalContentAlignment="Center"
-                                     Content="{ns:Loc LOGLEVEL2}"
-                                     Margin="1">
-                        </RadioButton>
-                        <RadioButton IsChecked="{Binding Path=LogFilterLevel, FallbackValue=False, Mode=OneWay, Converter={x:Static vc:EnumToBooleanConverter.Instance}, ConverterParameter={x:Static log4netCore:Level.Debug}}"
-                                     Command="{Binding ToggleLogFilterLevel}"
-                                     CommandParameter="Debug"
-                                     VerticalContentAlignment="Center"
-                                     Content="{ns:Loc LOGLEVEL3}"
-                                     Margin="1">
-                        </RadioButton>
-                    </StackPanel>
-                    
-                    <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical" >
-                        <Grid ColumnDefinitions="1.8*, 1*" RowDefinitions="1*,1*,1*" Margin="10, 4, 0, 4">
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{ns:Loc CONVERTSAVING}"></TextBlock>
-                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{ns:DynamicLoc SaveStatus}"></TextBlock>
-                            
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="{ns:Loc CONVERTCONVERTING}"></TextBlock>
-                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{ns:DynamicLoc ConvertStatus}"></TextBlock>
-                            
-                            <TextBlock Grid.Row="2" Grid.Column="0" Text="{ns:Loc CONVERTCOPYING}"></TextBlock>
-                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{ns:DynamicLoc CopyStatus}"></TextBlock>
-                        </Grid>
-                        <ProgressBar Margin="4" Height="20" Value="{Binding Progress}" BorderThickness="1" BorderBrush="Gray"/>
-                        <TextBlock Text="{Binding Progress, StringFormat={}{0}%}" HorizontalAlignment="Center"></TextBlock>
-                        <Button Margin="4,15,4,4" HorizontalAlignment="Center" Name="ConvertButton" Command="{Binding LaunchConverter}">Convert!</Button>
-                    </StackPanel>
-                </Grid>
-            </TabItem>
-        </TabControl>
         
-        <DataGrid Name="LogGrid" DockPanel.Dock="Bottom" Margin="0,20,0,0" VerticalScrollBarVisibility="Visible" Items="{Binding FilteredLogLines}" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="False">
-            <DataGrid.Resources>
-                <vc:LogLevelToColorNameConverter x:Key="LogLevelToColorNameConverter"/>
-            </DataGrid.Resources>
-            <DataGrid.Styles>
-                <Style Selector="DataGridCell">
-                    <Setter Property="VerticalContentAlignment" Value="Top" />
-                </Style>
-                <Style Selector="DataGridRow">
-                    <Setter Property="Background" Value="{Binding Level, Converter={StaticResource LogLevelToColorNameConverter}}"></Setter>
-                </Style>
-            </DataGrid.Styles>
-            <DataGrid.GridLinesVisibility>All</DataGrid.GridLinesVisibility>
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="{ns:Loc LOGTIME}" IsReadOnly="True" Binding="{Binding Timestamp}" />
-                <DataGridTextColumn Header="{ns:Loc LOGSEVERITY}" IsReadOnly="True" Binding="{Binding LevelName}" />
-                <DataGridTextColumn Header="{ns:Loc LOGMESSAGE}" IsReadOnly="True" Binding="{Binding Message}" />
-            </DataGrid.Columns>
-        </DataGrid>
+        <Grid RowDefinitions="7*,3*" DockPanel.Dock="Bottom">
+            <TabControl Grid.Column="0" Grid.Row="0" MinHeight="150">
+                <TabItem Header="{ns:Loc PATHSTAB}" VerticalContentAlignment="Center">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <views:PathPickerView DataContext="{Binding PathPicker}"/>
+                    </ScrollViewer>
+                </TabItem>
+                
+                <TabItem Header="{ns:Loc OPTIONSTAB}" VerticalContentAlignment="Center" >
+                    <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
+                        <views:OptionsView DataContext="{Binding Options}" />
+                    </ScrollViewer>
+                </TabItem>
+                
+                <TabItem Header="{ns:Loc CONVERTTAB}" VerticalContentAlignment="Center">
+                    <Grid ColumnDefinitions="1*,2*" RowDefinitions="Auto" Margin="2,4,2,4">
+                        <StackPanel Grid.Row="0" Grid.Column="0">
+                            <TextBlock Text="{ns:Loc LOGLEVEL}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                            
+                            <RadioButton IsChecked="{Binding Path=LogFilterLevel, FallbackValue=False, Mode=OneWay, Converter={x:Static vc:EnumToBooleanConverter.Instance}, ConverterParameter={x:Static log4netCore:Level.Error}}"
+                                         Command="{Binding ToggleLogFilterLevel}"
+                                         CommandParameter="Error"
+                                         VerticalContentAlignment="Center"
+                                         Content="{ns:Loc LOGLEVEL0}"
+                                         Margin="1">
+                            </RadioButton>
+                            <RadioButton IsChecked="{Binding Path=LogFilterLevel, FallbackValue=False, Mode=OneWay, Converter={x:Static vc:EnumToBooleanConverter.Instance}, ConverterParameter={x:Static log4netCore:Level.Warn}}"
+                                         Command="{Binding ToggleLogFilterLevel}"
+                                         CommandParameter="Warn"
+                                         VerticalContentAlignment="Center"
+                                         Content="{ns:Loc LOGLEVEL1}"
+                                         Margin="1">
+                            </RadioButton>
+                            <RadioButton IsChecked="{Binding Path=LogFilterLevel, FallbackValue=False, Mode=OneWay, Converter={x:Static vc:EnumToBooleanConverter.Instance}, ConverterParameter={x:Static log4netCore:Level.Info}}"
+                                         Command="{Binding ToggleLogFilterLevel}"
+                                         CommandParameter="Info"
+                                         VerticalContentAlignment="Center"
+                                         Content="{ns:Loc LOGLEVEL2}"
+                                         Margin="1">
+                            </RadioButton>
+                            <RadioButton IsChecked="{Binding Path=LogFilterLevel, FallbackValue=False, Mode=OneWay, Converter={x:Static vc:EnumToBooleanConverter.Instance}, ConverterParameter={x:Static log4netCore:Level.Debug}}"
+                                         Command="{Binding ToggleLogFilterLevel}"
+                                         CommandParameter="Debug"
+                                         VerticalContentAlignment="Center"
+                                         Content="{ns:Loc LOGLEVEL3}"
+                                         Margin="1">
+                            </RadioButton>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical" >
+                            <Grid ColumnDefinitions="1.8*, 1*" RowDefinitions="1*,1*,1*" Margin="10, 4, 0, 4">
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="{ns:Loc CONVERTSAVING}"></TextBlock>
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{ns:DynamicLoc SaveStatus}"></TextBlock>
+                                
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="{ns:Loc CONVERTCONVERTING}"></TextBlock>
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{ns:DynamicLoc ConvertStatus}"></TextBlock>
+                                
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="{ns:Loc CONVERTCOPYING}"></TextBlock>
+                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{ns:DynamicLoc CopyStatus}"></TextBlock>
+                            </Grid>
+                            <ProgressBar Margin="4" Height="20" Value="{Binding Progress}" BorderThickness="1" BorderBrush="Gray"/>
+                            <TextBlock Text="{Binding Progress, StringFormat={}{0}%}" HorizontalAlignment="Center"></TextBlock>
+                            <Button Margin="4,15,4,4" HorizontalAlignment="Center" Name="ConvertButton" Command="{Binding LaunchConverter}">Convert!</Button>
+                        </StackPanel>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+        
+            <DataGrid Name="LogGrid" Grid.Column="0" Grid.Row="1" Margin="0,20,0,0" VerticalScrollBarVisibility="Visible" Items="{Binding FilteredLogLines}" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="False">
+                <DataGrid.Resources>
+                    <vc:LogLevelToColorNameConverter x:Key="LogLevelToColorNameConverter"/>
+                </DataGrid.Resources>
+                <DataGrid.Styles>
+                    <Style Selector="DataGridCell">
+                        <Setter Property="VerticalContentAlignment" Value="Top" />
+                    </Style>
+                    <Style Selector="DataGridRow">
+                        <Setter Property="Background" Value="{Binding Level, Converter={StaticResource LogLevelToColorNameConverter}}"></Setter>
+                    </Style>
+                </DataGrid.Styles>
+                <DataGrid.GridLinesVisibility>All</DataGrid.GridLinesVisibility>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="{ns:Loc LOGTIME}" IsReadOnly="True" Binding="{Binding Timestamp}" />
+                    <DataGridTextColumn Header="{ns:Loc LOGSEVERITY}" IsReadOnly="True" Binding="{Binding LevelName}" />
+                    <DataGridTextColumn Header="{ns:Loc LOGMESSAGE}" IsReadOnly="True" Binding="{Binding Message}" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
     </DockPanel>
 </Window>

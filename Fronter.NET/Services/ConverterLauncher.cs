@@ -35,7 +35,7 @@ internal class ConverterLauncher {
 			return false;
 		}
 
-		var startInfo = new ProcessStartInfo() {
+		var startInfo = new ProcessStartInfo {
 			FileName = backendExePathRelativeToFrontend,
 			WorkingDirectory = CommonFunctions.GetPath(backendExePathRelativeToFrontend),
 			CreateNoWindow = true,
