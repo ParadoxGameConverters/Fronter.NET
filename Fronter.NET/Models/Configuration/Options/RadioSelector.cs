@@ -27,10 +27,7 @@ public class RadioSelector : Selector {
 	}
 
 	public int GetSelectedId() {
-		foreach (ToggleableOption option in RadioOptions.Where(option => option.Value)) {
-			return option.Id;
-		}
-		return 0;
+		return RadioOptions.Where(option => option.Value).Select(option => option.Id).FirstOrDefault();
 	}
 
 	public void SetSelectedId(int selection) {

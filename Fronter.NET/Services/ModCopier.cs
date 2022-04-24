@@ -8,8 +8,8 @@ using System.Linq;
 namespace Fronter.Services; 
 
 public class ModCopier {
-	private Configuration config;
-	private ILog logger = LogManager.GetLogger("Mod copier");
+	private readonly Configuration config;
+	private readonly ILog logger = LogManager.GetLogger("Mod copier");
 	public ModCopier(Configuration config) {
 		this.config = config;
 	}
@@ -69,7 +69,7 @@ public class ModCopier {
 			saveGamePath = CommonFunctions.NormalizeStringPath(saveGamePath);
 			var pos = saveGamePath.LastIndexOf('.');
 			if (pos != -1) {
-				saveGamePath = saveGamePath.Substring(0, pos);
+				saveGamePath = saveGamePath[..pos];
 			}
 			targetName = saveGamePath;
 		}

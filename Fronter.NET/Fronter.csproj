@@ -2,10 +2,11 @@
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
         <TargetFramework>net6.0</TargetFramework>
-        <Nullable>enable</Nullable>
-        <AssemblyName>ConverterFrontend</AssemblyName>
+	    <RuntimeIdentifiers>win-x64;osx-x64;linux-x64</RuntimeIdentifiers>
+		<Nullable>enable</Nullable>
+		<AssemblyName>ConverterFrontend</AssemblyName>
 
-	    <IsPackable>false</IsPackable>
+		<IsPackable>false</IsPackable>
 
     </PropertyGroup>
     <ItemGroup>

@@ -26,7 +26,7 @@ using System.Threading;
 namespace Fronter.ViewModels;
 
 public class MainWindowViewModel : ViewModelBase {
-	private TranslationSource loc = TranslationSource.Instance;
+	private readonly TranslationSource loc = TranslationSource.Instance;
 	public IEnumerable<KeyValuePair<string, string>> Languages => loc.LoadedLanguages
 		.ToDictionary(l => l, l => loc.TranslateLanguage(l));
 
@@ -87,7 +87,7 @@ public class MainWindowViewModel : ViewModelBase {
 		set => this.RaiseAndSetIfChanged(ref progress, value);
 	}
 
-	public bool VerifyMandatoryPaths() {
+	private bool VerifyMandatoryPaths() {
 		foreach (var folder in Config.RequiredFolders) {
 			if (!folder.Mandatory || Directory.Exists(folder.Value)) {
 				continue;
@@ -97,11 +97,7 @@ public class MainWindowViewModel : ViewModelBase {
 			return false;
 		}
 
-		foreach (var file in Config.RequiredFiles) {
-			if (!file.Mandatory || File.Exists(file.Value)) {
-				continue;
-			}
-
+		foreach (var file in Config.RequiredFiles.Where(file => file.Mandatory && !File.Exists(file.Value))) {
 			Logger.Error($"Mandatory file {file.Name} at {file.Value} not found.");
 			return false;
 		}
@@ -143,35 +139,45 @@ public class MainWindowViewModel : ViewModelBase {
 	}
 
 	public async void CheckForUpdates() {
-		if (Config.UpdateCheckerEnabled &&
-			Config.CheckForUpdatesOnStartup &&
-			UpdateChecker.IsUpdateAvailable("commit_id.txt", Config.PagesCommitIdUrl)) {
-			var info = UpdateChecker.GetLatestReleaseInfo(Config.Name);
+		if (!Config.UpdateCheckerEnabled) {
+			return;
+		}
 
-			const string updateNow = "Update now";
-			const string maybeLater = "Maybe later";
-			var msgBody = UpdateChecker.GetUpdateMessageBody(loc.Translate("NEWVERSIONBODY"), info);
-			var messageBoxWindow = MessageBoxManager
-				.GetMessageBoxCustomWindow(new MessageBoxCustomParams {
-					Icon = Icon.Info,
-					ContentHeader = "An update is available!",
-					ContentTitle = loc.Translate("NEWVERSIONTITLE"),
-					ContentMessage = msgBody,
-					Markdown = true,
-					ButtonDefinitions = new[] {
-						new ButtonDefinition {Name = updateNow, IsDefault = true},
-						new ButtonDefinition {Name = maybeLater, IsCancel = true}
-					},
-				});
-			var result = await messageBoxWindow.ShowDialog(MainWindow.Instance);
-			if (result == updateNow) {
-				if (info.ZipUrl is not null) {
-					UpdateChecker.StartUpdaterAndDie(info.ZipUrl, Config.ConverterFolder);
-				} else {
-					BrowserLauncher.Open(Config.ConverterReleaseForumThread);
-					BrowserLauncher.Open(Config.LatestGitHubConverterReleaseUrl);
-				}
-			}
+		if (!Config.CheckForUpdatesOnStartup) {
+			return;
+		}
+
+		if (!UpdateChecker.IsUpdateAvailable("commit_id.txt", Config.PagesCommitIdUrl)) {
+			return;
+		}
+
+		var info = UpdateChecker.GetLatestReleaseInfo(Config.Name);
+
+		const string updateNow = "Update now";
+		const string maybeLater = "Maybe later";
+		var msgBody = UpdateChecker.GetUpdateMessageBody(loc.Translate("NEWVERSIONBODY"), info);
+		var messageBoxWindow = MessageBoxManager
+			.GetMessageBoxCustomWindow(new MessageBoxCustomParams {
+				Icon = Icon.Info,
+				ContentHeader = "An update is available!",
+				ContentTitle = loc.Translate("NEWVERSIONTITLE"),
+				ContentMessage = msgBody,
+				Markdown = true,
+				ButtonDefinitions = new[] {
+					new ButtonDefinition {Name = updateNow, IsDefault = true},
+					new ButtonDefinition {Name = maybeLater, IsCancel = true}
+				},
+			});
+		var result = await messageBoxWindow.ShowDialog(MainWindow.Instance);
+		if (result != updateNow) {
+			return;
+		}
+
+		if (info.ZipUrl is not null) {
+			UpdateChecker.StartUpdaterAndDie(info.ZipUrl, Config.ConverterFolder);
+		} else {
+			BrowserLauncher.Open(Config.ConverterReleaseForumThread);
+			BrowserLauncher.Open(Config.LatestGitHubConverterReleaseUrl);
 		}
 	}
 

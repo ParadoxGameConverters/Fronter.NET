@@ -37,20 +37,12 @@ public class CheckBoxSelector : Selector {
 
 	public void SetSelectedIds(ISet<int> selection) {
 		foreach (var option in CheckBoxOptions) {
-			if (selection.Contains(option.Id)) {
-				option.Value = true;
-			} else {
-				option.Value = false;
-			}
+			option.Value = selection.Contains(option.Id);
 		}
 	}
 	public void SetSelectedValues(ISet<string> selection) {
 		foreach (var option in CheckBoxOptions) {
-			if (selection.Contains(option.Name)) {
-				option.Value = true;
-			} else {
-				option.Value = false;
-			}
+			option.Value = selection.Contains(option.Name);
 		}
 	}
 

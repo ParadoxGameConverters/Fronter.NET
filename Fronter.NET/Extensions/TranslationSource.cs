@@ -61,11 +61,7 @@ public class TranslationSource : ReactiveObject {
 		return !languages.ContainsKey(language) ? string.Empty : languages[language].NativeName;
 	}
 
-	public string this[string key] {
-		get {
-			return Translate(key);
-		}
-	}
+	public string this[string key] => Translate(key);
 
 	public void SaveLanguage(string languageKey) {
 		if (!LoadedLanguages.Contains(languageKey)) {
@@ -137,7 +133,7 @@ public class TranslationSource : ReactiveObject {
 	}
 
 	public List<string> LoadedLanguages { get; } = new();
-	private Dictionary<string, CultureInfo> languages = new();
+	private readonly Dictionary<string, CultureInfo> languages = new();
 	private readonly Dictionary<string, Dictionary<string, string>> translations = new(); // key, <language, text>
 
 	private string currentLanguage = "english";
