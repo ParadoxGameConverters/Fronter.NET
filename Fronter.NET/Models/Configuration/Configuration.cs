@@ -3,8 +3,6 @@ using commonItems;
 using Fronter.Models.Configuration.Options;
 using Fronter.ViewModels;
 using log4net;
-using Microsoft.CodeAnalysis;
-using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -51,7 +49,7 @@ public class Configuration {
 			logger.Warn($"{fronterOptionsPath} not found!");
 		}
 		parser.ClearRegisteredRules();
-		
+
 		InitializePaths();
 
 		RegisterPreloadKeys(parser);
@@ -157,23 +155,23 @@ public class Configuration {
 		if (!OperatingSystem.IsWindows()) {
 			return;
 		}
-		
+
 		string documentsDir = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
 		foreach (var folder in RequiredFolders) {
 			string? initialValue = null;
-			
+
 			if (!string.IsNullOrEmpty(folder.Value)) {
 				continue;
 			}
-			
+
 			if (folder.SearchPathType == "windowsUsersFolder") {
 				initialValue = Path.Combine(documentsDir, folder.SearchPath);
 			} else if (folder.SearchPathType == "steamFolder") {
 				if (!int.TryParse(folder.SearchPathId, out int steamId)) {
 					continue;
 				}
-				
+
 				var possiblePath = CommonFunctions.GetSteamInstallPath(steamId);
 				if (possiblePath is null) {
 					continue;
@@ -186,7 +184,7 @@ public class Configuration {
 			} else if (folder.SearchPathType == "direct") {
 				initialValue = folder.SearchPath;
 			}
-			
+
 			if (Directory.Exists(initialValue)) {
 				folder.Value = initialValue;
 			}
@@ -220,10 +218,10 @@ public class Configuration {
 			}
 		}
 	}
-	
+
 	public bool ExportConfiguration() {
 		SetSavingStatus("CONVERTSTATUSIN");
-		
+
 		if (string.IsNullOrEmpty(ConverterFolder)) {
 			logger.Error("Converter folder is not set!");
 			SetSavingStatus("CONVERTSTATUSPOSTFAIL");

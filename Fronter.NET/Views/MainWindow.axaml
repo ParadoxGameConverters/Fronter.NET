@@ -4,7 +4,6 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:Fronter.ViewModels"
         xmlns:views="clr-namespace:Fronter.Views"
-        xmlns:fronter="clr-namespace:Fronter"
         xmlns:ns="clr-namespace:Fronter.Extensions"
         xmlns:vc="clr-namespace:Fronter.ValueConverters"
         xmlns:log4netCore="clr-namespace:log4net.Core;assembly=log4net"

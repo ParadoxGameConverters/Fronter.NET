@@ -14,7 +14,7 @@ public class UpdateCheckerTests {
 		Assert.Matches(versionRegex, info.Version);
 		Assert.False(string.IsNullOrWhiteSpace(info.Description));
 		Assert.NotNull(info.ZipUrl);
-		Assert.StartsWith($"https://github.com/ParadoxGameConverters/ImperatorToCK3/releases/download/{info.Version}/ImperatorToCK3", info.ZipUrl!);
-		Assert.EndsWith(".zip", info.ZipUrl!);
+		Assert.StartsWith($"https://github.com/ParadoxGameConverters/ImperatorToCK3/releases/download/{info.Version}/ImperatorToCK3", info.ZipUrl);
+		Assert.EndsWith(".zip", info.ZipUrl);
 	}
 }

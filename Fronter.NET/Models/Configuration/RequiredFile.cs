@@ -33,7 +33,7 @@ public class RequiredFile : RequiredPath {
 		get => base.Value;
 		set {
 			if (!string.IsNullOrEmpty(value) && !File.Exists(value)) {
-				throw new DataValidationException($"File does not exist!");
+				throw new DataValidationException("File does not exist!");
 			}
 
 			base.Value = value;

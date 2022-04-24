@@ -32,7 +32,7 @@ public class RequiredFolder : RequiredPath {
 		get => base.Value;
 		set {
 			if (!string.IsNullOrEmpty(value) && !Directory.Exists(value)) {
-				throw new DataValidationException($"Directory does not exist!");
+				throw new DataValidationException("Directory does not exist!");
 			}
 
 			base.Value = value;

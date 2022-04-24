@@ -1,5 +1,4 @@
 ﻿using commonItems;
-using Fronter.LogAppenders;
 using Fronter.Models.Configuration;
 using log4net;
 using log4net.Core;
@@ -57,11 +56,11 @@ internal class ConverterLauncher {
 
 		var timer = new Stopwatch();
 		timer.Start();
-		
+
 		process.Start();
 		process.BeginOutputReadLine();
 		process.WaitForExit();
-		
+
 		timer.Stop();
 
 		if (process.ExitCode == 0) {

@@ -5,24 +5,23 @@ using Avalonia.Threading;
 using commonItems;
 using FluentAvalonia.Styling;
 using Fronter.Extensions;
+using Fronter.LogAppenders;
 using Fronter.Models;
 using Fronter.Models.Configuration;
 using Fronter.Services;
 using Fronter.Views;
+using log4net;
+using log4net.Core;
 using MessageBox.Avalonia;
 using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
 using MessageBox.Avalonia.Models;
 using ReactiveUI;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading;
-using Fronter.LogAppenders;
-using log4net;
-using log4net.Core;
-using System.IO;
 
 namespace Fronter.ViewModels;
 
@@ -32,7 +31,7 @@ public class MainWindowViewModel : ViewModelBase {
 		.ToDictionary(l => l, l => loc.TranslateLanguage(l));
 
 	public Configuration Config { get; }
-	
+
 	public PathPickerViewModel PathPicker { get; }
 	public OptionsViewModel Options { get; }
 
@@ -57,11 +56,11 @@ public class MainWindowViewModel : ViewModelBase {
 		get => copyStatus;
 		set => this.RaiseAndSetIfChanged(ref copyStatus, value);
 	}
-	
-	
+
+
 	public MainWindowViewModel() {
 		Config = new Configuration();
-		
+
 		var appenders = LogManager.GetRepository().GetAppenders();
 		var gridAppender = appenders.First(a => a.Name == "grid");
 		if (gridAppender is not LogGridAppender logGridAppender) {
@@ -115,12 +114,12 @@ public class MainWindowViewModel : ViewModelBase {
 		SaveStatus = "CONVERTSTATUSPRE";
 		ConvertStatus = "CONVERTSTATUSPRE";
 		CopyStatus = "CONVERTSTATUSPRE";
-		
+
 		if (!VerifyMandatoryPaths()) {
 			return;
 		}
 		Config.ExportConfiguration();
-		
+
 		var converterLauncher = new ConverterLauncher(Config);
 		bool success;
 		var converterThread = new Thread(() => {
@@ -145,8 +144,8 @@ public class MainWindowViewModel : ViewModelBase {
 
 	public async void CheckForUpdates() {
 		if (Config.UpdateCheckerEnabled &&
-		    Config.CheckForUpdatesOnStartup &&
-		    UpdateChecker.IsUpdateAvailable("commit_id.txt", Config.PagesCommitIdUrl)) {
+			Config.CheckForUpdatesOnStartup &&
+			UpdateChecker.IsUpdateAvailable("commit_id.txt", Config.PagesCommitIdUrl)) {
 			var info = UpdateChecker.GetLatestReleaseInfo(Config.Name);
 
 			const string updateNow = "Update now";

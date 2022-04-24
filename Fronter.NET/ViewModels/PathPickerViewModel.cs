@@ -1,17 +1,11 @@
-﻿using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
+﻿using Avalonia.Controls;
 using commonItems;
 using Fronter.Extensions;
 using Fronter.Models.Configuration;
 using Fronter.Views;
-using ReactiveUI;
-using System;
 using System.Collections.ObjectModel;
-using System.Reactive;
-using System.Threading.Tasks;
 
-namespace Fronter.ViewModels; 
+namespace Fronter.ViewModels;
 
 /// <summary>
 ///     The PathPickerViewModel lets the user select paths to various stuff the converter needs to know where to find.
@@ -24,13 +18,13 @@ public class PathPickerViewModel : ViewModelBase {
 
 	public ObservableCollection<RequiredFolder> RequiredFolders { get; }
 	public ObservableCollection<RequiredFile> RequiredFiles { get; }
-	
+
 	public async void OpenFolderDialog(RequiredFolder folder) {
 		var dlg = new OpenFolderDialog {
 			Title = TranslationSource.Instance[folder.DisplayName],
 			Directory = string.IsNullOrEmpty(folder.Value) ? null : folder.Value
 		};
-		
+
 		var result = await dlg.ShowAsync(MainWindow.Instance);
 		if (result is not null) {
 			folder.Value = result;
@@ -46,9 +40,9 @@ public class PathPickerViewModel : ViewModelBase {
 			dlg.Directory = CommonFunctions.GetPath(file.Value);
 		}
 		dlg.Filters.Add(new FileDialogFilter {
-			Extensions = {file.AllowedExtension.TrimStart('*', '.')}
+			Extensions = { file.AllowedExtension.TrimStart('*', '.') }
 		});
-		
+
 		var result = await dlg.ShowAsync(MainWindow.Instance);
 		if (result is not null) {
 			file.Value = result[0];

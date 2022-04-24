@@ -1,11 +1,9 @@
-﻿using Avalonia;
-using Avalonia.Data.Converters;
+﻿using Avalonia.Data.Converters;
 using Avalonia.Media;
-using commonItems;
 using log4net.Core;
 using System;
 
-namespace Fronter.ValueConverters; 
+namespace Fronter.ValueConverters;
 
 // based on https://stackoverflow.com/a/5551986/10249243
 public class LogLevelToColorNameConverter : IValueConverter {

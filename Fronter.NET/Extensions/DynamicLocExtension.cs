@@ -13,6 +13,7 @@ public class DynamicLocExtension : MultiBinding {
 		Converter = new LocKeyToValueConverter();
 	}
 
+	// ReSharper disable once UnusedMember.Global
 	public MultiBinding ProvideValue() {
 		return this;
 	}
