@@ -18,15 +18,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
-using DynamicData;
-using DynamicData.Binding;
 using Fronter.LogAppenders;
 using log4net;
 using log4net.Core;
 using Material.Styles.Themes;
 using Material.Styles.Themes.Base;
 using System.IO;
-using System.Xml.Xsl;
 
 namespace Fronter.ViewModels;
 
@@ -35,7 +32,7 @@ public class MainWindowViewModel : ViewModelBase {
 	public IEnumerable<KeyValuePair<string, string>> Languages => loc.LoadedLanguages
 		.ToDictionary(l => l, l => loc.TranslateLanguage(l));
 
-	public Configuration Config { get; private set; } = new();
+	public Configuration Config { get; }
 	
 	public PathPickerViewModel PathPicker { get; }
 	public OptionsViewModel Options { get; }
@@ -64,15 +61,20 @@ public class MainWindowViewModel : ViewModelBase {
 	
 	
 	public MainWindowViewModel() {
+		Config = new Configuration();
+		
 		var appenders = LogManager.GetRepository().GetAppenders();
 		foreach (var appender in appenders) {
-			Logger.Progress(appender.Name);
-			if (appender.Name == "grid") {
-				LogGridAppender = appender as LogGridAppender;
-				LogGridAppender.LogGrid = MainWindow.Instance.FindControl<DataGrid>("LogGrid");
-			}
+			Logger.Debug($"test {appender.Name}");
 		}
-		
+
+		var gridAppender = appenders.First(a => a.Name == "grid");
+		if (gridAppender is not LogGridAppender logGridAppender) {
+			throw new LogException($"Log appender \"{gridAppender.Name}\" is not a {typeof(LogGridAppender)}");
+		}
+		LogGridAppender = logGridAppender;
+		LogGridAppender.LogGrid = MainWindow.Instance.FindControl<DataGrid>("LogGrid");
+
 		PathPicker = new PathPickerViewModel(Config);
 		Options = new OptionsViewModel(Config.Options);
 	}

@@ -19,9 +19,9 @@ public class LogGridAppender : MemoryAppender {
 	private ReadOnlyObservableCollection<LogLine> filteredLogLines;
 	public ReadOnlyObservableCollection<LogLine> FilteredLogLines => filteredLogLines;
 
-	public Level LogFilterLevel = Level.Warn;
+	public Level LogFilterLevel = Level.Info;
 
-	public DataGrid? LogGrid { get; set; } = null;
+	public DataGrid? LogGrid { get; set; }
 	
 	public LogGridAppender() {
 		LogLines.ToObservableChangeSet()
@@ -45,7 +45,7 @@ public class LogGridAppender : MemoryAppender {
 	}
 
 	public static string GetTimestampString(DateTime dateTime) {
-		return dateTime.ToString("yyyy’-‘MM’-‘dd’ ’HH’:’mm’:’ss");
+		return dateTime.ToString("yyyy-MM-dd HH:mm:ss");
 	}
 
 	private void AddToLogGrid(LogLine logLine) {
@@ -55,11 +55,8 @@ public class LogGridAppender : MemoryAppender {
 				DispatcherPriority.MinValue
 			);
 		} else {
-			Dispatcher.UIThread.Post(
-				() => AddRowToLogGrid(logLine),
-				DispatcherPriority.MinValue
-			);
-			if (logLine.Level == LogExtensions.progressLevel) {
+			AddRowToLogGrid(logLine);
+			if (logLine.Level == LogExtensions.ProgressLevel) {
 				if (ushort.TryParse(logLine.Message.Trim().TrimEnd('%'), out var progressValue)) {
 					Dispatcher.UIThread.Post(() => {
 						if (Avalonia.Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop) {
@@ -77,18 +74,18 @@ public class LogGridAppender : MemoryAppender {
 	
 	public void ToggleLogFilterLevel() {
 		LogLines.ToObservableChangeSet()
-			.Filter(line => line.Level >= LogFilterLevel)
+			.Filter(line => line.Level is null || line.Level >= LogFilterLevel)
 			.Bind(out filteredLogLines)
 			.Subscribe();
-		lastVisibleRow = LogLines.LastOrDefault(line => line.Level >= LogFilterLevel);
+		lastVisibleRow = filteredLogLines.LastOrDefault();
 	}
 	
 	private LogLine? lastLogRow;
 	private LogLine? lastVisibleRow;
-	public void AddRowToLogGrid(LogLine logLine) {
-		LogLines.Add(logLine);
+	private void AddRowToLogGrid(LogLine logLine) {
+		Dispatcher.UIThread.Post(()=>LogLines.Add(logLine));
 		lastLogRow = logLine;
-		if (logLine.Level >= LogFilterLevel) {
+		if (logLine.Level is not null && logLine.Level >= LogFilterLevel) {
 			lastVisibleRow = logLine;
 		}
 	}
@@ -102,6 +99,6 @@ public class LogGridAppender : MemoryAppender {
 	}
 
 	public void ScrollToLogEnd() {
-		LogGrid?.ScrollIntoView(lastVisibleRow, null);
+		Dispatcher.UIThread.Post(()=>LogGrid?.ScrollIntoView(lastVisibleRow, null), DispatcherPriority.MinValue);
 	}
 }

@@ -7,8 +7,7 @@
         xmlns:fronter="clr-namespace:Fronter"
         xmlns:ns="clr-namespace:Fronter.Extensions"
         xmlns:vc="clr-namespace:Fronter.ValueConverters"
-        xmlns:commons="clr-namespace:commonItems;assembly=commonItems"
-        xmlns:styles="clr-namespace:Material.Styles;assembly=Material.Styles"
+        xmlns:log4netCore="clr-namespace:log4net.Core;assembly=log4net"
         mc:Ignorable="d" d:DesignWidth="710" d:DesignHeight="400"
         x:Class="Fronter.Views.MainWindow"
         Icon="/Assets/converter.ico"
@@ -69,28 +68,28 @@
                     <StackPanel Grid.Row="0" Grid.Column="0">
                         <TextBlock Text="{ns:Loc LOGLEVEL}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                         
-                        <RadioButton IsChecked="{Binding Path=LogFilterLevel, Mode=OneWay, Converter={x:Static vc:EnumToBooleanConverter.Instance}, ConverterParameter={x:Static commons:LogLevel.Error}}"
+                        <RadioButton IsChecked="{Binding Path=LogFilterLevel, FallbackValue=False, Mode=OneWay, Converter={x:Static vc:EnumToBooleanConverter.Instance}, ConverterParameter={x:Static log4netCore:Level.Error}}"
                                      Command="{Binding ToggleLogFilterLevel}"
                                      CommandParameter="Error"
                                      VerticalContentAlignment="Center"
                                      Content="{ns:Loc LOGLEVEL0}"
                                      Margin="1">
                         </RadioButton>
-                        <RadioButton IsChecked="{Binding Path=LogFilterLevel, Mode=OneWay, Converter={x:Static vc:EnumToBooleanConverter.Instance}, ConverterParameter={x:Static commons:LogLevel.Warn}}"
+                        <RadioButton IsChecked="{Binding Path=LogFilterLevel, FallbackValue=False, Mode=OneWay, Converter={x:Static vc:EnumToBooleanConverter.Instance}, ConverterParameter={x:Static log4netCore:Level.Warn}}"
                                      Command="{Binding ToggleLogFilterLevel}"
                                      CommandParameter="Warn"
                                      VerticalContentAlignment="Center"
                                      Content="{ns:Loc LOGLEVEL1}"
                                      Margin="1">
                         </RadioButton>
-                        <RadioButton IsChecked="{Binding Path=LogFilterLevel, Mode=OneWay, Converter={x:Static vc:EnumToBooleanConverter.Instance}, ConverterParameter={x:Static commons:LogLevel.Info}}"
+                        <RadioButton IsChecked="{Binding Path=LogFilterLevel, FallbackValue=False, Mode=OneWay, Converter={x:Static vc:EnumToBooleanConverter.Instance}, ConverterParameter={x:Static log4netCore:Level.Info}}"
                                      Command="{Binding ToggleLogFilterLevel}"
                                      CommandParameter="Info"
                                      VerticalContentAlignment="Center"
                                      Content="{ns:Loc LOGLEVEL2}"
                                      Margin="1">
                         </RadioButton>
-                        <RadioButton IsChecked="{Binding Path=LogFilterLevel, Mode=OneWay, Converter={x:Static vc:EnumToBooleanConverter.Instance}, ConverterParameter={x:Static commons:LogLevel.Debug}}"
+                        <RadioButton IsChecked="{Binding Path=LogFilterLevel, FallbackValue=False, Mode=OneWay, Converter={x:Static vc:EnumToBooleanConverter.Instance}, ConverterParameter={x:Static log4netCore:Level.Debug}}"
                                      Command="{Binding ToggleLogFilterLevel}"
                                      CommandParameter="Debug"
                                      VerticalContentAlignment="Center"
@@ -127,13 +126,13 @@
                     <Setter Property="VerticalContentAlignment" Value="Top" />
                 </Style>
                 <Style Selector="DataGridRow">
-                    <Setter Property="Background" Value="{Binding LogLevel, Converter={StaticResource LogLevelToColorNameConverter}}"></Setter>
+                    <Setter Property="Background" Value="{Binding Level, Converter={StaticResource LogLevelToColorNameConverter}}"></Setter>
                 </Style>
             </DataGrid.Styles>
             <DataGrid.GridLinesVisibility>All</DataGrid.GridLinesVisibility>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="{ns:Loc LOGTIME}" IsReadOnly="True" Binding="{Binding Timestamp}" />
-                <DataGridTextColumn Header="{ns:Loc LOGSEVERITY}" IsReadOnly="True" Binding="{Binding LogLevel}" />
+                <DataGridTextColumn Header="{ns:Loc LOGSEVERITY}" IsReadOnly="True" Binding="{Binding LevelName}" />
                 <DataGridTextColumn Header="{ns:Loc LOGMESSAGE}" IsReadOnly="True" Binding="{Binding Message}" />
             </DataGrid.Columns>
         </DataGrid>

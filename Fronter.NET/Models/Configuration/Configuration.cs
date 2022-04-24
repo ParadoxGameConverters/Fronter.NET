@@ -1,14 +1,14 @@
-﻿using commonItems;
+﻿using Avalonia.Controls.ApplicationLifetimes;
+using commonItems;
 using Fronter.Models.Configuration.Options;
+using Fronter.ViewModels;
+using log4net;
 using Microsoft.CodeAnalysis;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Text.RegularExpressions;
 
 namespace Fronter.Models.Configuration;
 
@@ -32,23 +32,25 @@ public class Configuration {
 	public HashSet<string> PreloadedModFileNames { get; } = new();
 	private int optionCounter;
 
+	private static ILog logger = LogManager.GetLogger("CONFIGURATION");
+
 	public Configuration() {
 		var parser = new Parser();
 		RegisterKeys(parser);
 		var fronterConfigurationPath = Path.Combine("Configuration", "fronter-configuration.txt");
 		if (File.Exists(fronterConfigurationPath)) {
 			parser.ParseFile(fronterConfigurationPath);
-			Logger.Info("Frontend configuration loaded.");
+			logger.Info("Frontend configuration loaded.");
 		} else {
-			Logger.Warn($"{fronterConfigurationPath} not found!");
+			logger.Warn($"{fronterConfigurationPath} not found!");
 		}
 
 		var fronterOptionsPath = Path.Combine("Configuration", "fronter-options.txt");
 		if (File.Exists(fronterOptionsPath)) {
 			parser.ParseFile(fronterOptionsPath);
-			Logger.Info("Frontend options loaded.");
+			logger.Info("Frontend options loaded.");
 		} else {
-			Logger.Warn($"{fronterOptionsPath} not found!");
+			logger.Warn($"{fronterOptionsPath} not found!");
 		}
 		parser.ClearRegisteredRules();
 		
@@ -57,7 +59,7 @@ public class Configuration {
 		RegisterPreloadKeys(parser);
 		var converterConfigurationPath = Path.Combine(ConverterFolder, "configuration.txt");
 		if (!string.IsNullOrEmpty(ConverterFolder) && File.Exists(converterConfigurationPath)) {
-			Logger.Info("Previous configuration located, preloading selections.");
+			logger.Info("Previous configuration located, preloading selections.");
 			parser.ParseFile(converterConfigurationPath);
 		}
 	}
@@ -76,18 +78,16 @@ public class Configuration {
 			var newFolder = new RequiredFolder(reader);
 			if (!string.IsNullOrEmpty(newFolder.Name)) {
 				RequiredFolders.Add(newFolder);
-			}
-			else {
-				Logger.Error("Required Folder has no mandatory field: name!");
+			} else {
+				logger.Error("Required Folder has no mandatory field: name!");
 			}
 		});
 		parser.RegisterKeyword("requiredFile", reader => {
 			var newFile = new RequiredFile(reader);
 			if (!string.IsNullOrEmpty(newFile.Name)) {
 				RequiredFiles.Add(newFile);
-			}
-			else {
-				Logger.Error("Required File has no mandatory field: name!");
+			} else {
+				logger.Error("Required File has no mandatory field: name!");
 			}
 		});
 		parser.RegisterKeyword("option", reader => {
@@ -226,14 +226,18 @@ public class Configuration {
 			}
 		}
 	}
-
+	
 	public bool ExportConfiguration() {
+		SetSaveStatus("CONVERTSTATUSIN");
+		
 		if (string.IsNullOrEmpty(ConverterFolder)) {
-			Logger.Error("Converter folder is not set!");
+			logger.Error("Converter folder is not set!");
+			SetSaveStatus("CONVERTSTATUSPOSTFAIL");
 			return false;
 		}
 		if (!Directory.Exists(ConverterFolder)) {
-			Logger.Error("Could not find converter folder!");
+			logger.Error("Could not find converter folder!");
+			SetSaveStatus("CONVERTSTATUSPOSTFAIL");
 			return false;
 		}
 
@@ -273,10 +277,20 @@ public class Configuration {
 				}
 			}
 
+			SetSaveStatus("CONVERTSTATUSPOSTSUCCESS");
 			return true;
 		} catch (Exception ex) {
-			Logger.Error($"Could not open configuration.txt! Error: {ex}");
+			logger.Error($"Could not open configuration.txt! Error: {ex}");
+			SetSaveStatus("CONVERTSTATUSPOSTFAIL");
 			return false;
+		}
+	}
+
+	private void SetSaveStatus(string locKey) {
+		if (Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
+			if (desktop.MainWindow.DataContext is MainWindowViewModel mainWindowDataContext) {
+				mainWindowDataContext.SaveStatus = locKey;
+			}
 		}
 	}
 }

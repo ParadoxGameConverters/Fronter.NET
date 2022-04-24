@@ -14,6 +14,8 @@ public class LogLine : ReactiveObject {
 	}
 	public string Timestamp { get; set; } = string.Empty;
 	public Level? Level { get; set; }
+	public string LevelName => Level?.Name ?? string.Empty;
+	
 	public MessageSource Source { get; set; } = MessageSource.Uninitialized;
 
 	private string message = string.Empty;

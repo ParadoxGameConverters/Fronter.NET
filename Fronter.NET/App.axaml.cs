@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using commonItems;
 using Fronter.ViewModels;
 using Fronter.Views;
 using Material.Dialog;
@@ -15,7 +16,8 @@ namespace Fronter;
 
 public class App : Application {
 	public override void Initialize() {
-		File.Delete("log.txt");
+		Logger.Configure();
+		
 		AvaloniaXamlLoader.Load(this);
 	}
 

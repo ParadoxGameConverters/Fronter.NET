@@ -3,6 +3,8 @@ using commonItems;
 using Fronter.Models;
 using Fronter.Models.Configuration;
 using Fronter.ViewModels;
+using log4net;
+using log4net.Core;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -10,6 +12,8 @@ using System.IO;
 namespace Fronter.Services;
 
 internal class ConverterLauncher {
+	private static readonly ILog Logger = LogManager.GetLogger("Converter Launcher");
+	private Level? lastLevelFromBackend = null;
 	internal ConverterLauncher(MainWindowViewModel mainWindowViewModel) {
 		parent = mainWindowViewModel;
 		config = mainWindowViewModel.Config;
@@ -44,8 +48,11 @@ internal class ConverterLauncher {
 		using Process process = new() { StartInfo = startInfo };
 		process.OutputDataReceived += (sender, args) => {
 			var logLine = MessageSlicer.SliceMessage(args.Data ?? string.Empty);
-			logLine.Source = LogLine.MessageSource.Converter;
-			Logger.Log(logLine.Level, logLine.Message); // TODO: CREATE A SEPARATE LOGGER TO DISTINGUISH CONVERTER MESSAGES
+			var level = logLine.Level;
+			Logger.Log(level ?? lastLevelFromBackend ?? Level.Info, logLine.Message);
+			if (level is not null) {
+				lastLevelFromBackend = level;
+			}
 		};
 
 		var timer = new Stopwatch();

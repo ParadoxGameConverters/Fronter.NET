@@ -1,8 +1,8 @@
-﻿using Fronter.Models;
+﻿using commonItems;
+using Fronter.Models;
 using log4net;
 using log4net.Core;
 using System.Text.RegularExpressions;
-using LogLevel = commonItems.LogLevel;
 
 namespace Fronter.Services;
 
@@ -37,7 +37,8 @@ public static class MessageSlicer {
 		return logMessage;
 	}
 
-	private static Level? GetLogLevel(string levelStr) {
-		return LogManager.GetRepository().LevelMap[levelStr];
+	private static Level GetLogLevel(string levelStr) {
+		var level = LogManager.GetRepository().LevelMap[levelStr];
+		return level;
 	}
 }
