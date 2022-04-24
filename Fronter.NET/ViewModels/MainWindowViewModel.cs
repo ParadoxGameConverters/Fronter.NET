@@ -116,6 +116,10 @@ public class MainWindowViewModel : ViewModelBase {
 	}
 
 	public void LaunchConverter() {
+		SaveStatus = "CONVERTSTATUSPRE";
+		ConvertStatus = "CONVERTSTATUSPRE";
+		CopyStatus = "CONVERTSTATUSPRE";
+		
 		LogGridAppender.LogLines.Clear();
 		if (!VerifyMandatoryPaths()) {
 			return;

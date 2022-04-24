@@ -19,11 +19,14 @@ internal class ConverterLauncher {
 		config = mainWindowViewModel.Config;
 	}
 	public void LaunchConverter() {
+		SetConversionStatus("CONVERTSTATUSIN");
+		
 		var converterFolder = config.ConverterFolder;
 		var backendExePath = config.BackendExePath;
 
 		if (string.IsNullOrEmpty(backendExePath)) {
 			Logger.Error("Converter location has not been set!");
+			SetConversionStatus("CONVERTSTATUSPOSTFAIL");
 			return;
 		}
 
@@ -35,6 +38,7 @@ internal class ConverterLauncher {
 
 		if (!File.Exists(backendExePathRelativeToFrontend)) {
 			Logger.Error("Could not find converter executable!");
+			SetConversionStatus("CONVERTSTATUSPOSTFAIL");
 			return;
 		}
 
@@ -65,11 +69,17 @@ internal class ConverterLauncher {
 		timer.Stop();
 
 		if (process.ExitCode == 0) {
+			SetConversionStatus("CONVERTSTATUSPOSTSUCCESS");
 			Logger.Info($"Converter exited at {timer.Elapsed.TotalSeconds} seconds.");
 		} else {
+			SetConversionStatus("CONVERTSTATUSPOSTFAIL");
 			Logger.Error("Converter Error! See log.txt for details.");
 			Logger.Error("If you require assistance please upload log.txt to forums for a detailed post-mortem.");
 		}
+	}
+	
+	private void SetConversionStatus(string locKey) {
+		parent.ConvertStatus = locKey;
 	}
 
 	private readonly MainWindowViewModel parent;

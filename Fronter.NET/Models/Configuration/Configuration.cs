@@ -228,16 +228,16 @@ public class Configuration {
 	}
 	
 	public bool ExportConfiguration() {
-		SetSaveStatus("CONVERTSTATUSIN");
+		SetSavingStatus("CONVERTSTATUSIN");
 		
 		if (string.IsNullOrEmpty(ConverterFolder)) {
 			logger.Error("Converter folder is not set!");
-			SetSaveStatus("CONVERTSTATUSPOSTFAIL");
+			SetSavingStatus("CONVERTSTATUSPOSTFAIL");
 			return false;
 		}
 		if (!Directory.Exists(ConverterFolder)) {
 			logger.Error("Could not find converter folder!");
-			SetSaveStatus("CONVERTSTATUSPOSTFAIL");
+			SetSavingStatus("CONVERTSTATUSPOSTFAIL");
 			return false;
 		}
 
@@ -277,20 +277,22 @@ public class Configuration {
 				}
 			}
 
-			SetSaveStatus("CONVERTSTATUSPOSTSUCCESS");
+			SetSavingStatus("CONVERTSTATUSPOSTSUCCESS");
 			return true;
 		} catch (Exception ex) {
 			logger.Error($"Could not open configuration.txt! Error: {ex}");
-			SetSaveStatus("CONVERTSTATUSPOSTFAIL");
+			SetSavingStatus("CONVERTSTATUSPOSTFAIL");
 			return false;
 		}
 	}
 
-	private void SetSaveStatus(string locKey) {
-		if (Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
-			if (desktop.MainWindow.DataContext is MainWindowViewModel mainWindowDataContext) {
-				mainWindowDataContext.SaveStatus = locKey;
-			}
+	private static void SetSavingStatus(string locKey) {
+		if (Avalonia.Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop) {
+			return;
+		}
+
+		if (desktop.MainWindow.DataContext is MainWindowViewModel mainWindowDataContext) {
+			mainWindowDataContext.SaveStatus = locKey;
 		}
 	}
 }
