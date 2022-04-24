@@ -70,19 +70,11 @@ public class Option {
 			return RadioSelector.GetSelectedValue();
 		}
 
-		if (TextSelector is not null) {
-			return TextSelector.Value;
-		}
-
-		return string.Empty;
+		return TextSelector is not null ? TextSelector.Value : string.Empty;
 	}
 
 	public HashSet<string> GetValues() {
-		if (CheckBoxSelector is not null) {
-			return CheckBoxSelector.GetSelectedValues();
-		}
-
-		return new HashSet<string>();
+		return CheckBoxSelector is not null ? CheckBoxSelector.GetSelectedValues() : new HashSet<string>();
 	}
 
 	public void SetValue(string selection) {
@@ -90,23 +82,15 @@ public class Option {
 			TextSelector.Value = selection;
 		}
 
-		if (RadioSelector is not null) {
-			RadioSelector.SetSelectedValue(selection);
-		}
+		RadioSelector?.SetSelectedValue(selection);
 	}
 
 	public void SetValue(ISet<string> selection) {
-		if (CheckBoxSelector is not null) {
-			CheckBoxSelector.SetSelectedValues(selection);
-		}
+		CheckBoxSelector?.SetSelectedValues(selection);
 	}
 
 	public bool IsCheckBoxSelectorPreloaded() {
-		if (CheckBoxSelector is null) {
-			return false;
-		}
-
-		return CheckBoxSelector.Preloaded;
+		return CheckBoxSelector?.Preloaded == true;
 	}
 
 	public void SetCheckBoxSelectorPreloaded() {

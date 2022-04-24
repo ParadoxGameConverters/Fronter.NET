@@ -9,7 +9,7 @@ using System.IO;
 namespace Fronter.Services;
 
 internal class ConverterLauncher {
-	private static readonly ILog Logger = LogManager.GetLogger("Converter Launcher");
+	private static readonly ILog logger = LogManager.GetLogger("Converter Launcher");
 	private Level? lastLevelFromBackend;
 	internal ConverterLauncher(Configuration config) {
 		this.config = config;
@@ -19,7 +19,7 @@ internal class ConverterLauncher {
 		var backendExePath = config.BackendExePath;
 
 		if (string.IsNullOrEmpty(backendExePath)) {
-			Logger.Error("Converter location has not been set!");
+			logger.Error("Converter location has not been set!");
 			return false;
 		}
 
@@ -30,7 +30,7 @@ internal class ConverterLauncher {
 		var backendExePathRelativeToFrontend = Path.Combine(converterFolder, backendExePath);
 
 		if (!File.Exists(backendExePathRelativeToFrontend)) {
-			Logger.Error("Could not find converter executable!");
+			logger.Error("Could not find converter executable!");
 			return false;
 		}
 
@@ -48,7 +48,7 @@ internal class ConverterLauncher {
 			if (level is null && string.IsNullOrEmpty(logLine.Message)) {
 				return;
 			}
-			Logger.Log(level ?? lastLevelFromBackend ?? Level.Info, logLine.Message);
+			logger.Log(level ?? lastLevelFromBackend ?? Level.Info, logLine.Message);
 			if (level is not null) {
 				lastLevelFromBackend = level;
 			}
@@ -64,12 +64,12 @@ internal class ConverterLauncher {
 		timer.Stop();
 
 		if (process.ExitCode == 0) {
-			Logger.Info($"Converter exited at {timer.Elapsed.TotalSeconds} seconds.");
+			logger.Info($"Converter exited at {timer.Elapsed.TotalSeconds} seconds.");
 			return true;
 		}
 
-		Logger.Error("Converter Error! See log.txt for details.");
-		Logger.Error("If you require assistance please upload log.txt to forums for a detailed post-mortem.");
+		logger.Error("Converter Error! See log.txt for details.");
+		logger.Error("If you require assistance please upload log.txt to forums for a detailed post-mortem.");
 		return false;
 	}
 	private readonly Configuration config;

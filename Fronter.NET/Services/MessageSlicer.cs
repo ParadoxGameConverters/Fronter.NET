@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 namespace Fronter.Services;
 
 public static class MessageSlicer {
-	private static Regex dateTimeRegex = new(@"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})$");
+	private static readonly Regex dateTimeRegex = new(@"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})$");
 
 	public static LogLine SliceMessage(string message) {
 		var logMessage = new LogLine();
@@ -22,6 +22,10 @@ public static class MessageSlicer {
 		var timestampPart = message[..posOpen].Trim();
 		if (dateTimeRegex.IsMatch(timestampPart)) {
 			logMessage.Timestamp = timestampPart;
+		} else if (!message.TrimStart().StartsWith('[')){
+			logMessage.Message = message;
+			logMessage.Level = null;
+			return logMessage;
 		}
 
 		var logLevelStr = message.Substring(posOpen + 1, posClose - posOpen - 1);

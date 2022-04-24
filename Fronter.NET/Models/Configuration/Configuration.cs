@@ -28,7 +28,7 @@ public class Configuration {
 	public List<Option> Options { get; } = new();
 	private int optionCounter;
 
-	private static ILog logger = LogManager.GetLogger("CONFIGURATION");
+	private static readonly ILog logger = LogManager.GetLogger("CONFIGURATION");
 
 	public Configuration() {
 		var parser = new Parser();

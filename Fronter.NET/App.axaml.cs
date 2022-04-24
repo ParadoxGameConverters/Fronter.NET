@@ -5,14 +5,16 @@ using commonItems;
 using FluentAvalonia.Styling;
 using Fronter.ViewModels;
 using Fronter.Views;
+using log4net;
+using log4net.Config;
 using System.IO;
 
 namespace Fronter;
 
 public class App : Application {
 	public override void Initialize() {
-		Logger.Configure("log4net_Fronter.config");
-		
+		ConfigureLogging();
+
 		AvaloniaXamlLoader.Load(this);
 	}
 
@@ -29,22 +31,35 @@ public class App : Application {
 		LoadTheme();
 	}
 
-	private void LoadTheme() {
-		var theme = AvaloniaLocator.Current.GetService<FluentAvaloniaTheme>();
-		if (theme is not null) {
-			var fronterThemePath = Path.Combine("Configuration", "fronter-theme.txt");
-			if (File.Exists(fronterThemePath)) {
-				var parser = new Parser();
-				parser.RegisterKeyword("theme", reader => theme.RequestedTheme = reader.GetString());
-				parser.ParseFile(fronterThemePath);
-			}
+	private static void ConfigureLogging() {
+		var repository = LogManager.GetRepository();
 
-			theme.RequestedThemeChanged += (sender, args) => {
-				using var fs = new FileStream(fronterThemePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
-				using var writer = new StreamWriter(fs);
-				writer.WriteLine($"theme={args.NewTheme}");
-				writer.Close();
-			};
+		// add custom "PROGRESS" level
+		repository.LevelMap.Add(LogExtensions.ProgressLevel);
+
+		// configure log4net
+		var logConfiguration = new FileInfo("log4net_Fronter.config");
+		XmlConfigurator.Configure(logConfiguration);
+	}
+
+	private static void LoadTheme() {
+		var theme = AvaloniaLocator.Current.GetService<FluentAvaloniaTheme>();
+		if (theme is null) {
+			return;
 		}
+
+		var fronterThemePath = Path.Combine("Configuration", "fronter-theme.txt");
+		if (File.Exists(fronterThemePath)) {
+			var parser = new Parser();
+			parser.RegisterKeyword("theme", reader => theme.RequestedTheme = reader.GetString());
+			parser.ParseFile(fronterThemePath);
+		}
+
+		theme.RequestedThemeChanged += (sender, args) => {
+			using var fs = new FileStream(fronterThemePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
+			using var writer = new StreamWriter(fs);
+			writer.WriteLine($"theme={args.NewTheme}");
+			writer.Close();
+		};
 	}
 }
