@@ -50,6 +50,11 @@
                     Command="{Binding SetTheme}"
                     CommandParameter="Dark"
                 />
+                <MenuItem
+                    Header="{ns:Loc THEME_HIGH_CONTRAST}"
+                    Command="{Binding SetTheme}"
+                    CommandParameter="HighContrast"
+                />
             </MenuItem>
                 
             <MenuItem Header="{ns:Loc MENU_HELP}">
@@ -58,7 +63,7 @@
             </MenuItem>
         </Menu>
         
-        <Grid RowDefinitions="7*,3*" DockPanel.Dock="Bottom">
+        <Grid RowDefinitions="6*,4*" DockPanel.Dock="Bottom">
             <TabControl Grid.Column="0" Grid.Row="0" MinHeight="150">
                 <TabItem Header="{ns:Loc PATHSTAB}" VerticalContentAlignment="Center">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
@@ -131,9 +136,6 @@
                     <vc:LogLevelToColorNameConverter x:Key="LogLevelToColorNameConverter"/>
                 </DataGrid.Resources>
                 <DataGrid.Styles>
-                    <Style Selector="DataGridCell">
-                        <Setter Property="VerticalContentAlignment" Value="Top" />
-                    </Style>
                     <Style Selector="DataGridRow">
                         <Setter Property="Background" Value="{Binding Level, Converter={StaticResource LogLevelToColorNameConverter}}"></Setter>
                     </Style>

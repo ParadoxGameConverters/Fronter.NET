@@ -2,21 +2,16 @@
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using commonItems;
+using FluentAvalonia.Styling;
 using Fronter.ViewModels;
 using Fronter.Views;
-using Material.Dialog;
-using Material.Styles.Themes;
-using Material.Styles.Themes.Base;
-using Newtonsoft.Json;
-using System;
 using System.IO;
-using Color = Avalonia.Media.Color;
 
 namespace Fronter;
 
 public class App : Application {
 	public override void Initialize() {
-		Logger.Configure();
+		Logger.Configure("log4net_Fronter.config");
 		
 		AvaloniaXamlLoader.Load(this);
 	}
@@ -35,31 +30,21 @@ public class App : Application {
 	}
 
 	private void LoadTheme() {
-		var themeBootstrap = this.LocateMaterialTheme<MaterialThemeBase>();
-		themeBootstrap.CurrentTheme = LoadOrCreateDefaultTheme();
+		var theme = AvaloniaLocator.Current.GetService<FluentAvaloniaTheme>();
+		if (theme is not null) {
+			var fronterThemePath = Path.Combine("Configuration", "fronter-theme.txt");
+			if (File.Exists(fronterThemePath)) {
+				var parser = new Parser();
+				parser.RegisterKeyword("theme", reader => theme.RequestedTheme = reader.GetString());
+				parser.ParseFile(fronterThemePath);
+			}
 
-		themeBootstrap.CurrentThemeChanged.Subscribe(newTheme => {
-			var configText = JsonConvert.SerializeObject(newTheme);
-			File.WriteAllText("theme-config.json", configText);
-		});
-	}
-	private static ITheme LoadOrCreateDefaultTheme() {
-		try {
-			var text = File.ReadAllText("theme-config.json");
-			var loadedTheme = JsonConvert.DeserializeObject<Theme>(text);
-			return loadedTheme ?? CreateTheme(BaseThemeMode.Inherit);
-		} catch (Exception) {
-			// In case of any exception or file missing, etc
-			// Fallback to creating default theme
-			return CreateTheme(BaseThemeMode.Inherit);
+			theme.RequestedThemeChanged += (sender, args) => {
+				using var fs = new FileStream(fronterThemePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
+				using var writer = new StreamWriter(fs);
+				writer.WriteLine($"theme={args.NewTheme}");
+				writer.Close();
+			};
 		}
-	}
-
-	// colors based on https://material.io/design/color/the-color-system.html
-	private static readonly Color PrimaryColor = Color.FromRgb(255, 106, 0);
-	private static readonly Color SecondaryColor = Color.FromRgb(216, 90, 0);
-
-	public static ITheme CreateTheme(BaseThemeMode mode) {
-		return Theme.Create(mode.GetBaseTheme(), PrimaryColor, SecondaryColor);
 	}
 }

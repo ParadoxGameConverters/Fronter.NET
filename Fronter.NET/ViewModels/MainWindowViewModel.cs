@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using commonItems;
+using FluentAvalonia.Styling;
 using Fronter.Extensions;
 using Fronter.Models;
 using Fronter.Models.Configuration;
@@ -21,8 +22,6 @@ using System.Threading;
 using Fronter.LogAppenders;
 using log4net;
 using log4net.Core;
-using Material.Styles.Themes;
-using Material.Styles.Themes.Base;
 using System.IO;
 
 namespace Fronter.ViewModels;
@@ -208,13 +207,11 @@ public class MainWindowViewModel : ViewModelBase {
 	}
 
 	public void SetTheme(string themeName) {
-		var theme = Application.Current?.LocateMaterialTheme<MaterialThemeBase>();
+		var theme = AvaloniaLocator.Current.GetService<FluentAvaloniaTheme>();
 		if (theme is null) {
 			return;
 		}
-
-		var newMode = (BaseThemeMode)Enum.Parse(typeof(BaseThemeMode), themeName, true);
-		theme.CurrentTheme = App.CreateTheme(newMode);
+		theme.RequestedTheme = themeName;
 	}
 
 	public LogGridAppender LogGridAppender { get; }
