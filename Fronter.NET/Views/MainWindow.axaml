@@ -21,6 +21,9 @@
     </Design.DataContext>
 
     <DockPanel>
+        <DockPanel.Background>
+            <ImageBrush Source="/Assets/Images/main_image.png" Stretch="UniformToFill" Opacity="0.05" />
+        </DockPanel.Background>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="{ns:Loc MENUCONVERTER}">
                 <MenuItem Header="{ns:Loc CHECKFORUPDATES}" Command="{Binding CheckForUpdates}"/>
@@ -31,7 +34,7 @@
                 <MenuItem.Styles>
                     <Style Selector="MenuItem.LanguageChoice MenuItem">
                         <Setter Property="Header" Value="{Binding Value}"/>
-                        <Setter Property="Command" Value="{Binding $parent[Window].DataContext.SetLanguage}"/>
+                        <Setter Property="Command" Value="{Binding $parent[Window].DataContext.SetLanguage, FallbackValue={}}"/>
                         <Setter Property="CommandParameter" Value="{Binding Key}"/>
                     </Style>
                 </MenuItem.Styles>  
@@ -64,7 +67,7 @@
             </TabItem>
             
             <TabItem Header="{ns:Loc CONVERTTAB}" VerticalContentAlignment="Center">
-                <Grid ColumnDefinitions="1*,2*" RowDefinitions="Auto" Margin="2,4,2,4"  ShowGridLines="True">
+                <Grid ColumnDefinitions="1*,2*" RowDefinitions="Auto" Margin="2,4,2,4">
                     <StackPanel Grid.Row="0" Grid.Column="0">
                         <TextBlock Text="{ns:Loc LOGLEVEL}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                         

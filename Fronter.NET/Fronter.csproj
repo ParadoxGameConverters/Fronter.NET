@@ -14,7 +14,7 @@
     </ItemGroup>
     
     
-    <ItemGroup><!-- TODO: REMOVE -->
+    <ItemGroup>
         <DebugResources Include="../DEBUG_RESOURCES/**/*.*" />
     </ItemGroup>
     <ItemGroup>
@@ -24,7 +24,7 @@
         <Resources Include="Resources/**/*.*" />
     </ItemGroup>
     <Target Name="CopyCustomContent" AfterTargets="Build">
-        <Copy SourceFiles="@(DebugResources)" DestinationFolder="$(OutDir)/%(RecursiveDir)" SkipUnchangedFiles="true" />
+        <Copy Condition="'$(Configuration)' == 'Debug'" SourceFiles="@(DebugResources)" DestinationFolder="$(OutDir)/%(RecursiveDir)" SkipUnchangedFiles="true" />
         <Copy SourceFiles="@(Images)" DestinationFolder="$(OutDir)/Assets/Images/%(RecursiveDir)" SkipUnchangedFiles="true" />
         <Copy SourceFiles="@(Resources)" DestinationFolder="$(OutDir)/Resources/%(RecursiveDir)" SkipUnchangedFiles="true" />
     </Target>
@@ -43,11 +43,5 @@
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\commonItems.NET\commonItems\commonItems.csproj" />
-    </ItemGroup>
-    <ItemGroup>
-      <Compile Update="Views\OptionsView.axaml.cs">
-        <DependentUpon>OptionsView.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
     </ItemGroup>
 </Project>

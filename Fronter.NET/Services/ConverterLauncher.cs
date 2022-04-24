@@ -1,8 +1,6 @@
-﻿using Avalonia.Threading;
-using commonItems;
-using Fronter.Models;
+﻿using commonItems;
+using Fronter.LogAppenders;
 using Fronter.Models.Configuration;
-using Fronter.ViewModels;
 using log4net;
 using log4net.Core;
 using System;
@@ -48,6 +46,9 @@ internal class ConverterLauncher {
 		process.OutputDataReceived += (sender, args) => {
 			var logLine = MessageSlicer.SliceMessage(args.Data ?? string.Empty);
 			var level = logLine.Level;
+			if (level is null && string.IsNullOrEmpty(logLine.Message)) {
+				return;
+			}
 			Logger.Log(level ?? lastLevelFromBackend ?? Level.Info, logLine.Message);
 			if (level is not null) {
 				lastLevelFromBackend = level;

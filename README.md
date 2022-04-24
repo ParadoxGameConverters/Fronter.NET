@@ -23,7 +23,7 @@ backendExePath = CK2ToEU4Converter # Relative to converterFolder. If file extens
 displayName = DISPLAYNAME
 sourceGame = SOURCEGAME
 targetGame = TARGETGAME
-autoGenerateModsFrom = CK2ModsDirectory
+copyToTargetGameModDirectory = true
 
 requiredFile = {
 	name = SaveGame

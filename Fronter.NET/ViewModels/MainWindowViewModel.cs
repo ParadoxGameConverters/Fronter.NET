@@ -64,10 +64,6 @@ public class MainWindowViewModel : ViewModelBase {
 		Config = new Configuration();
 		
 		var appenders = LogManager.GetRepository().GetAppenders();
-		foreach (var appender in appenders) {
-			Logger.Debug($"test {appender.Name}");
-		}
-
 		var gridAppender = appenders.First(a => a.Name == "grid");
 		if (gridAppender is not LogGridAppender logGridAppender) {
 			throw new LogException($"Log appender \"{gridAppender.Name}\" is not a {typeof(LogGridAppender)}");
@@ -116,25 +112,25 @@ public class MainWindowViewModel : ViewModelBase {
 	}
 
 	public void LaunchConverter() {
+		Progress = 0;
 		SaveStatus = "CONVERTSTATUSPRE";
 		ConvertStatus = "CONVERTSTATUSPRE";
 		CopyStatus = "CONVERTSTATUSPRE";
 		
-		LogGridAppender.LogLines.Clear();
 		if (!VerifyMandatoryPaths()) {
 			return;
 		}
 		Config.ExportConfiguration();
 		
 		var converterLauncher = new ConverterLauncher(Config);
-		bool success = false;
+		bool success;
 		var converterThread = new Thread(() => {
 			ConvertStatus = "CONVERTSTATUSIN";
 			success = converterLauncher.LaunchConverter();
 			if (success) {
 				ConvertStatus = "CONVERTSTATUSPOSTSUCCESS";
 				var modCopier = new ModCopier(Config);
-				bool copySuccess = false;
+				bool copySuccess;
 				var copyThread = new Thread(() => {
 					CopyStatus = "CONVERTSTATUSIN";
 					copySuccess = modCopier.CopyMod();

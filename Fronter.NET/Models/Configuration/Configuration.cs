@@ -19,7 +19,7 @@ public class Configuration {
 	public string DisplayName { get; private set; } = string.Empty;
 	public string SourceGame { get; private set; } = string.Empty;
 	public string TargetGame { get; private set; } = string.Empty;
-	public string AutoGenerateModsFrom { get; private set; } = string.Empty;
+	public bool CopyToTargetGameModDirectory { get; set; } = true;
 	public bool UpdateCheckerEnabled { get; private set; } = false;
 	public bool CheckForUpdatesOnStartup { get; private set; } = false;
 	public string ConverterReleaseForumThread { get; private set; } = string.Empty;
@@ -28,8 +28,6 @@ public class Configuration {
 	public List<RequiredFile> RequiredFiles { get; } = new();
 	public List<RequiredFolder> RequiredFolders { get; } = new();
 	public List<Option> Options { get; } = new();
-	public List<Mod> AutoLocatedMods { get; } = new();
-	public HashSet<string> PreloadedModFileNames { get; } = new();
 	private int optionCounter;
 
 	private static ILog logger = LogManager.GetLogger("CONFIGURATION");
@@ -103,8 +101,8 @@ public class Configuration {
 		parser.RegisterKeyword("targetGame", reader => {
 			TargetGame = reader.GetString();
 		});
-		parser.RegisterKeyword("autoGenerateModsFrom", reader => {
-			AutoGenerateModsFrom = reader.GetString();
+		parser.RegisterKeyword("copyToTargetGameModDirectory", reader => {
+			CopyToTargetGameModDirectory = reader.GetString() == "true";
 		});
 		parser.RegisterKeyword("enableUpdateChecker", reader => {
 			UpdateCheckerEnabled = reader.GetString() == "true";
@@ -150,10 +148,6 @@ public class Configuration {
 					option.SetValue(values);
 					option.SetCheckBoxSelectorPreloaded();
 				}
-			}
-			if (incomingKey == "selectedMods") {
-				var selections = valueReader.GetStrings();
-				PreloadedModFileNames.UnionWith(selections);
 			}
 		});
 		parser.RegisterRegex(CommonRegexes.Catchall, ParserHelpers.IgnoreAndLogItem);
@@ -253,16 +247,6 @@ public class Configuration {
 					continue;
 				}
 				writer.WriteLine($"{file.Name} = \"{file.Value}\"");
-			}
-
-			if (!string.IsNullOrEmpty(AutoGenerateModsFrom)) {
-				writer.WriteLine("selectedMods={");
-				foreach (var mod in AutoLocatedMods) {
-					if (PreloadedModFileNames.Contains(mod.FileName)) {
-						writer.WriteLine($"\t\"{mod.FileName}\"");
-					}
-				}
-				writer.WriteLine("}");
 			}
 
 			foreach (var option in Options) {

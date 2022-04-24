@@ -22,12 +22,9 @@ public static class MessageSlicer {
 
 		var timestampPart = message[..posOpen].Trim();
 		if (dateTimeRegex.IsMatch(timestampPart)) {
-		} else {
-			logMessage.Message = message;
-			return logMessage;
+			logMessage.Timestamp = timestampPart;
 		}
 		
-		logMessage.Timestamp = timestampPart;
 		var logLevelStr = message.Substring(posOpen + 1, posClose - posOpen - 1);
 		logMessage.Level = GetLogLevel(logLevelStr);
 		if (message.Length >= posClose + 2) {
