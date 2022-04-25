@@ -1,0 +1,86 @@
+{
+  "format": 1,
+  "restore": {
+    "D:\\GitHub\\IhateTrains\\Fronter.NET\\commonItems.NET\\commonItems\\commonItems.csproj": {}
+  },
+  "projects": {
+    "D:\\GitHub\\IhateTrains\\Fronter.NET\\commonItems.NET\\commonItems\\commonItems.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "D:\\GitHub\\IhateTrains\\Fronter.NET\\commonItems.NET\\commonItems\\commonItems.csproj",
+        "projectName": "commonItems",
+        "projectPath": "D:\\GitHub\\IhateTrains\\Fronter.NET\\commonItems.NET\\commonItems\\commonItems.csproj",
+        "packagesPath": "C:\\Users\\Seweryn\\.nuget\\packages\\",
+        "outputPath": "D:\\GitHub\\IhateTrains\\Fronter.NET\\commonItems.NET\\commonItems\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\Seweryn\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {},
+          "https://www.myget.org/F/sixlabors/api/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "GameFinder.StoreHandlers.Steam": {
+              "target": "Package",
+              "version": "[1.7.2, )"
+            },
+            "Microsoft.Win32.Registry": {
+              "target": "Package",
+              "version": "[6.0.0-preview.5.21301.5, )"
+            },
+            "NCalcSync": {
+              "target": "Package",
+              "version": "[3.0.0, )"
+            },
+            "SharpZipLib": {
+              "target": "Package",
+              "version": "[1.3.3, )"
+            },
+            "log4net": {
+              "target": "Package",
+              "version": "[2.0.14, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.300-preview.22204.3\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
