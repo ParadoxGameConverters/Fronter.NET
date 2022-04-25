@@ -4,9 +4,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.1.32113.165
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fronter", "Fronter.NET\Fronter.csproj", "{596F64CC-0EB8-4575-A5A5-32308E43CBDE}"
-	ProjectSection(ProjectDependencies) = postProject
-		{B6ADE496-9DDD-4373-ACC9-E6D1855E5362} = {B6ADE496-9DDD-4373-ACC9-E6D1855E5362}
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fronter.Tests", "Fronter.NET.Tests\Fronter.Tests.csproj", "{2CEE7565-40A0-425E-BBFB-6BBFC43A9E09}"
 EndProject
