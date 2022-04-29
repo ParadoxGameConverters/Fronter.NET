@@ -32,6 +32,11 @@
         <Copy SourceFiles="@(Images)" DestinationFolder="$(OutDir)/Assets/Images/%(RecursiveDir)" SkipUnchangedFiles="true" />
         <Copy SourceFiles="@(Resources)" DestinationFolder="$(OutDir)/%(RecursiveDir)" SkipUnchangedFiles="true" />
     </Target>
+    <Target Name="CopyCustomContentOnPublish" AfterTargets="Publish">
+        <Copy Condition="'$(Configuration)' == 'Debug'" SourceFiles="@(DebugResources)" DestinationFolder="$(PublishDir)/%(RecursiveDir)" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(Images)" DestinationFolder="$(PublishDir)/Assets/Images/%(RecursiveDir)" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(Resources)" DestinationFolder="$(PublishDir)/%(RecursiveDir)" SkipUnchangedFiles="true" />
+    </Target>
     
     <ItemGroup>
         <PackageReference Include="Avalonia" Version="0.10.13" />
