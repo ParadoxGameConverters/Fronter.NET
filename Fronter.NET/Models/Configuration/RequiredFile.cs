@@ -1,5 +1,6 @@
 ﻿using Avalonia.Data;
 using commonItems;
+using Fronter.Extensions;
 using System.IO;
 
 namespace Fronter.Models.Configuration;
@@ -37,6 +38,7 @@ public class RequiredFile : RequiredPath {
 			}
 
 			base.Value = value;
+			Logger.Info($"{TranslationSource.Instance[DisplayName]} set to: {value}");
 		}
 	}
 }
