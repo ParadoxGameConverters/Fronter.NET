@@ -11,7 +11,7 @@ namespace Fronter.Extensions;
 // idea based on https://gist.github.com/jakubfijalkowski/0771bfbd26ce68456d3e
 public class TranslationSource : ReactiveObject {
 	private TranslationSource() {
-		var languagesPath = Path.Combine("Resources", "languages.txt");
+		var languagesPath = "languages.txt";
 		if (!File.Exists(languagesPath)) {
 			Logger.Error("No languages dictionary found!");
 			return;
