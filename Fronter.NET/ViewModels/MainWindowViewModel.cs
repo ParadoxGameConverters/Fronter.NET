@@ -57,7 +57,6 @@ public class MainWindowViewModel : ViewModelBase {
 		set => this.RaiseAndSetIfChanged(ref copyStatus, value);
 	}
 
-
 	public MainWindowViewModel() {
 		Config = new Configuration();
 
