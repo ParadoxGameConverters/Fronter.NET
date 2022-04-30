@@ -22,8 +22,11 @@ public class App : Application {
 		if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
 			var window = MainWindow.Instance;
 			desktop.MainWindow = window;
+			
 			var mainWindowViewModel = new MainWindowViewModel();
 			window.DataContext = mainWindowViewModel;
+
+			desktop.MainWindow.Opened += (sender, args) => mainWindowViewModel.CheckForUpdatesOnStartup();
 		}
 
 		base.OnFrameworkInitializationCompleted();

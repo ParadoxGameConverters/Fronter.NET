@@ -26,7 +26,11 @@
         </DockPanel.Background>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="{ns:Loc MENUCONVERTER}">
-                <MenuItem Header="{ns:Loc CHECKFORUPDATES}" Command="{Binding CheckForUpdates}"/>
+                <MenuItem
+                    Header="{ns:Loc CHECKFORUPDATES}"
+                    Command="{Binding CheckForUpdates}"
+                    IsVisible="{Binding Config.UpdateCheckerEnabled}"
+                    />
                 <Separator/>
                 <MenuItem Header="{ns:Loc EXIT}" Command="{Binding Exit}"/>
             </MenuItem>

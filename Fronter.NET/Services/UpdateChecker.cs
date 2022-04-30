@@ -29,10 +29,9 @@ public static class UpdateChecker {
 		latestReleaseCommitId = latestReleaseCommitId.Trim();
 
 		using var commitIdFileReader = new StreamReader(commitIdFilePath);
-		var bufferedReader = new BufferedReader(commitIdFileReader);
-		var localCommitId = bufferedReader.GetString();
+		var localCommitId = commitIdFileReader.ReadLine()?.Trim();
 
-		return localCommitId != latestReleaseCommitId;
+		return localCommitId is not null && localCommitId != latestReleaseCommitId;
 	}
 
 	public static UpdateInfoModel GetLatestReleaseInfo(string converterName) {
@@ -99,9 +98,11 @@ public static class UpdateChecker {
 	public static void StartUpdaterAndDie(string archiveUrl, string converterBackendDirName) {
 		var updaterDirPath = Path.Combine(".", "Updater");
 		var updaterRunningDirPath = Path.Combine(".", "Updater-running");
-		if (!SystemUtils.TryDeleteFolder(updaterRunningDirPath)) {
+
+		if (Directory.Exists(updaterRunningDirPath) && !SystemUtils.TryDeleteFolder(updaterRunningDirPath)) {
 			return;
 		}
+		
 		if (!SystemUtils.TryCopyFolder(updaterDirPath, updaterRunningDirPath)) {
 			return;
 		}

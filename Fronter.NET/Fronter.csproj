@@ -2,22 +2,26 @@
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
         <TargetFramework>net6.0</TargetFramework>
-	    <RuntimeIdentifiers>win-x64;osx-x64;linux-x64</RuntimeIdentifiers>
-		<Nullable>enable</Nullable>
-		<AssemblyName>ConverterFrontend</AssemblyName>
+        <RuntimeIdentifiers>win-x64;osx-x64;linux-x64</RuntimeIdentifiers>
+        <Nullable>enable</Nullable>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <AssemblyName>ConverterFrontend</AssemblyName>
 
-		<IsPackable>false</IsPackable>
+        <IsPackable>false</IsPackable>
 
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <OutputPath>..\Release\</OutputPath>
     </PropertyGroup>
     <ItemGroup>
         <AvaloniaResource Include="Assets\**" />
         <None Remove=".gitignore" />
         <None Update="log4net_Fronter.config">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
     </ItemGroup>
-    
-    
+
+
     <ItemGroup>
         <DebugResources Include="../DEBUG_RESOURCES/**/*.*" />
     </ItemGroup>
@@ -37,7 +41,7 @@
         <Copy SourceFiles="@(Images)" DestinationFolder="$(PublishDir)/Assets/Images/%(RecursiveDir)" SkipUnchangedFiles="true" />
         <Copy SourceFiles="@(Resources)" DestinationFolder="$(PublishDir)/%(RecursiveDir)" SkipUnchangedFiles="true" />
     </Target>
-    
+
     <ItemGroup>
         <PackageReference Include="Avalonia" Version="0.10.13" />
         <PackageReference Include="Avalonia.Desktop" Version="0.10.13" />

@@ -142,10 +142,6 @@ public class MainWindowViewModel : ViewModelBase {
 			return;
 		}
 
-		if (!Config.CheckForUpdatesOnStartup) {
-			return;
-		}
-
 		if (!UpdateChecker.IsUpdateAvailable("commit_id.txt", Config.PagesCommitIdUrl)) {
 			return;
 		}
@@ -169,6 +165,7 @@ public class MainWindowViewModel : ViewModelBase {
 			});
 		var result = await messageBoxWindow.ShowDialog(MainWindow.Instance);
 		if (result != updateNow) {
+			Logger.Info($"Update to version {info.Version} postponed.");
 			return;
 		}
 
@@ -178,6 +175,13 @@ public class MainWindowViewModel : ViewModelBase {
 			BrowserLauncher.Open(Config.ConverterReleaseForumThread);
 			BrowserLauncher.Open(Config.LatestGitHubConverterReleaseUrl);
 		}
+	}
+
+	public void CheckForUpdatesOnStartup() {
+		if (!Config.CheckForUpdatesOnStartup) {
+			return;
+		}
+		CheckForUpdates();
 	}
 
 	public static void Exit() {
