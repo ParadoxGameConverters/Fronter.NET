@@ -57,7 +57,6 @@ public class MainWindowViewModel : ViewModelBase {
 		set => this.RaiseAndSetIfChanged(ref copyStatus, value);
 	}
 
-
 	public MainWindowViewModel() {
 		Config = new Configuration();
 
@@ -173,8 +172,8 @@ public class MainWindowViewModel : ViewModelBase {
 			return;
 		}
 
-		if (info.ZipUrl is not null) {
-			UpdateChecker.StartUpdaterAndDie(info.ZipUrl, Config.ConverterFolder);
+		if (info.ArchiveUrl is not null) {
+			UpdateChecker.StartUpdaterAndDie(info.ArchiveUrl, Config.ConverterFolder);
 		} else {
 			BrowserLauncher.Open(Config.ConverterReleaseForumThread);
 			BrowserLauncher.Open(Config.LatestGitHubConverterReleaseUrl);
