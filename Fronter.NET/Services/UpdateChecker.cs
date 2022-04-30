@@ -71,52 +71,32 @@ public static class UpdateChecker {
 			string assetName = asset["name"];
 
 			assetName = assetName.ToLower();
-			if (!assetName.EndsWith($"-{osName}-x64.zip")) {
+			var extension = CommonFunctions.GetExtension(assetName);
+			if (extension is not "zip" or "tgz") {
+				continue;
+			}
+			
+			var assetNameWithoutExtension = CommonFunctions.TrimExtension(assetName);
+			if (!assetNameWithoutExtension.EndsWith($"-{osName}-x64")) {
 				continue;
 			}
 
-			info.ZipUrl = asset["browser_download_url"];
+			info.ArchiveUrl = asset["browser_download_url"];
 			break;
 		}
 
-		if (info.ZipUrl is null) {
-			Logger.Warn($"Release {info.Version} doesn't have a .zip asset.");
+		if (info.ArchiveUrl is null) {
+			Logger.Warn($"Release {info.Version} doesn't have a .zip or .tgz asset.");
 		}
 
 		return info;
 	}
 
 	public static string GetUpdateMessageBody(string baseBody, UpdateInfoModel updateInfo) {
-		return $"{baseBody}\n\nVersion: {updateInfo.Version}\n\n{StripMarkdownTags(updateInfo.Description)}";
+		return $"{baseBody}\n\nVersion: {updateInfo.Version}\n\n{updateInfo.Description}";
 	}
 
-	/// <summary>
-	/// Strips Markdown tags from regular text
-	/// https://gist.github.com/dennisslimmers/4b63db37e640d74acb29d4e1f24e9acd
-	/// </summary>
-	/// <param name="content"></param>
-	private static string StripMarkdownTags(string content) {
-		// Headers
-		content = Regex.Replace(content, "/\n={2,}/g", "\n");
-		// Strikethrough
-		content = Regex.Replace(content, "/~~/g", "");
-		// Codeblocks
-		content = Regex.Replace(content, "/`{3}.*\n/g", "");
-		// HTML Tags
-		content = Regex.Replace(content, "/<[^>]*>/g", "");
-		// Remove setext-style headers
-		content = Regex.Replace(content, "/^[=\\-]{2,}\\s*$/g", "");
-		// Footnotes
-		content = Regex.Replace(content, "/\\[\\^.+?\\](\\: .*?$)?/g", "");
-		content = Regex.Replace(content, "/\\s{0,2}\\[.*?\\]: .*?$/g", "");
-		// Images
-		content = Regex.Replace(content, "/\\!\\[.*?\\][\\[\\(].*?[\\]\\)]/g", "");
-		// Links
-		content = Regex.Replace(content, "/\\[(.*?)\\][\\[\\(].*?[\\]\\)]/g", "$1");
-		return content;
-	}
-
-	public static void StartUpdaterAndDie(string zipUrl, string converterBackendDirName) {
+	public static void StartUpdaterAndDie(string archiveUrl, string converterBackendDirName) {
 		var updaterDirPath = Path.Combine(".", "Updater");
 		var updaterRunningDirPath = Path.Combine(".", "Updater-running");
 		if (!SystemUtils.TryDeleteFolder(updaterRunningDirPath)) {
@@ -126,12 +106,12 @@ public static class UpdateChecker {
 			return;
 		}
 
-		string destUpdaterPath = Path.Combine(updaterRunningDirPath, "updater");
+		string updaterRunningPath = Path.Combine(updaterRunningDirPath, "updater");
 		if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
-			destUpdaterPath += ".exe";
+			updaterRunningPath += ".exe";
 		}
 
-		Process.Start(destUpdaterPath, $"{zipUrl} {converterBackendDirName}");
+		Process.Start(updaterRunningPath, $"{archiveUrl} {converterBackendDirName}");
 		
 		// Die. The updater will start Fronter after a successful update.
 		System.Environment.Exit(0);
