@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Fronter.Services;
@@ -29,10 +28,9 @@ public static class UpdateChecker {
 		latestReleaseCommitId = latestReleaseCommitId.Trim();
 
 		using var commitIdFileReader = new StreamReader(commitIdFilePath);
-		var bufferedReader = new BufferedReader(commitIdFileReader);
-		var localCommitId = bufferedReader.GetString();
+		var localCommitId = commitIdFileReader.ReadLine()?.Trim();
 
-		return localCommitId != latestReleaseCommitId;
+		return localCommitId is not null && localCommitId != latestReleaseCommitId;
 	}
 
 	public static UpdateInfoModel GetLatestReleaseInfo(string converterName) {
@@ -99,9 +97,11 @@ public static class UpdateChecker {
 	public static void StartUpdaterAndDie(string archiveUrl, string converterBackendDirName) {
 		var updaterDirPath = Path.Combine(".", "Updater");
 		var updaterRunningDirPath = Path.Combine(".", "Updater-running");
-		if (!SystemUtils.TryDeleteFolder(updaterRunningDirPath)) {
+
+		if (Directory.Exists(updaterRunningDirPath) && !SystemUtils.TryDeleteFolder(updaterRunningDirPath)) {
 			return;
 		}
+		
 		if (!SystemUtils.TryCopyFolder(updaterDirPath, updaterRunningDirPath)) {
 			return;
 		}
@@ -111,7 +111,10 @@ public static class UpdateChecker {
 			updaterRunningPath += ".exe";
 		}
 
-		Process.Start(updaterRunningPath, $"{archiveUrl} {converterBackendDirName}");
+		var proc = new Process();
+		proc.StartInfo.FileName = updaterRunningPath;
+		proc.StartInfo.Arguments = $"{archiveUrl} {converterBackendDirName}";
+		proc.Start();
 		
 		// Die. The updater will start Fronter after a successful update.
 		System.Environment.Exit(0);
