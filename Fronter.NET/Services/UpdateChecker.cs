@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Fronter.Services;
@@ -112,7 +111,10 @@ public static class UpdateChecker {
 			updaterRunningPath += ".exe";
 		}
 
-		Process.Start(updaterRunningPath, $"{archiveUrl} {converterBackendDirName}");
+		var proc = new Process();
+		proc.StartInfo.FileName = updaterRunningPath;
+		proc.StartInfo.Arguments = $"{archiveUrl} {converterBackendDirName}";
+		proc.Start();
 		
 		// Die. The updater will start Fronter after a successful update.
 		System.Environment.Exit(0);
