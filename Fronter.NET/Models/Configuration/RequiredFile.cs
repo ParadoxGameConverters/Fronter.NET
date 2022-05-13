@@ -1,11 +1,13 @@
 ﻿using Avalonia.Data;
 using commonItems;
 using Fronter.Extensions;
+using log4net;
 using System.IO;
 
 namespace Fronter.Models.Configuration;
 
 public class RequiredFile : RequiredPath {
+	private static readonly ILog logger = LogManager.GetLogger("Required file");
 	public RequiredFile(BufferedReader reader) {
 		var parser = new Parser();
 		RegisterKeys(parser);
@@ -38,7 +40,7 @@ public class RequiredFile : RequiredPath {
 			}
 
 			base.Value = value;
-			Logger.Info($"{TranslationSource.Instance[DisplayName]} set to: {value}");
+			logger.Info($"{TranslationSource.Instance[DisplayName]} set to: {value}");
 		}
 	}
 }

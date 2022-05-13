@@ -1,9 +1,11 @@
 ﻿using commonItems;
+using log4net;
 using System.Collections.Generic;
 
 namespace Fronter.Models.Configuration.Options;
 
 public class Option {
+	private static readonly ILog logger = LogManager.GetLogger("Option");
 	public Option(BufferedReader reader, int id) {
 		var parser = new Parser();
 		RegisterKeys(parser);
@@ -27,7 +29,7 @@ public class Option {
 
 	public void SetRadioSelectorValue(string selection) {
 		if (RadioSelector is null) {
-			Logger.Warn("Attempted setting a radio control in unknown radio option!");
+			logger.Warn("Attempted setting a radio control in unknown radio option!");
 			return;
 		}
 		RadioSelector.SetSelectedValue(selection);
@@ -35,7 +37,7 @@ public class Option {
 
 	public void SetCheckBoxSelectorValue(ISet<string> selection) {
 		if (CheckBoxSelector is null) {
-			Logger.Warn("Attempted setting a checkbox control in unknown checkbox option!");
+			logger.Warn("Attempted setting a checkbox control in unknown checkbox option!");
 			return;
 		}
 		CheckBoxSelector.SetSelectedValues(selection);
@@ -43,7 +45,7 @@ public class Option {
 
 	public void SetRadioSelectorId(int selection) {
 		if (RadioSelector is null) {
-			Logger.Warn("Attempted setting a radio control in unknown radio option!");
+			logger.Warn("Attempted setting a radio control in unknown radio option!");
 			return;
 		}
 		RadioSelector.SetSelectedId(selection);
@@ -51,7 +53,7 @@ public class Option {
 
 	public void SetCheckBoxSelectorIds(ISet<int> selection) {
 		if (CheckBoxSelector is null) {
-			Logger.Warn("Attempted setting a checkbox control in unknown checkbox option!");
+			logger.Warn("Attempted setting a checkbox control in unknown checkbox option!");
 			return;
 		}
 		CheckBoxSelector.SetSelectedIds(selection);
@@ -59,7 +61,7 @@ public class Option {
 
 	public void SetTextSelectorValue(string selection) {
 		if (TextSelector is null) {
-			Logger.Warn("Attempted setting a text control which does not exist!");
+			logger.Warn("Attempted setting a text control which does not exist!");
 			return;
 		}
 		TextSelector.Value = selection;

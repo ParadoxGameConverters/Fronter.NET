@@ -1,4 +1,5 @@
 ﻿using commonItems;
+using log4net;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
@@ -10,10 +11,11 @@ namespace Fronter.Extensions;
 
 // idea based on https://gist.github.com/jakubfijalkowski/0771bfbd26ce68456d3e
 public class TranslationSource : ReactiveObject {
+	private static readonly ILog logger = LogManager.GetLogger("Translator");
 	private TranslationSource() {
 		var languagesPath = "languages.txt";
 		if (!File.Exists(languagesPath)) {
-			Logger.Error("No languages dictionary found!");
+			logger.Error("No languages dictionary found!");
 			return;
 		}
 
@@ -43,10 +45,10 @@ public class TranslationSource : ReactiveObject {
 			if (dictionary.TryGetValue(CurrentLanguage, out var text)) {
 				toReturn = text;
 			} else if (dictionary.TryGetValue("english", out var englishText)) {
-				Logger.Debug($"{CurrentLanguage} localization not found for key {key}, using english one");
+				logger.Debug($"{CurrentLanguage} localization not found for key {key}, using english one");
 				toReturn = englishText;
 			} else {
-				Logger.Debug($"{CurrentLanguage} localization not found for key {key}");
+				logger.Debug($"{CurrentLanguage} localization not found for key {key}");
 				return string.Empty;
 			}
 		} else {
@@ -89,12 +91,12 @@ public class TranslationSource : ReactiveObject {
 
 			var firstLine = langFileReader.ReadLine();
 			if (firstLine?.IndexOf("l_", StringComparison.Ordinal) != 0) {
-				Logger.Error($"{langFilePath} is not a localization file!");
+				logger.Error($"{langFilePath} is not a localization file!");
 				continue;
 			}
 			var pos = firstLine.IndexOf(':');
 			if (pos == -1) {
-				Logger.Error($"Invalid localization language: {firstLine}");
+				logger.Error($"Invalid localization language: {firstLine}");
 				continue;
 			}
 			var language = firstLine.Substring(2, pos - 2);
@@ -112,12 +114,12 @@ public class TranslationSource : ReactiveObject {
 				var key = line[..pos].Trim();
 				pos = line.IndexOf('\"');
 				if (pos == -1) {
-					Logger.Error($"Invalid localization line: {line}");
+					logger.Error($"Invalid localization line: {line}");
 					continue;
 				}
 				var secpos = line.LastIndexOf('\"');
 				if (secpos == -1) {
-					Logger.Error($"Invalid localization line: {line}");
+					logger.Error($"Invalid localization line: {line}");
 					continue;
 				}
 				var text = line.Substring(pos + 1, secpos - pos - 1);
