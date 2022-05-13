@@ -12,13 +12,13 @@ namespace Fronter.Services;
 
 public static class UpdateChecker {
 	private static readonly ILog logger = LogManager.GetLogger("Update checker");
+	private static readonly HttpClient HttpClient = new();
 	public static bool IsUpdateAvailable(string commitIdFilePath, string commitIdUrl) {
 		if (!File.Exists(commitIdFilePath)) {
 			return false;
 		}
 
-		var webClient = new HttpClient();
-		var task = Task.Run(() => webClient.GetAsync(commitIdUrl));
+		var task = Task.Run(() => HttpClient.GetAsync(commitIdUrl));
 		task.Wait();
 		var response = task.Result;
 		if (!response.IsSuccessStatusCode) {
@@ -50,11 +50,10 @@ public static class UpdateChecker {
 			return new UpdateInfoModel();
 		}
 
-		var httpClient = new HttpClient();
 		var requestMessage = new HttpRequestMessage(HttpMethod.Get, apiUrl);
 		requestMessage.Headers.Add("User-Agent", "ParadoxGameConverters");
 
-		var responseMessage = httpClient.Send(requestMessage);
+		var responseMessage = HttpClient.Send(requestMessage);
 		using var responseStream = responseMessage.Content.ReadAsStream();
 		using var responseReader = new StreamReader(responseStream);
 
@@ -72,7 +71,7 @@ public static class UpdateChecker {
 
 			assetName = assetName.ToLower();
 			var extension = CommonFunctions.GetExtension(assetName);
-			if (extension is not "zip" or "tgz") {
+			if (extension is not "zip" and not "tgz") {
 				continue;
 			}
 			
