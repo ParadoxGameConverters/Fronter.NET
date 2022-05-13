@@ -72,7 +72,7 @@ public static class UpdateChecker {
 
 			assetName = assetName.ToLower();
 			var extension = CommonFunctions.GetExtension(assetName);
-			if (extension is not "zip" or "tgz") {
+			if (extension is not "zip" and not "tgz") {
 				continue;
 			}
 			
