@@ -1,5 +1,6 @@
 ﻿using commonItems;
 using Fronter.Models;
+using log4net;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.IO;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 namespace Fronter.Services;
 
 public static class UpdateChecker {
+	private static readonly ILog logger = LogManager.GetLogger("Update checker");
 	public static bool IsUpdateAvailable(string commitIdFilePath, string commitIdUrl) {
 		if (!File.Exists(commitIdFilePath)) {
 			return false;
@@ -84,7 +86,7 @@ public static class UpdateChecker {
 		}
 
 		if (info.ArchiveUrl is null) {
-			Logger.Warn($"Release {info.Version} doesn't have a .zip or .tgz asset.");
+			logger.Warn($"Release {info.Version} doesn't have a .zip or .tgz asset.");
 		}
 
 		return info;

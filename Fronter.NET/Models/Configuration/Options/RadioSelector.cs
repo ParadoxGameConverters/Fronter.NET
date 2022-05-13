@@ -1,10 +1,12 @@
 ﻿using commonItems;
+using log4net;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Fronter.Models.Configuration.Options;
 
 public class RadioSelector : Selector {
+	private static readonly ILog logger = LogManager.GetLogger("Radio selector");
 	public RadioSelector(BufferedReader reader) {
 		var parser = new Parser();
 		RegisterKeys(parser);
@@ -41,7 +43,7 @@ public class RadioSelector : Selector {
 		}
 
 		if (!isSet) {
-			Logger.Warn("Attempted setting a radio selector ID that does not exist!");
+			logger.Warn("Attempted setting a radio selector ID that does not exist!");
 		}
 	}
 	public void SetSelectedValue(string selection) {
@@ -54,7 +56,7 @@ public class RadioSelector : Selector {
 				option.Value = false;
 		}
 		if (!isSet)
-			Logger.Warn("Attempted setting a radio selector value that does not exist!");
+			logger.Warn("Attempted setting a radio selector value that does not exist!");
 	}
 
 	public ToggleableOption? SelectedOption {

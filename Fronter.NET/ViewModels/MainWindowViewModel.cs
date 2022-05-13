@@ -26,6 +26,7 @@ using System.Threading;
 namespace Fronter.ViewModels;
 
 public class MainWindowViewModel : ViewModelBase {
+	private static readonly ILog logger = LogManager.GetLogger("Frontend");
 	private readonly TranslationSource loc = TranslationSource.Instance;
 	public IEnumerable<KeyValuePair<string, string>> Languages => loc.LoadedLanguages
 		.ToDictionary(l => l, l => loc.TranslateLanguage(l));
@@ -92,12 +93,12 @@ public class MainWindowViewModel : ViewModelBase {
 				continue;
 			}
 
-			Logger.Error($"Mandatory folder {folder.Name} at {folder.Value} not found.");
+			logger.Error($"Mandatory folder {folder.Name} at {folder.Value} not found.");
 			return false;
 		}
 
 		foreach (var file in Config.RequiredFiles.Where(file => file.Mandatory && !File.Exists(file.Value))) {
-			Logger.Error($"Mandatory file {file.Name} at {file.Value} not found.");
+			logger.Error($"Mandatory file {file.Name} at {file.Value} not found.");
 			return false;
 		}
 
@@ -165,7 +166,7 @@ public class MainWindowViewModel : ViewModelBase {
 			});
 		var result = await messageBoxWindow.ShowDialog(MainWindow.Instance);
 		if (result != updateNow) {
-			Logger.Info($"Update to version {info.Version} postponed.");
+			logger.Info($"Update to version {info.Version} postponed.");
 			return;
 		}
 

@@ -28,7 +28,7 @@ public class Configuration {
 	public List<Option> Options { get; } = new();
 	private int optionCounter;
 
-	private static readonly ILog logger = LogManager.GetLogger("CONFIGURATION");
+	private static readonly ILog logger = LogManager.GetLogger("Configuration");
 
 	public Configuration() {
 		var parser = new Parser();
@@ -48,16 +48,10 @@ public class Configuration {
 		} else {
 			logger.Warn($"{fronterOptionsPath} not found!");
 		}
-		parser.ClearRegisteredRules();
 
 		InitializePaths();
 
-		RegisterPreloadKeys(parser);
-		var converterConfigurationPath = Path.Combine(ConverterFolder, "configuration.txt");
-		if (!string.IsNullOrEmpty(ConverterFolder) && File.Exists(converterConfigurationPath)) {
-			logger.Info("Previous configuration located, preloading selections.");
-			parser.ParseFile(converterConfigurationPath);
-		}
+		LoadExistingConfiguration();
 	}
 
 	private void RegisterKeys(Parser parser) {
@@ -127,13 +121,13 @@ public class Configuration {
 			var valueReader = new BufferedReader(valueStr);
 
 			foreach (var folder in RequiredFolders) {
-				if (folder.Name == incomingKey) {
+				if (folder.Name == incomingKey && Directory.Exists(valueStr)) {
 					folder.Value = valueStr;
 				}
 			}
 
 			foreach (var file in RequiredFiles) {
-				if (file.Name == incomingKey) {
+				if (file.Name == incomingKey && File.Exists(valueStr)) {
 					file.Value = valueStr;
 				}
 			}
@@ -217,6 +211,18 @@ public class Configuration {
 				file.InitialDirectory = initialDirectory;
 			}
 		}
+	}
+
+	public void LoadExistingConfiguration() {
+		var parser = new Parser();
+		RegisterPreloadKeys(parser);
+		var converterConfigurationPath = Path.Combine(ConverterFolder, "configuration.txt");
+		if (string.IsNullOrEmpty(ConverterFolder) || !File.Exists(converterConfigurationPath)) {
+			return;
+		}
+
+		logger.Info("Previous configuration located, preloading selections...");
+		parser.ParseFile(converterConfigurationPath);
 	}
 
 	public bool ExportConfiguration() {

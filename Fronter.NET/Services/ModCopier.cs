@@ -15,7 +15,7 @@ public class ModCopier {
 	}
 	
 	public bool CopyMod() {
-		Logger.Notice("Mod Copying Started.");
+		logger.Notice("Mod Copying Started.");
 		var converterFolder = config.ConverterFolder;
 		if (!Directory.Exists(converterFolder)) {
 			logger.Error("Copy failed - where is the converter?");
