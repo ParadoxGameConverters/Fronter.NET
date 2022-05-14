@@ -10,7 +10,7 @@ namespace Fronter.Tests.Services;
 [Collection("Sequential")]
 [CollectionDefinition("Sequential", DisableParallelization = true)]
 public class UpdateCheckerTests {
-	private const string TestImperatorToCK3CommitIdTxtPath = "TestFiles/UpdateChecker/commit_id.txt";
+	private const string TestImperatorToCK3CommitIdTxtPath = "UpdateChecker/commit_id.txt";
 	private const string ImperatorToCK3CommitUrl = "https://paradoxgameconverters.com/commit_ids/ImperatorToCK3.txt";
 
 	static UpdateCheckerTests() {
@@ -19,7 +19,7 @@ public class UpdateCheckerTests {
 	
 	[Fact]
 	public void IncorrectCommitIdTxtPathIsLogged() {
-		const string wrongCommitIdTxtPath = "TestFiles/missingFile.txt";
+		const string wrongCommitIdTxtPath = "missingFile.txt";
 		
 		var isUpdateAvailable = UpdateChecker.IsUpdateAvailable(wrongCommitIdTxtPath, ImperatorToCK3CommitUrl);
 		Assert.False(isUpdateAvailable);

@@ -32,7 +32,7 @@
     <TestFiles Include="TestFiles/**/*.*" />
   </ItemGroup>
   <Target Name="CopyCustomContent" AfterTargets="Build">
-    <Copy SourceFiles="@(TestFiles)" DestinationFolder="$(OutDir)/TestFiles/%(RecursiveDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(TestFiles)" DestinationFolder="$(OutDir)/%(RecursiveDir)" SkipUnchangedFiles="true" />
   </Target>
 
 </Project>
