@@ -9,7 +9,7 @@ using System.IO;
 namespace Fronter.Services;
 
 internal class ConverterLauncher {
-	private static readonly ILog logger = LogManager.GetLogger("Converter Launcher");
+	private static readonly ILog logger = LogManager.GetLogger("Converter launcher");
 	private Level? lastLevelFromBackend;
 	internal ConverterLauncher(Configuration config) {
 		this.config = config;
