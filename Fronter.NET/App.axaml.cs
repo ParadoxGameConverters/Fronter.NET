@@ -34,7 +34,7 @@ public class App : Application {
 		LoadTheme();
 	}
 
-	private static void ConfigureLogging() {
+	public static void ConfigureLogging() {
 		var repository = LogManager.GetRepository();
 
 		// add custom "PROGRESS" level
