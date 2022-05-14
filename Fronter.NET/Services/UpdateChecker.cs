@@ -15,6 +15,7 @@ public static class UpdateChecker {
 	private static readonly HttpClient HttpClient = new();
 	public static bool IsUpdateAvailable(string commitIdFilePath, string commitIdUrl) {
 		if (!File.Exists(commitIdFilePath)) {
+			logger.Warn($"File \"{commitIdFilePath}\" does not exist!");
 			return false;
 		}
 
@@ -22,6 +23,7 @@ public static class UpdateChecker {
 		task.Wait();
 		var response = task.Result;
 		if (!response.IsSuccessStatusCode) {
+			logger.Warn($"Failed to get commit id from \"{commitIdUrl}\"!");
 			return false;
 		}
 		var readContentTask = Task.Run(() => response.Content.ReadAsStringAsync());
