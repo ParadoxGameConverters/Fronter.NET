@@ -58,6 +58,12 @@ public class MainWindowViewModel : ViewModelBase {
 		set => this.RaiseAndSetIfChanged(ref copyStatus, value);
 	}
 
+	private bool convertButtonEnabled = true;
+	public bool ConvertButtonEnabled {
+		get => convertButtonEnabled;
+		set => this.RaiseAndSetIfChanged(ref convertButtonEnabled, value);
+	}
+
 	public MainWindowViewModel() {
 		Config = new Configuration();
 
@@ -106,12 +112,15 @@ public class MainWindowViewModel : ViewModelBase {
 	}
 
 	public void LaunchConverter() {
+		ConvertButtonEnabled = false;
+		
 		Progress = 0;
 		SaveStatus = "CONVERTSTATUSPRE";
 		ConvertStatus = "CONVERTSTATUSPRE";
 		CopyStatus = "CONVERTSTATUSPRE";
 
 		if (!VerifyMandatoryPaths()) {
+			ConvertButtonEnabled = true;
 			return;
 		}
 		Config.ExportConfiguration();
@@ -134,6 +143,8 @@ public class MainWindowViewModel : ViewModelBase {
 			} else {
 				ConvertStatus = "CONVERTSTATUSPOSTFAIL";
 			}
+		
+			ConvertButtonEnabled = true;
 		});
 		converterThread.Start();
 	}
