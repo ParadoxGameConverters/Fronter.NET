@@ -39,11 +39,18 @@ l_english:
   LOGLEVEL1: "Warning"
   LOGLEVEL2: "Info"
   LOGLEVEL3: "Debug"
+  
   CHECKFORUPDATES: "Check for updates"
-  NEWVERSIONTITLE: "New release available"
-  NEWVERSIONBODY: "A new release is available. Do you want to update now?"
-  NONEWVERSIONTITLE: "Update not found"
-  NONEWVERSIONBODY: "No newer release has been found. Do you want to visit the forum and the latest release page to check for yourself?"
+  NEW_VERSION_TITLE: "New release available"
+  NEW_VERSION_HEADER: "A new release is available. Do you want to update now?"
+  NEW_VERSION_BODY: ""
+  UPDATE_NOW: "Update now"
+  MAYBE_LATER: "Maybe later"
+  NO_NEW_VERSION_TITLE: "Update not found"
+  NO_NEW_VERSION_BODY: "No newer release has been found. Do you want to visit the forum and the latest release page to check for yourself?"
+  
+  CONVERSION_FAILED: "Conversion failed"
+  CONVERSION_FAILED_MESSAGE: "You will be redirected to the converter's forum thread where you can submit an error report."
   
   MENU_THEME: "Theme"
   THEME_LIGHT: "Light"

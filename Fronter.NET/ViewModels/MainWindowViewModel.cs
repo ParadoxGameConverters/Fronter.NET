@@ -19,12 +19,14 @@ using MessageBox.Avalonia.Models;
 using ReactiveUI;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading;
 
 namespace Fronter.ViewModels;
 
+[SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
 public class MainWindowViewModel : ViewModelBase {
 	private static readonly ILog logger = LogManager.GetLogger("Frontend");
 	private readonly TranslationSource loc = TranslationSource.Instance;
@@ -111,7 +113,7 @@ public class MainWindowViewModel : ViewModelBase {
 		return true;
 	}
 
-	public void LaunchConverter() {
+	public async void LaunchConverter() {
 		ConvertButtonEnabled = false;
 		
 		Progress = 0;
@@ -142,11 +144,27 @@ public class MainWindowViewModel : ViewModelBase {
 				copyThread.Start();
 			} else {
 				ConvertStatus = "CONVERTSTATUSPOSTFAIL";
+				Dispatcher.UIThread.Post(ShowErrorMessageBox);
 			}
 		
 			ConvertButtonEnabled = true;
 		});
 		converterThread.Start();
+	}
+
+	private async void ShowErrorMessageBox() {
+		var messageBoxWindow = MessageBoxManager
+			.GetMessageBoxStandardWindow(new MessageBoxStandardParams {
+				Icon = Icon.Error,
+				ContentTitle = loc.Translate("CONVERSION_FAILED"),
+				ContentMessage = loc.Translate("CONVERSION_FAILED_MESSAGE"),
+				Markdown = true,
+				ButtonDefinitions = ButtonEnum.OkCancel
+			});
+		var result = await messageBoxWindow.ShowDialog(MainWindow.Instance);
+		if (result == ButtonResult.Ok) {
+			BrowserLauncher.Open(Config.ConverterReleaseForumThread);
+		}
 	}
 
 	public async void CheckForUpdates() {
@@ -160,20 +178,20 @@ public class MainWindowViewModel : ViewModelBase {
 
 		var info = UpdateChecker.GetLatestReleaseInfo(Config.Name);
 
-		const string updateNow = "Update now";
-		const string maybeLater = "Maybe later";
-		var msgBody = UpdateChecker.GetUpdateMessageBody(loc.Translate("NEWVERSIONBODY"), info);
+		var updateNow = loc.Translate("UPDATE_NOW");
+		var maybeLater = loc.Translate("MAYBE_LATER");
+		var msgBody = UpdateChecker.GetUpdateMessageBody(loc.Translate("NEW_VERSION_BODY"), info);
 		var messageBoxWindow = MessageBoxManager
 			.GetMessageBoxCustomWindow(new MessageBoxCustomParams {
 				Icon = Icon.Info,
-				ContentHeader = "An update is available!",
-				ContentTitle = loc.Translate("NEWVERSIONTITLE"),
+				ContentTitle = loc.Translate("NEW_VERSION_TITLE"),
+				ContentHeader = loc.Translate("NEW_VERSION_HEADER"),
 				ContentMessage = msgBody,
 				Markdown = true,
 				ButtonDefinitions = new[] {
 					new ButtonDefinition {Name = updateNow, IsDefault = true},
 					new ButtonDefinition {Name = maybeLater, IsCancel = true}
-				},
+				}
 			});
 		var result = await messageBoxWindow.ShowDialog(MainWindow.Instance);
 		if (result != updateNow) {
@@ -202,7 +220,9 @@ public class MainWindowViewModel : ViewModelBase {
 		}
 	}
 
+#pragma warning disable CA1822
 	public async void OpenAboutDialog() {
+#pragma warning restore CA1822
 		var messageBoxWindow = MessageBoxManager
 			.GetMessageBoxStandardWindow(new MessageBoxStandardParams {
 				ContentTitle = TranslationSource.Instance["ABOUT_TITLE"],
@@ -234,7 +254,7 @@ public class MainWindowViewModel : ViewModelBase {
 		theme.RequestedTheme = themeName;
 	}
 
-	public LogGridAppender LogGridAppender { get; }
+	private LogGridAppender LogGridAppender { get; }
 
 	private void ScrollToLogEnd() {
 		LogGridAppender.ScrollToLogEnd();
