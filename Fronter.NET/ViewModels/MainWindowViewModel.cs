@@ -2,7 +2,6 @@
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
-using commonItems;
 using FluentAvalonia.Styling;
 using Fronter.Extensions;
 using Fronter.LogAppenders;
@@ -37,6 +36,7 @@ public class MainWindowViewModel : ViewModelBase {
 
 	public PathPickerViewModel PathPicker { get; }
 	public OptionsViewModel Options { get; }
+	public bool OptionsTabVisible => Options.Items.Any();
 
 	public Level LogFilterLevel {
 		get => LogGridAppender.LogFilterLevel;
@@ -66,7 +66,7 @@ public class MainWindowViewModel : ViewModelBase {
 		set => this.RaiseAndSetIfChanged(ref convertButtonEnabled, value);
 	}
 
-	public MainWindowViewModel() {
+	public MainWindowViewModel(DataGrid logGrid) {
 		Config = new Configuration();
 
 		var appenders = LogManager.GetRepository().GetAppenders();
@@ -75,7 +75,7 @@ public class MainWindowViewModel : ViewModelBase {
 			throw new LogException($"Log appender \"{gridAppender.Name}\" is not a {typeof(LogGridAppender)}");
 		}
 		LogGridAppender = logGridAppender;
-		LogGridAppender.LogGrid = MainWindow.Instance.FindControl<DataGrid>("LogGrid");
+		LogGridAppender.LogGrid = logGrid;
 
 		PathPicker = new PathPickerViewModel(Config);
 		Options = new OptionsViewModel(Config.Options);

@@ -1,4 +1,5 @@
 ﻿using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using commonItems;
@@ -23,7 +24,7 @@ public class App : Application {
 			var window = MainWindow.Instance;
 			desktop.MainWindow = window;
 			
-			var mainWindowViewModel = new MainWindowViewModel();
+			var mainWindowViewModel = new MainWindowViewModel(window.FindControl<DataGrid>("LogGrid"));
 			window.DataContext = mainWindowViewModel;
 
 			desktop.MainWindow.Opened += (sender, args) => mainWindowViewModel.CheckForUpdatesOnStartup();

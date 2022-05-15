@@ -75,7 +75,7 @@
                     </ScrollViewer>
                 </TabItem>
                 
-                <TabItem Header="{ns:Loc OPTIONSTAB}" VerticalContentAlignment="Center" >
+                <TabItem Header="{ns:Loc OPTIONSTAB}" VerticalContentAlignment="Center" IsVisible="{Binding OptionsTabVisible}">
                     <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
                         <views:OptionsView DataContext="{Binding Options}" />
                     </ScrollViewer>
