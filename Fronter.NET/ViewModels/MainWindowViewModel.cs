@@ -37,6 +37,7 @@ public class MainWindowViewModel : ViewModelBase {
 
 	public PathPickerViewModel PathPicker { get; }
 	public OptionsViewModel Options { get; }
+	public bool OptionsTabVisible => Options.Items.Any();
 
 	public Level LogFilterLevel {
 		get => LogGridAppender.LogFilterLevel;
