@@ -18,33 +18,34 @@ public class UpdateCheckerTests {
 	}
 	
 	[Fact]
-	public void IncorrectCommitIdTxtPathIsLogged() {
+	public async void IncorrectCommitIdTxtPathIsLogged() {
 		const string wrongCommitIdTxtPath = "missingFile.txt";
 		
-		var isUpdateAvailable = UpdateChecker.IsUpdateAvailable(wrongCommitIdTxtPath, ImperatorToCK3CommitUrl);
+		var isUpdateAvailable = await UpdateChecker.IsUpdateAvailable(wrongCommitIdTxtPath, ImperatorToCK3CommitUrl);
 		Assert.False(isUpdateAvailable);
-		
-		using var fileStream = new FileStream("log.txt", FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+
+		await using var fileStream = new FileStream("log.txt", FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 		using var reader = new StreamReader(fileStream);
-		Assert.Contains($"File \"{wrongCommitIdTxtPath}\" does not exist!", reader.ReadToEnd());
+		Assert.Contains($"File \"{wrongCommitIdTxtPath}\" does not exist!", await reader.ReadToEndAsync());
 	}
 	
 	[Fact]
-	public void IncorrectCommitIdUrlIsLogged() {
+	public async void IncorrectCommitIdUrlIsLogged() {
 		const string wrongCommitIdUrl = "https://paradoxgameconverters.com/wrong_url";
 		
-		var isUpdateAvailable = UpdateChecker.IsUpdateAvailable(TestImperatorToCK3CommitIdTxtPath, wrongCommitIdUrl);
+		var isUpdateAvailable = await UpdateChecker.IsUpdateAvailable(TestImperatorToCK3CommitIdTxtPath, wrongCommitIdUrl);
 		Assert.False(isUpdateAvailable);
-		
-		using var fileStream = new FileStream("log.txt", FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+
+		await using var fileStream = new FileStream("log.txt", FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 		using var reader = new StreamReader(fileStream);
-		Assert.Contains($"Failed to get commit id from \"{wrongCommitIdUrl}\"!", reader.ReadToEnd());
+		Assert.Contains($"Failed to get commit id from \"{wrongCommitIdUrl}\"; status code: NotFound!", await reader.ReadToEndAsync());
 	}
 	
 	[Fact]
-	public void UpdateCheckerCanFindUpdate() {
-		Assert.True(UpdateChecker.IsUpdateAvailable(TestImperatorToCK3CommitIdTxtPath,
-			ImperatorToCK3CommitUrl));
+	public async void UpdateCheckerCanFindUpdate() {
+		bool isUpdateAvailable = await UpdateChecker.IsUpdateAvailable(TestImperatorToCK3CommitIdTxtPath,
+			ImperatorToCK3CommitUrl);
+		Assert.True(isUpdateAvailable);
 	}
 	
 	[Fact]

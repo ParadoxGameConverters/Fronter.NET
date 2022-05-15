@@ -172,7 +172,8 @@ public class MainWindowViewModel : ViewModelBase {
 			return;
 		}
 
-		if (!UpdateChecker.IsUpdateAvailable("commit_id.txt", Config.PagesCommitIdUrl)) {
+		bool isUpdateAvailable = await UpdateChecker.IsUpdateAvailable("commit_id.txt", Config.PagesCommitIdUrl);
+		if (!isUpdateAvailable) {
 			return;
 		}
 

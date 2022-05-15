@@ -1,7 +1,9 @@
 ﻿using commonItems;
 using Fronter.Models;
+using Fronter.Views;
 using log4net;
 using Newtonsoft.Json;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
@@ -13,28 +15,30 @@ namespace Fronter.Services;
 public static class UpdateChecker {
 	private static readonly ILog logger = LogManager.GetLogger("Update checker");
 	private static readonly HttpClient HttpClient = new();
-	public static bool IsUpdateAvailable(string commitIdFilePath, string commitIdUrl) {
+	public static async Task<bool> IsUpdateAvailable(string commitIdFilePath, string commitIdUrl) {
 		if (!File.Exists(commitIdFilePath)) {
 			logger.Warn($"File \"{commitIdFilePath}\" does not exist!");
 			return false;
 		}
 
-		var task = Task.Run(() => HttpClient.GetAsync(commitIdUrl));
-		task.Wait();
-		var response = task.Result;
-		if (!response.IsSuccessStatusCode) {
-			logger.Warn($"Failed to get commit id from \"{commitIdUrl}\"!");
+		try {
+			var response = await HttpClient.GetAsync(commitIdUrl);
+			if (!response.IsSuccessStatusCode) {
+				logger.Warn($"Failed to get commit id from \"{commitIdUrl}\"; status code: {response.StatusCode}!");
+				return false;
+			}
+			
+			var latestReleaseCommitId = await response.Content.ReadAsStringAsync();
+			latestReleaseCommitId = latestReleaseCommitId.Trim();
+
+			using var commitIdFileReader = new StreamReader(commitIdFilePath);
+			var localCommitId = (await commitIdFileReader.ReadLineAsync())?.Trim();
+
+			return localCommitId is not null && localCommitId != latestReleaseCommitId;
+		} catch (Exception e) {
+			logger.Warn($"Failed to get commit id from \"{commitIdUrl}\"; {e}!");
 			return false;
 		}
-		var readContentTask = Task.Run(() => response.Content.ReadAsStringAsync());
-		readContentTask.Wait();
-		var latestReleaseCommitId = readContentTask.Result;
-		latestReleaseCommitId = latestReleaseCommitId.Trim();
-
-		using var commitIdFileReader = new StreamReader(commitIdFilePath);
-		var localCommitId = commitIdFileReader.ReadLine()?.Trim();
-
-		return localCommitId is not null && localCommitId != latestReleaseCommitId;
 	}
 
 	public static UpdateInfoModel GetLatestReleaseInfo(string converterName) {
@@ -120,6 +124,6 @@ public static class UpdateChecker {
 		proc.Start();
 		
 		// Die. The updater will start Fronter after a successful update.
-		System.Environment.Exit(0);
+		MainWindow.Instance.Close();
 	}
 }
