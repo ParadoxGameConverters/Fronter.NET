@@ -75,7 +75,7 @@
                     </ScrollViewer>
                 </TabItem>
                 
-                <TabItem Header="{ns:Loc OPTIONSTAB}" VerticalContentAlignment="Center" >
+                <TabItem Header="{ns:Loc OPTIONSTAB}" VerticalContentAlignment="Center" IsVisible="{Binding OptionsTabVisible}">
                     <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
                         <views:OptionsView DataContext="{Binding Options}" />
                     </ScrollViewer>
@@ -129,7 +129,7 @@
                             </Grid>
                             <ProgressBar Margin="4" Height="20" Value="{Binding Progress}" BorderThickness="1" BorderBrush="Gray"/>
                             <TextBlock Text="{Binding Progress, StringFormat={}{0}%}" HorizontalAlignment="Center"></TextBlock>
-                            <Button Margin="4,15,4,4" HorizontalAlignment="Center" Name="ConvertButton" Command="{Binding LaunchConverter}" IsEnabled="{Binding ConvertButtonEnabled}">Convert!</Button>
+                            <Button Margin="4,15,4,4" HorizontalAlignment="Center" Name="ConvertButton" Command="{Binding LaunchConverter}" IsEnabled="{Binding ConvertButtonEnabled}" Content="{ns:Loc CONVERTBUTTON}"/>
                         </StackPanel>
                     </Grid>
                 </TabItem>
