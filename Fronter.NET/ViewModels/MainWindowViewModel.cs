@@ -113,7 +113,7 @@ public class MainWindowViewModel : ViewModelBase {
 		return true;
 	}
 
-	public async void LaunchConverter() {
+	public void LaunchConverter() {
 		ConvertButtonEnabled = false;
 		
 		Progress = 0;

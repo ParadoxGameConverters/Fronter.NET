@@ -39,7 +39,7 @@ internal class ConverterLauncher {
 			WorkingDirectory = CommonFunctions.GetPath(backendExePathRelativeToFrontend),
 			CreateNoWindow = true,
 			UseShellExecute = false,
-			RedirectStandardOutput = true,
+			RedirectStandardOutput = true
 		};
 		using Process process = new() { StartInfo = startInfo };
 		process.OutputDataReceived += (sender, args) => {
@@ -69,7 +69,7 @@ internal class ConverterLauncher {
 		}
 
 		logger.Error("Converter Error! See log.txt for details.");
-		logger.Error("If you require assistance please upload log.txt to forums for a detailed post-mortem.");
+		logger.Error("If you require assistance please upload log.txt to forums for a detailed postmortem.");
 		return false;
 	}
 	private readonly Configuration config;

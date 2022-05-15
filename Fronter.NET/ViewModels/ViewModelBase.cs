@@ -1,6 +1,6 @@
 ﻿using ReactiveUI;
 
-namespace Fronter.ViewModels {
-	public class ViewModelBase : ReactiveObject {
-	}
+namespace Fronter.ViewModels; 
+
+public class ViewModelBase : ReactiveObject {
 }
