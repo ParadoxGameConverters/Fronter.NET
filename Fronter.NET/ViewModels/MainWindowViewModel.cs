@@ -134,14 +134,17 @@ public class MainWindowViewModel : ViewModelBase {
 			success = converterLauncher.LaunchConverter();
 			if (success) {
 				ConvertStatus = "CONVERTSTATUSPOSTSUCCESS";
-				var modCopier = new ModCopier(Config);
-				bool copySuccess;
-				var copyThread = new Thread(() => {
-					CopyStatus = "CONVERTSTATUSIN";
-					copySuccess = modCopier.CopyMod();
-					CopyStatus = copySuccess ? "CONVERTSTATUSPOSTSUCCESS" : "CONVERTSTATUSPOSTFAIL";
-				});
-				copyThread.Start();
+
+				if (Config.CopyToTargetGameModDirectory) {
+					var modCopier = new ModCopier(Config);
+					bool copySuccess;
+					var copyThread = new Thread(() => {
+						CopyStatus = "CONVERTSTATUSIN";
+						copySuccess = modCopier.CopyMod();
+						CopyStatus = copySuccess ? "CONVERTSTATUSPOSTSUCCESS" : "CONVERTSTATUSPOSTFAIL";
+					});
+					copyThread.Start();
+				}
 			} else {
 				ConvertStatus = "CONVERTSTATUSPOSTFAIL";
 				Dispatcher.UIThread.Post(ShowErrorMessageBox);

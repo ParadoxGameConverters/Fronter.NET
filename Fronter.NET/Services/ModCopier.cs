@@ -21,7 +21,9 @@ public class ModCopier {
 			logger.Error("Copy failed - where is the converter?");
 			return false;
 		}
-		if (!Directory.Exists(converterFolder + "/output")) {
+
+		var outputFolder = Path.Combine(converterFolder, "output");
+		if (!Directory.Exists(outputFolder)) {
 			logger.Error("Copy failed - where is the converter's output folder?");
 			return false;
 		}
@@ -78,12 +80,12 @@ public class ModCopier {
 		targetName = CommonFunctions.ReplaceCharacter(targetName, ' ');
 		targetName = CommonFunctions.NormalizeUTF8Path(targetName);
 
-		var modFilePath = Path.Combine(converterFolder, "output", $"{targetName}.mod");
+		var modFilePath = Path.Combine(outputFolder, $"{targetName}.mod");
 		if (!File.Exists(modFilePath)) {
 			logger.Error($"Copy Failed - Could not find mod: {modFilePath}");
 			return false;
 		}
-		var modFolderPath = Path.Combine(converterFolder, "output", targetName);
+		var modFolderPath = Path.Combine(outputFolder, targetName);
 		if (!Directory.Exists(modFolderPath)) {
 			logger.Error($"Copy Failed - Could not find mod folder: {modFolderPath}");
 			return false;
