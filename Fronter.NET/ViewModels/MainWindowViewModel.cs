@@ -175,11 +175,12 @@ public class MainWindowViewModel : ViewModelBase {
 			return;
 		}
 
-		if (!UpdateChecker.IsUpdateAvailable("commit_id.txt", Config.PagesCommitIdUrl)) {
+		bool isUpdateAvailable = await UpdateChecker.IsUpdateAvailable("commit_id.txt", Config.PagesCommitIdUrl);
+		if (!isUpdateAvailable) {
 			return;
 		}
 
-		var info = UpdateChecker.GetLatestReleaseInfo(Config.Name);
+		var info = await UpdateChecker.GetLatestReleaseInfo(Config.Name);
 
 		var updateNow = loc.Translate("UPDATE_NOW");
 		var maybeLater = loc.Translate("MAYBE_LATER");

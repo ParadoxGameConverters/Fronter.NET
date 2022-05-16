@@ -18,49 +18,47 @@ public class UpdateCheckerTests {
 	}
 	
 	[Fact]
-	public void IncorrectCommitIdTxtPathIsLogged() {
+	public async void IncorrectCommitIdTxtPathIsLogged() {
 		const string wrongCommitIdTxtPath = "missingFile.txt";
 		
-		var isUpdateAvailable = UpdateChecker.IsUpdateAvailable(wrongCommitIdTxtPath, ImperatorToCK3CommitUrl);
+		var isUpdateAvailable = await UpdateChecker.IsUpdateAvailable(wrongCommitIdTxtPath, ImperatorToCK3CommitUrl);
 		Assert.False(isUpdateAvailable);
-		
-		using var fileStream = new FileStream("log.txt", FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+
+		await using var fileStream = new FileStream("log.txt", FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 		using var reader = new StreamReader(fileStream);
-		Assert.Contains($"File \"{wrongCommitIdTxtPath}\" does not exist!", reader.ReadToEnd());
+		Assert.Contains($"File \"{wrongCommitIdTxtPath}\" does not exist!", await reader.ReadToEndAsync());
 	}
 	
 	[Fact]
-	public void IncorrectCommitIdUrlIsLogged() {
+	public async void IncorrectCommitIdUrlIsLogged() {
 		const string wrongCommitIdUrl = "https://paradoxgameconverters.com/wrong_url";
 		
-		var isUpdateAvailable = UpdateChecker.IsUpdateAvailable(TestImperatorToCK3CommitIdTxtPath, wrongCommitIdUrl);
+		var isUpdateAvailable = await UpdateChecker.IsUpdateAvailable(TestImperatorToCK3CommitIdTxtPath, wrongCommitIdUrl);
 		Assert.False(isUpdateAvailable);
-		
-		using var fileStream = new FileStream("log.txt", FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+
+		await using var fileStream = new FileStream("log.txt", FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 		using var reader = new StreamReader(fileStream);
-		Assert.Contains($"Failed to get commit id from \"{wrongCommitIdUrl}\"!", reader.ReadToEnd());
+		Assert.Contains($"Failed to get commit id from \"{wrongCommitIdUrl}\"; status code: NotFound!", await reader.ReadToEndAsync());
 	}
 	
 	[Fact]
-	public void UpdateCheckerCanFindUpdate() {
-		Assert.True(UpdateChecker.IsUpdateAvailable(TestImperatorToCK3CommitIdTxtPath,
-			ImperatorToCK3CommitUrl));
+	public async void UpdateCheckerCanFindUpdate() {
+		bool isUpdateAvailable = await UpdateChecker.IsUpdateAvailable(TestImperatorToCK3CommitIdTxtPath,
+			ImperatorToCK3CommitUrl);
+		Assert.True(isUpdateAvailable);
 	}
 	
 	[Fact]
-	public void LatestReleaseInfoIsDownloaded() {
-		UpdateInfoModel info = UpdateChecker.GetLatestReleaseInfo("ImperatorToCK3");
+	public async void LatestReleaseInfoIsDownloaded() {
+		UpdateInfoModel info = await UpdateChecker.GetLatestReleaseInfo("ImperatorToCK3");
 
 		var versionRegex = new Regex(@"^\d+\.\d+\.\d+$");
 		Assert.Matches(versionRegex, info.Version);
 		Assert.False(string.IsNullOrWhiteSpace(info.Description));
 		Assert.NotNull(info.ArchiveUrl);
 		Assert.StartsWith($"https://github.com/ParadoxGameConverters/ImperatorToCK3/releases/download/{info.Version}/ImperatorToCK3", info.ArchiveUrl);
-		
-		if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
-			Assert.EndsWith(".zip", info.ArchiveUrl);
-		} else {
-			Assert.EndsWith(".tgz", info.ArchiveUrl);
-		}
+
+		var expectedExtension = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ".zip" : ".tgz";
+		Assert.EndsWith(expectedExtension, info.ArchiveUrl);
 	}
 }
