@@ -15,6 +15,7 @@
     </PropertyGroup>
     <ItemGroup>
         <AvaloniaResource Include="Assets\**" />
+        <AvaloniaResource Include="Styles\**" />
         <None Remove=".gitignore" />
         <None Update="log4net_Fronter.config">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -56,5 +57,9 @@
         <PackageReference Include="PGCG.commonItems" Version="0.3.1" />
         <PackageReference Include="system.io.filesystem" Version="4.3.0" />
         <PackageReference Include="System.Net.Primitives" Version="4.3.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <UpToDateCheckInput Remove="Styles\MdStyle.axaml" />
     </ItemGroup>
 </Project>

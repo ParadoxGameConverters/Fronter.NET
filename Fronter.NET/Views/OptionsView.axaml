@@ -28,7 +28,7 @@
         <ItemsControl.ItemTemplate>
             <DataTemplate>
                 <Border ToolTip.Tip="{ns:DynamicLoc Tooltip}">
-                    <controls:Frame Classes="optionCard">
+                    <Panel Classes="optionCard">
                         <StackPanel>
                             <TextBlock Text="{ns:DynamicLoc DisplayName}"></TextBlock>
                             <ItemsControl 
@@ -69,7 +69,7 @@
                                 <TextBox Text="{Binding TextSelector.Value, FallbackValue={}}" IsEnabled="{Binding TextSelector.Editable, FallbackValue=false}"></TextBox>
                             </Border>
                         </StackPanel>
-                    </controls:Frame>
+                    </Panel>
                 </Border>
             </DataTemplate>
         </ItemsControl.ItemTemplate>

@@ -34,6 +34,7 @@
                 <Separator/>
                 <MenuItem Header="{ns:Loc EXIT}" Command="{Binding Exit}"/>
             </MenuItem>
+            
             <MenuItem Header="{ns:Loc LANGUAGE}" Items="{Binding Languages}" Classes="LanguageChoice">
                 <MenuItem.Styles>
                     <Style Selector="MenuItem.LanguageChoice MenuItem">
@@ -43,22 +44,15 @@
                     </Style>
                 </MenuItem.Styles>  
             </MenuItem>
-            <MenuItem Header="{ns:Loc MENU_THEME}">
-                <MenuItem
-                    Header="{ns:Loc THEME_LIGHT}"
-                    Command="{Binding SetTheme}"
-                    CommandParameter="Light"
-                />
-                <MenuItem
-                    Header="{ns:Loc THEME_DARK}"
-                    Command="{Binding SetTheme}"
-                    CommandParameter="Dark"
-                />
-                <MenuItem
-                    Header="{ns:Loc THEME_HIGH_CONTRAST}"
-                    Command="{Binding SetTheme}"
-                    CommandParameter="HighContrast"
-                />
+            
+            <MenuItem Header="{ns:Loc MENU_THEME}" Items="{Binding Themes}" Classes="ThemeChoice">
+                <MenuItem.Styles>
+                    <Style Selector="MenuItem.ThemeChoice MenuItem">
+                        <Setter Property="Header" Value="{ns:DynamicLoc Value}"/>
+                        <Setter Property="Command" Value="{Binding $parent[Window].DataContext.SetTheme, FallbackValue={}}"/>
+                        <Setter Property="CommandParameter" Value="{Binding Key}"/>
+                    </Style>
+                </MenuItem.Styles>  
             </MenuItem>
                 
             <MenuItem Header="{ns:Loc MENU_HELP}">
