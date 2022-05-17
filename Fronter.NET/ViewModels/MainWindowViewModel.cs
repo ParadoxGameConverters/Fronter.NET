@@ -256,7 +256,7 @@ public class MainWindowViewModel : ViewModelBase {
 		{"FluentDark", "THEME_FLUENT_DARK"}
 	};
 	public void SetTheme(string themeName) {
-		App.SetTheme(themeName);
+		App.SaveTheme(themeName);
 	}
 
 	private LogGridAppender LogGridAppender { get; }

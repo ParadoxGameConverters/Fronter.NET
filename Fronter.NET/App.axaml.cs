@@ -18,6 +18,7 @@ namespace Fronter;
 public class App : Application {
 	private static readonly ILog logger = LogManager.GetLogger("Frontend");
 	private static readonly string fronterThemePath = Path.Combine("Configuration", "fronter-theme.txt");
+	private static readonly string defaultTheme = "FluentLight";
 	
 	public static readonly StyleInclude DataGridFluent = new(new Uri("avares://Fronter/Styles")) {
         Source = new Uri("avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml")
@@ -68,8 +69,7 @@ public class App : Application {
 	public override void Initialize() {
 		ConfigureLogging();
 		
-		Styles.Insert(0, Fluent);
-		Styles.Insert(1, DataGridFluent);
+		LoadTheme();
 
 		AvaloniaXamlLoader.Load(this);
 	}
@@ -86,8 +86,6 @@ public class App : Application {
 		}
 
 		base.OnFrameworkInitializationCompleted();
-
-		LoadTheme();
 	}
 
 	public static void ConfigureLogging() {
@@ -103,6 +101,7 @@ public class App : Application {
 
 	private static async void LoadTheme() {
 		if (!File.Exists(fronterThemePath)) {
+			SetTheme(defaultTheme);
 			return;
 		}
 
@@ -111,47 +110,72 @@ public class App : Application {
 			SetTheme(themeName);
 		} catch(Exception e) {
 			logger.Warn($"Could not load theme; exception: {e.Message}");
+			SetTheme(defaultTheme);
 		}
 	}
-
+	
+	/// <summary>
+	/// Sets a theme
+	/// </summary>
+	/// <param name="themeName"></param>
 	public static void SetTheme(string themeName) {
 		var app = Application.Current;
 		if (app is null) {
 			return;
 		}
+
+		IStyle mainStyle = Fluent;
+		IStyle dataGridStyle = DataGridFluent;
+		
 		switch (themeName) {
 			case "FluentLight": {
 				if (Fluent.Mode != FluentThemeMode.Light) {
 					Fluent.Mode = FluentThemeMode.Light;
 				}
-				app.Styles[0] = Fluent;
-				app.Styles[1] = DataGridFluent;
+				mainStyle = Fluent;
+				dataGridStyle = DataGridFluent;
 				break;
 			}
 			case "FluentDark": {
 				if (Fluent.Mode != FluentThemeMode.Dark) {
 					Fluent.Mode = FluentThemeMode.Dark;
 				}
-				app.Styles[0] = Fluent;
-				app.Styles[1] = DataGridFluent;
+				mainStyle = Fluent;
+				dataGridStyle = DataGridFluent;
 				break;
 			}
 			case "DefaultLight":
-				app.Styles[0] = DefaultLight;
-				app.Styles[1] = DataGridDefault;
+				mainStyle = DefaultLight;
+				dataGridStyle = DataGridDefault;
 				break;
 			case "DefaultDark":
-				app.Styles[0] = DefaultDark;
-				app.Styles[1] = DataGridDefault;
+				mainStyle = DefaultDark;
+				dataGridStyle = DataGridDefault;
 				break;
 		}
-		SaveTheme(themeName);
+
+		if (app.Styles.Count < 2) {
+			app.Styles.Insert(0, mainStyle);
+			app.Styles.Insert(1, dataGridStyle);
+		} else {
+			app.Styles[0] = mainStyle;
+			app.Styles[1] = dataGridStyle;
+		}
 	}
 
-	private static async void SaveTheme(string themeName) {
-		await using var fs = new FileStream(fronterThemePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
-		await using var writer = new StreamWriter(fs);
-		await writer.WriteAsync(themeName);
-		writer.Close();
+	/// <summary>
+	/// Sets and saves a theme
+	/// </summary>
+	/// <param name="themeName"></param>
+	public static async void SaveTheme(string themeName) {
+		SetTheme(themeName);
+		try {
+			await using var fs = new FileStream(fronterThemePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
+			await using var writer = new StreamWriter(fs);
+			await writer.WriteAsync(themeName);
+			writer.Close();
+		} catch (Exception e) {
+			logger.Warn($"Could not save theme \"{themeName}\"; exception: {e.Message}");
+		}
 	}
 }
