@@ -18,54 +18,13 @@ namespace Fronter;
 public class App : Application {
 	private static readonly ILog logger = LogManager.GetLogger("Frontend");
 	private static readonly string fronterThemePath = Path.Combine("Configuration", "fronter-theme.txt");
-	private static readonly string defaultTheme = "FluentLight";
+	private static readonly string defaultTheme = "Light";
 	
 	public static readonly StyleInclude DataGridFluent = new(new Uri("avares://Fronter/Styles")) {
         Source = new Uri("avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml")
     };
-
-    public static readonly StyleInclude DataGridDefault = new(new Uri("avares://Fronter/Styles")) {
-        Source = new Uri("avares://Avalonia.Controls.DataGrid/Themes/Default.xaml")
-    };
-
-    public static readonly FluentTheme Fluent = new(new Uri("avares://Fronter/Styles"));
-
-    public static readonly Styles DefaultLight = new() {
-        new StyleInclude(new Uri("resm:Styles?assembly=Fronter")) {
-            Source = new Uri("avares://Avalonia.Themes.Fluent/Accents/AccentColors.xaml")
-        },
-        new StyleInclude(new Uri("resm:Styles?assembly=Fronter")) {
-            Source = new Uri("avares://Avalonia.Themes.Fluent/Accents/Base.xaml")
-        },
-        new StyleInclude(new Uri("resm:Styles?assembly=Fronter")) {
-            Source = new Uri("avares://Avalonia.Themes.Fluent/Accents/BaseLight.xaml")
-        },
-        new StyleInclude(new Uri("resm:Styles?assembly=Fronter")) {
-            Source = new Uri("avares://Avalonia.Themes.Default/Accents/BaseLight.xaml")
-        },
-        new StyleInclude(new Uri("resm:Styles?assembly=Fronter")) {
-            Source = new Uri("avares://Avalonia.Themes.Default/DefaultTheme.xaml")
-        }
-    };
-
-    public static readonly Styles DefaultDark = new() {
-        new StyleInclude(new Uri("resm:Styles?assembly=Fronter")) {
-            Source = new Uri("avares://Avalonia.Themes.Fluent/Accents/AccentColors.xaml")
-        },
-        new StyleInclude(new Uri("resm:Styles?assembly=Fronter")) {
-            Source = new Uri("avares://Avalonia.Themes.Fluent/Accents/Base.xaml")
-        },
-        new StyleInclude(new Uri("resm:Styles?assembly=Fronter")) {
-            Source = new Uri("avares://Avalonia.Themes.Fluent/Accents/BaseDark.xaml")
-        },
-        new StyleInclude(new Uri("resm:Styles?assembly=Fronter")) {
-            Source = new Uri("avares://Avalonia.Themes.Default/Accents/BaseDark.xaml")
-        },
-        new StyleInclude(new Uri("resm:Styles?assembly=Fronter")) {
-            Source = new Uri("avares://Avalonia.Themes.Default/DefaultTheme.xaml")
-        }
-    };
-	
+	public static readonly FluentTheme Fluent = new(new Uri("avares://Fronter/Styles"));
+    
 	public override void Initialize() {
 		ConfigureLogging();
 		
@@ -123,43 +82,23 @@ public class App : Application {
 		if (app is null) {
 			return;
 		}
-
-		IStyle mainStyle = Fluent;
-		IStyle dataGridStyle = DataGridFluent;
 		
 		switch (themeName) {
-			case "FluentLight": {
+			case "Light":
 				if (Fluent.Mode != FluentThemeMode.Light) {
 					Fluent.Mode = FluentThemeMode.Light;
 				}
-				mainStyle = Fluent;
-				dataGridStyle = DataGridFluent;
 				break;
-			}
-			case "FluentDark": {
+			case "Dark":
 				if (Fluent.Mode != FluentThemeMode.Dark) {
 					Fluent.Mode = FluentThemeMode.Dark;
 				}
-				mainStyle = Fluent;
-				dataGridStyle = DataGridFluent;
-				break;
-			}
-			case "DefaultLight":
-				mainStyle = DefaultLight;
-				dataGridStyle = DataGridDefault;
-				break;
-			case "DefaultDark":
-				mainStyle = DefaultDark;
-				dataGridStyle = DataGridDefault;
 				break;
 		}
 
 		if (app.Styles.Count < 2) {
-			app.Styles.Insert(0, mainStyle);
-			app.Styles.Insert(1, dataGridStyle);
-		} else {
-			app.Styles[0] = mainStyle;
-			app.Styles[1] = dataGridStyle;
+			app.Styles.Insert(0, Fluent);
+			app.Styles.Insert(1, DataGridFluent);
 		}
 	}
 

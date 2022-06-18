@@ -250,10 +250,8 @@ public class MainWindowViewModel : ViewModelBase {
 	}
 
 	public Dictionary<string, string> Themes { get; } = new() {
-		{"DefaultLight", "THEME_LIGHT"}, 
-		{"DefaultDark", "THEME_DARK"}, 
-		{"FluentLight", "THEME_FLUENT_LIGHT"}, 
-		{"FluentDark", "THEME_FLUENT_DARK"}
+		{"Light", "THEME_LIGHT"}, 
+		{"Dark", "THEME_DARK"}, 
 	};
 	public void SetTheme(string themeName) {
 		App.SaveTheme(themeName);
