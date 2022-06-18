@@ -14,26 +14,25 @@
     </Design.DataContext>
     
     <UserControl.Styles>
+        <Style Selector="TextBlock.PathTextBlockStyle">
+            <Setter Property="Width" Value="250" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+            <Setter Property="Padding" Value="3,5, 0, 0" />
+            <Setter Property="Margin" Value="6,2, 0, 5" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+        
         <Style Selector="TextBox.PathTextBoxStyle">
-            <Setter Property="Margin" Value="6,2,0,0" />
+            <Setter Property="Margin" Value="6,2,0,5" />
             <Setter Property="VerticalAlignment" Value="Top" />
             <Setter Property="HorizontalAlignment" Value="Stretch" />
-        </Style>
-
-        <Style Selector="TextBlock.PathTextBlockStyle">
-            <Setter Property="Height" Value="30"/>
-            <Setter Property="Width" Value="250" />
-            <Setter Property="VerticalAlignment" Value="Center" />
-            <Setter Property="Padding" Value="5" />
-            <Setter Property="Margin" Value="6,2, 0, 0" />
-            <Setter Property="TextWrapping" Value="Wrap" />
         </Style>
 
         <Style Selector="Button.PathBrowseButtonStyle">
             <Setter Property="Height" Value="30"/>
             <Setter Property="Width" Value="80" />
-            <Setter Property="VerticalAlignment" Value="Stretch" />
-            <Setter Property="Margin" Value="6, 0, 6, 0" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+            <Setter Property="Margin" Value="6, 2, 6, 5" />
         </Style>
     </UserControl.Styles>
 
