@@ -2,7 +2,6 @@
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
-using FluentAvalonia.Styling;
 using Fronter.Extensions;
 using Fronter.LogAppenders;
 using Fronter.Models;
@@ -250,12 +249,12 @@ public class MainWindowViewModel : ViewModelBase {
 		loc.SaveLanguage(languageKey);
 	}
 
+	public Dictionary<string, string> Themes { get; } = new() {
+		{"Light", "THEME_LIGHT"}, 
+		{"Dark", "THEME_DARK"}, 
+	};
 	public void SetTheme(string themeName) {
-		var theme = AvaloniaLocator.Current.GetService<FluentAvaloniaTheme>();
-		if (theme is null) {
-			return;
-		}
-		theme.RequestedTheme = themeName;
+		App.SaveTheme(themeName);
 	}
 
 	private LogGridAppender LogGridAppender { get; }

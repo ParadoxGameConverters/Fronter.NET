@@ -2,19 +2,33 @@
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Avalonia.Markup.Xaml.Styling;
+using Avalonia.Styling;
+using Avalonia.Themes.Fluent;
 using commonItems;
-using FluentAvalonia.Styling;
 using Fronter.ViewModels;
 using Fronter.Views;
 using log4net;
 using log4net.Config;
+using System;
 using System.IO;
 
 namespace Fronter;
 
 public class App : Application {
+	private static readonly ILog logger = LogManager.GetLogger("Frontend");
+	private static readonly string fronterThemePath = Path.Combine("Configuration", "fronter-theme.txt");
+	private static readonly string defaultTheme = "Light";
+	
+	public static readonly StyleInclude DataGridFluent = new(new Uri("avares://Fronter/Styles")) {
+        Source = new Uri("avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml")
+    };
+	public static readonly FluentTheme Fluent = new(new Uri("avares://Fronter/Styles"));
+    
 	public override void Initialize() {
 		ConfigureLogging();
+		
+		LoadTheme();
 
 		AvaloniaXamlLoader.Load(this);
 	}
@@ -31,8 +45,6 @@ public class App : Application {
 		}
 
 		base.OnFrameworkInitializationCompleted();
-
-		LoadTheme();
 	}
 
 	public static void ConfigureLogging() {
@@ -46,24 +58,63 @@ public class App : Application {
 		XmlConfigurator.Configure(logConfiguration);
 	}
 
-	private static void LoadTheme() {
-		var theme = AvaloniaLocator.Current.GetService<FluentAvaloniaTheme>();
-		if (theme is null) {
+	private static async void LoadTheme() {
+		if (!File.Exists(fronterThemePath)) {
+			SetTheme(defaultTheme);
 			return;
 		}
 
-		var fronterThemePath = Path.Combine("Configuration", "fronter-theme.txt");
-		if (File.Exists(fronterThemePath)) {
-			var parser = new Parser();
-			parser.RegisterKeyword("theme", reader => theme.RequestedTheme = reader.GetString());
-			parser.ParseFile(fronterThemePath);
+		try {
+			var themeName = await File.ReadAllTextAsync(fronterThemePath);
+			SetTheme(themeName);
+		} catch(Exception e) {
+			logger.Warn($"Could not load theme; exception: {e.Message}");
+			SetTheme(defaultTheme);
+		}
+	}
+	
+	/// <summary>
+	/// Sets a theme
+	/// </summary>
+	/// <param name="themeName"></param>
+	public static void SetTheme(string themeName) {
+		var app = Application.Current;
+		if (app is null) {
+			return;
+		}
+		
+		switch (themeName) {
+			case "Light":
+				if (Fluent.Mode != FluentThemeMode.Light) {
+					Fluent.Mode = FluentThemeMode.Light;
+				}
+				break;
+			case "Dark":
+				if (Fluent.Mode != FluentThemeMode.Dark) {
+					Fluent.Mode = FluentThemeMode.Dark;
+				}
+				break;
 		}
 
-		theme.RequestedThemeChanged += (sender, args) => {
-			using var fs = new FileStream(fronterThemePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
-			using var writer = new StreamWriter(fs);
-			writer.WriteLine($"theme={args.NewTheme}");
+		if (app.Styles.Count < 2) {
+			app.Styles.Insert(0, Fluent);
+			app.Styles.Insert(1, DataGridFluent);
+		}
+	}
+
+	/// <summary>
+	/// Sets and saves a theme
+	/// </summary>
+	/// <param name="themeName"></param>
+	public static async void SaveTheme(string themeName) {
+		SetTheme(themeName);
+		try {
+			await using var fs = new FileStream(fronterThemePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
+			await using var writer = new StreamWriter(fs);
+			await writer.WriteAsync(themeName);
 			writer.Close();
-		};
+		} catch (Exception e) {
+			logger.Warn($"Could not save theme \"{themeName}\"; exception: {e.Message}");
+		}
 	}
 }
