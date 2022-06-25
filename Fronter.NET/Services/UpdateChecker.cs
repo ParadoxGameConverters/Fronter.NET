@@ -51,7 +51,7 @@ public static class UpdateChecker {
 			osName = "win";
 		} else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
 			osName = "linux";
-		} else if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) {
+		} else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) {
 			osName = "osx";
 		} else {
 			return new UpdateInfoModel();
