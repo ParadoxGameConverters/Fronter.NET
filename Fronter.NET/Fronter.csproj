@@ -50,7 +50,7 @@
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="0.10.16" />
         <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.16" />
-        <PackageReference Include="DynamicData" Version="7.9.4" />
+        <PackageReference Include="DynamicData" Version="7.9.5" />
         <PackageReference Include="Markdown.Avalonia" Version="0.10.11" />
         <PackageReference Include="MessageBox.Avalonia" Version="2.0.1" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
