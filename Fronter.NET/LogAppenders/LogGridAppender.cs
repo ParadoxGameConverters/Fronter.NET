@@ -35,8 +35,7 @@ public class LogGridAppender : MemoryAppender {
 			Level = loggingEvent.Level,
 			// tab characters are incorrectly displayed in the log grid as of Avalonia 0.10.13
 			Message = loggingEvent.RenderedMessage.Replace("\t", "    "),
-			Timestamp = GetTimestampString(loggingEvent.TimeStamp),
-			//Source = LogLine.MessageSource.UI // todo: find a way to distinguish
+			Timestamp = GetTimestampString(loggingEvent.TimeStamp)
 		};
 		AddToLogGrid(newLogLine);
 		ScrollToLogEnd();
@@ -44,7 +43,7 @@ public class LogGridAppender : MemoryAppender {
 		base.Append(loggingEvent);
 	}
 
-	public static string GetTimestampString(DateTime dateTime) {
+	private static string GetTimestampString(DateTime dateTime) {
 		return dateTime.ToString("yyyy-MM-dd HH:mm:ss");
 	}
 

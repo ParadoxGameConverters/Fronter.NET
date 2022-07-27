@@ -117,7 +117,7 @@ public class Configuration {
 	private void RegisterPreloadKeys(Parser parser) {
 		parser.RegisterRegex(CommonRegexes.String, (reader, incomingKey) => {
 			var valueStringOfItem = reader.GetStringOfItem();
-			var valueStr = StringUtils.RemQuotes(valueStringOfItem.ToString());
+			var valueStr = valueStringOfItem.ToString().RemQuotes();
 			var valueReader = new BufferedReader(valueStr);
 
 			foreach (var folder in RequiredFolders) {
