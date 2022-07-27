@@ -3,6 +3,7 @@ using commonItems;
 using Fronter.Extensions;
 using Fronter.Models.Configuration;
 using Fronter.Views;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace Fronter.ViewModels;
@@ -39,9 +40,13 @@ public class PathPickerViewModel : ViewModelBase {
 		} else if (!string.IsNullOrEmpty(file.Value)) {
 			dlg.Directory = CommonFunctions.GetPath(file.Value);
 		}
-		dlg.Filters.Add(new FileDialogFilter {
-			Extensions = { file.AllowedExtension.TrimStart('*', '.') }
-		});
+
+		var filter = new FileDialogFilter {Extensions = {file.AllowedExtension.TrimStart('*', '.')}};
+		if (dlg.Filters is null) {
+			dlg.Filters = new List<FileDialogFilter> {filter};
+		} else {
+			dlg.Filters.Add(filter);
+		}
 
 		var result = await dlg.ShowAsync(MainWindow.Instance);
 		if (result is not null) {
