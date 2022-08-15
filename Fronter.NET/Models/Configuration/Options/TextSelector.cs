@@ -17,6 +17,5 @@ public class TextSelector : Selector {
 
 	public bool Editable { get; private set; } = true; // editable unless disabled
 	public string Value { get; set; } = string.Empty;
-	public string Tooltip { get; private set; } = string.Empty;
-
+	public string? Tooltip { get; private set; }
 }

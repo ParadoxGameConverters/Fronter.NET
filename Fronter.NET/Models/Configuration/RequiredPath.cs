@@ -13,7 +13,7 @@ public class RequiredPath : ViewModelBase {
 		protected set => this.RaiseAndSetIfChanged(ref displayName, value);
 	}
 
-	public string Tooltip { get; protected set; } = string.Empty;
+	public string? Tooltip { get; protected set; }
 
 	public string SearchPathType { get; protected set; } = string.Empty;
 	public string SearchPath { get; protected set; } = string.Empty;

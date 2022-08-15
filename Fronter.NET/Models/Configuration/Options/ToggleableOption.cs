@@ -27,7 +27,7 @@ public class ToggleableOption : ReactiveObject {
 
 	public string Name { get; private set; } = string.Empty;
 	public string DisplayName { get; private set; } = string.Empty;
-	public string Tooltip { get; private set; } = string.Empty;
+	public string? Tooltip { get; private set; }
 	public bool? PendingInitialValue { get; set; }
 	private bool boolValue = false;
 	public bool Value { get => boolValue; set => this.RaiseAndSetIfChanged(ref boolValue, value); }

@@ -13,7 +13,7 @@ namespace Fronter.Extensions;
 public class TranslationSource : ReactiveObject {
 	private static readonly ILog logger = LogManager.GetLogger("Translator");
 	private TranslationSource() {
-		var languagesPath = "languages.txt";
+		const string languagesPath = "languages.txt";
 		if (!File.Exists(languagesPath)) {
 			logger.Error("No languages dictionary found!");
 			return;
