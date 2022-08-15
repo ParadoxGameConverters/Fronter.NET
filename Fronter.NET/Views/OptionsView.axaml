@@ -53,7 +53,7 @@
                         >
                             <ComboBox.Styles>
                                 <Style Selector="ComboBoxItem">
-                                    <Setter Property="ToolTip.Tip" Value="{ns:DynamicLoc Tooltip}"></Setter>
+                                    <Setter Property="ToolTip.Tip" Value="{ns:DynamicLoc Tooltip}" />
                                 </Style>
                             </ComboBox.Styles>
                             <ComboBox.ItemTemplate>

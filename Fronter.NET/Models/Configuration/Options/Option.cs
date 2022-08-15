@@ -106,7 +106,7 @@ public class Option {
 	public int Id { get; private set; }
 	public string Name { get; private set; } = string.Empty;
 	public string DisplayName { get; private set; } = string.Empty;
-	public string Tooltip { get; private set; } = string.Empty;
+	public string? Tooltip { get; private set; }
 	public RadioSelector? RadioSelector { get; private set; }
 	public TextSelector? TextSelector { get; private set; }
 	public CheckBoxSelector? CheckBoxSelector { get; private set; }
