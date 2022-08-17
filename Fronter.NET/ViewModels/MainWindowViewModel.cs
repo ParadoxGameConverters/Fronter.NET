@@ -112,8 +112,12 @@ public class MainWindowViewModel : ViewModelBase {
 		return true;
 	}
 
+	private void ClearLogGrid() {
+		LogGridAppender.LogLines.Clear();
+	}
 	public void LaunchConverter() {
 		ConvertButtonEnabled = false;
+		ClearLogGrid();
 		
 		Progress = 0;
 		SaveStatus = "CONVERTSTATUSPRE";
