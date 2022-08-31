@@ -17,6 +17,9 @@ public class Configuration {
 	public string DisplayName { get; private set; } = string.Empty;
 	public string SourceGame { get; private set; } = string.Empty;
 	public string TargetGame { get; private set; } = string.Empty;
+	public string? ModAutoGenerationSource { get; private set; } = null;
+	public List<Mod> AutoLocatedMods { get; } = new();
+	public HashSet<string> PreloadedModFileNames { get; } = new();
 	public bool CopyToTargetGameModDirectory { get; set; } = true;
 	public bool UpdateCheckerEnabled { get; private set; } = false;
 	public bool CheckForUpdatesOnStartup { get; private set; } = false;
@@ -93,6 +96,9 @@ public class Configuration {
 		parser.RegisterKeyword("targetGame", reader => {
 			TargetGame = reader.GetString();
 		});
+		parser.RegisterKeyword("autoGenerateModsFrom", reader => {
+			ModAutoGenerationSource = reader.GetString();
+		});
 		parser.RegisterKeyword("copyToTargetGameModDirectory", reader => {
 			CopyToTargetGameModDirectory = reader.GetString() == "true";
 		});
@@ -140,6 +146,10 @@ public class Configuration {
 					option.SetValue(values);
 					option.SetCheckBoxSelectorPreloaded();
 				}
+			}
+			if (incomingKey == "selectedMods") {
+				var theList = valueReader.GetStrings();
+				PreloadedModFileNames.UnionWith(theList);
 			}
 		});
 		parser.RegisterRegex(CommonRegexes.Catchall, ParserHelpers.IgnoreAndLogItem);
@@ -252,6 +262,18 @@ public class Configuration {
 				}
 				writer.WriteLine($"{file.Name} = \"{file.Value}\"");
 			}
+			
+			if (ModAutoGenerationSource is not null) {
+				writer.WriteLine("selectedMods = {");
+				foreach (var mod in AutoLocatedMods) {
+					if (preloadedModFileNames.count(mod.getFileName()))
+					{
+						confFile << "\t\"" << mod.getFileName() << "\"\n";
+					}
+				}
+			
+				confFile << "}\n";
+			}
 
 			foreach (var option in Options) {
 				if (option.CheckBoxSelector is not null) {
@@ -281,6 +303,81 @@ public class Configuration {
 
 		if (desktop.MainWindow.DataContext is MainWindowViewModel mainWindowDataContext) {
 			mainWindowDataContext.SaveStatus = locKey;
+		}
+	}
+
+	public void AutoLocateMods() {
+		AutoLocatedMods.Clear();
+		
+		// Do we have a mod path?
+		string? modPath = null;
+		foreach (var folder in RequiredFolders) {
+			if (folder.Name == ModAutoGenerationSource) {
+				modPath = folder.Value;
+			}
+		}
+		if (modPath is null) {
+			return;
+		}
+		
+		// Does it exist?
+		if (!Directory.Exists(modPath)) {
+			logger.Warn($"Mod path \"{modPath}\" does not exist or can not be accessed!");
+			return;
+		}
+		
+		// Are we looking at documents directory?
+		var combinedPath = Path.Combine(modPath, "mod");
+		if (Directory.Exists(combinedPath)) {
+			modPath = combinedPath;
+		}
+		
+		// Are there mods inside?
+		var validModFiles = new List<string>();
+		foreach (var file in SystemUtils.GetAllFilesInFolder(modPath)) {
+			var lastDot = file.LastIndexOf('.');
+			if (lastDot == -1) {
+				continue;
+			}
+
+			var extension = CommonFunctions.GetExtension(file);
+			if (extension != "mod") {
+				continue;
+			}
+			
+			validModFiles.Add(file);
+		}
+
+		if (validModFiles.Count == 0) {
+			logger.Warn($"No mod files could be found in \"{modPath}\"");
+			return;
+		}
+
+		foreach (var modFile in validModFiles) {
+			var path = Path.Combine(modPath, modFile);
+			var theMod = new Mod(path);
+			if (string.IsNullOrEmpty(theMod.Name)) {
+				logger.Warn($"Mod at \"{path}\" has no defined name, skipping.");
+				continue;
+			}
+			AutoLocatedMods.Add(theMod);
+		}
+		
+		// Filter broken filenames from preloaded list.
+		var modNames = new HashSet<string>();
+		foreach (var mod in AutoLocatedMods) {
+			modNames.Add(mod.FileName);
+		}
+		PreloadedModFileNames.RemoveWhere(preloadedModFileName => !modNames.Contains(preloadedModFileName));
+	}
+	
+	public void SetEnabledMods(IEnumerable<int> selections) {
+		var selectionsList = selections.ToList();
+		PreloadedModFileNames.Clear();
+		for (int counter = 0; counter < AutoLocatedMods.Count; ++counter) {
+			if (selectionsList.Contains(counter)) {
+				PreloadedModFileNames.Add(AutoLocatedMods[counter].FileName);
+			}
 		}
 	}
 }

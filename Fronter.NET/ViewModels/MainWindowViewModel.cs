@@ -34,6 +34,7 @@ public class MainWindowViewModel : ViewModelBase {
 	public Configuration Config { get; }
 
 	public PathPickerViewModel PathPicker { get; }
+	public ModsPickerViewModel ModsPicker { get; }
 	public OptionsViewModel Options { get; }
 	public bool OptionsTabVisible => Options.Items.Any();
 
