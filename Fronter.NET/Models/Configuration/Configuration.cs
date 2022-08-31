@@ -19,7 +19,7 @@ public class Configuration {
 	public string TargetGame { get; private set; } = string.Empty;
 	public string? ModAutoGenerationSource { get; private set; } = null;
 	public List<Mod> AutoLocatedMods { get; } = new();
-	public HashSet<string> PreloadedModFileNames { get; } = new();
+	// public HashSet<string> PreloadedModFileNames { get; } = new(); // TODO: REMOVE
 	public bool CopyToTargetGameModDirectory { get; set; } = true;
 	public bool UpdateCheckerEnabled { get; private set; } = false;
 	public bool CheckForUpdatesOnStartup { get; private set; } = false;
@@ -68,7 +68,7 @@ public class Configuration {
 			BackendExePath = reader.GetString();
 		});
 		parser.RegisterKeyword("requiredFolder", reader => {
-			var newFolder = new RequiredFolder(reader);
+			var newFolder = new RequiredFolder(reader, this);
 			if (!string.IsNullOrEmpty(newFolder.Name)) {
 				RequiredFolders.Add(newFolder);
 			} else {
@@ -149,7 +149,10 @@ public class Configuration {
 			}
 			if (incomingKey == "selectedMods") {
 				var theList = valueReader.GetStrings();
-				PreloadedModFileNames.UnionWith(theList);
+				var matchingMods = AutoLocatedMods.Where(m => theList.Contains(m.FileName));
+				foreach (var mod in matchingMods) {
+					mod.Enabled = true;
+				}
 			}
 		});
 		parser.RegisterRegex(CommonRegexes.Catchall, ParserHelpers.IgnoreAndLogItem);
@@ -191,6 +194,10 @@ public class Configuration {
 
 			if (Directory.Exists(initialValue)) {
 				folder.Value = initialValue;
+			}
+
+			if (folder.Name == ModAutoGenerationSource) {
+				AutoLocateMods();
 			}
 		}
 
@@ -266,13 +273,11 @@ public class Configuration {
 			if (ModAutoGenerationSource is not null) {
 				writer.WriteLine("selectedMods = {");
 				foreach (var mod in AutoLocatedMods) {
-					if (preloadedModFileNames.count(mod.getFileName()))
-					{
-						confFile << "\t\"" << mod.getFileName() << "\"\n";
+					if (mod.Enabled) {
+						writer.WriteLine($"\t\"{mod.FileName}\"");
 					}
 				}
-			
-				confFile << "}\n";
+				writer.WriteLine("}");
 			}
 
 			foreach (var option in Options) {
@@ -361,23 +366,6 @@ public class Configuration {
 				continue;
 			}
 			AutoLocatedMods.Add(theMod);
-		}
-		
-		// Filter broken filenames from preloaded list.
-		var modNames = new HashSet<string>();
-		foreach (var mod in AutoLocatedMods) {
-			modNames.Add(mod.FileName);
-		}
-		PreloadedModFileNames.RemoveWhere(preloadedModFileName => !modNames.Contains(preloadedModFileName));
-	}
-	
-	public void SetEnabledMods(IEnumerable<int> selections) {
-		var selectionsList = selections.ToList();
-		PreloadedModFileNames.Clear();
-		for (int counter = 0; counter < AutoLocatedMods.Count; ++counter) {
-			if (selectionsList.Contains(counter)) {
-				PreloadedModFileNames.Add(AutoLocatedMods[counter].FileName);
-			}
 		}
 	}
 }

@@ -1,0 +1,58 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:viewModels="clr-namespace:Fronter.ViewModels"
+             xmlns:ns="clr-namespace:Fronter.Extensions"
+             x:Class="Fronter.Views.ModsPickerView"
+             x:DataType="viewModels:ModsPickerViewModel"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="300">
+
+    <Design.DataContext>
+        <viewModels:ModsPickerViewModel />
+    </Design.DataContext>
+    
+    <UserControl.Styles>
+        <Style Selector="TextBlock.PathTextBlockStyle">
+            <Setter Property="Width" Value="250" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+            <Setter Property="Padding" Value="3,5, 0, 0" />
+            <Setter Property="Margin" Value="6,2, 0, 5" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+        
+        <Style Selector="TextBox.PathTextBoxStyle">
+            <Setter Property="Margin" Value="6,2,0,5" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+        </Style>
+
+        <Style Selector="Button.PathBrowseButtonStyle">
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Width" Value="80" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+            <Setter Property="Margin" Value="6, 2, 6, 5" />
+        </Style>
+    </UserControl.Styles>
+
+    <Grid RowDefinitions="Auto,*">
+        <TextBlock Grid.Column="0" Grid.Row="0" Text="{ns:DynamicLoc TabText}"></TextBlock>
+        
+        <ScrollViewer Grid.Column="0" Grid.Row="1" >
+            <StackPanel>
+                <ItemsControl Items="{Binding Mods}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <CheckBox
+                                Content="{Binding Name}"
+                                ToolTip.Tip="{Binding FileName}"
+                                IsChecked="{Binding Enabled, Mode=TwoWay}"
+                            />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

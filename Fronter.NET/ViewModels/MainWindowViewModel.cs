@@ -35,6 +35,7 @@ public class MainWindowViewModel : ViewModelBase {
 
 	public PathPickerViewModel PathPicker { get; }
 	public ModsPickerViewModel ModsPicker { get; }
+	public bool ModsPickerTabVisible => Config.ModAutoGenerationSource is not null;
 	public OptionsViewModel Options { get; }
 	public bool OptionsTabVisible => Options.Items.Any();
 
@@ -78,6 +79,7 @@ public class MainWindowViewModel : ViewModelBase {
 		LogGridAppender.LogGrid = logGrid;
 
 		PathPicker = new PathPickerViewModel(Config);
+		ModsPicker = new ModsPickerViewModel(Config);
 		Options = new OptionsViewModel(Config.Options);
 	}
 

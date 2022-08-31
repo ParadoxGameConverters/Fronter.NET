@@ -14,4 +14,5 @@ public class Mod : ViewModelBase {
 	}
 	public string Name { get; private set; } = string.Empty;
 	public string FileName { get; private set; }
+	public bool Enabled { get; set; } = false;
 }

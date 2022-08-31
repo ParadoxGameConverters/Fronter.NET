@@ -13,14 +13,21 @@ namespace Fronter.ViewModels;
 /// </summary>
 public class ModsPickerViewModel : ViewModelBase {
 	public ModsPickerViewModel(Configuration config) {
+		Mods = new ObservableCollection<Mod>(config.AutoLocatedMods);
+		
 		if (config.ModAutoGenerationSource is null) {
 			TabText = "MODSDISABLED";
 			return;
 		}
-		if (config.auto)
+
+		if (Mods.Count == 0) {
+			TabText = "MODSNOTFOUND";
+			return;
+		}
+
+		TabText = "MODSFOUND";
 	}
 
-	public ObservableCollection<RequiredFolder> RequiredFolders { get; }
-	public ObservableCollection<RequiredFile> RequiredFiles { get; }
+	public ObservableCollection<Mod> Mods { get; }
 	public string? TabText { get; private set; } = null;
 }
