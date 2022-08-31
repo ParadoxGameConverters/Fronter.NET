@@ -62,11 +62,4 @@
     <ItemGroup>
       <UpToDateCheckInput Remove="Styles\MdStyle.axaml" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Compile Update="Views\ModsPickerView.axaml.cs">
-        <DependentUpon>ModsPickerView.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
-    </ItemGroup>
 </Project>
