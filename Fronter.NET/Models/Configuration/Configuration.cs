@@ -19,7 +19,6 @@ public class Configuration {
 	public string TargetGame { get; private set; } = string.Empty;
 	public string? ModAutoGenerationSource { get; private set; } = null;
 	public List<Mod> AutoLocatedMods { get; } = new();
-	// public HashSet<string> PreloadedModFileNames { get; } = new(); // TODO: REMOVE
 	public bool CopyToTargetGameModDirectory { get; set; } = true;
 	public bool UpdateCheckerEnabled { get; private set; } = false;
 	public bool CheckForUpdatesOnStartup { get; private set; } = false;
