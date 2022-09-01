@@ -2,8 +2,6 @@
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using Avalonia.Markup.Xaml.Styling;
-using Avalonia.Styling;
 using Avalonia.Themes.Fluent;
 using commonItems;
 using Fronter.ViewModels;
@@ -17,14 +15,9 @@ namespace Fronter;
 
 public class App : Application {
 	private static readonly ILog logger = LogManager.GetLogger("Frontend");
-	private static readonly string fronterThemePath = Path.Combine("Configuration", "fronter-theme.txt");
-	private static readonly string defaultTheme = "Light";
-	
-	public static readonly StyleInclude DataGridFluent = new(new Uri("avares://Fronter/Styles")) {
-        Source = new Uri("avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml")
-    };
-	public static readonly FluentTheme Fluent = new(new Uri("avares://Fronter/Styles"));
-    
+	private const string FronterThemePath = "Configuration/fronter-theme.txt";
+	private const string DefaultTheme = "Dark";
+
 	public override void Initialize() {
 		ConfigureLogging();
 		
@@ -38,7 +31,7 @@ public class App : Application {
 			var window = MainWindow.Instance;
 			desktop.MainWindow = window;
 			
-			var mainWindowViewModel = new MainWindowViewModel(window.FindControl<DataGrid>("LogGrid"));
+			var mainWindowViewModel = new MainWindowViewModel(window.FindControl<DataGrid>("LogGrid")!);
 			window.DataContext = mainWindowViewModel;
 
 			desktop.MainWindow.Opened += (sender, args) => mainWindowViewModel.CheckForUpdatesOnStartup();
@@ -59,17 +52,17 @@ public class App : Application {
 	}
 
 	private static async void LoadTheme() {
-		if (!File.Exists(fronterThemePath)) {
-			SetTheme(defaultTheme);
+		if (!File.Exists(FronterThemePath)) {
+			SetTheme(DefaultTheme);
 			return;
 		}
 
 		try {
-			var themeName = await File.ReadAllTextAsync(fronterThemePath);
+			var themeName = await File.ReadAllTextAsync(FronterThemePath);
 			SetTheme(themeName);
 		} catch(Exception e) {
 			logger.Warn($"Could not load theme; exception: {e.Message}");
-			SetTheme(defaultTheme);
+			SetTheme(DefaultTheme);
 		}
 	}
 	
@@ -83,22 +76,18 @@ public class App : Application {
 			return;
 		}
 		
+		var fluentTheme = (FluentTheme)app.Styles[0];
 		switch (themeName) {
 			case "Light":
-				if (Fluent.Mode != FluentThemeMode.Light) {
-					Fluent.Mode = FluentThemeMode.Light;
+				if (fluentTheme.Mode != FluentThemeMode.Light) {
+					fluentTheme.Mode = FluentThemeMode.Light;
 				}
 				break;
 			case "Dark":
-				if (Fluent.Mode != FluentThemeMode.Dark) {
-					Fluent.Mode = FluentThemeMode.Dark;
+				if (fluentTheme.Mode != FluentThemeMode.Dark) {
+					fluentTheme.Mode = FluentThemeMode.Dark;
 				}
 				break;
-		}
-
-		if (app.Styles.Count < 2) {
-			app.Styles.Insert(0, Fluent);
-			app.Styles.Insert(1, DataGridFluent);
 		}
 	}
 
@@ -109,7 +98,7 @@ public class App : Application {
 	public static async void SaveTheme(string themeName) {
 		SetTheme(themeName);
 		try {
-			await using var fs = new FileStream(fronterThemePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
+			await using var fs = new FileStream(FronterThemePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
 			await using var writer = new StreamWriter(fs);
 			await writer.WriteAsync(themeName);
 			writer.Close();

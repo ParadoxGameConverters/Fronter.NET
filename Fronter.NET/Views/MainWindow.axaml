@@ -135,22 +135,31 @@
                 </TabItem>
             </TabControl>
         
-            <DataGrid Name="LogGrid" Grid.Column="0" Grid.Row="1" Margin="0,20,0,0" VerticalScrollBarVisibility="Visible" Items="{Binding FilteredLogLines}" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="False">
-                <DataGrid.Resources>
-                    <vc:LogLevelToColorNameConverter x:Key="LogLevelToColorNameConverter"/>
-                </DataGrid.Resources>
-                <DataGrid.Styles>
-                    <Style Selector="DataGridRow">
-                        <Setter Property="Background" Value="{Binding Level, Converter={StaticResource LogLevelToColorNameConverter}}" />
-                    </Style>
-                </DataGrid.Styles>
-                <DataGrid.GridLinesVisibility>All</DataGrid.GridLinesVisibility>
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="{ns:Loc LOGTIME}" IsReadOnly="True" Binding="{Binding Timestamp}" />
-                    <DataGridTextColumn Header="{ns:Loc LOGSEVERITY}" IsReadOnly="True" Binding="{Binding LevelName}" />
-                    <DataGridTextColumn Header="{ns:Loc LOGMESSAGE}" IsReadOnly="True" Binding="{Binding Message}" />
-                </DataGrid.Columns>
-            </DataGrid>
+<DataGrid Name="LogGrid" Grid.Column="0" Grid.Row="1"
+          Margin="0,20,0,0"
+          Items="{Binding FilteredLogLines}"
+          AutoGenerateColumns="False"
+          CanUserReorderColumns="False"
+          CanUserSortColumns="False"
+          RowBackground="Transparent"
+          AlternatingRowBackground="Transparent"
+          VerticalScrollBarVisibility="Visible"
+          GridLinesVisibility="All"
+          >
+    <DataGrid.Resources>
+        <vc:LogLevelToColorNameConverter x:Key="LogLevelToColorNameConverter"/>
+    </DataGrid.Resources>
+    <DataGrid.Styles>
+        <Style Selector="DataGrid DataGridRow">
+            <Setter Property="Background" Value="{Binding Level, Converter={StaticResource LogLevelToColorNameConverter}}" />
+        </Style>
+    </DataGrid.Styles>
+    <DataGrid.Columns>
+        <DataGridTextColumn Header="{ns:Loc LOGTIME}" IsReadOnly="True" Binding="{Binding Timestamp}" />
+        <DataGridTextColumn Header="{ns:Loc LOGSEVERITY}" IsReadOnly="True" Binding="{Binding LevelName}" />
+        <DataGridTextColumn Header="{ns:Loc LOGMESSAGE}" IsReadOnly="True" Binding="{Binding Message}" />
+    </DataGrid.Columns>
+</DataGrid>
         </Grid>
     </DockPanel>
 </Window>
