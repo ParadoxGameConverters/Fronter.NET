@@ -69,6 +69,12 @@
                     </ScrollViewer>
                 </TabItem>
                 
+                <TabItem Header="{ns:Loc MODSTAB}" VerticalContentAlignment="Center" IsVisible="{Binding ModsPickerTabVisible}">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <views:ModsPickerView DataContext="{Binding ModsPicker}"/>
+                    </ScrollViewer>
+                </TabItem>
+                
                 <TabItem Header="{ns:Loc OPTIONSTAB}" VerticalContentAlignment="Center" IsVisible="{Binding OptionsTabVisible}">
                     <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
                         <views:OptionsView DataContext="{Binding Options}" />

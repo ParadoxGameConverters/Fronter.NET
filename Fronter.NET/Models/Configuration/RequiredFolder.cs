@@ -8,7 +8,9 @@ namespace Fronter.Models.Configuration;
 
 public class RequiredFolder : RequiredPath {
 	private static readonly ILog logger = LogManager.GetLogger("Required folder");
-	public RequiredFolder(BufferedReader reader) {
+	public RequiredFolder(BufferedReader reader, Configuration configuration) {
+		config = configuration;
+		
 		var parser = new Parser();
 		RegisterKeys(parser);
 		parser.ParseStream(reader);
@@ -23,7 +25,7 @@ public class RequiredFolder : RequiredPath {
 		parser.RegisterKeyword("searchPathType", reader => SearchPathType = reader.GetString());
 		parser.RegisterKeyword("searchPathID", reader => SearchPathId = reader.GetString());
 		parser.RegisterKeyword("searchPath", reader => SearchPath = reader.GetString());
-		parser.RegisterRegex(CommonRegexes.Catchall, ParserHelpers.IgnoreAndLogItem);
+		parser.IgnoreAndLogUnregisteredItems();
 	}
 
 	// If we have folders listed, they are generally required. Override with false in conf file.
@@ -40,6 +42,12 @@ public class RequiredFolder : RequiredPath {
 
 			base.Value = value;
 			logger.Info($"{TranslationSource.Instance[DisplayName]} set to: {value}");
+			
+			if (Name == config.ModAutoGenerationSource) {
+				config.AutoLocateMods();
+			}
 		}
 	}
+
+	private readonly Configuration config;
 }
