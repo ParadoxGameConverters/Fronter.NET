@@ -18,7 +18,8 @@ jobs:
     - name: Setup Dotnet for use with actions
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: '6.*'
+        dotnet-version: '7.*'
+        include-prerelease: true
     - name: Test
       run: |
        cd Fronter.NET.Tests
@@ -43,7 +44,8 @@ jobs:
     - name: Setup Dotnet for use with actions
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: '6.*'
+        dotnet-version: '7.*'
+        include-prerelease: true
     - name: Test
       run: |
        cd Fronter.NET.Tests
