@@ -36,12 +36,14 @@
         </Style>
     </UserControl.Styles>
 
-    <Grid RowDefinitions="Auto,*">
-        <TextBlock Grid.Column="0" Grid.Row="0" Text="{ns:DynamicLoc TabText}"></TextBlock>
+    <Grid RowDefinitions="Auto,*,*,*,*">
+        <TextBlock Grid.Column="0" Grid.Row="0" Text="{ns:Loc MODSDISABLED}" IsVisible="{Binding ModsDisabled}"></TextBlock>
+        <TextBlock Grid.Column="0" Grid.Row="0" Text="{ns:Loc MODSNOTFOUND}" IsVisible="{Binding !AutoLocatedMods.Count}"></TextBlock>
+        <TextBlock Grid.Column="0" Grid.Row="0" Text="{ns:Loc MODSFOUND}" IsVisible="{Binding AutoLocatedMods.Count}"></TextBlock>
         
         <ScrollViewer Grid.Column="0" Grid.Row="1" >
             <StackPanel>
-                <ItemsControl Items="{Binding Mods}">
+                <ItemsControl Items="{Binding AutoLocatedMods}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <CheckBox
