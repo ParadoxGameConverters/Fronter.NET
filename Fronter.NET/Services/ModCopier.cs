@@ -1,8 +1,8 @@
 ﻿using commonItems;
-using Fronter.Extensions;
 using Fronter.Models.Configuration;
 using log4net;
 using System;
+using System.Data;
 using System.Data.SQLite;
 using System.IO;
 using System.Linq;
@@ -125,7 +125,7 @@ public class ModCopier {
 		
 		// ==================================================
 
-		CreatePlayset(destModsFolder, targetName);
+		CreatePlayset(destModsFolder, targetName, destModFolderPath);
 		
 		// ==================================================
 		
@@ -133,8 +133,8 @@ public class ModCopier {
 		return true;
 	}
 
-	public void CreatePlayset(string targetModsDirectory, string modName) {
-		logger.Info("Creating playset...");
+	public void CreatePlayset(string targetModsDirectory, string modName, string destModFolder) {
+		logger.Info("Setting up playset...");
 		
 		var gameDocsDirectory = Directory.GetParent(targetModsDirectory)?.FullName;
 		if (gameDocsDirectory is null) {
@@ -157,30 +157,54 @@ public class ModCopier {
 
 			using var cmd = new SQLiteCommand(connection);
 			
-			logger.Debug("Deactivating currently active playset...");
-			cmd.CommandText = "UPDATE playsets SET isActive=false";
-			cmd.ExecuteNonQuery();
+			var playsetName = $"{config.Name} - {modName}";
 			
-			logger.Debug("Creating new playset...");
-			var playsetId = Guid.NewGuid().ToString();
-			var playsetName = $"{TranslationSource.Instance.Translate(config.DisplayName)} - {modName}";
-			cmd.CommandText = "INSERT INTO playsets(id, name, isActive, isRemoved, hasNotApprovedChanges, createdOn) " +
-			                  $"VALUES('{playsetId}', '{playsetName}', true, false, false, date('now'))";
-			cmd.ExecuteNonQuery();
+			// Check if a playset with the same name already exists.
+			cmd.CommandText = $"SELECT COUNT(*) FROM playsets WHERE name='{playsetName}'";
+			bool playsetExists = Convert.ToBoolean(cmd.ExecuteScalar());
+			if (playsetExists) {
+				if (config.OverwritePlayset) {
+					DeactivateCurrentPlayset(cmd);
+					
+					logger.Debug("Updating playset...");
+					cmd.CommandText = "UPDATE playsets SET isActive=true, createdOn=date('now') " +
+					                  "WHERE name='{playsetName}'";
+					cmd.ExecuteNonQuery();
+					
+					logger.Notice("Updated existing playset.");
+				} else {
+					logger.Notice("Playset already exists.");
+				}
+			} else {
+				DeactivateCurrentPlayset(cmd);
+				
+				logger.Debug("Creating new playset...");
+				var playsetId = Guid.NewGuid().ToString();
+				cmd.CommandText = "INSERT INTO playsets(id, name, isActive, isRemoved, hasNotApprovedChanges, createdOn) " +
+				                  $"VALUES('{playsetId}', '{playsetName}', true, false, false, date('now'))";
+				cmd.ExecuteNonQuery();
 			
-			logger.Debug("Saving generated mod to DB...");
-			var modId = Guid.NewGuid().ToString();
-			cmd.CommandText = "INSERT INTO mods(id, status, source) " +
-			                  $"VALUES('{modId}', 'ready_to_play', 'local')";
-			cmd.ExecuteNonQuery();
+				logger.Debug("Saving generated mod to DB...");
+				var modId = Guid.NewGuid().ToString();
+				var gameRegistryId = Path.Join("mod", $"{modName}.mod");
+				cmd.CommandText = "INSERT INTO mods(id, status, source, version, gameRegistryId, name, dirPath) " +
+				                  $"VALUES('{modId}', 'ready_to_play', 'local', 1, '{gameRegistryId}', '{modName}', '{destModFolder}')";
+				cmd.ExecuteNonQuery();
 			
-			logger.Debug("Adding mod to created playset...");
-			cmd.CommandText = $"INSERT INTO playsets_mods(playsetId, modId) VALUES('{playsetId}', '{modId}')";
-			cmd.ExecuteNonQuery();
+				logger.Debug("Adding mod to created playset...");
+				cmd.CommandText = $"INSERT INTO playsets_mods(playsetId, modId) VALUES('{playsetId}', '{modId}')";
+				cmd.ExecuteNonQuery();
 
-			logger.Notice("Successfully created a playset with the generated mod.");
+				logger.Notice("Successfully created a new playset with the generated mod.");
+			}
 		} catch(Exception e) {
 			logger.Error(e);
 		}
+	}
+
+	private void DeactivateCurrentPlayset(IDbCommand cmd) {
+		logger.Debug("Deactivating currently active playset...");
+		cmd.CommandText = "UPDATE playsets SET isActive=false";
+		cmd.ExecuteNonQuery();
 	}
 }
