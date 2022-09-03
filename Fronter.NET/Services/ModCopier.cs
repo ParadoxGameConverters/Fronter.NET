@@ -1,4 +1,5 @@
 ﻿using commonItems;
+using Fronter.Extensions;
 using Fronter.Models.Configuration;
 using log4net;
 using System;
@@ -124,7 +125,7 @@ public class ModCopier {
 		
 		// ==================================================
 
-		CreatePlayset(destModsFolder);
+		CreatePlayset(destModsFolder, targetName);
 		
 		// ==================================================
 		
@@ -132,7 +133,7 @@ public class ModCopier {
 		return true;
 	}
 
-	public void CreatePlayset(string targetModsDirectory) {
+	public void CreatePlayset(string targetModsDirectory, string modName) {
 		logger.Info("Creating playset...");
 		
 		var gameDocsDirectory = Directory.GetParent(targetModsDirectory)?.FullName;
@@ -144,6 +145,7 @@ public class ModCopier {
 		var launcherDbPath = Path.Join(gameDocsDirectory, "launcher-v2_openbeta.sqlite");
 		if (!File.Exists(launcherDbPath)) {
 			logger.Warn("Launcher's database not found.");
+			return;
 		}
 
 		string connectionString = $"URI=file:{launcherDbPath}";
@@ -159,13 +161,24 @@ public class ModCopier {
 			cmd.CommandText = "UPDATE playsets SET isActive=false";
 			cmd.ExecuteNonQuery();
 			
-			// Add new playset.
-			var newPlaysetId = Guid.NewGuid().ToString();
+			logger.Debug("Creating new playset...");
+			var playsetId = Guid.NewGuid().ToString();
+			var playsetName = $"{TranslationSource.Instance.Translate(config.DisplayName)} - {modName}";
 			cmd.CommandText = "INSERT INTO playsets(id, name, isActive, isRemoved, hasNotApprovedChanges, createdOn) " +
-			                  $"VALUES('{newPlaysetId}', 'PLAYSET FROM FRONTER', true, false, false, date('now'))";
+			                  $"VALUES('{newPlaysetId}', '', true, false, false, date('now'))";
+			cmd.ExecuteNonQuery();
+			
+			logger.Debug("Saving generated mod to DB...");
+			var modId = Guid.NewGuid().ToString();
+			cmd.CommandText = "INSERT INTO mods(id, status, source) " +
+			                  $"VALUES('{newModId}', 'ready_to_play', 'local')";
+			cmd.ExecuteNonQuery();
+			
+			logger.Debug("Adding mod to created playset...");
+			cmd.CommandText = $"INSERT INTO playsets_mods(playsetId, modId) VALUES('{playsetId}', '{modId}')";
 			cmd.ExecuteNonQuery();
 
-			logger.Notice("PLAYSET CREATED.");
+			logger.Notice("Successfully created a playset with the generated mod.");
 		} catch(Exception e) {
 			logger.Error(e);
 		}
