@@ -157,7 +157,7 @@ public class ModCopier {
 
 			using var cmd = new SQLiteCommand(connection);
 			
-			var playsetName = $"{config.Name} - {modName}";
+			var playsetName = $"{config.Name}: {modName}";
 			
 			// Check if a playset with the same name already exists.
 			cmd.CommandText = $"SELECT COUNT(*) FROM playsets WHERE name='{playsetName}'";
@@ -186,7 +186,7 @@ public class ModCopier {
 			
 				logger.Debug("Saving generated mod to DB...");
 				var modId = Guid.NewGuid().ToString();
-				var gameRegistryId = Path.Join("mod", $"{modName}.mod");
+				var gameRegistryId = Path.Join("mod", $"{modName}.mod").Replace('\\', '/');
 				cmd.CommandText = "INSERT INTO mods(id, status, source, version, gameRegistryId, name, dirPath) " +
 				                  $"VALUES('{modId}', 'ready_to_play', 'local', 1, '{gameRegistryId}', '{modName}', '{destModFolder}')";
 				cmd.ExecuteNonQuery();
