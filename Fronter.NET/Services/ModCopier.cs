@@ -123,13 +123,8 @@ public class ModCopier {
 		}
 		logger.Notice($"Mod successfully copied to: {destModFolderPath}");
 		
-		// ==================================================
-
 		CreatePlayset(destModsFolder, targetName, destModFolderPath);
-		
-		// ==================================================
-		
-		
+
 		return true;
 	}
 
