@@ -151,7 +151,7 @@ public class ModCopier {
 		string connectionString = $"URI=file:{launcherDbPath}";
 
 		try {
-			logger.Debug("Connecting launcher's DB...");
+			logger.Debug("Connecting to launcher's DB...");
 			using var connection = new SQLiteConnection(connectionString);
 			connection.Open();
 
