@@ -165,13 +165,13 @@ public class ModCopier {
 			var playsetId = Guid.NewGuid().ToString();
 			var playsetName = $"{TranslationSource.Instance.Translate(config.DisplayName)} - {modName}";
 			cmd.CommandText = "INSERT INTO playsets(id, name, isActive, isRemoved, hasNotApprovedChanges, createdOn) " +
-			                  $"VALUES('{newPlaysetId}', '', true, false, false, date('now'))";
+			                  $"VALUES('{playsetId}', '{playsetName}', true, false, false, date('now'))";
 			cmd.ExecuteNonQuery();
 			
 			logger.Debug("Saving generated mod to DB...");
 			var modId = Guid.NewGuid().ToString();
 			cmd.CommandText = "INSERT INTO mods(id, status, source) " +
-			                  $"VALUES('{newModId}', 'ready_to_play', 'local')";
+			                  $"VALUES('{modId}', 'ready_to_play', 'local')";
 			cmd.ExecuteNonQuery();
 			
 			logger.Debug("Adding mod to created playset...");

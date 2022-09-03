@@ -21,6 +21,7 @@ public class Configuration {
 	public string? ModAutoGenerationSource { get; private set; } = null;
 	public ObservableCollection<Mod> AutoLocatedMods { get; } = new();
 	public bool CopyToTargetGameModDirectory { get; set; } = true;
+	public bool OverwritePlayset { get; set; } = false;
 	public bool UpdateCheckerEnabled { get; private set; } = false;
 	public bool CheckForUpdatesOnStartup { get; private set; } = false;
 	public string ConverterReleaseForumThread { get; private set; } = string.Empty;
@@ -101,6 +102,9 @@ public class Configuration {
 		});
 		parser.RegisterKeyword("copyToTargetGameModDirectory", reader => {
 			CopyToTargetGameModDirectory = reader.GetString() == "true";
+		});
+		parser.RegisterKeyword("overwritePlayset", reader => {
+			OverwritePlayset = reader.GetString() == "true";
 		});
 		parser.RegisterKeyword("enableUpdateChecker", reader => {
 			UpdateCheckerEnabled = reader.GetString() == "true";
