@@ -199,16 +199,19 @@ public class ModCopier {
 					using SQLiteDataReader rdr = cmd.ExecuteReader();
 					bool modExists = rdr.HasRows && rdr.Read();
 					if (modExists) {
-						logger.Warn($"Mod {playsetModName} EXISTS!"); // TODO: REMOVE DEBUG
 						var modId = rdr.GetString(0);
 						rdr.Close();
 						AddModToPlayset(cmd, modId, playsetId);
 					} else {
-						logger.Warn($"Mod {playsetModName} DOES NOT EXIST!"); // TODO: REMOVE DEBUG
+						rdr.Close();
 
 						var gameRegistryId = playsetModPath;
 						if (!gameRegistryId.StartsWith("mod/")) {
 							gameRegistryId = $"mod/{gameRegistryId}";
+						}
+						if (!gameRegistryId.EndsWith(".mod")) {
+							gameRegistryId = $"{gameRegistryId}.mod";
+							
 						}
 
 						string dirPath;
