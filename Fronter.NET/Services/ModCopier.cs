@@ -211,7 +211,6 @@ public class ModCopier {
 						}
 						if (!gameRegistryId.EndsWith(".mod")) {
 							gameRegistryId = $"{gameRegistryId}.mod";
-							
 						}
 
 						string dirPath;
