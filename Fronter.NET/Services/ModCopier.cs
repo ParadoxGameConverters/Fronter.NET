@@ -201,6 +201,7 @@ public class ModCopier {
 					if (modExists) {
 						logger.Warn($"Mod {playsetModName} EXISTS!"); // TODO: REMOVE DEBUG
 						var modId = rdr.GetString(0);
+						rdr.Close();
 						AddModToPlayset(cmd, modId, playsetId);
 					} else {
 						logger.Warn($"Mod {playsetModName} DOES NOT EXIST!"); // TODO: REMOVE DEBUG
