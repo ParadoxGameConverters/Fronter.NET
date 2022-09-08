@@ -54,7 +54,7 @@
         <PackageReference Include="Markdown.Avalonia" Version="0.10.11" />
         <PackageReference Include="MessageBox.Avalonia" Version="2.1.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-        <PackageReference Include="PGCG.commonItems" Version="7.1.3" />
+        <PackageReference Include="PGCG.commonItems" Version="7.1.5" />
         <PackageReference Include="System.Data.SQLite.Core" Version="1.0.116" />
         <PackageReference Include="system.io.filesystem" Version="4.3.0" />
         <PackageReference Include="System.Net.Primitives" Version="4.3.1" />
