@@ -3,6 +3,7 @@ using Fronter.Models.Configuration;
 using log4net;
 using Open.Collections;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
@@ -138,13 +139,13 @@ public class ModCopier {
 			return;
 		}
 
-		var launcherDbPath = Path.Join(gameDocsDirectory, "launcher-v2_openbeta.sqlite");
-		if (!File.Exists(launcherDbPath)) {
+		var latestDbFilePath = GetLastUpdatedLauncherDbPath(gameDocsDirectory);
+		if (latestDbFilePath is null) {
 			logger.Warn("Launcher's database not found.");
 			return;
 		}
 
-		string connectionString = $"URI=file:{launcherDbPath}";
+		string connectionString = $"URI=file:{latestDbFilePath}";
 
 		try {
 			logger.Debug("Connecting to launcher's DB...");
@@ -230,6 +231,16 @@ public class ModCopier {
 		} catch(Exception e) {
 			logger.Error(e);
 		}
+	}
+
+	private string? GetLastUpdatedLauncherDbPath(string gameDocsDirectory) {
+		var possibleDbFileNames = new List<string> {"launcher-v2.sqlite", "launcher-v2_openbeta.sqlite"};
+		var latestDbFilePath = possibleDbFileNames
+			.Select(name => Path.Join(gameDocsDirectory, name))
+			.Where(File.Exists)
+			.OrderByDescending(File.GetLastWriteTimeUtc)
+			.FirstOrDefault(defaultValue: null);
+		return latestDbFilePath;
 	}
 
 	// Returns ID of saved mod.
