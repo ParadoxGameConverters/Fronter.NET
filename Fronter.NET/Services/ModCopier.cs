@@ -155,6 +155,8 @@ public class ModCopier {
 			using var cmd = new SQLiteCommand(connection);
 			
 			var playsetName = $"{config.Name}: {modName}";
+			var dateTimeOffset = new DateTimeOffset(DateTime.UtcNow);
+			string unixTimeMilliSeconds = dateTimeOffset.ToUnixTimeMilliseconds().ToString();
 			
 			// Check if a playset with the same name already exists.
 			cmd.CommandText = $"SELECT COUNT(*) FROM playsets WHERE name='{playsetName}'";
@@ -164,8 +166,8 @@ public class ModCopier {
 					DeactivateCurrentPlayset(cmd);
 					
 					logger.Debug("Updating playset...");
-					cmd.CommandText = "UPDATE playsets SET isActive=true, createdOn=date('now') " +
-					                  "WHERE name='{playsetName}'";
+					cmd.CommandText = $"UPDATE playsets SET isActive=true, updatedOn={unixTimeMilliSeconds} " +
+					                  $"WHERE name='{playsetName}'";
 					cmd.ExecuteNonQuery();
 					
 					logger.Notice("Updated existing playset.");
@@ -178,7 +180,7 @@ public class ModCopier {
 				logger.Debug("Creating new playset...");
 				var playsetId = Guid.NewGuid().ToString();
 				cmd.CommandText = "INSERT INTO playsets(id, name, isActive, isRemoved, hasNotApprovedChanges, createdOn) " +
-				                  $"VALUES('{playsetId}', '{playsetName}', true, false, false, date('now'))";
+				                  $"VALUES('{playsetId}', '{playsetName}', true, false, false, {unixTimeMilliSeconds})";
 				cmd.ExecuteNonQuery();
 
 				var playsetInfo = LoadPlaysetInfo();
