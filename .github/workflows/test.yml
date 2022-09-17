@@ -8,20 +8,19 @@ on:
 
 jobs:
   test_and_check_coverage:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux]
     steps:
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
         submodules: recursive
-    # install dependencies, build, and test
-    - name: Setup Dotnet for use with actions
+    - name: "Setup Dotnet for use with actions"
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: '6.*'
-    - name: Test
+    - name: "Test"
+      working-directory: Fronter.NET.Tests
       run: |
-       cd Fronter.NET.Tests
        dotnet test /p:CollectCoverage=true /p:CoverletOutput=TestResults/ /p:CoverletOutputFormat=lcov /p:Exclude=[commonItems]*
     - name: Publish coverage report to coveralls.io
       uses: coverallsapp/github-action@master
@@ -39,12 +38,11 @@ jobs:
       with:
         fetch-depth: 0
         submodules: recursive
-    # install dependencies, build, and test
-    - name: Setup Dotnet for use with actions
+    - name: "Setup Dotnet for use with actions"
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: '6.*'
-    - name: Test
+    - name: "Test"
+      working-directory: Fronter.NET.Tests
       run: |
-       cd Fronter.NET.Tests
        dotnet test

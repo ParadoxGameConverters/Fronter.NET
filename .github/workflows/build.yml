@@ -7,18 +7,17 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [[self-hosted, linux], macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
       with:
         submodules: recursive
-    # install dependencies, build, and test
-    - name: Setup Dotnet for use with actions
+    - name: "Setup Dotnet for use with actions"
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: '6.*'
     - name: "Build"
+      working-directory: Fronter.NET
       run: |
-       cd Fronter.NET
        dotnet build
