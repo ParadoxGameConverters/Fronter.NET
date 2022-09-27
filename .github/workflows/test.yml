@@ -15,9 +15,9 @@ jobs:
         fetch-depth: 0
         submodules: recursive
     - name: "Setup Dotnet for use with actions"
-      uses: actions/setup-dotnet@v2
+      uses: actions/setup-dotnet@main
       with:
-        dotnet-version: '6.*'
+        dotnet-version: '6.x'
     - name: "Test"
       working-directory: Fronter.NET.Tests
       run: |
@@ -31,7 +31,7 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [windows-latest, macos-latest]
+        os: [[self-hosted, windows], macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
@@ -39,9 +39,9 @@ jobs:
         fetch-depth: 0
         submodules: recursive
     - name: "Setup Dotnet for use with actions"
-      uses: actions/setup-dotnet@v2
+      uses: actions/setup-dotnet@main
       with:
-        dotnet-version: '6.*'
+        dotnet-version: '6.x'
     - name: "Test"
       working-directory: Fronter.NET.Tests
       run: |
