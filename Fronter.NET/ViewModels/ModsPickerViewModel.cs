@@ -1,9 +1,7 @@
-﻿using Avalonia.Controls;
-using commonItems;
-using Fronter.Extensions;
+﻿using DynamicData;
+using DynamicData.Binding;
 using Fronter.Models.Configuration;
-using Fronter.Views;
-using System.Collections.Generic;
+using System;
 using System.Collections.ObjectModel;
 
 namespace Fronter.ViewModels;
@@ -13,21 +11,17 @@ namespace Fronter.ViewModels;
 /// </summary>
 public class ModsPickerViewModel : ViewModelBase {
 	public ModsPickerViewModel(Configuration config) {
-		Mods = new ObservableCollection<Mod>(config.AutoLocatedMods);
+		config.AutoLocatedMods.ToObservableChangeSet()
+			.Bind(out autoLocatedMods)
+			.Subscribe();
 		
 		if (config.ModAutoGenerationSource is null) {
-			TabText = "MODSDISABLED";
-			return;
+			ModsDisabled = true;
 		}
-
-		if (Mods.Count == 0) {
-			TabText = "MODSNOTFOUND";
-			return;
-		}
-
-		TabText = "MODSFOUND";
 	}
 
-	public ObservableCollection<Mod> Mods { get; }
-	public string? TabText { get; private set; } = null;
+	private readonly ReadOnlyObservableCollection<Mod> autoLocatedMods;
+	public ReadOnlyObservableCollection<Mod> AutoLocatedMods => autoLocatedMods;
+
+	public bool ModsDisabled { get; } = false;
 }

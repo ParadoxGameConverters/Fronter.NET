@@ -5,6 +5,7 @@ using Fronter.ViewModels;
 using log4net;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 
@@ -18,8 +19,9 @@ public class Configuration {
 	public string SourceGame { get; private set; } = string.Empty;
 	public string TargetGame { get; private set; } = string.Empty;
 	public string? ModAutoGenerationSource { get; private set; } = null;
-	public List<Mod> AutoLocatedMods { get; } = new();
+	public ObservableCollection<Mod> AutoLocatedMods { get; } = new();
 	public bool CopyToTargetGameModDirectory { get; set; } = true;
+	public bool OverwritePlayset { get; set; } = false;
 	public bool UpdateCheckerEnabled { get; private set; } = false;
 	public bool CheckForUpdatesOnStartup { get; private set; } = false;
 	public string ConverterReleaseForumThread { get; private set; } = string.Empty;
@@ -101,6 +103,9 @@ public class Configuration {
 		parser.RegisterKeyword("copyToTargetGameModDirectory", reader => {
 			CopyToTargetGameModDirectory = reader.GetString() == "true";
 		});
+		parser.RegisterKeyword("overwritePlayset", reader => {
+			OverwritePlayset = reader.GetString() == "true";
+		});
 		parser.RegisterKeyword("enableUpdateChecker", reader => {
 			UpdateCheckerEnabled = reader.GetString() == "true";
 		});
@@ -116,7 +121,7 @@ public class Configuration {
 		parser.RegisterKeyword("pagesCommitIdUrl", reader => {
 			PagesCommitIdUrl = reader.GetString();
 		});
-		parser.RegisterRegex(CommonRegexes.Catchall, ParserHelpers.IgnoreAndLogItem);
+		parser.IgnoreAndLogUnregisteredItems();
 	}
 
 	private void RegisterPreloadKeys(Parser parser) {
@@ -311,7 +316,9 @@ public class Configuration {
 	}
 
 	public void AutoLocateMods() {
+		logger.Debug("Clearing previously located mods...");
 		AutoLocatedMods.Clear();
+		logger.Debug("Autolocating mods...");
 		
 		// Do we have a mod path?
 		string? modPath = null;
@@ -321,6 +328,7 @@ public class Configuration {
 			}
 		}
 		if (modPath is null) {
+			logger.Warn("No folder found as source for mods autolocation.");
 			return;
 		}
 		
@@ -335,6 +343,7 @@ public class Configuration {
 		if (Directory.Exists(combinedPath)) {
 			modPath = combinedPath;
 		}
+		logger.Debug($"Mods autolocation path set to: \"{modPath}\"");
 		
 		// Are there mods inside?
 		var validModFiles = new List<string>();
@@ -353,7 +362,7 @@ public class Configuration {
 		}
 
 		if (validModFiles.Count == 0) {
-			logger.Warn($"No mod files could be found in \"{modPath}\"");
+			logger.Debug($"No mod files could be found in \"{modPath}\"");
 			return;
 		}
 
@@ -366,5 +375,6 @@ public class Configuration {
 			}
 			AutoLocatedMods.Add(theMod);
 		}
+		logger.Debug($"Autolocated {AutoLocatedMods.Count} mods");
 	}
 }

@@ -14,15 +14,14 @@ jobs:
       with:
         fetch-depth: 0
         submodules: recursive
-    # install dependencies, build, and test
-    - name: Setup Dotnet for use with actions
-      uses: actions/setup-dotnet@v2
+    - name: "Setup Dotnet for use with actions"
+      uses: actions/setup-dotnet@main
       with:
-        dotnet-version: '7.*'
-        include-prerelease: true
+        dotnet-version: '7.x'
+        dotnet-quality: 'preview'
     - name: Test
+      working-directory: Fronter.NET.Tests
       run: |
-       cd Fronter.NET.Tests
        dotnet test /p:CollectCoverage=true /p:CoverletOutput=TestResults/ /p:CoverletOutputFormat=lcov /p:Exclude=[commonItems]*
     - name: Publish coverage report to coveralls.io
       uses: coverallsapp/github-action@master
@@ -33,20 +32,19 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [windows-latest, macos-latest]
+        os: [[self-hosted, windows], macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
         submodules: recursive
-    # install dependencies, build, and test
-    - name: Setup Dotnet for use with actions
-      uses: actions/setup-dotnet@v2
+    - name: "Setup Dotnet for use with actions"
+      uses: actions/setup-dotnet@main
       with:
-        dotnet-version: '7.*'
-        include-prerelease: true
+        dotnet-version: '7.x'
+        dotnet-quality: 'preview'
     - name: Test
+      working-directory: Fronter.NET.Tests
       run: |
-       cd Fronter.NET.Tests
        dotnet test
