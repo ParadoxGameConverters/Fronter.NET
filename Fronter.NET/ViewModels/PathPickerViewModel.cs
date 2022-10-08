@@ -63,9 +63,19 @@ public class PathPickerViewModel : ViewModelBase {
 		var window = MainWindow.Instance;
 		var result = await window.StorageProvider.OpenFilePickerAsync(options);
 		var selectedFile = result.FirstOrDefault(defaultValue: null);
-
-		if (selectedFile is not null) {
-			file.Value = selectedFile.Name;
+		if (selectedFile is null) {
+			Logger.Warn($"{file.Name}: no file selected!");
+			return;
 		}
+
+		if (!selectedFile.TryGetUri(out var uri)) {
+			Logger.Warn($"Can't set file path: selected file \"{selectedFile.Name}\" has no path!");
+			return;
+		}
+		if (!uri.IsAbsoluteUri) {
+			Logger.Warn($"Can't set file path: uri of file \"{selectedFile.Name}\" is not absolute!");
+		}
+		var absolutePath = uri.LocalPath;
+		file.Value = absolutePath;
 	}
 }
