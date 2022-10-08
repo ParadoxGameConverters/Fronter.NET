@@ -6,7 +6,10 @@ using System;
 namespace Fronter;
 
 public class ViewLocator : IDataTemplate {
-	public IControl Build(object data) {
+	public IControl Build(object? data) {
+		if (data is null) {
+			return new TextBlock { Text = "Not Found." };
+		}
 		var name = data.GetType().FullName!.Replace("ViewModel", "View");
 		var type = Type.GetType(name);
 
@@ -17,7 +20,7 @@ public class ViewLocator : IDataTemplate {
 		}
 	}
 
-	public bool Match(object data) {
+	public bool Match(object? data) {
 		return data is ViewModelBase;
 	}
 }

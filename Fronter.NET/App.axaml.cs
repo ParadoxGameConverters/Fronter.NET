@@ -22,9 +22,9 @@ public class App : Application {
 	public override void Initialize() {
 		ConfigureLogging();
 		
-		LoadTheme();
-
 		AvaloniaXamlLoader.Load(this);
+		
+		LoadTheme();
 	}
 
 	public override void OnFrameworkInitializationCompleted() {
@@ -70,7 +70,7 @@ public class App : Application {
 	/// <summary>
 	/// Sets a theme
 	/// </summary>
-	/// <param name="themeName"></param>
+	/// <param name="themeName">Name of the theme to set.</param>
 	public static void SetTheme(string themeName) {
 		var app = Application.Current;
 		if (app is null) {
@@ -95,7 +95,7 @@ public class App : Application {
 	/// <summary>
 	/// Sets and saves a theme
 	/// </summary>
-	/// <param name="themeName"></param>
+	/// <param name="themeName" >Name of the theme to set and save.</param>
 	public static async void SaveTheme(string themeName) {
 		SetTheme(themeName);
 		try {
