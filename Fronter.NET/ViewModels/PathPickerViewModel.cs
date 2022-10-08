@@ -33,15 +33,27 @@ public class PathPickerViewModel : ViewModelBase {
 	public ReactiveCommand<RequiredFile, Unit> OpenFileDialogCommand { get; }
 
 	public async void OpenFolderDialog(RequiredFolder folder) {
-		var dlg = new OpenFolderDialog {
+		var options = new FolderPickerOpenOptions {
 			Title = TranslationSource.Instance[folder.DisplayName],
-			Directory = string.IsNullOrEmpty(folder.Value) ? null : folder.Value
+			SuggestedStartLocation = string.IsNullOrEmpty(folder.Value) ? null : new BclStorageFolder(folder.Value)
 		};
-
-		var result = await dlg.ShowAsync(MainWindow.Instance);
-		if (result is not null) {
-			folder.Value = result;
+		
+		var window = MainWindow.Instance;
+		var result = await window.StorageProvider.OpenFolderPickerAsync(options);
+		var selectedFile = result.FirstOrDefault(defaultValue: null);
+		if (selectedFile is null) {
+			Logger.Warn($"{folder.Name}: no folder selected!");
+			return;
 		}
+		if (!selectedFile.TryGetUri(out var uri)) {
+			Logger.Warn($"Can't set folder path: selected folder \"{selectedFile.Name}\" has no path!");
+			return;
+		}
+		if (!uri.IsAbsoluteUri) {
+			Logger.Warn($"URI of folder \"{selectedFile.Name}\" is not absolute!");
+		}
+		var absolutePath = uri.LocalPath;
+		folder.Value = absolutePath;
 	}
 	public async void OpenFileDialog(RequiredFile file) {
 		var options = new FilePickerOpenOptions {
@@ -67,13 +79,12 @@ public class PathPickerViewModel : ViewModelBase {
 			Logger.Warn($"{file.Name}: no file selected!");
 			return;
 		}
-
 		if (!selectedFile.TryGetUri(out var uri)) {
 			Logger.Warn($"Can't set file path: selected file \"{selectedFile.Name}\" has no path!");
 			return;
 		}
 		if (!uri.IsAbsoluteUri) {
-			Logger.Warn($"Can't set file path: uri of file \"{selectedFile.Name}\" is not absolute!");
+			Logger.Warn($"URI of file \"{selectedFile.Name}\" is not absolute!");
 		}
 		var absolutePath = uri.LocalPath;
 		file.Value = absolutePath;
