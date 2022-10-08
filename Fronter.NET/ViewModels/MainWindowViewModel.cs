@@ -20,6 +20,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Reactive;
 using System.Threading;
 
 namespace Fronter.ViewModels;
@@ -81,9 +82,23 @@ public class MainWindowViewModel : ViewModelBase {
 		PathPicker = new PathPickerViewModel(Config);
 		ModsPicker = new ModsPickerViewModel(Config);
 		Options = new OptionsViewModel(Config.Options);
+		
+		// Create reactive commands.
+		ToggleLogFilterLevelCommand = ReactiveCommand.Create<string>(ToggleLogFilterLevel);
+		SetLanguageCommand = ReactiveCommand.Create<string>(SetLanguage);
+		SetThemeCommand = ReactiveCommand.Create<string>(SetTheme);
 	}
 
 	public ReadOnlyObservableCollection<LogLine> FilteredLogLines => LogGridAppender.FilteredLogLines;
+
+	#region Reactive commands
+	
+	public ReactiveCommand<string, Unit> ToggleLogFilterLevelCommand { get; }
+	public ReactiveCommand<string, Unit> SetLanguageCommand { get; }
+	public ReactiveCommand<string, Unit> SetThemeCommand { get; }
+
+	#endregion
+	
 	public void ToggleLogFilterLevel(string value) {
 		LogFilterLevel = LogManager.GetRepository().LevelMap[value];
 		LogGridAppender.ToggleLogFilterLevel();
@@ -188,8 +203,8 @@ public class MainWindowViewModel : ViewModelBase {
 
 		var info = await UpdateChecker.GetLatestReleaseInfo(Config.Name);
 
-		var updateNow = loc.Translate("UPDATE_NOW");
-		var maybeLater = loc.Translate("MAYBE_LATER");
+		var updateNowStr = loc.Translate("UPDATE_NOW");
+		var maybeLaterStr = loc.Translate("MAYBE_LATER");
 		var msgBody = UpdateChecker.GetUpdateMessageBody(loc.Translate("NEW_VERSION_BODY"), info);
 		var messageBoxWindow = MessageBoxManager
 			.GetMessageBoxCustomWindow(new MessageBoxCustomParams {
@@ -199,12 +214,12 @@ public class MainWindowViewModel : ViewModelBase {
 				ContentMessage = msgBody,
 				Markdown = true,
 				ButtonDefinitions = new[] {
-					new ButtonDefinition {Name = updateNow, IsDefault = true},
-					new ButtonDefinition {Name = maybeLater, IsCancel = true}
+					new ButtonDefinition {Name = updateNowStr, IsDefault = true},
+					new ButtonDefinition {Name = maybeLaterStr, IsCancel = true}
 				}
 			});
 		var result = await messageBoxWindow.ShowDialog(MainWindow.Instance);
-		if (result != updateNow) {
+		if (result != updateNowStr) {
 			logger.Info($"Update to version {info.Version} postponed.");
 			return;
 		}
