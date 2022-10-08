@@ -32,6 +32,7 @@
             <Setter Property="Height" Value="30"/>
             <Setter Property="Width" Value="80" />
             <Setter Property="VerticalAlignment" Value="Top" />
+            <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="Margin" Value="6, 2, 6, 5" />
         </Style>
     </UserControl.Styles>
@@ -49,7 +50,11 @@
                                          Classes="PathTextBoxStyle"
                                          ToolTip.Tip="{ns:DynamicLoc Tooltip}" />
                                 <Button Content="{ns:Loc BROWSE}" Grid.Column="2" Classes="PathBrowseButtonStyle"
-                                        Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ItemsControl}}, Path=DataContext.OpenFolderDialog}"
+                                        Command="{Binding
+                                            RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ItemsControl}},
+                                            Path=DataContext.OpenFolderDialogCommand,
+                                            FallbackValue={} 
+                                        }"
                                         CommandParameter="{Binding}" />
                             </Grid>
                         </DataTemplate>
@@ -66,7 +71,11 @@
                                          Classes="PathTextBoxStyle"
                                          ToolTip.Tip="{ns:DynamicLoc Tooltip}" />
                                 <Button Content="{ns:Loc BROWSE}" Grid.Column="2" Classes="PathBrowseButtonStyle"
-                                        Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ItemsControl}}, Path=DataContext.OpenFileDialog}"
+                                        Command="{Binding
+                                            RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ItemsControl}},
+                                            Path=DataContext.OpenFileDialogCommand,
+                                            FallbackValue={}
+                                        }"
                                         CommandParameter="{Binding}" />
                             </Grid>
                         </DataTemplate>
