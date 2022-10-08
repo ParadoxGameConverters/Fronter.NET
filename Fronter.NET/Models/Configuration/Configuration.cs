@@ -310,7 +310,7 @@ public class Configuration {
 			return;
 		}
 
-		if (desktop.MainWindow.DataContext is MainWindowViewModel mainWindowDataContext) {
+		if (desktop.MainWindow?.DataContext is MainWindowViewModel mainWindowDataContext) {
 			mainWindowDataContext.SaveStatus = locKey;
 		}
 	}
