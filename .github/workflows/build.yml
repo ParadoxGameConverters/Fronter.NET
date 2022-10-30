@@ -7,7 +7,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [[self-hosted, linux], macos-latest, [self-hosted, windows]]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
@@ -18,7 +18,6 @@ jobs:
       with:
         dotnet-version: '6.x'
     - name: "Build"
-      uses: ./.github/actions/build_frontend
-      with:
-        fronter_dir: '.'
-        release_dir: 'Release'
+      working-directory: Fronter.NET
+      run: |
+       dotnet build
