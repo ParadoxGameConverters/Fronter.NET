@@ -18,6 +18,7 @@ jobs:
       with:
         dotnet-version: '6.x'
     - name: "Build"
-      working-directory: Fronter.NET
-      run: |
-       dotnet build
+      uses: ./.github/actions/build_frontend
+      with:
+        fronter_dir: '.'
+        release_dir: 'Release'
