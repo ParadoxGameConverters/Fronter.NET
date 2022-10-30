@@ -37,7 +37,11 @@ then
   then
     mkdir -p "${GITHUB_WORKSPACE}/${RELEASE_DIR}/Updater"
   fi
-  mv dist/updater "${GITHUB_WORKSPACE}/${RELEASE_DIR}/Updater"
+  printf "\ndist/updater:\n"
+  ls dist/updater/
+  mv dist/updater/* "${GITHUB_WORKSPACE}/${RELEASE_DIR}/Updater/"
+  printf "\ndest Updater folder:\n"
+  ls "${GITHUB_WORKSPACE}/${RELEASE_DIR}/Updater/"
 
   printf "\n✔ Successfully built updater.\n"
 fi
