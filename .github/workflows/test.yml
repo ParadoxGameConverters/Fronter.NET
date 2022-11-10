@@ -18,7 +18,6 @@ jobs:
       uses: actions/setup-dotnet@main
       with:
         dotnet-version: '7.x'
-        dotnet-quality: 'preview'
     - name: Test
       working-directory: Fronter.NET.Tests
       run: |
@@ -43,7 +42,6 @@ jobs:
       uses: actions/setup-dotnet@main
       with:
         dotnet-version: '7.x'
-        dotnet-quality: 'preview'
     - name: Test
       working-directory: Fronter.NET.Tests
       run: |
