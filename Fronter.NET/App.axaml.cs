@@ -36,6 +36,7 @@ public class App : Application {
 			window.DataContext = mainWindowViewModel;
 
 			desktop.MainWindow.Opened += (sender, args) => mainWindowViewModel.CheckForUpdatesOnStartup();
+			desktop.MainWindow.Opened += (sender, args) => DebugInfo.LogEverything();
 		}
 
 		base.OnFrameworkInitializationCompleted();
