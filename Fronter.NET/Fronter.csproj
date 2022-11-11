@@ -44,13 +44,13 @@
     </Target>
 
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="11.0.0-preview3" />
-        <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.0.0-preview3" />
-        <PackageReference Include="Avalonia.Desktop" Version="11.0.0-preview3" />
+        <PackageReference Include="Avalonia" Version="11.0.0-preview4" />
+        <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.0.0-preview4" />
+        <PackageReference Include="Avalonia.Desktop" Version="11.0.0-preview4" />
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.0-preview3" />
-        <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.0-preview3" />
-        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.0-preview3" />
+        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.0-preview4" />
+        <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.0-preview4" />
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.0-preview4" />
         <PackageReference Include="DynamicData" Version="7.12.1" />
         <PackageReference Include="Markdown.Avalonia" Version="11.0.0-a4" />
         <PackageReference Include="MessageBox.Avalonia" Version="2.3.1-prev2" />
