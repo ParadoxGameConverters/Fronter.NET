@@ -8,16 +8,16 @@ on:
 
 jobs:
   test_and_check_coverage:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, windows]
     steps:
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
         submodules: recursive
     - name: "Setup Dotnet for use with actions"
-      uses: actions/setup-dotnet@main
+      uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '6.x'
+        global-json-file: global.json
     - name: "Test"
       working-directory: Fronter.NET.Tests
       run: |
@@ -31,7 +31,7 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [[self-hosted, windows], macos-latest]
+        os: [[self-hosted, linux], macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
@@ -39,9 +39,9 @@ jobs:
         fetch-depth: 0
         submodules: recursive
     - name: "Setup Dotnet for use with actions"
-      uses: actions/setup-dotnet@main
+      uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '6.x'
+        global-json-file: global.json
     - name: "Test"
       working-directory: Fronter.NET.Tests
       run: |
