@@ -32,7 +32,7 @@ then
 
   cd "${FRONTER_DIR}/Updater"
   pip3 install -r requirements.txt
-  python3 -m PyInstaller --icon=updater.ico updater.py
+  python -m PyInstaller --icon=updater.ico updater.py
   mkdir -p "${GITHUB_WORKSPACE}/${RELEASE_DIR}/Updater"
   mv dist/updater/* "${GITHUB_WORKSPACE}/${RELEASE_DIR}/Updater/"
 
