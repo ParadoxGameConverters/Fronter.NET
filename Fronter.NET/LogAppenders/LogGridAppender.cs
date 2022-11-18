@@ -33,7 +33,7 @@ public class LogGridAppender : MemoryAppender {
 	protected override void Append(LoggingEvent loggingEvent) {
 		var newLogLine = new LogLine {
 			Level = loggingEvent.Level,
-			// tab characters are incorrectly displayed in the log grid as of Avalonia 0.10.13
+			// Tab characters are incorrectly displayed in the log grid as of Avalonia 0.10.18.
 			Message = loggingEvent.RenderedMessage.Replace("\t", "    "),
 			Timestamp = GetTimestampString(loggingEvent.TimeStamp)
 		};

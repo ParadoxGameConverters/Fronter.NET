@@ -1,4 +1,5 @@
 ﻿using commonItems;
+using Fronter.Extensions;
 using Fronter.Models.Configuration;
 using log4net;
 using log4net.Core;
@@ -48,7 +49,20 @@ internal class ConverterLauncher {
 			if (level is null && string.IsNullOrEmpty(logLine.Message)) {
 				return;
 			}
-			logger.Log(level ?? lastLevelFromBackend ?? Level.Info, logLine.Message);
+
+			// Get timestamp datetime.
+			DateTime timestamp;
+			if (string.IsNullOrWhiteSpace(logLine.Timestamp)) {
+				timestamp = DateTime.Now;
+			} else {
+				timestamp = Convert.ToDateTime(logLine.Timestamp);
+			}
+			
+			// Get level to display.
+			var logLevel = level ?? lastLevelFromBackend ?? Level.Info;
+
+			logger.LogWithCustomTimestamp(timestamp, logLevel, logLine.Message);
+			
 			if (level is not null) {
 				lastLevelFromBackend = level;
 			}
