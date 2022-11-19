@@ -9,6 +9,8 @@
 
         <IsPackable>false</IsPackable>
 
+        <LangVersion>11</LangVersion>
+
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
         <OutputPath>..\..\Release\</OutputPath>
