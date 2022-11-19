@@ -127,7 +127,7 @@
                                 <TextBlock Grid.Row="2" Grid.Column="0" Text="{ns:Loc CONVERTCOPYING}"></TextBlock>
                                 <TextBlock Grid.Row="2" Grid.Column="1" Text="{ns:DynamicLoc CopyStatus}"></TextBlock>
                             </Grid>
-                            <ProgressBar Margin="4" Height="20" Value="{Binding Progress}" BorderThickness="1" BorderBrush="Gray"/>
+                            <ProgressBar Margin="4" Height="20" Value="{Binding Progress}" BorderThickness="1" BorderBrush="Gray" IsIndeterminate="{Binding IndeterminateProgress}"/>
                             <TextBlock Text="{Binding Progress, StringFormat={}{0}%}" HorizontalAlignment="Center"></TextBlock>
                             <Button Margin="4,15,4,4" HorizontalAlignment="Center" Name="ConvertButton" Command="{Binding LaunchConverter}" IsEnabled="{Binding ConvertButtonEnabled}" Content="{ns:Loc CONVERTBUTTON}"/>
                         </StackPanel>

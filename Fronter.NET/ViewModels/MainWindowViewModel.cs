@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
+using commonItems;
 using Fronter.Extensions;
 using Fronter.LogAppenders;
 using Fronter.Models;
@@ -97,6 +98,12 @@ public class MainWindowViewModel : ViewModelBase {
 		set => this.RaiseAndSetIfChanged(ref progress, value);
 	}
 
+	private bool indeterminateProgress = false;
+	public bool IndeterminateProgress {
+		get => indeterminateProgress;
+		set => this.RaiseAndSetIfChanged(ref indeterminateProgress, value);
+	}
+
 	private bool VerifyMandatoryPaths() {
 		foreach (var folder in Config.RequiredFolders) {
 			if (!folder.Mandatory || Directory.Exists(folder.Value)) {
@@ -145,9 +152,13 @@ public class MainWindowViewModel : ViewModelBase {
 					var modCopier = new ModCopier(Config);
 					bool copySuccess;
 					var copyThread = new Thread(() => {
+						IndeterminateProgress = true;
 						CopyStatus = "CONVERTSTATUSIN";
+						
 						copySuccess = modCopier.CopyMod();
 						CopyStatus = copySuccess ? "CONVERTSTATUSPOSTSUCCESS" : "CONVERTSTATUSPOSTFAIL";
+						Progress = Config.ProgressOnCopyingComplete;
+						IndeterminateProgress = false;
 					});
 					copyThread.Start();
 				}
