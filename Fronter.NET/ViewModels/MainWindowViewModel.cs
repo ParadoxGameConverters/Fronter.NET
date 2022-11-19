@@ -155,6 +155,7 @@ public class MainWindowViewModel : ViewModelBase {
 						CopyStatus = "CONVERTSTATUSIN";
 						copySuccess = modCopier.CopyMod();
 						CopyStatus = copySuccess ? "CONVERTSTATUSPOSTSUCCESS" : "CONVERTSTATUSPOSTFAIL";
+						Progress = 109;
 						IndeterminateProgress = false;
 					});
 					copyThread.Start();
