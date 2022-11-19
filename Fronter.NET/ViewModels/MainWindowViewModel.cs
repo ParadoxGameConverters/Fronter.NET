@@ -154,6 +154,7 @@ public class MainWindowViewModel : ViewModelBase {
 					var copyThread = new Thread(() => {
 						IndeterminateProgress = true;
 						CopyStatus = "CONVERTSTATUSIN";
+						
 						copySuccess = modCopier.CopyMod();
 						CopyStatus = copySuccess ? "CONVERTSTATUSPOSTSUCCESS" : "CONVERTSTATUSPOSTFAIL";
 						Progress = Config.ProgressOnCopyingComplete;
