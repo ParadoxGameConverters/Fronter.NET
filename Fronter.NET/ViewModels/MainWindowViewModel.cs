@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
+using commonItems;
 using Fronter.Extensions;
 using Fronter.LogAppenders;
 using Fronter.Models;
@@ -155,7 +156,7 @@ public class MainWindowViewModel : ViewModelBase {
 						CopyStatus = "CONVERTSTATUSIN";
 						copySuccess = modCopier.CopyMod();
 						CopyStatus = copySuccess ? "CONVERTSTATUSPOSTSUCCESS" : "CONVERTSTATUSPOSTFAIL";
-						Progress = 109;
+						Progress = Config.ProgressOnCopyingComplete;
 						IndeterminateProgress = false;
 					});
 					copyThread.Start();
