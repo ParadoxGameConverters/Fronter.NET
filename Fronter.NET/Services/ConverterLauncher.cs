@@ -40,7 +40,9 @@ internal class ConverterLauncher {
 			WorkingDirectory = CommonFunctions.GetPath(backendExePathRelativeToFrontend),
 			CreateNoWindow = true,
 			UseShellExecute = false,
-			RedirectStandardOutput = true
+			RedirectStandardOutput = true,
+			RedirectStandardError = true,
+			RedirectStandardInput = true,
 		};
 		using Process process = new() { StartInfo = startInfo };
 		process.OutputDataReceived += (sender, args) => {

@@ -25,6 +25,7 @@ displayName = DISPLAYNAME
 sourceGame = SOURCEGAME
 targetGame = TARGETGAME
 copyToTargetGameModDirectory = true
+progressOnCopyingComplete = 109 # Final progressbar value after completion of mod copying.
 
 requiredFile = {
 	name = SaveGame
