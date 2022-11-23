@@ -85,6 +85,7 @@ internal class ConverterLauncher {
 			desktop.ShutdownRequested += (sender, args) => {
 				try {
 					var backendProcess = Process.GetProcessById(processId);
+					logger.Info("Killing converter backend...");
 					backendProcess.Kill();
 				} catch (ArgumentException) {
 					// Process already exited.
