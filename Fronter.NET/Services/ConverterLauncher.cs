@@ -1,6 +1,9 @@
-﻿using commonItems;
+﻿using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using commonItems;
 using Fronter.Extensions;
 using Fronter.Models.Configuration;
+using Fronter.ViewModels;
 using log4net;
 using log4net.Core;
 using System;
@@ -75,8 +78,21 @@ internal class ConverterLauncher {
 
 		process.Start();
 		process.BeginOutputReadLine();
+		
+		// Kill converter backend when frontend is closed.
+		var processId = process.Id;
+		if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
+			desktop.ShutdownRequested += (sender, args) => {
+				try {
+					var backendProcess = Process.GetProcessById(processId);
+					backendProcess.Kill();
+				} catch (ArgumentException) {
+					// Process already exited.
+				}
+			};
+		}
+		
 		process.WaitForExit();
-
 		timer.Stop();
 
 		if (process.ExitCode == 0) {
