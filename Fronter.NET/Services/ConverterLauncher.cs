@@ -3,12 +3,12 @@ using Avalonia.Controls.ApplicationLifetimes;
 using commonItems;
 using Fronter.Extensions;
 using Fronter.Models.Configuration;
-using Fronter.ViewModels;
 using log4net;
 using log4net.Core;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Fronter.Services;
 
@@ -18,7 +18,7 @@ internal class ConverterLauncher {
 	internal ConverterLauncher(Configuration config) {
 		this.config = config;
 	}
-	public bool LaunchConverter() {
+	public async Task<bool> LaunchConverter() {
 		var converterFolder = config.ConverterFolder;
 		var backendExePath = config.BackendExePath;
 
@@ -93,7 +93,7 @@ internal class ConverterLauncher {
 			};
 		}
 		
-		process.WaitForExit();
+		await process.WaitForExitAsync();
 		timer.Stop();
 
 		if (process.ExitCode == 0) {

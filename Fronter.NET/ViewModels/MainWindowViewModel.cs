@@ -125,7 +125,7 @@ public class MainWindowViewModel : ViewModelBase {
 	private void ClearLogGrid() {
 		LogGridAppender.LogLines.Clear();
 	}
-	public void LaunchConverter() {
+	public async void LaunchConverter() {
 		ConvertButtonEnabled = false;
 		ClearLogGrid();
 		
@@ -144,7 +144,8 @@ public class MainWindowViewModel : ViewModelBase {
 		bool success;
 		var converterThread = new Thread(() => {
 			ConvertStatus = "CONVERTSTATUSIN";
-			success = converterLauncher.LaunchConverter();
+			var launchConverterTask = converterLauncher.LaunchConverter();
+			success = launchConverterTask.Result;
 			if (success) {
 				ConvertStatus = "CONVERTSTATUSPOSTSUCCESS";
 
