@@ -124,7 +124,7 @@ public class MainWindowViewModel : ViewModelBase {
 	private void ClearLogGrid() {
 		LogGridAppender.LogLines.Clear();
 	}
-	public async void LaunchConverter() {
+	public void LaunchConverter() {
 		ConvertButtonEnabled = false;
 		ClearLogGrid();
 		

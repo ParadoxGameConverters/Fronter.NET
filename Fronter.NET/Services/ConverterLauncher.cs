@@ -18,13 +18,14 @@ internal class ConverterLauncher {
 	internal ConverterLauncher(Configuration config) {
 		this.config = config;
 	}
-	public async Task<bool> LaunchConverter() {
+
+	private string? GetBackendExePathRelativeToFrontend() {
 		var converterFolder = config.ConverterFolder;
 		var backendExePath = config.BackendExePath;
 
 		if (string.IsNullOrEmpty(backendExePath)) {
 			logger.Error("Converter location has not been set!");
-			return false;
+			return null;
 		}
 
 		var extension = CommonFunctions.GetExtension(backendExePath);
@@ -32,6 +33,15 @@ internal class ConverterLauncher {
 			backendExePath += ".exe";
 		}
 		var backendExePathRelativeToFrontend = Path.Combine(converterFolder, backendExePath);
+
+		return backendExePathRelativeToFrontend;
+	}
+	
+	public async Task<bool> LaunchConverter() {
+		var backendExePathRelativeToFrontend = GetBackendExePathRelativeToFrontend();
+		if (backendExePathRelativeToFrontend is null) {
+			return false;
+		}
 
 		if (!File.Exists(backendExePathRelativeToFrontend)) {
 			logger.Error("Could not find converter executable!");
