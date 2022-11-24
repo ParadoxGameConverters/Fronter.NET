@@ -2,7 +2,6 @@
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
-using commonItems;
 using Fronter.Extensions;
 using Fronter.LogAppenders;
 using Fronter.Models;
@@ -144,7 +143,8 @@ public class MainWindowViewModel : ViewModelBase {
 		bool success;
 		var converterThread = new Thread(() => {
 			ConvertStatus = "CONVERTSTATUSIN";
-			success = converterLauncher.LaunchConverter();
+			var launchConverterTask = converterLauncher.LaunchConverter();
+			success = launchConverterTask.Result;
 			if (success) {
 				ConvertStatus = "CONVERTSTATUSPOSTSUCCESS";
 

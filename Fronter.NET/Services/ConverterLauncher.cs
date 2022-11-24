@@ -1,4 +1,6 @@
-﻿using commonItems;
+﻿using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using commonItems;
 using Fronter.Extensions;
 using Fronter.Models.Configuration;
 using log4net;
@@ -6,6 +8,7 @@ using log4net.Core;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Fronter.Services;
 
@@ -15,13 +18,14 @@ internal class ConverterLauncher {
 	internal ConverterLauncher(Configuration config) {
 		this.config = config;
 	}
-	public bool LaunchConverter() {
+
+	private string? GetBackendExePathRelativeToFrontend() {
 		var converterFolder = config.ConverterFolder;
 		var backendExePath = config.BackendExePath;
 
 		if (string.IsNullOrEmpty(backendExePath)) {
 			logger.Error("Converter location has not been set!");
-			return false;
+			return null;
 		}
 
 		var extension = CommonFunctions.GetExtension(backendExePath);
@@ -29,6 +33,15 @@ internal class ConverterLauncher {
 			backendExePath += ".exe";
 		}
 		var backendExePathRelativeToFrontend = Path.Combine(converterFolder, backendExePath);
+
+		return backendExePathRelativeToFrontend;
+	}
+	
+	public async Task<bool> LaunchConverter() {
+		var backendExePathRelativeToFrontend = GetBackendExePathRelativeToFrontend();
+		if (backendExePathRelativeToFrontend is null) {
+			return false;
+		}
 
 		if (!File.Exists(backendExePathRelativeToFrontend)) {
 			logger.Error("Could not find converter executable!");
@@ -75,8 +88,22 @@ internal class ConverterLauncher {
 
 		process.Start();
 		process.BeginOutputReadLine();
-		process.WaitForExit();
-
+		
+		// Kill converter backend when frontend is closed.
+		var processId = process.Id;
+		if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
+			desktop.ShutdownRequested += (sender, args) => {
+				try {
+					var backendProcess = Process.GetProcessById(processId);
+					logger.Info("Killing converter backend...");
+					backendProcess.Kill();
+				} catch (ArgumentException) {
+					// Process already exited.
+				}
+			};
+		}
+		
+		await process.WaitForExitAsync();
 		timer.Stop();
 
 		if (process.ExitCode == 0) {
