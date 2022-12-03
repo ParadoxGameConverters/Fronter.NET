@@ -62,9 +62,8 @@ public static class UpdateChecker {
 
 		var responseMessage = await HttpClient.SendAsync(requestMessage);
 		await using var responseStream = await responseMessage.Content.ReadAsStreamAsync();
-		using var responseReader = new StreamReader(responseStream);
 
-		var releaseInfo = JsonSerializer.Deserialize<ConverterReleaseInfo>(await responseReader.ReadToEndAsync());
+		var releaseInfo = await JsonSerializer.DeserializeAsync<ConverterReleaseInfo>(responseStream);
 		if (releaseInfo is null) {
 			return info;
 		}
