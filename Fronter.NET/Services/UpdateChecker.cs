@@ -2,30 +2,30 @@
 using Fronter.Models;
 using Fronter.Views;
 using log4net;
-using Newtonsoft.Json;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Fronter.Services;
 
 public static class UpdateChecker {
-	private static readonly ILog logger = LogManager.GetLogger("Update checker");
+	private static readonly ILog Logger = LogManager.GetLogger("Update checker");
 	private static readonly HttpClient HttpClient = new();
 	public static async Task<bool> IsUpdateAvailable(string commitIdFilePath, string commitIdUrl) {
 		if (!File.Exists(commitIdFilePath)) {
-			logger.Warn($"File \"{commitIdFilePath}\" does not exist!");
+			Logger.Warn($"File \"{commitIdFilePath}\" does not exist!");
 			return false;
 		}
 
 		try {
 			var response = await HttpClient.GetAsync(commitIdUrl);
 			if (!response.IsSuccessStatusCode) {
-				logger.Warn($"Failed to get commit id from \"{commitIdUrl}\"; status code: {response.StatusCode}!");
+				Logger.Warn($"Failed to get commit id from \"{commitIdUrl}\"; status code: {response.StatusCode}!");
 				return false;
 			}
 			
@@ -37,7 +37,7 @@ public static class UpdateChecker {
 
 			return localCommitId is not null && localCommitId != latestReleaseCommitId;
 		} catch (Exception e) {
-			logger.Warn($"Failed to get commit id from \"{commitIdUrl}\"; {e}!");
+			Logger.Warn($"Failed to get commit id from \"{commitIdUrl}\"; {e}!");
 			return false;
 		}
 	}
@@ -62,49 +62,38 @@ public static class UpdateChecker {
 
 		var responseMessage = await HttpClient.SendAsync(requestMessage);
 		await using var responseStream = await responseMessage.Content.ReadAsStreamAsync();
-		using var responseReader = new StreamReader(responseStream);
 
-		var jsonObject = JsonConvert.DeserializeObject(await responseReader.ReadToEndAsync());
-		if (jsonObject is null) {
+		var releaseInfo = await JsonSerializer.DeserializeAsync<ConverterReleaseInfo>(responseStream);
+		if (releaseInfo is null) {
 			return info;
 		}
 
-		dynamic dynJsonObject = jsonObject;
-		var body = dynJsonObject["body"];
-		if (body is not null) {
-			info.Description = body;
-		}
-		var name = dynJsonObject["name"];
-		if (name is not null) {
-			info.Version = name;
-		}
+		info.Description = releaseInfo.Body;
+		info.Version = releaseInfo.Name;
 
-		var assets = dynJsonObject["assets"];
+		var assets = releaseInfo.Assets;
 		if (assets is not null) {
 			foreach (var asset in assets) {
-				string? assetName = asset["name"];
-				if (assetName is null) {
-					continue;
-				}
+				string? assetName = asset.Name;
 
 				assetName = assetName.ToLower();
 				var extension = CommonFunctions.GetExtension(assetName);
 				if (extension is not "zip" and not "tgz") {
 					continue;
 				}
-			
+
 				var assetNameWithoutExtension = CommonFunctions.TrimExtension(assetName);
 				if (!assetNameWithoutExtension.EndsWith($"-{osName}-x64")) {
 					continue;
 				}
 
-				info.ArchiveUrl = asset["browser_download_url"];
+				info.ArchiveUrl = asset.BrowserDownloadUrl;
 				break;
 			}
 		}
 
 		if (info.ArchiveUrl is null) {
-			logger.Warn($"Release {info.Version} doesn't have a .zip or .tgz asset.");
+			Logger.Warn($"Release {info.Version} doesn't have a .zip or .tgz asset.");
 		}
 
 		return info;
