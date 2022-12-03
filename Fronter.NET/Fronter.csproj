@@ -53,12 +53,11 @@
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.0-preview4" />
         <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.0-preview4" />
         <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.0-preview4" />
-        <PackageReference Include="DynamicData" Version="7.12.8" />
+        <PackageReference Include="DynamicData" Version="7.12.11" />
         <PackageReference Include="Markdown.Avalonia" Version="11.0.0-a6" />
         <PackageReference Include="MessageBox.Avalonia" Version="2.3.1-prev2" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-        <PackageReference Include="PGCG.commonItems" Version="7.6.8" />
-        <PackageReference Include="System.Data.SQLite.Core" Version="1.0.116" />
+        <PackageReference Include="PGCG.commonItems" Version="7.7.1" />
+        <PackageReference Include="System.Data.SQLite.Core" Version="1.0.117" />
         <PackageReference Include="system.io.filesystem" Version="4.3.0" />
         <PackageReference Include="System.Net.Primitives" Version="4.3.1" />
     </ItemGroup>
