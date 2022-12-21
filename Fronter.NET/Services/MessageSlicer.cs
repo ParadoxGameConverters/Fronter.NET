@@ -38,6 +38,9 @@ public static class MessageSlicer {
 	}
 
 	private static Level GetLogLevel(string levelStr) {
+		if (levelStr == "WARNING") {
+			levelStr = "WARN";
+		}
 		var level = LogManager.GetRepository().LevelMap[levelStr];
 		return level;
 	}
