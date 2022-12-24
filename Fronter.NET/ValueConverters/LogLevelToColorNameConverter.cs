@@ -14,6 +14,7 @@ public class LogLevelToColorNameConverter : IValueConverter {
 			"NOTICE" => Brushes.CornflowerBlue,
 			"ERROR" => Brushes.IndianRed,
 			"WARN" => Brushes.Orange,
+			"WARNING" => Brushes.Orange,
 			"INFO" => Brushes.Transparent,
 			"DEBUG" => Brushes.SlateGray,
 			_ => Brushes.Transparent
