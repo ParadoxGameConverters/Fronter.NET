@@ -47,7 +47,8 @@ internal class ConverterLauncher {
 			logger.Error("Could not find converter executable!");
 			return false;
 		}
-
+		
+		logger.Debug($"Using {backendExePathRelativeToFrontend} as converter backend executable...");
 		var startInfo = new ProcessStartInfo {
 			FileName = backendExePathRelativeToFrontend,
 			WorkingDirectory = CommonFunctions.GetPath(backendExePathRelativeToFrontend),
