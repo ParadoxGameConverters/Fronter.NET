@@ -60,8 +60,8 @@ internal class ConverterLauncher {
 		};
 		var extension = CommonFunctions.GetExtension(backendExePathRelativeToFrontend);
 		if (extension == "jar") {
-			startInfo.FileName = "java";
-			startInfo.Arguments = $"-jar {backendExePathRelativeToFrontend}";
+			startInfo.FileName = "javaw";
+			startInfo.Arguments = $"-jar {CommonFunctions.TrimPath(backendExePathRelativeToFrontend)}";
 		}
 		
 		using Process process = new() { StartInfo = startInfo };
@@ -118,8 +118,9 @@ internal class ConverterLauncher {
 			return true;
 		}
 
-		logger.Error("Converter Error! See log.txt for details.");
+		logger.Error("Converter error! See log.txt for details.");
 		logger.Error("If you require assistance please upload log.txt to forums for a detailed postmortem.");
+		logger.Debug($"Converter exit code: {process.ExitCode}");
 		return false;
 	}
 	private readonly Configuration config;
