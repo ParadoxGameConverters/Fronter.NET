@@ -48,7 +48,7 @@ internal class ConverterLauncher {
 			return false;
 		}
 		
-		logger.Debug($"Using {backendExePathRelativeToFrontend} as converter backend executable...");
+		logger.Debug($"Using {backendExePathRelativeToFrontend} as converter backend...");
 		var startInfo = new ProcessStartInfo {
 			FileName = backendExePathRelativeToFrontend,
 			WorkingDirectory = CommonFunctions.GetPath(backendExePathRelativeToFrontend),
@@ -58,6 +58,12 @@ internal class ConverterLauncher {
 			RedirectStandardError = true,
 			RedirectStandardInput = true,
 		};
+		var extension = CommonFunctions.GetExtension(backendExePathRelativeToFrontend);
+		if (extension == "jar") {
+			startInfo.FileName = "java";
+			startInfo.Arguments = $"-jar {backendExePathRelativeToFrontend}";
+		}
+		
 		using Process process = new() { StartInfo = startInfo };
 		process.OutputDataReceived += (sender, args) => {
 			var logLine = MessageSlicer.SliceMessage(args.Data ?? string.Empty);
