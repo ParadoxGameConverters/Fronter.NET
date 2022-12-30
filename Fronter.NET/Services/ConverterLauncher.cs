@@ -47,7 +47,8 @@ internal class ConverterLauncher {
 			logger.Error("Could not find converter executable!");
 			return false;
 		}
-
+		
+		logger.Debug($"Using {backendExePathRelativeToFrontend} as converter backend...");
 		var startInfo = new ProcessStartInfo {
 			FileName = backendExePathRelativeToFrontend,
 			WorkingDirectory = CommonFunctions.GetPath(backendExePathRelativeToFrontend),
@@ -57,6 +58,12 @@ internal class ConverterLauncher {
 			RedirectStandardError = true,
 			RedirectStandardInput = true,
 		};
+		var extension = CommonFunctions.GetExtension(backendExePathRelativeToFrontend);
+		if (extension == "jar") {
+			startInfo.FileName = "javaw";
+			startInfo.Arguments = $"-jar {CommonFunctions.TrimPath(backendExePathRelativeToFrontend)}";
+		}
+		
 		using Process process = new() { StartInfo = startInfo };
 		process.OutputDataReceived += (sender, args) => {
 			var logLine = MessageSlicer.SliceMessage(args.Data ?? string.Empty);
@@ -111,8 +118,9 @@ internal class ConverterLauncher {
 			return true;
 		}
 
-		logger.Error("Converter Error! See log.txt for details.");
+		logger.Error("Converter error! See log.txt for details.");
 		logger.Error("If you require assistance please upload log.txt to forums for a detailed postmortem.");
+		logger.Debug($"Converter exit code: {process.ExitCode}");
 		return false;
 	}
 	private readonly Configuration config;
