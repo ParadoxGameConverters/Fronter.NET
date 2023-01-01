@@ -275,6 +275,16 @@ public class MainWindowViewModel : ViewModelBase {
 		App.SaveTheme(themeName);
 	}
 
+	public string WindowTitle {
+		get {
+			var displayName = loc.Translate(Config.DisplayName);
+			if (string.IsNullOrWhiteSpace(displayName)) {
+				displayName = "Converter";
+			}
+			return $"{displayName} Frontend";
+		}
+	}
+
 	private LogGridAppender LogGridAppender { get; }
 
 	private void ScrollToLogEnd() {
