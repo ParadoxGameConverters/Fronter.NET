@@ -11,7 +11,7 @@
         mc:Ignorable="d" d:DesignWidth="710" d:DesignHeight="400"
         x:Class="Fronter.Views.MainWindow"
         Icon="/Assets/converter.ico"
-        Title="Converter Frontend"
+        Title="{Binding WindowTitle}"
         MinWidth="710"
         
         ExtendClientAreaToDecorationsHint="False">
