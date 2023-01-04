@@ -55,7 +55,6 @@ internal class ConverterLauncher {
 			CreateNoWindow = true,
 			UseShellExecute = false,
 			RedirectStandardOutput = true,
-			RedirectStandardError = true,
 			RedirectStandardInput = true,
 		};
 		var extension = CommonFunctions.GetExtension(backendExePathRelativeToFrontend);
@@ -94,6 +93,10 @@ internal class ConverterLauncher {
 		timer.Start();
 
 		process.Start();
+		process.EnableRaisingEvents = true;
+		process.PriorityClass = ProcessPriorityClass.RealTime;
+		process.PriorityBoostEnabled = OperatingSystem.IsWindows();
+		
 		process.BeginOutputReadLine();
 		
 		// Kill converter backend when frontend is closed.
