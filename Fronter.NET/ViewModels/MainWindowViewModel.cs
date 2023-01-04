@@ -144,6 +144,7 @@ public class MainWindowViewModel : ViewModelBase {
 		var converterThread = new Thread(() => {
 			ConvertStatus = "CONVERTSTATUSIN";
 			var launchConverterTask = converterLauncher.LaunchConverter();
+			launchConverterTask.Wait();
 			success = launchConverterTask.Result;
 			if (success) {
 				ConvertStatus = "CONVERTSTATUSPOSTSUCCESS";
