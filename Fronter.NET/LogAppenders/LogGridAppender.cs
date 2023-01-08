@@ -19,13 +19,14 @@ public class LogGridAppender : MemoryAppender {
 	private ReadOnlyObservableCollection<LogLine> filteredLogLines;
 	public ReadOnlyObservableCollection<LogLine> FilteredLogLines => filteredLogLines;
 
-	public Level LogFilterLevel = Level.Info;
+	public Level LogFilterLevel = Level.Warn;
 
 	public DataGrid? LogGrid { get; set; }
 	
 	public LogGridAppender() {
+		// The idea of notice in the converters was to display the notice regardless of filtering level.
 		LogLines.ToObservableChangeSet()
-			.Filter(line => line.Level >= LogFilterLevel)
+			.Filter(line => line.Level == Level.Notice || line.Level >= LogFilterLevel)
 			.Bind(out filteredLogLines)
 			.Subscribe();
 	}
@@ -73,7 +74,7 @@ public class LogGridAppender : MemoryAppender {
 	
 	public void ToggleLogFilterLevel() {
 		LogLines.ToObservableChangeSet()
-			.Filter(line => line.Level is null || line.Level >= LogFilterLevel)
+			.Filter(line => line.Level is null || line.Level == Level.Notice || line.Level >= LogFilterLevel)
 			.Bind(out filteredLogLines)
 			.Subscribe();
 		lastVisibleRow = filteredLogLines.LastOrDefault();

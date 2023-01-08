@@ -140,8 +140,6 @@ public class ModCopier {
 	}
 
 	public void CreatePlayset(string targetModsDirectory, string modName, string destModFolder) {
-		logger.Info("Setting up playset...");
-		
 		var gameDocsDirectory = Directory.GetParent(targetModsDirectory)?.FullName;
 		if (gameDocsDirectory is null) {
 			logger.Warn($"Couldn't get parent directory of \"{targetModsDirectory}\".");
@@ -150,9 +148,11 @@ public class ModCopier {
 
 		var latestDbFilePath = GetLastUpdatedLauncherDbPath(gameDocsDirectory);
 		if (latestDbFilePath is null) {
-			logger.Warn("Launcher's database not found.");
+			logger.Debug("Launcher's database not found.");
 			return;
 		}
+		
+		logger.Info("Setting up playset...");
 
 		string connectionString = $"URI=file:{latestDbFilePath}";
 
