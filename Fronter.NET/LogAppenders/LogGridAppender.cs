@@ -24,8 +24,9 @@ public class LogGridAppender : MemoryAppender {
 	public DataGrid? LogGrid { get; set; }
 	
 	public LogGridAppender() {
+		// The idea of notice in the converters was to display the notice regardless of filtering level.
 		LogLines.ToObservableChangeSet()
-			.Filter(line => line.Level >= LogFilterLevel)
+			.Filter(line => line.Level == Level.Notice || line.Level >= LogFilterLevel)
 			.Bind(out filteredLogLines)
 			.Subscribe();
 	}
