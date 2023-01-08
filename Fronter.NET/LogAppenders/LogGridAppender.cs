@@ -19,7 +19,7 @@ public class LogGridAppender : MemoryAppender {
 	private ReadOnlyObservableCollection<LogLine> filteredLogLines;
 	public ReadOnlyObservableCollection<LogLine> FilteredLogLines => filteredLogLines;
 
-	public Level LogFilterLevel = Level.Info;
+	public Level LogFilterLevel = Level.Warn;
 
 	public DataGrid? LogGrid { get; set; }
 	
