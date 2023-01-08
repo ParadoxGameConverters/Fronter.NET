@@ -74,7 +74,7 @@ public class LogGridAppender : MemoryAppender {
 	
 	public void ToggleLogFilterLevel() {
 		LogLines.ToObservableChangeSet()
-			.Filter(line => line.Level is null || line.Level >= LogFilterLevel)
+			.Filter(line => line.Level is null || line.Level == Level.Notice || line.Level >= LogFilterLevel)
 			.Bind(out filteredLogLines)
 			.Subscribe();
 		lastVisibleRow = filteredLogLines.LastOrDefault();
