@@ -9,18 +9,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fronter.Tests", "Fronter.NE
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
+		Debug|Any CPU = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{596F64CC-0EB8-4575-A5A5-32308E43CBDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{596F64CC-0EB8-4575-A5A5-32308E43CBDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{596F64CC-0EB8-4575-A5A5-32308E43CBDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{596F64CC-0EB8-4575-A5A5-32308E43CBDE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2CEE7565-40A0-425E-BBFB-6BBFC43A9E09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2CEE7565-40A0-425E-BBFB-6BBFC43A9E09}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{596F64CC-0EB8-4575-A5A5-32308E43CBDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{596F64CC-0EB8-4575-A5A5-32308E43CBDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2CEE7565-40A0-425E-BBFB-6BBFC43A9E09}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2CEE7565-40A0-425E-BBFB-6BBFC43A9E09}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2CEE7565-40A0-425E-BBFB-6BBFC43A9E09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2CEE7565-40A0-425E-BBFB-6BBFC43A9E09}.Debug|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

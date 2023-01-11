@@ -139,6 +139,23 @@ public class MainWindowViewModel : ViewModelBase {
 	private void ClearLogGrid() {
 		LogGridAppender.LogLines.Clear();
 	}
+
+	private void CopyToTargetGameModDirectory() {
+		var modCopier = new ModCopier(Config);
+		bool copySuccess;
+		var copyThread = new Thread(() => {
+			IndeterminateProgress = true;
+			CopyStatus = "CONVERTSTATUSIN";
+						
+			copySuccess = modCopier.CopyMod();
+			CopyStatus = copySuccess ? "CONVERTSTATUSPOSTSUCCESS" : "CONVERTSTATUSPOSTFAIL";
+			Progress = Config.ProgressOnCopyingComplete;
+			IndeterminateProgress = false;
+						
+			ConvertButtonEnabled = true;
+		});
+		copyThread.Start();
+	}
 	public void LaunchConverter() {
 		ConvertButtonEnabled = false;
 		ClearLogGrid();
@@ -165,25 +182,16 @@ public class MainWindowViewModel : ViewModelBase {
 				ConvertStatus = "CONVERTSTATUSPOSTSUCCESS";
 
 				if (Config.CopyToTargetGameModDirectory) {
-					var modCopier = new ModCopier(Config);
-					bool copySuccess;
-					var copyThread = new Thread(() => {
-						IndeterminateProgress = true;
-						CopyStatus = "CONVERTSTATUSIN";
-						
-						copySuccess = modCopier.CopyMod();
-						CopyStatus = copySuccess ? "CONVERTSTATUSPOSTSUCCESS" : "CONVERTSTATUSPOSTFAIL";
-						Progress = Config.ProgressOnCopyingComplete;
-						IndeterminateProgress = false;
-					});
-					copyThread.Start();
+					CopyToTargetGameModDirectory();
 				}
 			} else {
 				ConvertStatus = "CONVERTSTATUSPOSTFAIL";
 				Dispatcher.UIThread.Post(ShowErrorMessageBox);
 			}
-		
-			ConvertButtonEnabled = true;
+
+			if (!Config.CopyToTargetGameModDirectory) {
+				ConvertButtonEnabled = true;
+			}
 		});
 		converterThread.Start();
 	}

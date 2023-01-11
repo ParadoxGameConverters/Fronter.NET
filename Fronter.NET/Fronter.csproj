@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
         <RuntimeIdentifiers>win-x64;osx-x64;linux-x64</RuntimeIdentifiers>
         <Nullable>enable</Nullable>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
@@ -9,7 +9,7 @@
 
         <IsPackable>false</IsPackable>
 
-        <LangVersion>11</LangVersion>
+        <LangVersion>10</LangVersion>
 
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
@@ -56,7 +56,7 @@
         <PackageReference Include="DynamicData" Version="7.12.11" />
         <PackageReference Include="Markdown.Avalonia" Version="11.0.0-a6" />
         <PackageReference Include="MessageBox.Avalonia" Version="2.3.1-prev2" />
-        <PackageReference Include="PGCG.commonItems" Version="7.8.1" />
+        <PackageReference Include="PGCG.commonItems" Version="7.8.2" />
         <PackageReference Include="System.Data.SQLite.Core" Version="1.0.117" />
         <PackageReference Include="system.io.filesystem" Version="4.3.0" />
         <PackageReference Include="System.Net.Primitives" Version="4.3.1" />
