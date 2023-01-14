@@ -31,7 +31,9 @@ then
   printf "\nBuilding updater...\n"
 
   cd "${FRONTER_DIR}/Updater"
-  pip3 install -r requirements.txt
+  pip3 install pip-tools
+  python3 -m piptools compile -o requirements.txt pyproject.toml
+  pip3 install -r requirements.txt 
   python3 -m PyInstaller --icon=updater.ico updater.py
   mkdir -p "${GITHUB_WORKSPACE}/${RELEASE_DIR}/Updater"
   mv dist/updater/* "${GITHUB_WORKSPACE}/${RELEASE_DIR}/Updater/"
