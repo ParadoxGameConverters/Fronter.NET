@@ -25,7 +25,7 @@ public class TranslationSource : ReactiveObject {
 			var cultureName = langReader.GetString();
 			try {
 				cultureInfo = CultureInfo.GetCultureInfo(cultureName);
-			} catch (CultureNotFoundException e) {
+			} catch (CultureNotFoundException) {
 				logger.Warn($"Culture {cultureName} not found!");
 			}
 
