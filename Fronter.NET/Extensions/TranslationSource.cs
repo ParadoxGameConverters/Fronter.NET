@@ -21,12 +21,18 @@ public class TranslationSource : ReactiveObject {
 
 		var languagesParser = new Parser();
 		languagesParser.RegisterRegex(CommonRegexes.String, (langReader, langKey) => {
-			var cultureInfo = CultureInfo.InvariantCulture;
 			var cultureName = langReader.GetString();
+			
+			CultureInfo cultureInfo;
 			try {
 				cultureInfo = CultureInfo.GetCultureInfo(cultureName);
 			} catch (CultureNotFoundException) {
-				logger.Warn($"Culture {cultureName} not found!");
+				logger.Debug($"Culture {cultureName} for language {langKey} not found!");
+				if (langKey == "english") {
+					cultureInfo = CultureInfo.InvariantCulture;
+				} else {
+					return;
+				}
 			}
 
 			languages.Add(langKey, cultureInfo);
