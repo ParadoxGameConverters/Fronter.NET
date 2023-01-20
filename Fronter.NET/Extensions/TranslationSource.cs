@@ -21,7 +21,21 @@ public class TranslationSource : ReactiveObject {
 
 		var languagesParser = new Parser();
 		languagesParser.RegisterRegex(CommonRegexes.String, (langReader, langKey) => {
-			languages.Add(langKey, CultureInfo.GetCultureInfo(langReader.GetString()));
+			var cultureName = langReader.GetString();
+			
+			CultureInfo cultureInfo;
+			try {
+				cultureInfo = CultureInfo.GetCultureInfo(cultureName);
+			} catch (CultureNotFoundException) {
+				logger.Debug($"Culture {cultureName} for language {langKey} not found!");
+				if (langKey == "english") {
+					cultureInfo = CultureInfo.InvariantCulture;
+				} else {
+					return;
+				}
+			}
+
+			languages.Add(langKey, cultureInfo);
 			LoadedLanguages.Add(langKey);
 		});
 		languagesParser.ParseFile(languagesPath);

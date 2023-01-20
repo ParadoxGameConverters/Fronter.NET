@@ -183,13 +183,12 @@ public class MainWindowViewModel : ViewModelBase {
 
 				if (Config.CopyToTargetGameModDirectory) {
 					CopyToTargetGameModDirectory();
+				} else {
+					ConvertButtonEnabled = true;
 				}
 			} else {
 				ConvertStatus = "CONVERTSTATUSPOSTFAIL";
 				Dispatcher.UIThread.Post(ShowErrorMessageBox);
-			}
-
-			if (!Config.CopyToTargetGameModDirectory) {
 				ConvertButtonEnabled = true;
 			}
 		});
