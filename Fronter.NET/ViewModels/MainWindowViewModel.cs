@@ -220,7 +220,8 @@ public class MainWindowViewModel : ViewModelBase {
 				ButtonDefinitions = new[] {
 					new ButtonDefinition {Name = updateNow, IsDefault = true},
 					new ButtonDefinition {Name = maybeLater, IsCancel = true}
-				}
+				},
+				MaxHeight = 720
 			});
 		var result = await messageBoxWindow.ShowDialog(MainWindow.Instance);
 		if (result != updateNow) {
