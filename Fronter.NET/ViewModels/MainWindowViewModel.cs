@@ -235,7 +235,9 @@ public class MainWindowViewModel : ViewModelBase {
 				ButtonDefinitions = new[] {
 					new ButtonDefinition {Name = updateNowStr, IsDefault = true},
 					new ButtonDefinition {Name = maybeLaterStr, IsCancel = true}
-				}
+				},
+				MaxWidth = 1280,
+				MaxHeight = 720,
 			});
 		var result = await messageBoxWindow.ShowDialog(MainWindow.Instance);
 		if (result != updateNowStr) {
