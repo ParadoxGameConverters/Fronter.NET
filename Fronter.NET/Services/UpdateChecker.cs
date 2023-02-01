@@ -72,24 +72,26 @@ public static class UpdateChecker {
 		info.Version = releaseInfo.Name;
 
 		var assets = releaseInfo.Assets;
-		if (assets is not null) {
-			foreach (var asset in assets) {
-				string? assetName = asset.Name;
+		foreach (var asset in assets) {
+			string? assetName = asset.Name;
 
-				assetName = assetName.ToLower();
-				var extension = CommonFunctions.GetExtension(assetName);
-				if (extension is not "zip" and not "tgz") {
-					continue;
-				}
-
-				var assetNameWithoutExtension = CommonFunctions.TrimExtension(assetName);
-				if (!assetNameWithoutExtension.EndsWith($"-{osName}-x64")) {
-					continue;
-				}
-
-				info.ArchiveUrl = asset.BrowserDownloadUrl;
-				break;
+			if (assetName is null) {
+				continue;
 			}
+
+			assetName = assetName.ToLower();
+			var extension = CommonFunctions.GetExtension(assetName);
+			if (extension is not "zip" and not "tgz") {
+				continue;
+			}
+
+			var assetNameWithoutExtension = CommonFunctions.TrimExtension(assetName);
+			if (!assetNameWithoutExtension.EndsWith($"-{osName}-x64")) {
+				continue;
+			}
+
+			info.ArchiveUrl = asset.BrowserDownloadUrl;
+			break;
 		}
 
 		if (info.ArchiveUrl is null) {
