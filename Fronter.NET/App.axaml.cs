@@ -2,7 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using Avalonia.Themes.Fluent;
+using Avalonia.Styling;
 using commonItems;
 using Fronter.ViewModels;
 using Fronter.Views;
@@ -77,16 +77,16 @@ public class App : Application {
 			return;
 		}
 		
-		var fluentTheme = (FluentTheme)app.Styles[0];
 		switch (themeName) {
 			case "Light":
-				if (fluentTheme.Mode != FluentThemeMode.Light) {
-					fluentTheme.Mode = FluentThemeMode.Light;
+				
+				if (app.RequestedThemeVariant != ThemeVariant.Light) {
+					app.RequestedThemeVariant = ThemeVariant.Light;
 				}
 				break;
 			case "Dark":
-				if (fluentTheme.Mode != FluentThemeMode.Dark) {
-					fluentTheme.Mode = FluentThemeMode.Dark;
+				if (app.RequestedThemeVariant != ThemeVariant.Dark) {
+					app.RequestedThemeVariant = ThemeVariant.Dark;
 				}
 				break;
 		}

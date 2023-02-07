@@ -1,5 +1,4 @@
 ﻿using Avalonia.Platform.Storage;
-using Avalonia.Platform.Storage.FileIO;
 using commonItems;
 using Fronter.Extensions;
 using Fronter.Models.Configuration;
@@ -32,9 +31,11 @@ public class PathPickerViewModel : ViewModelBase {
 	public ReactiveCommand<RequiredFile, Unit> OpenFileDialogCommand { get; }
 
 	public async void OpenFolderDialog(RequiredFolder folder) {
+		var storageProvider = MainWindow.Instance.StorageProvider;
+		
 		var options = new FolderPickerOpenOptions {
 			Title = TranslationSource.Instance[folder.DisplayName],
-			SuggestedStartLocation = string.IsNullOrEmpty(folder.Value) ? null : new BclStorageFolder(folder.Value)
+			SuggestedStartLocation = string.IsNullOrEmpty(folder.Value) ? null : await storageProvider.TryGetFolderFromPath(folder.Value)
 		};
 		
 		var window = MainWindow.Instance;
@@ -58,10 +59,12 @@ public class PathPickerViewModel : ViewModelBase {
 			AllowMultiple = false
 		};
 		
+		var storageProvider = MainWindow.Instance.StorageProvider;
+		
 		if (file.InitialDirectory is not null) {
-			options.SuggestedStartLocation = new BclStorageFolder(file.InitialDirectory);
+			options.SuggestedStartLocation =  await storageProvider.TryGetFolderFromPath(file.InitialDirectory);
 		} else if (!string.IsNullOrEmpty(file.Value)) {
-			options.SuggestedStartLocation = new BclStorageFolder(CommonFunctions.GetPath(file.Value));
+			options.SuggestedStartLocation = await storageProvider.TryGetFolderFromPath(CommonFunctions.GetPath(file.Value));
 		}
 
 		var fileType = new FilePickerFileType(file.AllowedExtension.TrimStart('*', '.')) {
@@ -69,21 +72,17 @@ public class PathPickerViewModel : ViewModelBase {
 		};
 		options.FileTypeFilter = new List<FilePickerFileType> {fileType};
 
-		var window = MainWindow.Instance;
-		var result = await window.StorageProvider.OpenFilePickerAsync(options);
+		var result = await storageProvider.OpenFilePickerAsync(options);
 		var selectedFile = result.FirstOrDefault(defaultValue: null);
 		if (selectedFile is null) {
 			Logger.Warn($"{file.Name}: no file selected!");
 			return;
 		}
-		if (!selectedFile.TryGetUri(out var uri)) {
-			Logger.Warn($"Can't set file path: selected file \"{selectedFile.Name}\" has no path!");
-			return;
-		}
-		if (!uri.IsAbsoluteUri) {
+		var selectedFileUri = selectedFile.Path;
+		if (!selectedFileUri.IsAbsoluteUri) {
 			Logger.Warn($"URI of file \"{selectedFile.Name}\" is not absolute!");
 		}
-		var absolutePath = uri.LocalPath;
+		var absolutePath = selectedFileUri.LocalPath;
 		file.Value = absolutePath;
 	}
 }

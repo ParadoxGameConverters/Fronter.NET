@@ -142,7 +142,6 @@
                       CanUserReorderColumns="False"
                       CanUserSortColumns="False"
                       RowBackground="Transparent"
-                      AlternatingRowBackground="Transparent"
                       VerticalScrollBarVisibility="Visible"
                       GridLinesVisibility="All"
                       >
