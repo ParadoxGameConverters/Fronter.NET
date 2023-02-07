@@ -44,14 +44,12 @@ public class PathPickerViewModel : ViewModelBase {
 			Logger.Warn($"{folder.Name}: no folder selected!");
 			return;
 		}
-		if (!selectedFile.TryGetUri(out var uri)) {
-			Logger.Warn($"Can't set folder path: selected folder \"{selectedFile.Name}\" has no path!");
-			return;
-		}
-		if (!uri.IsAbsoluteUri) {
+
+		var selectedFileUri = selectedFile.Path;
+		if (!selectedFileUri.IsAbsoluteUri) {
 			Logger.Warn($"URI of folder \"{selectedFile.Name}\" is not absolute!");
 		}
-		var absolutePath = uri.LocalPath;
+		var absolutePath = selectedFileUri.LocalPath;
 		folder.Value = absolutePath;
 	}
 	public async void OpenFileDialog(RequiredFile file) {
