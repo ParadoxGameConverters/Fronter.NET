@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace Fronter.Models; 
+namespace Fronter.Models;
 
 public class ConverterReleaseInfo {
 	[JsonPropertyName("body")] public string? Body { get; set; }

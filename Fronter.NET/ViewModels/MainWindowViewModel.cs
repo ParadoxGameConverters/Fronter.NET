@@ -82,7 +82,7 @@ public class MainWindowViewModel : ViewModelBase {
 		PathPicker = new PathPickerViewModel(Config);
 		ModsPicker = new ModsPickerViewModel(Config);
 		Options = new OptionsViewModel(Config.Options);
-		
+
 		// Create reactive commands.
 		ToggleLogFilterLevelCommand = ReactiveCommand.Create<string>(ToggleLogFilterLevel);
 		SetLanguageCommand = ReactiveCommand.Create<string>(SetLanguage);
@@ -92,13 +92,13 @@ public class MainWindowViewModel : ViewModelBase {
 	public ReadOnlyObservableCollection<LogLine> FilteredLogLines => LogGridAppender.FilteredLogLines;
 
 	#region Reactive commands
-	
+
 	public ReactiveCommand<string, Unit> ToggleLogFilterLevelCommand { get; }
 	public ReactiveCommand<string, Unit> SetLanguageCommand { get; }
 	public ReactiveCommand<string, Unit> SetThemeCommand { get; }
 
 	#endregion
-	
+
 	public void ToggleLogFilterLevel(string value) {
 		LogFilterLevel = LogManager.GetRepository().LevelMap[value];
 		LogGridAppender.ToggleLogFilterLevel();
@@ -146,12 +146,12 @@ public class MainWindowViewModel : ViewModelBase {
 		var copyThread = new Thread(() => {
 			IndeterminateProgress = true;
 			CopyStatus = "CONVERTSTATUSIN";
-						
+
 			copySuccess = modCopier.CopyMod();
 			CopyStatus = copySuccess ? "CONVERTSTATUSPOSTSUCCESS" : "CONVERTSTATUSPOSTFAIL";
 			Progress = Config.ProgressOnCopyingComplete;
 			IndeterminateProgress = false;
-						
+
 			ConvertButtonEnabled = true;
 		});
 		copyThread.Start();
@@ -159,7 +159,7 @@ public class MainWindowViewModel : ViewModelBase {
 	public void LaunchConverter() {
 		ConvertButtonEnabled = false;
 		ClearLogGrid();
-		
+
 		Progress = 0;
 		SaveStatus = "CONVERTSTATUSPRE";
 		ConvertStatus = "CONVERTSTATUSPRE";
@@ -293,7 +293,7 @@ public class MainWindowViewModel : ViewModelBase {
 	}
 
 	public Dictionary<string, string> Themes { get; } = new() {
-		{"Light", "THEME_LIGHT"}, 
+		{"Light", "THEME_LIGHT"},
 		{"Dark", "THEME_DARK"}
 	};
 	public void SetTheme(string themeName) {

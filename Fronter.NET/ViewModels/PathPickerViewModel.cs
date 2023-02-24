@@ -18,7 +18,7 @@ public class PathPickerViewModel : ViewModelBase {
 	public PathPickerViewModel(Configuration config) {
 		RequiredFolders = new ObservableCollection<RequiredFolder>(config.RequiredFolders);
 		RequiredFiles = new ObservableCollection<RequiredFile>(config.RequiredFiles);
-		
+
 		// Create reactive commands.
 		OpenFolderDialogCommand = ReactiveCommand.Create<RequiredFolder>(OpenFolderDialog);
 		OpenFileDialogCommand = ReactiveCommand.Create<RequiredFile>(OpenFileDialog);
@@ -26,18 +26,18 @@ public class PathPickerViewModel : ViewModelBase {
 
 	public ObservableCollection<RequiredFolder> RequiredFolders { get; }
 	public ObservableCollection<RequiredFile> RequiredFiles { get; }
-	
+
 	public ReactiveCommand<RequiredFolder, Unit> OpenFolderDialogCommand { get; }
 	public ReactiveCommand<RequiredFile, Unit> OpenFileDialogCommand { get; }
 
 	public async void OpenFolderDialog(RequiredFolder folder) {
 		var storageProvider = MainWindow.Instance.StorageProvider;
-		
+
 		var options = new FolderPickerOpenOptions {
 			Title = TranslationSource.Instance[folder.DisplayName],
 			SuggestedStartLocation = string.IsNullOrEmpty(folder.Value) ? null : await storageProvider.TryGetFolderFromPath(folder.Value)
 		};
-		
+
 		var window = MainWindow.Instance;
 		var result = await window.StorageProvider.OpenFolderPickerAsync(options);
 		var selectedFile = result.FirstOrDefault(defaultValue: null);
@@ -58,19 +58,19 @@ public class PathPickerViewModel : ViewModelBase {
 			Title = TranslationSource.Instance[file.DisplayName],
 			AllowMultiple = false
 		};
-		
+
 		var storageProvider = MainWindow.Instance.StorageProvider;
-		
+
 		if (file.InitialDirectory is not null) {
-			options.SuggestedStartLocation =  await storageProvider.TryGetFolderFromPath(file.InitialDirectory);
+			options.SuggestedStartLocation = await storageProvider.TryGetFolderFromPath(file.InitialDirectory);
 		} else if (!string.IsNullOrEmpty(file.Value)) {
 			options.SuggestedStartLocation = await storageProvider.TryGetFolderFromPath(CommonFunctions.GetPath(file.Value));
 		}
 
 		var fileType = new FilePickerFileType(file.AllowedExtension.TrimStart('*', '.')) {
-			Patterns = new[] {file.AllowedExtension}
+			Patterns = new[] { file.AllowedExtension }
 		};
-		options.FileTypeFilter = new List<FilePickerFileType> {fileType};
+		options.FileTypeFilter = new List<FilePickerFileType> { fileType };
 
 		var result = await storageProvider.OpenFilePickerAsync(options);
 		var selectedFile = result.FirstOrDefault(defaultValue: null);

@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace Fronter.Services; 
+namespace Fronter.Services;
 
 public static class BrowserLauncher {
 	public static void Open(string url) {

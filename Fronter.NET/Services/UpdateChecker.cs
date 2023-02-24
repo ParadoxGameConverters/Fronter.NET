@@ -28,7 +28,7 @@ public static class UpdateChecker {
 				Logger.Warn($"Failed to get commit id from \"{commitIdUrl}\"; status code: {response.StatusCode}!");
 				return false;
 			}
-			
+
 			var latestReleaseCommitId = await response.Content.ReadAsStringAsync();
 			latestReleaseCommitId = latestReleaseCommitId.Trim();
 
@@ -104,14 +104,14 @@ public static class UpdateChecker {
 	public static string GetUpdateMessageBody(string baseBody, UpdateInfoModel updateInfo) {
 		var stringBuilder = new StringBuilder(baseBody);
 		stringBuilder.AppendLine();
-		
+
 		var version = updateInfo.Version;
 		if (version is not null) {
 			stringBuilder.AppendLine();
 			stringBuilder.Append("Version: ");
 			stringBuilder.AppendLine(version);
 		}
-		
+
 		var description = updateInfo.Description;
 		if (description is not null) {
 			stringBuilder.AppendLine();
@@ -128,7 +128,7 @@ public static class UpdateChecker {
 		if (Directory.Exists(updaterRunningDirPath) && !SystemUtils.TryDeleteFolder(updaterRunningDirPath)) {
 			return;
 		}
-		
+
 		if (!SystemUtils.TryCopyFolder(updaterDirPath, updaterRunningDirPath)) {
 			return;
 		}
@@ -142,7 +142,7 @@ public static class UpdateChecker {
 		proc.StartInfo.FileName = updaterRunningPath;
 		proc.StartInfo.Arguments = $"{archiveUrl} {converterBackendDirName}";
 		proc.Start();
-		
+
 		// Die. The updater will start Fronter after a successful update.
 		MainWindow.Instance.Close();
 	}

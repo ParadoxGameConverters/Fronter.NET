@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Fronter.Models; 
+namespace Fronter.Models;
 
 public class ConverterReleaseAsset {
 	[JsonPropertyName("name")] public string? Name { get; set; }

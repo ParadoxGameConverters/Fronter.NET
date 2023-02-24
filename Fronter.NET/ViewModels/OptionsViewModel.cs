@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace Fronter.ViewModels; 
+namespace Fronter.ViewModels;
 
 public class OptionsViewModel : ViewModelBase {
 	public OptionsViewModel(IEnumerable<Option> items) {

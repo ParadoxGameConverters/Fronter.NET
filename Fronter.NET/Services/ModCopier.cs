@@ -9,7 +9,7 @@ using System.Data.SQLite;
 using System.IO;
 using System.Linq;
 
-namespace Fronter.Services; 
+namespace Fronter.Services;
 
 public class ModCopier {
 	private readonly Configuration config;
@@ -17,7 +17,7 @@ public class ModCopier {
 	public ModCopier(Configuration config) {
 		this.config = config;
 	}
-	
+
 	public bool CopyMod() {
 		logger.Notice("Mod Copying Started.");
 		var converterFolder = config.ConverterFolder;
@@ -53,7 +53,7 @@ public class ModCopier {
 		}
 		var requiredFiles = config.RequiredFiles;
 		if (string.IsNullOrEmpty(targetName)) {
-			var saveGame = requiredFiles.FirstOrDefault(f=> f?.Name == "SaveGame", null);
+			var saveGame = requiredFiles.FirstOrDefault(f => f?.Name == "SaveGame", null);
 			if (saveGame is null) {
 				logger.Error("Copy failed - SaveGame is does not exist!");
 				return false;
@@ -79,7 +79,7 @@ public class ModCopier {
 			}
 			targetName = saveGamePath;
 		}
-		
+
 		targetName = CommonFunctions.ReplaceCharacter(targetName, '-');
 		targetName = CommonFunctions.ReplaceCharacter(targetName, ' ');
 		targetName = CommonFunctions.NormalizeUTF8Path(targetName);
@@ -89,7 +89,7 @@ public class ModCopier {
 			logger.Error($"Copy Failed - Could not find mod folder: {modFolderPath}");
 			return false;
 		}
-		
+
 		// For games using mods with .metadata folders we need to skip .mod file requirement.
 		bool skipModFile = false;
 		var metadataPath = Path.Combine(outputFolder, $"{targetName}/.metadata");
@@ -127,13 +127,12 @@ public class ModCopier {
 			if (!SystemUtils.TryCopyFolder(modFolderPath, destModFolderPath)) {
 				logger.Error($"Could not copy folder: {modFolderPath}\nto {destModFolderPath}");
 			}
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			logger.Error(e.ToString());
 			return false;
 		}
 		logger.Notice($"Mod successfully copied to: {destModFolderPath}");
-		
+
 		CreatePlayset(destModsFolder, targetName, destModFolderPath);
 
 		return true;
@@ -151,7 +150,7 @@ public class ModCopier {
 			logger.Debug("Launcher's database not found.");
 			return;
 		}
-		
+
 		logger.Info("Setting up playset...");
 
 		string connectionString = $"URI=file:{latestDbFilePath}";
@@ -162,34 +161,34 @@ public class ModCopier {
 			connection.Open();
 
 			using var cmd = new SQLiteCommand(connection);
-			
+
 			var playsetName = $"{config.Name}: {modName}";
 			var dateTimeOffset = new DateTimeOffset(DateTime.UtcNow);
 			string unixTimeMilliSeconds = dateTimeOffset.ToUnixTimeMilliseconds().ToString();
-			
+
 			// Check if a playset with the same name already exists.
 			cmd.CommandText = $"SELECT COUNT(*) FROM playsets WHERE name='{playsetName}'";
 			bool playsetExists = Convert.ToBoolean(cmd.ExecuteScalar());
 			if (playsetExists) {
 				if (config.OverwritePlayset) {
 					DeactivateCurrentPlayset(cmd);
-					
+
 					logger.Debug("Updating playset...");
 					cmd.CommandText = $"UPDATE playsets SET isActive=true, updatedOn={unixTimeMilliSeconds} " +
-					                  $"WHERE name='{playsetName}'";
+									  $"WHERE name='{playsetName}'";
 					cmd.ExecuteNonQuery();
-					
+
 					logger.Notice("Updated existing playset.");
 				} else {
 					logger.Notice("Playset already exists.");
 				}
 			} else {
 				DeactivateCurrentPlayset(cmd);
-				
+
 				logger.Debug("Creating new playset...");
 				var playsetId = Guid.NewGuid().ToString();
 				cmd.CommandText = "INSERT INTO playsets(id, name, isActive, isRemoved, hasNotApprovedChanges, createdOn) " +
-				                  $"VALUES('{playsetId}', '{playsetName}', true, false, false, {unixTimeMilliSeconds})";
+								  $"VALUES('{playsetId}', '{playsetName}', true, false, false, {unixTimeMilliSeconds})";
 				cmd.ExecuteNonQuery();
 
 				var playsetInfo = LoadPlaysetInfo();
@@ -204,9 +203,9 @@ public class ModCopier {
 
 					// Try to get an ID of existing matching mod.
 					cmd.CommandText = "SELECT id FROM mods WHERE" +
-					                  $" name='{playsetModName}'" +
-					                  $" OR dirPath='{playsetModPath}'" +
-					                  $" OR dirPath='{playsetModPathWithBackSlashes}'";
+									  $" name='{playsetModName}'" +
+									  $" OR dirPath='{playsetModPath}'" +
+									  $" OR dirPath='{playsetModPathWithBackSlashes}'";
 
 					using SQLiteDataReader rdr = cmd.ExecuteReader();
 					bool modExists = rdr.HasRows && rdr.Read();
@@ -239,13 +238,13 @@ public class ModCopier {
 
 				logger.Notice("Successfully created and activated a playset.");
 			}
-		} catch(Exception e) {
+		} catch (Exception e) {
 			logger.Error(e);
 		}
 	}
 
 	private string? GetLastUpdatedLauncherDbPath(string gameDocsDirectory) {
-		var possibleDbFileNames = new List<string> {"launcher-v2.sqlite", "launcher-v2_openbeta.sqlite"};
+		var possibleDbFileNames = new List<string> { "launcher-v2.sqlite", "launcher-v2_openbeta.sqlite" };
 		var latestDbFilePath = possibleDbFileNames
 			.Select(name => Path.Join(gameDocsDirectory, name))
 			.Where(File.Exists)
@@ -259,7 +258,7 @@ public class ModCopier {
 		logger.Debug($"Saving mod \"{modName}\" to DB...");
 		var modId = Guid.NewGuid().ToString();
 		cmd.CommandText = "INSERT INTO mods(id, status, source, version, gameRegistryId, name, dirPath) " +
-		                  $"VALUES('{modId}', 'ready_to_play', 'local', 1, '{gameRegistryId}', '{modName}', '{dirPath}')";
+						  $"VALUES('{modId}', 'ready_to_play', 'local', 1, '{gameRegistryId}', '{modName}', '{dirPath}')";
 		cmd.ExecuteNonQuery();
 
 		return modId;
@@ -274,12 +273,12 @@ public class ModCopier {
 	private OrderedDictionary<string, string> LoadPlaysetInfo() {
 		logger.Debug("Loading playset info from converter backend...");
 		var toReturn = new OrderedDictionary<string, string>();
-		
+
 		var filePath = Path.Combine(config.ConverterFolder, "playset_info.txt");
 		if (!File.Exists(filePath)) {
 			return toReturn;
 		}
-		
+
 		var parser = new Parser();
 		parser.RegisterRegex(CommonRegexes.QuotedString, (reader, modName) => {
 			toReturn.Add(modName, reader.GetString().RemQuotes());

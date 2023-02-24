@@ -22,7 +22,7 @@ public class LogGridAppender : MemoryAppender {
 	public Level LogFilterLevel = Level.Warn;
 
 	public DataGrid? LogGrid { get; set; }
-	
+
 	public LogGridAppender() {
 		// The idea of notice in the converters was to display the notice regardless of filtering level.
 		LogLines.ToObservableChangeSet()
@@ -40,7 +40,7 @@ public class LogGridAppender : MemoryAppender {
 		};
 		AddToLogGrid(newLogLine);
 		ScrollToLogEnd();
-		
+
 		base.Append(loggingEvent);
 	}
 
@@ -71,7 +71,7 @@ public class LogGridAppender : MemoryAppender {
 			}
 		}
 	}
-	
+
 	public void ToggleLogFilterLevel() {
 		LogLines.ToObservableChangeSet()
 			.Filter(line => line.Level is null || line.Level == Level.Notice || line.Level >= LogFilterLevel)
@@ -79,11 +79,11 @@ public class LogGridAppender : MemoryAppender {
 			.Subscribe();
 		lastVisibleRow = filteredLogLines.LastOrDefault();
 	}
-	
+
 	private LogLine? lastLogRow;
 	private LogLine? lastVisibleRow;
 	private void AddRowToLogGrid(LogLine logLine) {
-		Dispatcher.UIThread.Post(()=>LogLines.Add(logLine));
+		Dispatcher.UIThread.Post(() => LogLines.Add(logLine));
 		lastLogRow = logLine;
 		if (logLine.Level is not null && logLine.Level >= LogFilterLevel) {
 			lastVisibleRow = logLine;
@@ -99,6 +99,6 @@ public class LogGridAppender : MemoryAppender {
 	}
 
 	public void ScrollToLogEnd() {
-		Dispatcher.UIThread.Post(()=>LogGrid?.ScrollIntoView(lastVisibleRow, null), DispatcherPriority.MinValue);
+		Dispatcher.UIThread.Post(() => LogGrid?.ScrollIntoView(lastVisibleRow, null), DispatcherPriority.MinValue);
 	}
 }

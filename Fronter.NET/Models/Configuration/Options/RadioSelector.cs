@@ -38,8 +38,9 @@ public class RadioSelector : Selector {
 			if (option.Id == selection) {
 				option.Value = true;
 				isSet = true;
-			} else
+			} else {
 				option.Value = false;
+			}
 		}
 
 		if (!isSet) {
@@ -52,8 +53,9 @@ public class RadioSelector : Selector {
 			if (option.Name == selection) {
 				option.Value = true;
 				isSet = true;
-			} else
+			} else {
 				option.Value = false;
+			}
 		}
 		if (!isSet)
 			logger.Warn("Attempted setting a radio selector value that does not exist!");

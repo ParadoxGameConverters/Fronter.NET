@@ -10,7 +10,7 @@ public class RequiredFolder : RequiredPath {
 	private static readonly ILog logger = LogManager.GetLogger("Required folder");
 	public RequiredFolder(BufferedReader reader, Configuration configuration) {
 		config = configuration;
-		
+
 		var parser = new Parser();
 		RegisterKeys(parser);
 		parser.ParseStream(reader);
@@ -42,7 +42,7 @@ public class RequiredFolder : RequiredPath {
 
 			base.Value = value;
 			logger.Info($"{TranslationSource.Instance[DisplayName]} set to: {value}");
-			
+
 			if (Name == config.ModAutoGenerationSource) {
 				config.AutoLocateMods();
 			}

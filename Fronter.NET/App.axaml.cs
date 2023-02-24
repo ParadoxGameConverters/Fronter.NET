@@ -20,9 +20,9 @@ public class App : Application {
 
 	public override void Initialize() {
 		ConfigureLogging();
-		
+
 		AvaloniaXamlLoader.Load(this);
-		
+
 		LoadTheme();
 	}
 
@@ -30,7 +30,7 @@ public class App : Application {
 		if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
 			var window = MainWindow.Instance;
 			desktop.MainWindow = window;
-			
+
 			var mainWindowViewModel = new MainWindowViewModel(window.FindControl<DataGrid>("LogGrid")!);
 			window.DataContext = mainWindowViewModel;
 
@@ -66,7 +66,7 @@ public class App : Application {
 			SetTheme(DefaultTheme);
 		}
 	}
-	
+
 	/// <summary>
 	/// Sets a theme
 	/// </summary>
@@ -76,10 +76,9 @@ public class App : Application {
 		if (app is null) {
 			return;
 		}
-		
+
 		switch (themeName) {
 			case "Light":
-				
 				if (app.RequestedThemeVariant != ThemeVariant.Light) {
 					app.RequestedThemeVariant = ThemeVariant.Light;
 				}

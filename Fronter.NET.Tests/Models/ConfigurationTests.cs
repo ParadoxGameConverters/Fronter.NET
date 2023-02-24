@@ -40,7 +40,7 @@ public class ConfigurationTests {
 				Assert.Equal("Paradox Interactive\\Crusader Kings III\\mod", folder.SearchPath);
 			}
 		);
-		
+
 		Assert.Collection(config.RequiredFiles,
 			file => {
 				Assert.Equal("SaveGame", file.Name);
