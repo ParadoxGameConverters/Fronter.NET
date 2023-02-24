@@ -182,7 +182,7 @@ public class Configuration {
 
 			if (folder.SearchPathType == "windowsUsersFolder") {
 				initialValue = Path.Combine(documentsDir, folder.SearchPath);
-			} else if (folder.SearchPathType == "steamFolder") {
+			} else if (folder.SearchPathType == "storeFolder") {
 				if (!int.TryParse(folder.SearchPathId, out int steamId)) {
 					continue;
 				}

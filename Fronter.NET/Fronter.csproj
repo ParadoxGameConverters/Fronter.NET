@@ -54,7 +54,7 @@
         <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.18" />
         <PackageReference Include="DynamicData" Version="7.12.11" />
         <PackageReference Include="MessageBox.Avalonia" Version="2.1.0" />
-        <PackageReference Include="PGCG.commonItems" Version="7.8.6" />
+        <PackageReference Include="PGCG.commonItems" Version="7.8.7" />
         <PackageReference Include="System.Data.SQLite.Core" Version="1.0.117" />
         <PackageReference Include="system.io.filesystem" Version="4.3.0" />
         <PackageReference Include="System.Net.Primitives" Version="4.3.1" />

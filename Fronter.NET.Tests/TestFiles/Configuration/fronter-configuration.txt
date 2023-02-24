@@ -15,7 +15,7 @@ requiredFolder = {
 	displayName = IMPFOLDER
 	tooltip = IMPFOLDERTIP
 	mandatory = true
-	searchPathType = steamFolder
+	searchPathType = storeFolder
 	searchPathID = 859580
 }
 requiredFolder = {
