@@ -34,8 +34,8 @@ public class App : Application {
 			var mainWindowViewModel = new MainWindowViewModel(window.FindControl<DataGrid>("LogGrid")!);
 			window.DataContext = mainWindowViewModel;
 
-			desktop.MainWindow.Opened += (sender, args) => mainWindowViewModel.CheckForUpdatesOnStartup();
 			desktop.MainWindow.Opened += (sender, args) => DebugInfo.LogEverything();
+			desktop.MainWindow.Opened += (sender, args) => mainWindowViewModel.CheckForUpdatesOnStartup();
 		}
 
 		base.OnFrameworkInitializationCompleted();

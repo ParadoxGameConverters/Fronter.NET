@@ -15,6 +15,7 @@ using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
 using MessageBox.Avalonia.Models;
 using ReactiveUI;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
@@ -29,8 +30,13 @@ namespace Fronter.ViewModels;
 public class MainWindowViewModel : ViewModelBase {
 	private static readonly ILog logger = LogManager.GetLogger("Frontend");
 	private readonly TranslationSource loc = TranslationSource.Instance;
-	public IEnumerable<KeyValuePair<string, string>> Languages => loc.LoadedLanguages
-		.ToDictionary(l => l, l => loc.TranslateLanguage(l));
+	public IEnumerable<MenuItemViewModel> LanguageMenuItems => loc.LoadedLanguages
+		.Select(l => new MenuItemViewModel {
+			Command = SetLanguageCommand,
+			CommandParameter = l,
+			Header = loc.TranslateLanguage(l),
+			Items = Array.Empty<MenuItemViewModel>()
+		});
 
 	public Configuration Config { get; }
 
