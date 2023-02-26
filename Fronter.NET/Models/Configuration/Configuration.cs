@@ -21,7 +21,7 @@ public class Configuration {
 	public string? ModAutoGenerationSource { get; private set; } = null;
 	public ObservableCollection<Mod> AutoLocatedMods { get; } = new();
 	public bool CopyToTargetGameModDirectory { get; set; } = true;
-	public ushort ProgressOnCopyingComplete { get; set; } = 109; 
+	public ushort ProgressOnCopyingComplete { get; set; } = 109;
 	public bool OverwritePlayset { get; set; } = false;
 	public bool UpdateCheckerEnabled { get; private set; } = false;
 	public bool CheckForUpdatesOnStartup { get; private set; } = false;
@@ -277,7 +277,7 @@ public class Configuration {
 				}
 				writer.WriteLine($"{file.Name} = \"{file.Value}\"");
 			}
-			
+
 			if (ModAutoGenerationSource is not null) {
 				writer.WriteLine("selectedMods = {");
 				foreach (var mod in AutoLocatedMods) {
@@ -314,7 +314,7 @@ public class Configuration {
 			return;
 		}
 
-		if (desktop.MainWindow.DataContext is MainWindowViewModel mainWindowDataContext) {
+		if (desktop.MainWindow?.DataContext is MainWindowViewModel mainWindowDataContext) {
 			mainWindowDataContext.SaveStatus = locKey;
 		}
 	}
@@ -323,7 +323,7 @@ public class Configuration {
 		logger.Debug("Clearing previously located mods...");
 		AutoLocatedMods.Clear();
 		logger.Debug("Autolocating mods...");
-		
+
 		// Do we have a mod path?
 		string? modPath = null;
 		foreach (var folder in RequiredFolders) {
@@ -335,20 +335,20 @@ public class Configuration {
 			logger.Warn("No folder found as source for mods autolocation.");
 			return;
 		}
-		
+
 		// Does it exist?
 		if (!Directory.Exists(modPath)) {
 			logger.Warn($"Mod path \"{modPath}\" does not exist or can not be accessed!");
 			return;
 		}
-		
+
 		// Are we looking at documents directory?
 		var combinedPath = Path.Combine(modPath, "mod");
 		if (Directory.Exists(combinedPath)) {
 			modPath = combinedPath;
 		}
 		logger.Debug($"Mods autolocation path set to: \"{modPath}\"");
-		
+
 		// Are there mods inside?
 		var validModFiles = new List<string>();
 		foreach (var file in SystemUtils.GetAllFilesInFolder(modPath)) {
@@ -361,7 +361,7 @@ public class Configuration {
 			if (extension != "mod") {
 				continue;
 			}
-			
+
 			validModFiles.Add(file);
 		}
 

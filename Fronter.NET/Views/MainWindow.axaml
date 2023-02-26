@@ -35,24 +35,24 @@
                 <MenuItem Header="{ns:Loc EXIT}" Command="{Binding Exit}"/>
             </MenuItem>
             
-            <MenuItem Header="{ns:Loc LANGUAGE}" Items="{Binding Languages}" Classes="LanguageChoice">
-                <MenuItem.Styles>
-                    <Style Selector="MenuItem.LanguageChoice MenuItem">
-                        <Setter Property="Header" Value="{Binding Value}"/>
-                        <Setter Property="Command" Value="{Binding $parent[Window].DataContext.SetLanguage, FallbackValue={}}"/>
-                        <Setter Property="CommandParameter" Value="{Binding Key}"/>
-                    </Style>
-                </MenuItem.Styles>  
+            <MenuItem Header="{ns:Loc LANGUAGE}" Items="{Binding LanguageMenuItems}">
+                <MenuItem.ItemContainerTheme>
+                    <ControlTheme TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}">
+                        <Setter Property="Header" Value="{Binding Header}"/>
+                        <Setter Property="Command" Value="{Binding Command}"/>
+                        <Setter Property="CommandParameter" Value="{Binding CommandParameter}"/>
+                    </ControlTheme>
+                </MenuItem.ItemContainerTheme>
             </MenuItem>
             
-            <MenuItem Header="{ns:Loc MENU_THEME}" Items="{Binding Themes}" Classes="ThemeChoice">
-                <MenuItem.Styles>
-                    <Style Selector="MenuItem.ThemeChoice MenuItem">
+            <MenuItem Header="{ns:Loc MENU_THEME}" Items="{Binding Themes}">
+                <MenuItem.ItemContainerTheme>
+                    <ControlTheme TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}">
                         <Setter Property="Header" Value="{ns:DynamicLoc Value}"/>
-                        <Setter Property="Command" Value="{Binding $parent[Window].DataContext.SetTheme, FallbackValue={}}"/>
+                        <Setter Property="Command" Value="{Binding $parent[Window].DataContext.SetThemeCommand, FallbackValue={}}"/>
                         <Setter Property="CommandParameter" Value="{Binding Key}"/>
-                    </Style>
-                </MenuItem.Styles>  
+                    </ControlTheme>
+                </MenuItem.ItemContainerTheme>
             </MenuItem>
                 
             <MenuItem Header="{ns:Loc MENU_HELP}">
@@ -87,28 +87,28 @@
                             <TextBlock Text="{ns:Loc LOGLEVEL}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                             
                             <RadioButton IsChecked="{Binding Path=LogFilterLevel, FallbackValue=False, Mode=OneWay, Converter={x:Static vc:EnumToBooleanConverter.Instance}, ConverterParameter={x:Static log4netCore:Level.Error}}"
-                                         Command="{Binding ToggleLogFilterLevel}"
+                                         Command="{Binding ToggleLogFilterLevelCommand}"
                                          CommandParameter="Error"
                                          VerticalContentAlignment="Center"
                                          Content="{ns:Loc LOGLEVEL0}"
                                          Margin="1">
                             </RadioButton>
                             <RadioButton IsChecked="{Binding Path=LogFilterLevel, FallbackValue=False, Mode=OneWay, Converter={x:Static vc:EnumToBooleanConverter.Instance}, ConverterParameter={x:Static log4netCore:Level.Warn}}"
-                                         Command="{Binding ToggleLogFilterLevel}"
+                                         Command="{Binding ToggleLogFilterLevelCommand}"
                                          CommandParameter="Warn"
                                          VerticalContentAlignment="Center"
                                          Content="{ns:Loc LOGLEVEL1}"
                                          Margin="1">
                             </RadioButton>
                             <RadioButton IsChecked="{Binding Path=LogFilterLevel, FallbackValue=False, Mode=OneWay, Converter={x:Static vc:EnumToBooleanConverter.Instance}, ConverterParameter={x:Static log4netCore:Level.Info}}"
-                                         Command="{Binding ToggleLogFilterLevel}"
+                                         Command="{Binding ToggleLogFilterLevelCommand}"
                                          CommandParameter="Info"
                                          VerticalContentAlignment="Center"
                                          Content="{ns:Loc LOGLEVEL2}"
                                          Margin="1">
                             </RadioButton>
                             <RadioButton IsChecked="{Binding Path=LogFilterLevel, FallbackValue=False, Mode=OneWay, Converter={x:Static vc:EnumToBooleanConverter.Instance}, ConverterParameter={x:Static log4netCore:Level.Debug}}"
-                                         Command="{Binding ToggleLogFilterLevel}"
+                                         Command="{Binding ToggleLogFilterLevelCommand}"
                                          CommandParameter="Debug"
                                          VerticalContentAlignment="Center"
                                          Content="{ns:Loc LOGLEVEL3}"
@@ -135,16 +135,24 @@
                 </TabItem>
             </TabControl>
         
-            <DataGrid Name="LogGrid" Grid.Column="0" Grid.Row="1" Margin="0,20,0,0" VerticalScrollBarVisibility="Visible" Items="{Binding FilteredLogLines}" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="False">
+            <DataGrid Name="LogGrid" Grid.Column="0" Grid.Row="1"
+                      Margin="0,20,0,0"
+                      Items="{Binding FilteredLogLines}"
+                      AutoGenerateColumns="False"
+                      CanUserReorderColumns="False"
+                      CanUserSortColumns="False"
+                      RowBackground="Transparent"
+                      VerticalScrollBarVisibility="Visible"
+                      GridLinesVisibility="All"
+                      >
                 <DataGrid.Resources>
                     <vc:LogLevelToColorNameConverter x:Key="LogLevelToColorNameConverter"/>
                 </DataGrid.Resources>
                 <DataGrid.Styles>
-                    <Style Selector="DataGridRow">
+                    <Style Selector="DataGrid DataGridRow">
                         <Setter Property="Background" Value="{Binding Level, Converter={StaticResource LogLevelToColorNameConverter}}" />
                     </Style>
                 </DataGrid.Styles>
-                <DataGrid.GridLinesVisibility>All</DataGrid.GridLinesVisibility>
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="{ns:Loc LOGTIME}" IsReadOnly="True" Binding="{Binding Timestamp}" />
                     <DataGridTextColumn Header="{ns:Loc LOGSEVERITY}" IsReadOnly="True" Binding="{Binding LevelName}" />

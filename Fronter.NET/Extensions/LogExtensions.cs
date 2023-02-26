@@ -2,7 +2,7 @@
 using log4net.Core;
 using System;
 
-namespace Fronter.Extensions; 
+namespace Fronter.Extensions;
 
 public static class LogExtensions {
 	public static void LogWithCustomTimestamp(this ILog log, DateTime timestamp, Level level, string message) {

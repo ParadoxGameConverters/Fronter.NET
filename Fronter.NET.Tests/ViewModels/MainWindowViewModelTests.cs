@@ -4,7 +4,7 @@ using Fronter.Models.Configuration.Options;
 using Fronter.ViewModels;
 using Xunit;
 
-namespace Fronter.Tests.ViewModels; 
+namespace Fronter.Tests.ViewModels;
 
 [Collection("Sequential")]
 [CollectionDefinition("Sequential", DisableParallelization = true)]
@@ -12,7 +12,7 @@ public class MainWindowViewModelTests {
 	static MainWindowViewModelTests() {
 		App.ConfigureLogging();
 	}
-	
+
 	[Fact]
 	public void OptionsTabVisibleEqualsFalseWhenNoOptions() {
 		var vm = new MainWindowViewModel(new DataGrid());
@@ -20,7 +20,7 @@ public class MainWindowViewModelTests {
 		Assert.Empty(vm.Options.Items);
 		Assert.False(vm.OptionsTabVisible);
 	}
-	
+
 	[Fact]
 	public void OptionsTabVisibleEqualsTrueWhenNoOptions() {
 		var vm = new MainWindowViewModel(new DataGrid());

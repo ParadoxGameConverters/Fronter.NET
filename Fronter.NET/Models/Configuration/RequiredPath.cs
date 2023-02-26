@@ -17,7 +17,7 @@ public class RequiredPath : ViewModelBase {
 
 	public string SearchPathType { get; protected set; } = string.Empty;
 	public string SearchPath { get; protected set; } = string.Empty;
-	
+
 	private string valueStr = string.Empty;
 	public virtual string Value {
 		get => valueStr;

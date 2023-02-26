@@ -7,13 +7,13 @@ namespace Fronter.Views;
 
 public partial class MainWindow : Window {
 	public static MainWindow Instance { get; } = new();
-		
+
 	public MainWindow() {
 		InitializeComponent();
 #if DEBUG
 		this.AttachDevTools();
 #endif
-			
+
 		(DataContext as MainWindowViewModel)?.CheckForUpdatesOnStartup();
 	}
 

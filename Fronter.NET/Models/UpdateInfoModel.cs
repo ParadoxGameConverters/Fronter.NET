@@ -1,4 +1,4 @@
-﻿namespace Fronter.Models; 
+﻿namespace Fronter.Models;
 
 public class UpdateInfoModel {
 	public string? Version { get; set; }

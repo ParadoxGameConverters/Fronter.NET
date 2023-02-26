@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 
-namespace Fronter.ValueConverters; 
+namespace Fronter.ValueConverters;
 
 public class LocKeyToValueConverter : IMultiValueConverter {
 	public object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture) {
