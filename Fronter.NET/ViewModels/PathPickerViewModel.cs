@@ -35,7 +35,7 @@ public class PathPickerViewModel : ViewModelBase {
 
 		var options = new FolderPickerOpenOptions {
 			Title = TranslationSource.Instance[folder.DisplayName],
-			SuggestedStartLocation = string.IsNullOrEmpty(folder.Value) ? null : await storageProvider.TryGetFolderFromPath(folder.Value)
+			SuggestedStartLocation = string.IsNullOrEmpty(folder.Value) ? null : await storageProvider.TryGetFolderFromPathAsync(folder.Value)
 		};
 
 		var window = MainWindow.Instance;
@@ -62,9 +62,9 @@ public class PathPickerViewModel : ViewModelBase {
 		var storageProvider = MainWindow.Instance.StorageProvider;
 
 		if (file.InitialDirectory is not null) {
-			options.SuggestedStartLocation = await storageProvider.TryGetFolderFromPath(file.InitialDirectory);
+			options.SuggestedStartLocation = await storageProvider.TryGetFolderFromPathAsync(file.InitialDirectory);
 		} else if (!string.IsNullOrEmpty(file.Value)) {
-			options.SuggestedStartLocation = await storageProvider.TryGetFolderFromPath(CommonFunctions.GetPath(file.Value));
+			options.SuggestedStartLocation = await storageProvider.TryGetFolderFromPathAsync(CommonFunctions.GetPath(file.Value));
 		}
 
 		var fileType = new FilePickerFileType(file.AllowedExtension.TrimStart('*', '.')) {
