@@ -52,7 +52,7 @@ public class LogGridAppender : MemoryAppender {
 		if (logLine.Level is null) {
 			Dispatcher.UIThread.Post(
 				() => AppendToLastLogRow(logLine),
-				DispatcherPriority.MinValue
+				DispatcherPriority.Normal
 			);
 		} else {
 			AddRowToLogGrid(logLine);
@@ -99,6 +99,6 @@ public class LogGridAppender : MemoryAppender {
 	}
 
 	public void ScrollToLogEnd() {
-		Dispatcher.UIThread.Post(() => LogGrid?.ScrollIntoView(lastVisibleRow, null), DispatcherPriority.MinValue);
+		Dispatcher.UIThread.Post(() => LogGrid?.ScrollIntoView(lastVisibleRow, null), DispatcherPriority.Background);
 	}
 }

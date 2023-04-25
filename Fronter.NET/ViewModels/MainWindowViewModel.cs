@@ -109,7 +109,7 @@ public class MainWindowViewModel : ViewModelBase {
 		LogFilterLevel = LogManager.GetRepository().LevelMap[value];
 		LogGridAppender.ToggleLogFilterLevel();
 		this.RaisePropertyChanged(nameof(FilteredLogLines));
-		Dispatcher.UIThread.Post(ScrollToLogEnd, DispatcherPriority.MinValue);
+		Dispatcher.UIThread.Post(ScrollToLogEnd, DispatcherPriority.Normal);
 	}
 
 	private ushort progress = 0;

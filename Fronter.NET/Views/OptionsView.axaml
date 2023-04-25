@@ -8,7 +8,7 @@
              x:Class="Fronter.Views.OptionsView"
              x:DataType="viewModels:OptionsViewModel"
              x:CompileBindings="True">
-    <ItemsControl Items="{Binding Items}">
+    <ItemsControl ItemsSource="{Binding Items}">
         <ItemsControl.Styles>
             <Style Selector="Border.optionCard">
                 <Setter Property="Background" Value="{DynamicResource SystemChromeHighColor}" />
@@ -30,7 +30,7 @@
                     <StackPanel>
                         <TextBlock Text="{ns:DynamicLoc DisplayName}"></TextBlock>
                         <ItemsControl 
-                            Items="{Binding CheckBoxSelector.CheckBoxOptions, FallbackValue={}}"
+                            ItemsSource="{Binding CheckBoxSelector.CheckBoxOptions, FallbackValue={}}"
                             IsVisible="{Binding CheckBoxSelector, Converter={x:Static ObjectConverters.IsNotNull}}" 
                         >
                             <ItemsControl.ItemTemplate>
@@ -46,7 +46,7 @@
                         </ItemsControl>
                         
                         <ComboBox
-                            Items="{Binding RadioSelector.RadioOptions, FallbackValue={}}"
+                            ItemsSource="{Binding RadioSelector.RadioOptions, FallbackValue={}}"
                             IsVisible="{Binding RadioSelector, Converter={x:Static ObjectConverters.IsNotNull}}"
                             SelectedItem="{Binding RadioSelector.SelectedOption, FallbackValue={}}"
                             AutoScrollToSelectedItem="True"

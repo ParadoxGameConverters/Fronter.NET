@@ -40,7 +40,7 @@
     <Grid RowDefinitions="Auto,*">
         <ScrollViewer Grid.Column="0" Grid.Row="0" >
             <StackPanel>
-                <ItemsControl Items="{Binding RequiredFolders}">
+                <ItemsControl ItemsSource="{Binding RequiredFolders}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Grid ColumnDefinitions="Auto,*,Auto">
@@ -61,7 +61,7 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             
-                <ItemsControl Items="{Binding RequiredFiles}">
+                <ItemsControl ItemsSource="{Binding RequiredFiles}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Grid ColumnDefinitions="Auto,*,Auto">
