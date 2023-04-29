@@ -37,7 +37,7 @@
                 <MenuItem Header="{ns:Loc EXIT}" Command="{Binding Exit}"/>
             </MenuItem>
             
-            <MenuItem Header="{ns:Loc LANGUAGE}" Items="{Binding LanguageMenuItems}">
+            <MenuItem x:CompileBindings="False" Header="{ns:Loc LANGUAGE}" Items="{Binding LanguageMenuItems}">
                 <MenuItem.ItemContainerTheme>
                     <ControlTheme TargetType="MenuItem" x:DataType="viewModels:MenuItemViewModel" BasedOn="{StaticResource {x:Type MenuItem}}">
                         <Setter Property="Header" Value="{Binding Header}"/>
@@ -152,7 +152,7 @@
                 </DataGrid.Resources>
                 <DataGrid.Styles>
                     <Style Selector="DataGrid DataGridRow">
-                        <Setter Property="Background" Value="{Binding Level, DataType=models:LogLine, Converter={StaticResource LogLevelToColorNameConverter}}" />
+                        <Setter Property="Background" Value="{Binding Level, Converter={StaticResource LogLevelToColorNameConverter}}" />
                     </Style>
                 </DataGrid.Styles>
                 <DataGrid.Columns>
