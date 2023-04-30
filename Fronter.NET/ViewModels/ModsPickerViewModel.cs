@@ -14,7 +14,7 @@ public class ModsPickerViewModel : ViewModelBase {
 		config.AutoLocatedMods.ToObservableChangeSet()
 			.Bind(out autoLocatedMods)
 			.Subscribe();
-		
+
 		if (config.ModAutoGenerationSource is null) {
 			ModsDisabled = true;
 		}

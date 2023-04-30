@@ -36,7 +36,7 @@ internal class ConverterLauncher {
 
 		return backendExePathRelativeToFrontend;
 	}
-	
+
 	public async Task<bool> LaunchConverter() {
 		var backendExePathRelativeToFrontend = GetBackendExePathRelativeToFrontend();
 		if (backendExePathRelativeToFrontend is null) {
@@ -47,7 +47,7 @@ internal class ConverterLauncher {
 			logger.Error("Could not find converter executable!");
 			return false;
 		}
-		
+
 		logger.Debug($"Using {backendExePathRelativeToFrontend} as converter backend...");
 		var startInfo = new ProcessStartInfo {
 			FileName = backendExePathRelativeToFrontend,
@@ -62,7 +62,7 @@ internal class ConverterLauncher {
 			startInfo.FileName = "javaw";
 			startInfo.Arguments = $"-jar {CommonFunctions.TrimPath(backendExePathRelativeToFrontend)}";
 		}
-		
+
 		using Process process = new() { StartInfo = startInfo };
 		process.OutputDataReceived += (sender, args) => {
 			var logLine = MessageSlicer.SliceMessage(args.Data ?? string.Empty);
@@ -78,12 +78,12 @@ internal class ConverterLauncher {
 			} else {
 				timestamp = Convert.ToDateTime(logLine.Timestamp);
 			}
-			
+
 			// Get level to display.
 			var logLevel = level ?? lastLevelFromBackend ?? Level.Info;
 
 			logger.LogWithCustomTimestamp(timestamp, logLevel, logLine.Message);
-			
+
 			if (level is not null) {
 				lastLevelFromBackend = level;
 			}
@@ -96,9 +96,9 @@ internal class ConverterLauncher {
 		process.EnableRaisingEvents = true;
 		process.PriorityClass = ProcessPriorityClass.RealTime;
 		process.PriorityBoostEnabled = OperatingSystem.IsWindows();
-		
+
 		process.BeginOutputReadLine();
-		
+
 		// Kill converter backend when frontend is closed.
 		var processId = process.Id;
 		if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
@@ -112,7 +112,7 @@ internal class ConverterLauncher {
 				}
 			};
 		}
-		
+
 		await process.WaitForExitAsync();
 		timer.Stop();
 

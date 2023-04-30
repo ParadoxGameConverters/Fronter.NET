@@ -16,11 +16,11 @@ public class UpdateCheckerTests {
 	static UpdateCheckerTests() {
 		App.ConfigureLogging();
 	}
-	
+
 	[Fact]
 	public async void IncorrectCommitIdTxtPathIsLogged() {
 		const string wrongCommitIdTxtPath = "missingFile.txt";
-		
+
 		var isUpdateAvailable = await UpdateChecker.IsUpdateAvailable(wrongCommitIdTxtPath, ImperatorToCK3CommitUrl);
 		Assert.False(isUpdateAvailable);
 
@@ -28,11 +28,11 @@ public class UpdateCheckerTests {
 		using var reader = new StreamReader(fileStream);
 		Assert.Contains($"File \"{wrongCommitIdTxtPath}\" does not exist!", await reader.ReadToEndAsync());
 	}
-	
+
 	[Fact]
 	public async void IncorrectCommitIdUrlIsLogged() {
 		const string wrongCommitIdUrl = "https://paradoxgameconverters.com/wrong_url";
-		
+
 		var isUpdateAvailable = await UpdateChecker.IsUpdateAvailable(TestImperatorToCK3CommitIdTxtPath, wrongCommitIdUrl);
 		Assert.False(isUpdateAvailable);
 
@@ -40,14 +40,14 @@ public class UpdateCheckerTests {
 		using var reader = new StreamReader(fileStream);
 		Assert.Contains($"Failed to get commit id from \"{wrongCommitIdUrl}\"; status code: NotFound!", await reader.ReadToEndAsync());
 	}
-	
+
 	[Fact]
 	public async void UpdateCheckerCanFindUpdate() {
 		bool isUpdateAvailable = await UpdateChecker.IsUpdateAvailable(TestImperatorToCK3CommitIdTxtPath,
 			ImperatorToCK3CommitUrl);
 		Assert.True(isUpdateAvailable);
 	}
-	
+
 	[Fact]
 	public async void LatestReleaseInfoIsDownloaded() {
 		UpdateInfoModel info = await UpdateChecker.GetLatestReleaseInfo("ImperatorToCK3");

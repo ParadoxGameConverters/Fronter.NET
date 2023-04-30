@@ -1,8 +1,13 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:fronter="clr-namespace:Fronter"
-             x:Class="Fronter.App">
+             x:Class="Fronter.App"
+             RequestedThemeVariant="Default">
     <Application.DataTemplates>
         <fronter:ViewLocator/>
     </Application.DataTemplates>
+    <Application.Styles>
+        <FluentTheme />
+        <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"></StyleInclude>
+    </Application.Styles>
 </Application>

@@ -15,11 +15,13 @@ using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
 using MessageBox.Avalonia.Models;
 using ReactiveUI;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Reactive;
 using System.Threading;
 
 namespace Fronter.ViewModels;
@@ -28,8 +30,13 @@ namespace Fronter.ViewModels;
 public class MainWindowViewModel : ViewModelBase {
 	private static readonly ILog logger = LogManager.GetLogger("Frontend");
 	private readonly TranslationSource loc = TranslationSource.Instance;
-	public IEnumerable<KeyValuePair<string, string>> Languages => loc.LoadedLanguages
-		.ToDictionary(l => l, l => loc.TranslateLanguage(l));
+	public IEnumerable<MenuItemViewModel> LanguageMenuItems => loc.LoadedLanguages
+		.Select(l => new MenuItemViewModel {
+			Command = SetLanguageCommand,
+			CommandParameter = l,
+			Header = loc.TranslateLanguage(l),
+			Items = Array.Empty<MenuItemViewModel>()
+		});
 
 	public Configuration Config { get; }
 
@@ -81,9 +88,23 @@ public class MainWindowViewModel : ViewModelBase {
 		PathPicker = new PathPickerViewModel(Config);
 		ModsPicker = new ModsPickerViewModel(Config);
 		Options = new OptionsViewModel(Config.Options);
+
+		// Create reactive commands.
+		ToggleLogFilterLevelCommand = ReactiveCommand.Create<string>(ToggleLogFilterLevel);
+		SetLanguageCommand = ReactiveCommand.Create<string>(SetLanguage);
+		SetThemeCommand = ReactiveCommand.Create<string>(SetTheme);
 	}
 
 	public ReadOnlyObservableCollection<LogLine> FilteredLogLines => LogGridAppender.FilteredLogLines;
+
+	#region Reactive commands
+
+	public ReactiveCommand<string, Unit> ToggleLogFilterLevelCommand { get; }
+	public ReactiveCommand<string, Unit> SetLanguageCommand { get; }
+	public ReactiveCommand<string, Unit> SetThemeCommand { get; }
+
+	#endregion
+
 	public void ToggleLogFilterLevel(string value) {
 		LogFilterLevel = LogManager.GetRepository().LevelMap[value];
 		LogGridAppender.ToggleLogFilterLevel();
@@ -131,12 +152,12 @@ public class MainWindowViewModel : ViewModelBase {
 		var copyThread = new Thread(() => {
 			IndeterminateProgress = true;
 			CopyStatus = "CONVERTSTATUSIN";
-						
+
 			copySuccess = modCopier.CopyMod();
 			CopyStatus = copySuccess ? "CONVERTSTATUSPOSTSUCCESS" : "CONVERTSTATUSPOSTFAIL";
 			Progress = Config.ProgressOnCopyingComplete;
 			IndeterminateProgress = false;
-						
+
 			ConvertButtonEnabled = true;
 		});
 		copyThread.Start();
@@ -144,7 +165,7 @@ public class MainWindowViewModel : ViewModelBase {
 	public void LaunchConverter() {
 		ConvertButtonEnabled = false;
 		ClearLogGrid();
-		
+
 		Progress = 0;
 		SaveStatus = "CONVERTSTATUSPRE";
 		ConvertStatus = "CONVERTSTATUSPRE";
@@ -207,8 +228,8 @@ public class MainWindowViewModel : ViewModelBase {
 
 		var info = await UpdateChecker.GetLatestReleaseInfo(Config.Name);
 
-		var updateNow = loc.Translate("UPDATE_NOW");
-		var maybeLater = loc.Translate("MAYBE_LATER");
+		var updateNowStr = loc.Translate("UPDATE_NOW");
+		var maybeLaterStr = loc.Translate("MAYBE_LATER");
 		var msgBody = UpdateChecker.GetUpdateMessageBody(loc.Translate("NEW_VERSION_BODY"), info);
 		var messageBoxWindow = MessageBoxManager
 			.GetMessageBoxCustomWindow(new MessageBoxCustomParams {
@@ -218,14 +239,14 @@ public class MainWindowViewModel : ViewModelBase {
 				ContentMessage = msgBody,
 				Markdown = true,
 				ButtonDefinitions = new[] {
-					new ButtonDefinition {Name = updateNow, IsDefault = true},
-					new ButtonDefinition {Name = maybeLater, IsCancel = true}
+					new ButtonDefinition {Name = updateNowStr, IsDefault = true},
+					new ButtonDefinition {Name = maybeLaterStr, IsCancel = true}
 				},
 				MaxWidth = 1280,
 				MaxHeight = 720,
 			});
 		var result = await messageBoxWindow.ShowDialog(MainWindow.Instance);
-		if (result != updateNow) {
+		if (result != updateNowStr) {
 			logger.Info($"Update to version {info.Version} postponed.");
 			return;
 		}
@@ -278,7 +299,7 @@ public class MainWindowViewModel : ViewModelBase {
 	}
 
 	public Dictionary<string, string> Themes { get; } = new() {
-		{"Light", "THEME_LIGHT"}, 
+		{"Light", "THEME_LIGHT"},
 		{"Dark", "THEME_DARK"}
 	};
 	public void SetTheme(string themeName) {

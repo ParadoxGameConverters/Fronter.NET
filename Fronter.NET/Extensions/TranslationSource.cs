@@ -7,10 +7,10 @@ using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace Fronter.Extensions; 
+namespace Fronter.Extensions;
 
 // idea based on https://gist.github.com/jakubfijalkowski/0771bfbd26ce68456d3e
-public class TranslationSource : ReactiveObject {
+public sealed class TranslationSource : ReactiveObject {
 	private static readonly ILog logger = LogManager.GetLogger("Translator");
 	private TranslationSource() {
 		const string languagesPath = "languages.txt";
@@ -22,7 +22,7 @@ public class TranslationSource : ReactiveObject {
 		var languagesParser = new Parser();
 		languagesParser.RegisterRegex(CommonRegexes.String, (langReader, langKey) => {
 			var cultureName = langReader.GetString();
-			
+
 			CultureInfo cultureInfo;
 			try {
 				cultureInfo = CultureInfo.GetCultureInfo(cultureName);
@@ -39,7 +39,7 @@ public class TranslationSource : ReactiveObject {
 			LoadedLanguages.Add(langKey);
 		});
 		languagesParser.ParseFile(languagesPath);
-		
+
 		LoadLanguages();
 
 		var fronterLanguagePath = Path.Combine("Configuration", "fronter-language.txt");

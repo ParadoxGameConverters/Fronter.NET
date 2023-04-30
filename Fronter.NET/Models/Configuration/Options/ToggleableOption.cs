@@ -31,5 +31,5 @@ public class ToggleableOption : ReactiveObject {
 	public bool? PendingInitialValue { get; set; }
 	private bool boolValue = false;
 	public bool Value { get => boolValue; set => this.RaiseAndSetIfChanged(ref boolValue, value); }
-	public int Id { get; private set; } = 0;
+	public int Id { get; } = 0;
 }
