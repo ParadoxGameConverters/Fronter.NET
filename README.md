@@ -109,6 +109,19 @@ option = {
 }
 
 option = {
+	name = bookmark_date
+	displayName = BOOKMARK_DATE
+	tooltip = BOOKMARK_DATE_TIP
+	dateSelector = {
+		value = ""
+		minDate = 1.1.1
+		maxDate = 1400.1.1
+		editable = true
+		tooltip = BOOKMARK_DATE_TIP2
+	}
+}
+
+option = {
 	name = some_checkbox_control
 	displayName = THENAME
 	tooltip = THETOOLTIP

@@ -79,6 +79,7 @@
                             IsVisible="{Binding DateSelector, Converter={x:Static ObjectConverters.IsNotNull}}"
                             IsEnabled="{Binding DateSelector.Editable, FallbackValue=false}"
                             MinYear="{Binding DateSelector.MinDate, FallbackValue={}}"
+                            MaxYear="{Binding DateSelector.MaxDate, FallbackValue={}}"
                         />
                     </StackPanel>
                 </Border>
