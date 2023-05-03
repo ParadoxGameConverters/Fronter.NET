@@ -61,28 +61,28 @@
             </MenuItem>
         </Menu>
         
-        <Grid RowDefinitions="6*,4*" DockPanel.Dock="Bottom">
+        <Grid RowDefinitions="6*, 4, 4*" DockPanel.Dock="Bottom">
             <TabControl Grid.Column="0" Grid.Row="0" MinHeight="150">
                 <TabItem Header="{ns:Loc PATHSTAB}" VerticalContentAlignment="Center">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" MinHeight="150">
                         <views:PathPickerView DataContext="{Binding PathPicker}"/>
                     </ScrollViewer>
                 </TabItem>
                 
                 <TabItem Header="{ns:Loc MODSTAB}" VerticalContentAlignment="Center" IsVisible="{Binding ModsPickerTabVisible}">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" MinHeight="150">
                         <views:ModsPickerView DataContext="{Binding ModsPicker}"/>
                     </ScrollViewer>
                 </TabItem>
                 
                 <TabItem Header="{ns:Loc OPTIONSTAB}" VerticalContentAlignment="Center" IsVisible="{Binding OptionsTabVisible}">
-                    <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
+                    <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto" MinHeight="150">
                         <views:OptionsView DataContext="{Binding Options}" />
                     </ScrollViewer>
                 </TabItem>
                 
                 <TabItem Header="{ns:Loc CONVERTTAB}" VerticalContentAlignment="Center">
-                    <Grid ColumnDefinitions="1*,2*" RowDefinitions="Auto" Margin="5,15,5,10">
+                    <Grid ColumnDefinitions="1*,2*" RowDefinitions="Auto" Margin="5,15,5,10" MinHeight="150">
                         <StackPanel Grid.Row="0" Grid.Column="0">
                             <TextBlock Text="{ns:Loc LOGLEVEL}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                             
@@ -135,8 +135,9 @@
                 </TabItem>
             </TabControl>
         
-            <DataGrid Name="LogGrid" Grid.Column="0" Grid.Row="1"
-                      Margin="0,20,0,0"
+            <GridSplitter Grid.Row="1" ResizeDirection="Rows" ResizeBehavior="BasedOnAlignment" Background="Gray"/>
+            
+            <DataGrid Name="LogGrid" Grid.Column="0" Grid.Row="2"
                       Items="{Binding FilteredLogLines}"
                       AutoGenerateColumns="False"
                       CanUserReorderColumns="False"

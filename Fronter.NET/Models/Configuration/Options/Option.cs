@@ -21,6 +21,9 @@ public class Option {
 		parser.RegisterKeyword("textSelector", reader => {
 			TextSelector = new TextSelector(reader);
 		});
+		parser.RegisterKeyword("dateSelector", reader => {
+			DateSelector = new DateSelector(reader);
+		});
 		parser.RegisterKeyword("checkBoxSelector", reader => {
 			CheckBoxSelector = new CheckBoxSelector(reader);
 		});
@@ -59,20 +62,17 @@ public class Option {
 		CheckBoxSelector.SetSelectedIds(selection);
 	}
 
-	public void SetTextSelectorValue(string selection) {
-		if (TextSelector is null) {
-			logger.Warn("Attempted setting a text control which does not exist!");
-			return;
-		}
-		TextSelector.Value = selection;
-	}
-
 	public string GetValue() {
 		if (RadioSelector is not null) {
 			return RadioSelector.GetSelectedValue();
 		}
-
-		return TextSelector is not null ? TextSelector.Value : string.Empty;
+		if (TextSelector is not null) {
+			return TextSelector.Value;
+		}
+		if (DateSelector?.Value is Date dateValue) {
+			return dateValue.ToString();
+		}
+		return string.Empty;
 	}
 
 	public HashSet<string> GetValues() {
@@ -110,4 +110,5 @@ public class Option {
 	public RadioSelector? RadioSelector { get; private set; }
 	public TextSelector? TextSelector { get; private set; }
 	public CheckBoxSelector? CheckBoxSelector { get; private set; }
+	public DateSelector? DateSelector { get; private set; }
 }
