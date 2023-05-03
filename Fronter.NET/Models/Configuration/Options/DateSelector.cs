@@ -20,6 +20,7 @@ public class DateSelector : Selector {
 	}
 
 	public bool Editable { get; private set; } = true; // editable unless disabled
+	public DateTimeOffset? MinDate => DateTimeOffset.MinValue;
 	public DateTimeOffset? DateTimeOffsetValue { get; set; }
 
 	public Date? Value {
