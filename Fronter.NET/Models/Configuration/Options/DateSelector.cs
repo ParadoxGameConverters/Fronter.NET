@@ -30,14 +30,13 @@ public class DateSelector : Selector {
 			}
 
 			var offsetValue = DateTimeOffsetValue.Value;
-			return new Date(offsetValue.Year, offsetValue.Month, offsetValue.Day);
+			return new Date(offsetValue);
 		}
 		set {
 			if (value is null) {
 				DateTimeOffsetValue = null;
 			} else {
-				var dt = new DateTime(value.Year, value.Month, value.Day);
-				DateTimeOffsetValue = new DateTimeOffset(dt);
+				DateTimeOffsetValue = value.ToDateTimeOffset();
 			}
 		}
 	}
