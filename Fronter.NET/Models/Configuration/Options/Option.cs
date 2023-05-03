@@ -69,8 +69,8 @@ public class Option {
 		if (TextSelector is not null) {
 			return TextSelector.Value;
 		}
-		if (DateSelector?.Value is not null) {
-			return DateSelector.Value.ToString();
+		if (DateSelector?.Value is Date dateValue) {
+			return dateValue.ToString();
 		}
 		return string.Empty;
 	}
