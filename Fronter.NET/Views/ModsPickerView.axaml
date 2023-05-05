@@ -43,7 +43,7 @@
         
         <ScrollViewer Grid.Column="0" Grid.Row="1" >
             <StackPanel>
-                <ItemsControl Items="{Binding AutoLocatedMods}">
+                <ItemsControl ItemsSource="{Binding AutoLocatedMods}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <CheckBox

@@ -35,7 +35,7 @@
                 <MenuItem Header="{ns:Loc EXIT}" Command="{Binding Exit}"/>
             </MenuItem>
             
-            <MenuItem Header="{ns:Loc LANGUAGE}" Items="{Binding LanguageMenuItems}">
+            <MenuItem Header="{ns:Loc LANGUAGE}" ItemsSource="{Binding LanguageMenuItems}">
                 <MenuItem.ItemContainerTheme>
                     <ControlTheme TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}">
                         <Setter Property="Header" Value="{Binding Header}"/>
@@ -45,7 +45,7 @@
                 </MenuItem.ItemContainerTheme>
             </MenuItem>
             
-            <MenuItem Header="{ns:Loc MENU_THEME}" Items="{Binding Themes}">
+            <MenuItem Header="{ns:Loc MENU_THEME}" ItemsSource="{Binding Themes}">
                 <MenuItem.ItemContainerTheme>
                     <ControlTheme TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}">
                         <Setter Property="Header" Value="{ns:DynamicLoc Value}"/>
@@ -138,7 +138,7 @@
             <GridSplitter Grid.Row="1" ResizeDirection="Rows" ResizeBehavior="BasedOnAlignment" Background="Gray"/>
             
             <DataGrid Name="LogGrid" Grid.Column="0" Grid.Row="2"
-                      Items="{Binding FilteredLogLines}"
+                      ItemsSource="{Binding FilteredLogLines}"
                       AutoGenerateColumns="False"
                       CanUserReorderColumns="False"
                       CanUserSortColumns="False"
