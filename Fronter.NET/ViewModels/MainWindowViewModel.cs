@@ -38,6 +38,18 @@ public class MainWindowViewModel : ViewModelBase {
 			Header = loc.TranslateLanguage(l),
 			Items = Array.Empty<MenuItemViewModel>()
 		});
+	
+	private IdObjectCollection<string, FrontendTheme> Themes { get; } = new() {
+		new FrontendTheme {Id = "Light", LocKey = "THEME_LIGHT"},
+		new FrontendTheme {Id = "Dark", LocKey = "THEME_DARK"}
+	};
+	public IEnumerable<MenuItemViewModel> ThemeMenuItems => Themes
+		.Select(theme => new MenuItemViewModel {
+			Command = SetThemeCommand,
+			CommandParameter = theme.Id,
+			Header = loc.Translate(theme.LocKey),
+			Items = Array.Empty<MenuItemViewModel>()
+		});
 
 	public Configuration Config { get; }
 
@@ -299,10 +311,6 @@ public class MainWindowViewModel : ViewModelBase {
 		loc.SaveLanguage(languageKey);
 	}
 
-	public IdObjectCollection<string, FrontendTheme> Themes { get; } = new() {
-		new FrontendTheme {Id = "Light", LocKey = "THEME_LIGHT"},
-		new FrontendTheme {Id = "Dark", LocKey = "THEME_DARK"}
-	};
 	public void SetTheme(string themeName) {
 		App.SaveTheme(themeName);
 	}

@@ -39,7 +39,7 @@
             
             <MenuItem Header="{ns:Loc LANGUAGE}" ItemsSource="{Binding LanguageMenuItems}">
                 <MenuItem.ItemContainerTheme>
-                    <ControlTheme TargetType="MenuItem" x:DataType="viewModels:MenuItemViewModel" BasedOn="{StaticResource {x:Type MenuItem}}">
+                    <ControlTheme TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}" x:DataType="viewModels:MenuItemViewModel">
                         <Setter Property="Header" Value="{Binding Header}"/>
                         <Setter Property="Command" Value="{Binding Command}"/>
                         <Setter Property="CommandParameter" Value="{Binding CommandParameter}"/>
@@ -47,12 +47,12 @@
                 </MenuItem.ItemContainerTheme>
             </MenuItem>
             
-            <MenuItem Header="{ns:Loc MENU_THEME}" ItemsSource="{Binding Themes}">
+            <MenuItem Header="{ns:Loc MENU_THEME}" ItemsSource="{Binding ThemeMenuItems}">
                 <MenuItem.ItemContainerTheme>
-                    <ControlTheme TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}" x:DataType="models:FrontendTheme">
-                        <Setter Property="Header" Value="{ns:DynamicLoc LocKey}"/>
-                        <Setter Property="Command" Value="{Binding ((viewModels:MainWindowViewModel)DataContext).SetThemeCommand, RelativeSource={RelativeSource AncestorType=Window, AncestorLevel=1}, FallbackValue={}}"/>
-                        <Setter Property="CommandParameter" Value="{Binding Id}"/>
+                    <ControlTheme TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}" x:DataType="viewModels:MenuItemViewModel">
+                        <Setter Property="Header" Value="{Binding Header}"/>
+                        <Setter Property="Command" Value="{Binding Command}"/>
+                        <Setter Property="CommandParameter" Value="{Binding CommandParameter}"/>
                     </ControlTheme>
                 </MenuItem.ItemContainerTheme>
             </MenuItem>
