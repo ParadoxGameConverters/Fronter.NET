@@ -152,7 +152,7 @@
                     <vc:LogLevelToColorNameConverter x:Key="LogLevelToColorNameConverter"/>
                 </DataGrid.Resources>
                 <DataGrid.Styles>
-                    <Style Selector="DataGrid DataGridRow">
+                    <Style Selector="DataGrid DataGridRow" x:DataType="models:LogLine">
                         <Setter Property="Background" Value="{Binding Level, Converter={StaticResource LogLevelToColorNameConverter}}" />
                     </Style>
                 </DataGrid.Styles>
