@@ -52,7 +52,7 @@
                                 <Button Content="{ns:Loc BROWSE}" Grid.Column="2" Classes="PathBrowseButtonStyle"
                                         Command="{Binding
                                             RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ItemsControl}},
-                                            Path=DataContext.OpenFolderDialogCommand,
+                                            Path=((viewModels:PathPickerViewModel)DataContext).OpenFolderDialogCommand,
                                             FallbackValue={} 
                                         }"
                                         CommandParameter="{Binding}" />
@@ -73,7 +73,7 @@
                                 <Button Content="{ns:Loc BROWSE}" Grid.Column="2" Classes="PathBrowseButtonStyle"
                                         Command="{Binding
                                             RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ItemsControl}},
-                                            Path=DataContext.OpenFileDialogCommand,
+                                            Path=((viewModels:PathPickerViewModel)DataContext).OpenFileDialogCommand,
                                             FallbackValue={}
                                         }"
                                         CommandParameter="{Binding}" />
