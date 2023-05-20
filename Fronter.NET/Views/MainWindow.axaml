@@ -24,7 +24,7 @@
 
     <DockPanel>
         <DockPanel.Background>
-            <ImageBrush Source="/Assets/Images/background.png" Stretch="UniformToFill" Opacity="0.05" />
+            <ImageBrush Source="/Assets/Images/background.png" Stretch="UniformToFill" Opacity="0.2" />
         </DockPanel.Background>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="{ns:Loc MENUCONVERTER}">
