@@ -40,7 +40,7 @@
     <Grid RowDefinitions="Auto,*">
         <ScrollViewer Grid.Column="0" Grid.Row="0" >
             <StackPanel>
-                <ItemsControl Items="{Binding RequiredFolders}">
+                <ItemsControl ItemsSource="{Binding RequiredFolders}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Grid ColumnDefinitions="Auto,*,Auto">
@@ -52,7 +52,7 @@
                                 <Button Content="{ns:Loc BROWSE}" Grid.Column="2" Classes="PathBrowseButtonStyle"
                                         Command="{Binding
                                             RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ItemsControl}},
-                                            Path=DataContext.OpenFolderDialogCommand,
+                                            Path=((viewModels:PathPickerViewModel)DataContext).OpenFolderDialogCommand,
                                             FallbackValue={} 
                                         }"
                                         CommandParameter="{Binding}" />
@@ -61,7 +61,7 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             
-                <ItemsControl Items="{Binding RequiredFiles}">
+                <ItemsControl ItemsSource="{Binding RequiredFiles}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Grid ColumnDefinitions="Auto,*,Auto">
@@ -73,7 +73,7 @@
                                 <Button Content="{ns:Loc BROWSE}" Grid.Column="2" Classes="PathBrowseButtonStyle"
                                         Command="{Binding
                                             RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ItemsControl}},
-                                            Path=DataContext.OpenFileDialogCommand,
+                                            Path=((viewModels:PathPickerViewModel)DataContext).OpenFileDialogCommand,
                                             FallbackValue={}
                                         }"
                                         CommandParameter="{Binding}" />

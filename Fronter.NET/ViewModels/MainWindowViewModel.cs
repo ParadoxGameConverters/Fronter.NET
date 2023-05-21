@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
+using commonItems.Collections;
 using Fronter.Extensions;
 using Fronter.LogAppenders;
 using Fronter.Models;
@@ -35,6 +36,18 @@ public class MainWindowViewModel : ViewModelBase {
 			Command = SetLanguageCommand,
 			CommandParameter = l,
 			Header = loc.TranslateLanguage(l),
+			Items = Array.Empty<MenuItemViewModel>()
+		});
+	
+	private IdObjectCollection<string, FrontendTheme> Themes { get; } = new() {
+		new FrontendTheme {Id = "Light", LocKey = "THEME_LIGHT"},
+		new FrontendTheme {Id = "Dark", LocKey = "THEME_DARK"}
+	};
+	public IEnumerable<MenuItemViewModel> ThemeMenuItems => Themes
+		.Select(theme => new MenuItemViewModel {
+			Command = SetThemeCommand,
+			CommandParameter = theme.Id,
+			Header = loc.Translate(theme.LocKey),
 			Items = Array.Empty<MenuItemViewModel>()
 		});
 
@@ -109,7 +122,7 @@ public class MainWindowViewModel : ViewModelBase {
 		LogFilterLevel = LogManager.GetRepository().LevelMap[value];
 		LogGridAppender.ToggleLogFilterLevel();
 		this.RaisePropertyChanged(nameof(FilteredLogLines));
-		Dispatcher.UIThread.Post(ScrollToLogEnd, DispatcherPriority.MinValue);
+		Dispatcher.UIThread.Post(ScrollToLogEnd, DispatcherPriority.Normal);
 	}
 
 	private ushort progress = 0;
@@ -298,10 +311,6 @@ public class MainWindowViewModel : ViewModelBase {
 		loc.SaveLanguage(languageKey);
 	}
 
-	public Dictionary<string, string> Themes { get; } = new() {
-		{"Light", "THEME_LIGHT"},
-		{"Dark", "THEME_DARK"}
-	};
 	public void SetTheme(string themeName) {
 		App.SaveTheme(themeName);
 	}
