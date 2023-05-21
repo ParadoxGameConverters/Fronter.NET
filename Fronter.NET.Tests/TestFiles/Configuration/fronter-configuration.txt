@@ -32,7 +32,7 @@ requiredFolder = {
 	displayName = CK3FOLDER
 	tooltip = CK3FOLDERTIP
 	mandatory = true
-	searchPathType = steamFolder
+	searchPathType = storeFolder
 	steamGameID = 1158310
 }
 requiredFolder = {
