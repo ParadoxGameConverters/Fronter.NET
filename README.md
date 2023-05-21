@@ -63,7 +63,7 @@ autoGenerateModsFrom:
 
 searchPathType:
 -   converterFolder - looks in the provided converterFolder in current directory
--   storeFolder - uses steamGameID to look for an "installation path" from Steam/GOG registry. If there's a match it will also append searchPath at the end so you can use this for Vic2 installdir/mods.
+-   storeFolder - uses steamGameID and gogGameID to look for an "installation path" from Steam/GOG registry. If there's a match it will also append searchPath at the end so you can use this for Vic2 installdir/mods.
 -   windowsUsersFolder - looks in $USERHOMEDIR$\Documents folder
 -   direct - copies over an absolute path from searchPath
 
