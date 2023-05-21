@@ -26,6 +26,9 @@ public class ConfigurationTests {
 			folder => {
 				Assert.Equal("ImperatorDirectory", folder.Name);
 				Assert.Equal("IMPFOLDER", folder.DisplayName);
+				Assert.Equal("storeFolder", folder.SearchPathType);
+				Assert.Equal("859580", folder.SteamGameId);
+				Assert.Equal("2131232214", folder.GOGGameId);
 			},
 			folder => {
 				Assert.Equal("ImperatorDocDirectory", folder.Name);

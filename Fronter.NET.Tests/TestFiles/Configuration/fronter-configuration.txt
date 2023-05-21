@@ -15,8 +15,9 @@ requiredFolder = {
 	displayName = IMPFOLDER
 	tooltip = IMPFOLDERTIP
 	mandatory = true
-	searchPathType = steamFolder
-	searchPathID = 859580
+	searchPathType = storeFolder
+	steamGameID = 859580
+	gogGameID = 2131232214
 }
 requiredFolder = {
 	name = ImperatorDocDirectory
@@ -32,7 +33,7 @@ requiredFolder = {
 	tooltip = CK3FOLDERTIP
 	mandatory = true
 	searchPathType = steamFolder
-	searchPathID = 1158310
+	steamGameID = 1158310
 }
 requiredFolder = {
 	name = targetGameModPath
