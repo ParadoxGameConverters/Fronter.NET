@@ -43,7 +43,7 @@ requiredFolder = {
 	displayName = FOLDER1
 	tooltip = FOLDER1TIP
 	mandatory = true
-	searchPathType = steamFolder
+	searchPathType = storeFolder
 	searchPathID = 203770
 }
 
@@ -62,7 +62,7 @@ autoGenerateModsFrom:
 
 searchPathType:
 -   converterFolder - looks in the provided converterFolder in current directory
--   steamFolder - uses searchPathID to look for an "installation path" from Steam/GOG registry. If there's a match it will also append searchPath at the end so you can use this for Vic2installdir/mods.
+-   storeFolder - uses searchPathID to look for an "installation path" from Steam/GOG registry. If there's a match it will also append searchPath at the end so you can use this for Vic2 installdir/mods.
 -   windowsUsersFolder - looks in $USERHOMEDIR$\Documents folder
 -   direct - copies over an absolute path from searchPath
 
