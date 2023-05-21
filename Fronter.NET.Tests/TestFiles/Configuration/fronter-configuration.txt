@@ -17,6 +17,7 @@ requiredFolder = {
 	mandatory = true
 	searchPathType = storeFolder
 	steamGameID = 859580
+	gogGameID = 2131232214
 }
 requiredFolder = {
 	name = ImperatorDocDirectory
