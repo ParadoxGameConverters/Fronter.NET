@@ -23,7 +23,8 @@ public class RequiredFolder : RequiredPath {
 		parser.RegisterKeyword("outputtable", reader => Outputtable = reader.GetString() == "true");
 
 		parser.RegisterKeyword("searchPathType", reader => SearchPathType = reader.GetString());
-		parser.RegisterKeyword("searchPathID", reader => SearchPathId = reader.GetString());
+		parser.RegisterKeyword("steamGameID", reader => SteamGameId = reader.GetString());
+		parser.RegisterKeyword("gogGameID", reader => GOGGameId = reader.GetString());
 		parser.RegisterKeyword("searchPath", reader => SearchPath = reader.GetString());
 		parser.IgnoreAndLogUnregisteredItems();
 	}
@@ -31,7 +32,8 @@ public class RequiredFolder : RequiredPath {
 	// If we have folders listed, they are generally required. Override with false in conf file.
 	public override bool Outputtable { get; protected set; } = true;
 
-	public string SearchPathId { get; private set; } = string.Empty;
+	public string? SteamGameId { get; private set; }
+	public string? GOGGameId { get; private set; }
 
 	public override string Value {
 		get => base.Value;

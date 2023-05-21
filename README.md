@@ -44,7 +44,8 @@ requiredFolder = {
 	tooltip = FOLDER1TIP
 	mandatory = true
 	searchPathType = storeFolder
-	searchPathID = 203770
+	steamGameID = 203770
+	gogGameID = 2131232214 # GOG ID for Imperator: Rome, CK2 is not on GOG
 }
 
 requiredFolder = {
@@ -62,7 +63,7 @@ autoGenerateModsFrom:
 
 searchPathType:
 -   converterFolder - looks in the provided converterFolder in current directory
--   storeFolder - uses searchPathID to look for an "installation path" from Steam/GOG registry. If there's a match it will also append searchPath at the end so you can use this for Vic2 installdir/mods.
+-   storeFolder - uses steamGameID to look for an "installation path" from Steam/GOG registry. If there's a match it will also append searchPath at the end so you can use this for Vic2 installdir/mods.
 -   windowsUsersFolder - looks in $USERHOMEDIR$\Documents folder
 -   direct - copies over an absolute path from searchPath
 

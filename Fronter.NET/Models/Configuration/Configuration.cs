@@ -183,11 +183,14 @@ public class Configuration {
 			if (folder.SearchPathType == "windowsUsersFolder") {
 				initialValue = Path.Combine(documentsDir, folder.SearchPath);
 			} else if (folder.SearchPathType == "storeFolder") {
-				if (!int.TryParse(folder.SearchPathId, out int steamId)) {
-					continue;
+				string? possiblePath = null;
+				if (int.TryParse(folder.SteamGameId, out int steamId)) {
+					possiblePath = CommonFunctions.GetSteamInstallPath(steamId);
+				}
+				if (possiblePath is null && long.TryParse(folder.GOGGameId, out long gogId)) {
+					possiblePath = CommonFunctions.GetGOGInstallPath(gogId);
 				}
 
-				var possiblePath = CommonFunctions.GetSteamInstallPath(steamId);
 				if (possiblePath is null) {
 					continue;
 				}
