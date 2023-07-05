@@ -150,6 +150,7 @@ public class ModCopier {
 			logger.Debug("Launcher's database not found.");
 			return;
 		}
+		logger.Debug($"Launcher's database found at \"{latestDbFilePath}\".");
 
 		logger.Info("Setting up playset...");
 
