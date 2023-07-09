@@ -11,10 +11,10 @@ using Fronter.Services;
 using Fronter.Views;
 using log4net;
 using log4net.Core;
-using MessageBox.Avalonia;
-using MessageBox.Avalonia.DTO;
-using MessageBox.Avalonia.Enums;
-using MessageBox.Avalonia.Models;
+using MsBox.Avalonia;
+using MsBox.Avalonia.Dto;
+using MsBox.Avalonia.Enums;
+using MsBox.Avalonia.Models;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
@@ -216,14 +216,14 @@ public class MainWindowViewModel : ViewModelBase {
 
 	private async void ShowErrorMessageBox() {
 		var messageBoxWindow = MessageBoxManager
-			.GetMessageBoxStandardWindow(new MessageBoxStandardParams {
+			.GetMessageBoxStandard(new MessageBoxStandardParams {
 				Icon = Icon.Error,
 				ContentTitle = loc.Translate("CONVERSION_FAILED"),
 				ContentMessage = loc.Translate("CONVERSION_FAILED_MESSAGE"),
 				Markdown = true,
 				ButtonDefinitions = ButtonEnum.OkCancel
 			});
-		var result = await messageBoxWindow.ShowDialog(MainWindow.Instance);
+		var result = await messageBoxWindow.ShowWindowDialogAsync(MainWindow.Instance);
 		if (result == ButtonResult.Ok) {
 			BrowserLauncher.Open(Config.ConverterReleaseForumThread);
 		}
@@ -245,7 +245,7 @@ public class MainWindowViewModel : ViewModelBase {
 		var maybeLaterStr = loc.Translate("MAYBE_LATER");
 		var msgBody = UpdateChecker.GetUpdateMessageBody(loc.Translate("NEW_VERSION_BODY"), info);
 		var messageBoxWindow = MessageBoxManager
-			.GetMessageBoxCustomWindow(new MessageBoxCustomParams {
+			.GetMessageBoxCustom(new MessageBoxCustomParams {
 				Icon = Icon.Info,
 				ContentTitle = loc.Translate("NEW_VERSION_TITLE"),
 				ContentHeader = loc.Translate("NEW_VERSION_HEADER"),
@@ -258,7 +258,7 @@ public class MainWindowViewModel : ViewModelBase {
 				MaxWidth = 1280,
 				MaxHeight = 720,
 			});
-		var result = await messageBoxWindow.ShowDialog(MainWindow.Instance);
+		var result = await messageBoxWindow.ShowWindowDialogAsync(MainWindow.Instance);
 		if (result != updateNowStr) {
 			logger.Info($"Update to version {info.Version} postponed.");
 			return;
@@ -289,7 +289,7 @@ public class MainWindowViewModel : ViewModelBase {
 	public async void OpenAboutDialog() {
 #pragma warning restore CA1822
 		var messageBoxWindow = MessageBoxManager
-			.GetMessageBoxStandardWindow(new MessageBoxStandardParams {
+			.GetMessageBoxStandard(new MessageBoxStandardParams {
 				ContentTitle = TranslationSource.Instance["ABOUT_TITLE"],
 				Icon = Icon.Info,
 				ContentHeader = TranslationSource.Instance["ABOUT_HEADER"],
@@ -300,7 +300,7 @@ public class MainWindowViewModel : ViewModelBase {
 				ShowInCenter = true,
 				WindowStartupLocation = WindowStartupLocation.CenterOwner
 			});
-		await messageBoxWindow.ShowDialog(MainWindow.Instance);
+		await messageBoxWindow.ShowWindowDialogAsync(MainWindow.Instance);
 	}
 
 	public static void OpenPatreonPage() {
