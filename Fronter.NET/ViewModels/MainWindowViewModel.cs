@@ -303,7 +303,7 @@ public class MainWindowViewModel : ViewModelBase {
 		await messageBoxWindow.ShowWindowDialogAsync(MainWindow.Instance);
 	}
 
-	public static void OpenPatreonPage() {
+	public void OpenPatreonPage() {
 		BrowserLauncher.Open("https://www.patreon.com/ParadoxGameConverters");
 	}
 
