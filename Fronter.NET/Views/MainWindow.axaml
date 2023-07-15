@@ -71,9 +71,9 @@
                     </ScrollViewer>
                 </TabItem>
                 
-                <TabItem Header="{ns:Loc MODSTAB}" VerticalContentAlignment="Center" IsVisible="{Binding ModsPickerTabVisible}">
+                <TabItem Header="{ns:Loc TARGET_PLAYSET_TAB}" VerticalContentAlignment="Center" IsVisible="{Binding ModsPickerTabVisible}">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" MinHeight="150">
-                        <views:ModsPickerView DataContext="{Binding ModsPicker}"/>
+                        <views:TargetPlaysetPickerView DataContext="{Binding TargetPlaysetPicker}"/>
                     </ScrollViewer>
                 </TabItem>
                 

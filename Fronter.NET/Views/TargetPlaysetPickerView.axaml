@@ -4,13 +4,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:viewModels="clr-namespace:Fronter.ViewModels"
              xmlns:ns="clr-namespace:Fronter.Extensions"
-             x:Class="Fronter.Views.ModsPickerView"
-             x:DataType="viewModels:ModsPickerViewModel"
+             x:Class="Fronter.Views.TargetPlaysetPickerView"
+             x:DataType="viewModels:TargetPlaysetPickerViewModel"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
 
     <Design.DataContext>
-        <viewModels:ModsPickerViewModel />
+        <viewModels:TargetPlaysetPickerViewModel />
     </Design.DataContext>
     
     <UserControl.Styles>
@@ -43,17 +43,14 @@
         
         <ScrollViewer Grid.Column="0" Grid.Row="1" >
             <StackPanel>
-                <ItemsControl ItemsSource="{Binding AutoLocatedMods}">
-                    <ItemsControl.ItemTemplate>
+                <TextBlock Text="If you select a target game playset, the application will create its copy with the conversion mod included."></TextBlock>
+                <ComboBox x:Name="playsetComboBox" SelectedIndex="0" ItemsSource="{Binding TargetPlaysets}">
+                    <ComboBox.ItemTemplate>
                         <DataTemplate>
-                            <CheckBox
-                                Content="{Binding Name}"
-                                ToolTip.Tip="{Binding FileName}"
-                                IsChecked="{Binding Enabled, Mode=TwoWay}"
-                            />
+                            <TextBlock Text="{Binding Name}" ToolTip.Tip="{Binding FileName}" />
                         </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
             </StackPanel>
         </ScrollViewer>
     </Grid>

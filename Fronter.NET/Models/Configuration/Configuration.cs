@@ -18,8 +18,8 @@ public class Configuration {
 	public string DisplayName { get; private set; } = string.Empty;
 	public string SourceGame { get; private set; } = string.Empty;
 	public string TargetGame { get; private set; } = string.Empty;
-	public string? ModAutoGenerationSource { get; private set; } = null;
-	public ObservableCollection<Mod> AutoLocatedMods { get; } = new();
+	public string? TargetPlaysetsSource { get; private set; } = null;
+	public ObservableCollection<TargetPlayset> AutoLocatedMods { get; } = new();
 	public bool CopyToTargetGameModDirectory { get; set; } = true;
 	public ushort ProgressOnCopyingComplete { get; set; } = 109;
 	public bool OverwritePlayset { get; set; } = false;
@@ -98,8 +98,8 @@ public class Configuration {
 		parser.RegisterKeyword("targetGame", reader => {
 			TargetGame = reader.GetString();
 		});
-		parser.RegisterKeyword("autoGenerateModsFrom", reader => {
-			ModAutoGenerationSource = reader.GetString();
+		parser.RegisterKeyword("targetPlaysetsSource", reader => {
+			TargetPlaysetsSource = reader.GetString();
 		});
 		parser.RegisterKeyword("copyToTargetGameModDirectory", reader => {
 			CopyToTargetGameModDirectory = reader.GetString() == "true";
@@ -206,10 +206,6 @@ public class Configuration {
 			if (Directory.Exists(initialValue)) {
 				folder.Value = initialValue;
 			}
-
-			if (folder.Name == ModAutoGenerationSource) {
-				AutoLocateMods();
-			}
 		}
 
 		foreach (var file in RequiredFiles) {
@@ -281,15 +277,13 @@ public class Configuration {
 				writer.WriteLine($"{file.Name} = \"{file.Value}\"");
 			}
 
-			if (ModAutoGenerationSource is not null) {
-				writer.WriteLine("selectedMods = {");
-				foreach (var mod in AutoLocatedMods) {
-					if (mod.Enabled) {
-						writer.WriteLine($"\t\"{mod.FileName}\"");
-					}
+			writer.WriteLine("selectedMods = {");
+			foreach (var mod in AutoLocatedMods) {
+				if (mod.Enabled) {
+					writer.WriteLine($"\t\"{mod.FileName}\"");
 				}
-				writer.WriteLine("}");
 			}
+			writer.WriteLine("}");
 
 			foreach (var option in Options) {
 				if (option.CheckBoxSelector is not null) {

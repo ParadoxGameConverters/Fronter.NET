@@ -54,8 +54,8 @@ public class MainWindowViewModel : ViewModelBase {
 	public Configuration Config { get; }
 
 	public PathPickerViewModel PathPicker { get; }
-	public ModsPickerViewModel ModsPicker { get; }
-	public bool ModsPickerTabVisible => Config.ModAutoGenerationSource is not null;
+	public TargetPlaysetPickerViewModel TargetPlaysetPicker { get; }
+	public bool TargetPlaysetPickerTabVisible => Config.TargetPlaysetsSource is not null;
 	public OptionsViewModel Options { get; }
 	public bool OptionsTabVisible => Options.Items.Any();
 
@@ -99,7 +99,7 @@ public class MainWindowViewModel : ViewModelBase {
 		LogGridAppender.LogGrid = logGrid;
 
 		PathPicker = new PathPickerViewModel(Config);
-		ModsPicker = new ModsPickerViewModel(Config);
+		TargetPlaysetPicker = new TargetPlaysetPickerViewModel(Config);
 		Options = new OptionsViewModel(Config.Options);
 
 		// Create reactive commands.

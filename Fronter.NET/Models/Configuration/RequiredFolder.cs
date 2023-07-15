@@ -44,10 +44,6 @@ public class RequiredFolder : RequiredPath {
 
 			base.Value = value;
 			logger.Info($"{TranslationSource.Instance[DisplayName]} set to: {value}");
-
-			if (Name == config.ModAutoGenerationSource) {
-				config.AutoLocateMods();
-			}
 		}
 	}
 
