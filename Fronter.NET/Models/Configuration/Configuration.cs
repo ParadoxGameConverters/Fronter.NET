@@ -316,9 +316,9 @@ public class Configuration {
 		}
 	}
 
-	public void AutoLocateMods() {
-		logger.Debug("Clearing previously located mods...");
-		AutoLocatedMods.Clear();
+	public void AutoLocatePlaylists() {
+		logger.Debug("Clearing previously located playlists...");
+		AutoLocatedPlaylists.Clear();
 		logger.Debug("Autolocating mods...");
 
 		// Do we have a mod path?
@@ -339,12 +339,7 @@ public class Configuration {
 			return;
 		}
 
-		// Are we looking at documents directory?
-		var combinedPath = Path.Combine(modPath, "mod");
-		if (Directory.Exists(combinedPath)) {
-			modPath = combinedPath;
-		}
-		logger.Debug($"Mods autolocation path set to: \"{modPath}\"");
+		logger.Debug($"Mods autolocation path set to: \"{modPath}\".");
 
 		// Are there mods inside?
 		var validModFiles = new List<string>();
