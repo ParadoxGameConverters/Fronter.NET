@@ -166,26 +166,20 @@ public class ModCopier {
 			var playsetName = $"{config.Name}: {modName}";
 			var dateTimeOffset = new DateTimeOffset(DateTime.UtcNow);
 			string unixTimeMilliSeconds = dateTimeOffset.ToUnixTimeMilliseconds().ToString();
+			
+			DeactivateCurrentPlayset(cmd);
 
 			// Check if a playset with the same name already exists.
 			cmd.CommandText = $"SELECT COUNT(*) FROM playsets WHERE name='{playsetName}'";
 			bool playsetExists = Convert.ToBoolean(cmd.ExecuteScalar());
 			if (playsetExists) {
-				if (config.OverwritePlayset) {
-					DeactivateCurrentPlayset(cmd);
+				logger.Debug("Updating playset...");
+				cmd.CommandText = $"UPDATE playsets SET isActive=true, updatedOn={unixTimeMilliSeconds} " +
+								  $"WHERE name='{playsetName}'";
+				cmd.ExecuteNonQuery();
 
-					logger.Debug("Updating playset...");
-					cmd.CommandText = $"UPDATE playsets SET isActive=true, updatedOn={unixTimeMilliSeconds} " +
-									  $"WHERE name='{playsetName}'";
-					cmd.ExecuteNonQuery();
-
-					logger.Notice("Updated existing playset.");
-				} else {
-					logger.Notice("Playset already exists.");
-				}
+				logger.Notice("Updated existing playset.");
 			} else {
-				DeactivateCurrentPlayset(cmd);
-
 				logger.Debug("Creating new playset...");
 				var playsetId = Guid.NewGuid().ToString();
 				cmd.CommandText = "INSERT INTO playsets(id, name, isActive, isRemoved, hasNotApprovedChanges, createdOn) " +
