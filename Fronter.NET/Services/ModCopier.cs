@@ -233,7 +233,7 @@ public class ModCopier {
 		}
 	}
 
-	private string? GetLastUpdatedLauncherDbPath(string gameDocsDirectory) {
+	private static string? GetLastUpdatedLauncherDbPath(string gameDocsDirectory) {
 		var possibleDbFileNames = new List<string> { "launcher-v2.sqlite", "launcher-v2_openbeta.sqlite" };
 		var latestDbFilePath = possibleDbFileNames
 			.Select(name => Path.Join(gameDocsDirectory, name))
