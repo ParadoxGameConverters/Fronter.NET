@@ -1,13 +1,15 @@
 ﻿using commonItems;
 using Fronter.Models.Configuration;
+using Fronter.Models.Database;
+//using Fronter.Models.Database;
 using log4net;
-using Open.Collections;
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.SQLite;
 using System.IO;
 using System.Linq;
+using Mod = Fronter.Models.Database.Mod;
+
+//using Mod = Fronter.Models.Database.Mod;
 
 namespace Fronter.Services;
 
@@ -144,95 +146,90 @@ public class ModCopier {
 			logger.Warn($"Couldn't get parent directory of \"{targetModsDirectory}\".");
 			return;
 		}
-
 		var latestDbFilePath = GetLastUpdatedLauncherDbPath(gameDocsDirectory);
 		if (latestDbFilePath is null) {
 			logger.Debug("Launcher's database not found.");
 			return;
 		}
 		logger.Debug($"Launcher's database found at \"{latestDbFilePath}\".");
-
+		
 		logger.Info("Setting up playset...");
-
-		string connectionString = $"URI=file:{latestDbFilePath}";
-
+		string connectionString = $"Data Source={latestDbFilePath};";
 		try {
 			logger.Debug("Connecting to launcher's DB...");
-			using var connection = new SQLiteConnection(connectionString);
-			connection.Open();
-
-			using var cmd = new SQLiteCommand(connection);
+			var dbContext = new LauncherDbContext(connectionString);
 
 			var playsetName = $"{config.Name}: {modName}";
 			var dateTimeOffset = new DateTimeOffset(DateTime.UtcNow);
 			string unixTimeMilliSeconds = dateTimeOffset.ToUnixTimeMilliseconds().ToString();
 			
-			DeactivateCurrentPlayset(cmd);
+			DeactivateCurrentPlayset(dbContext);
 
 			// Check if a playset with the same name already exists.
-			cmd.CommandText = $"SELECT COUNT(*) FROM playsets WHERE name='{playsetName}'";
-			bool playsetExists = Convert.ToBoolean(cmd.ExecuteScalar());
-			if (playsetExists) {
-				logger.Debug("Updating playset...");
-				cmd.CommandText = $"UPDATE playsets SET isActive=true, updatedOn={unixTimeMilliSeconds} " +
-								  $"WHERE name='{playsetName}'";
-				cmd.ExecuteNonQuery();
+			var playset = dbContext.Playsets.FirstOrDefault(p => p.Name == playsetName);
+			if (playset is not null) {
+				logger.Debug("Removing mods from existing playset...");
+				dbContext.PlaysetsMods.RemoveRange(dbContext.PlaysetsMods.Where(pm => pm.PlaysetId == playset.Id));
+				dbContext.SaveChanges();
+				
+				logger.Debug("Re-activating existing playset...");
+				// Set isActive to true and updatedOn to current time.
+				playset.IsActive = true;
+				playset.UpdatedOn = unixTimeMilliSeconds;
+				dbContext.SaveChanges();
 
 				logger.Notice("Updated existing playset.");
 			} else {
 				logger.Debug("Creating new playset...");
-				var playsetId = Guid.NewGuid().ToString();
-				cmd.CommandText = "INSERT INTO playsets(id, name, isActive, isRemoved, hasNotApprovedChanges, createdOn) " +
-								  $"VALUES('{playsetId}', '{playsetName}', true, false, false, {unixTimeMilliSeconds})";
-				cmd.ExecuteNonQuery();
-
-				var playsetInfo = LoadPlaysetInfo();
-				if (playsetInfo.Count == 0) {
-					var gameRegistryId = $"mod/{modName}.mod";
-					var modId = AddModToDb(cmd, modName, gameRegistryId, destModFolder);
-					AddModToPlayset(cmd, modId, playsetId);
-				}
-
-				foreach (var (playsetModName, playsetModPath) in playsetInfo) {
-					string playsetModPathWithBackSlashes = playsetModPath.Replace('/', '\\');
-
-					// Try to get an ID of existing matching mod.
-					cmd.CommandText = "SELECT id FROM mods WHERE" +
-									  $" name='{playsetModName}'" +
-									  $" OR dirPath='{playsetModPath}'" +
-									  $" OR dirPath='{playsetModPathWithBackSlashes}'";
-
-					using SQLiteDataReader rdr = cmd.ExecuteReader();
-					bool modExists = rdr.HasRows && rdr.Read();
-					if (modExists) {
-						var modId = rdr.GetString(0);
-						rdr.Close();
-						AddModToPlayset(cmd, modId, playsetId);
-					} else {
-						rdr.Close();
-
-						var gameRegistryId = playsetModPath;
-						if (!gameRegistryId.StartsWith("mod/")) {
-							gameRegistryId = $"mod/{gameRegistryId}";
-						}
-						if (!gameRegistryId.EndsWith(".mod")) {
-							gameRegistryId = $"{gameRegistryId}.mod";
-						}
-
-						string dirPath;
-						if (Path.IsPathRooted(playsetModPath)) {
-							dirPath = playsetModPath;
-						} else {
-							dirPath = Path.Combine(gameDocsDirectory, gameRegistryId);
-						}
-
-						var modId = AddModToDb(cmd, modName, gameRegistryId, dirPath);
-						AddModToPlayset(cmd, modId, playsetId);
-					}
-				}
-
-				logger.Notice("Successfully created and activated a playset.");
+				playset = new Playset {
+					Name = playsetName,
+					IsActive = true,
+					IsRemoved = false,
+					HasNotApprovedChanges = false,
+					CreatedOn = unixTimeMilliSeconds
+				};
+				dbContext.Playsets.Add(playset);
+				dbContext.SaveChanges();
 			}
+			
+			Logger.Debug("Adding mods to playset...");
+			var playsetInfo = LoadPlaysetInfo();
+			if (playsetInfo.Count == 0) {
+				var gameRegistryId = $"mod/{modName}.mod";
+				var mod = AddModToDb(dbContext, modName, gameRegistryId, destModFolder);
+				AddModToPlayset(dbContext, mod, playset);
+			}
+			foreach (var (playsetModName, playsetModPath) in playsetInfo) {
+				string playsetModPathWithBackSlashes = playsetModPath.Replace('/', '\\');
+
+				// Try to get an ID of existing matching mod.
+				var mod = dbContext.Mods.FirstOrDefault(m => m.Name == playsetModName ||
+															  m.DirPath == playsetModPath ||
+															  m.DirPath == playsetModPathWithBackSlashes);
+				if (mod is not null) {
+					AddModToPlayset(dbContext, mod, playset);
+				} else {
+					var gameRegistryId = playsetModPath;
+					if (!gameRegistryId.StartsWith("mod/")) {
+						gameRegistryId = $"mod/{gameRegistryId}";
+					}
+					if (!gameRegistryId.EndsWith(".mod")) {
+						gameRegistryId = $"{gameRegistryId}.mod";
+					}
+
+					string dirPath;
+					if (Path.IsPathRooted(playsetModPath)) {
+						dirPath = playsetModPath;
+					} else {
+						dirPath = Path.Combine(gameDocsDirectory, gameRegistryId);
+					}
+
+					mod = AddModToDb(dbContext, modName, gameRegistryId, dirPath);
+					AddModToPlayset(dbContext, mod, playset);
+				}
+			}
+
+			logger.Notice("Successfully set up playset.");
 		} catch (Exception e) {
 			logger.Error(e);
 		}
@@ -248,26 +245,38 @@ public class ModCopier {
 		return latestDbFilePath;
 	}
 
-	// Returns ID of saved mod.
-	private string AddModToDb(SQLiteCommand cmd, string modName, string gameRegistryId, string dirPath) {
+	// Returns saved mod.
+	private Mod AddModToDb(LauncherDbContext dbContext, string modName, string gameRegistryId, string dirPath) {
 		logger.Debug($"Saving mod \"{modName}\" to DB...");
-		var modId = Guid.NewGuid().ToString();
-		cmd.CommandText = "INSERT INTO mods(id, status, source, version, gameRegistryId, name, dirPath) " +
-						  $"VALUES('{modId}', 'ready_to_play', 'local', 1, '{gameRegistryId}', '{modName}', '{dirPath}')";
-		cmd.ExecuteNonQuery();
 
-		return modId;
+		var mod = new Mod {
+			Id = Guid.NewGuid().ToString(),
+			Status = "ready_to_play",
+			Source = "local",
+			Version = "1",
+			GameRegistryId = gameRegistryId,
+			Name = modName,
+			DirPath = dirPath
+		};
+		dbContext.Mods.Add(mod);
+		dbContext.SaveChanges();
+		
+		return mod;
 	}
 
-	private void AddModToPlayset(SQLiteCommand cmd, string modId, string playsetId) {
-		cmd.CommandText = $"INSERT INTO playsets_mods(playsetId, modId) VALUES('{playsetId}', '{modId}')";
-		cmd.ExecuteNonQuery();
+	private static void AddModToPlayset(LauncherDbContext dbContext, Mod mod, Playset playset) {
+		var playsetMod = new PlaysetsMod {
+			Playset = playset,
+			Mod = mod
+		};
+		dbContext.PlaysetsMods.Add(playsetMod);
+		dbContext.SaveChanges();
 	}
 
 	// Loads playset info generated by converter backend.
-	private OrderedDictionary<string, string> LoadPlaysetInfo() {
+	private Open.Collections.OrderedDictionary<string, string> LoadPlaysetInfo() {
 		logger.Debug("Loading playset info from converter backend...");
-		var toReturn = new OrderedDictionary<string, string>();
+		var toReturn = new Open.Collections.OrderedDictionary<string, string>();
 
 		var filePath = Path.Combine(config.ConverterFolder, "playset_info.txt");
 		if (!File.Exists(filePath)) {
@@ -282,9 +291,9 @@ public class ModCopier {
 		return toReturn;
 	}
 
-	private void DeactivateCurrentPlayset(IDbCommand cmd) {
+	private void DeactivateCurrentPlayset(LauncherDbContext dbContext) {
 		logger.Debug("Deactivating currently active playset...");
-		cmd.CommandText = "UPDATE playsets SET isActive=false";
-		cmd.ExecuteNonQuery();
+		dbContext.Playsets.Where(p => p.IsActive).ToList().ForEach(p => p.IsActive = false);
+		dbContext.SaveChanges();
 	}
 }
