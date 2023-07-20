@@ -54,13 +54,21 @@
         <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.0" />
         <PackageReference Include="DynamicData" Version="7.14.2" />
         <PackageReference Include="MessageBox.Avalonia" Version="3.0.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.9">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.9" />
         <PackageReference Include="PGCG.commonItems" Version="8.1.5" />
-        <PackageReference Include="System.Data.SQLite.Core" Version="1.0.118" />
         <PackageReference Include="system.io.filesystem" Version="4.3.0" />
         <PackageReference Include="System.Net.Primitives" Version="4.3.1" />
     </ItemGroup>
 
     <ItemGroup>
       <UpToDateCheckInput Remove="Styles\MdStyle.axaml" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Models\Database\" />
     </ItemGroup>
 </Project>
