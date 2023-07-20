@@ -9,7 +9,7 @@ public partial class Playset
 
     public string Name { get; set; } = null!;
 
-    public bool IsActive { get; set; }
+    public bool? IsActive { get; set; }
 
     public string? LoadOrder { get; set; }
 
@@ -25,9 +25,9 @@ public partial class Playset
 
     public string? LastServerChecksum { get; set; }
 
-    public bool IsRemoved { get; set; } = false;
+    public bool? IsRemoved { get; set; } = false;
 
-    public bool HasNotApprovedChanges { get; set; } = false;
+    public bool? HasNotApprovedChanges { get; set; } = false;
 
     public string? SyncState { get; set; }
 }

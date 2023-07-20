@@ -264,12 +264,8 @@ public partial class LauncherDbContext : DbContext {
 
         modelBuilder.Entity<PlaysetsMod>(entity =>
         {
-            entity
-	            .HasKey(m => new 
-	            {
-		            m.PlaysetId, 
-		            m.ModId
-	            });
+	        entity.ToTable("playsets_mods");
+	        entity.HasKey(m => new {m.PlaysetId, m.ModId});
 
             entity.Property(e => e.Enabled)
                 .HasDefaultValueSql("'1'")

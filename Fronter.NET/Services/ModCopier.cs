@@ -1,15 +1,12 @@
 ﻿using commonItems;
 using Fronter.Models.Configuration;
 using Fronter.Models.Database;
-//using Fronter.Models.Database;
 using log4net;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Mod = Fronter.Models.Database.Mod;
-
-//using Mod = Fronter.Models.Database.Mod;
 
 namespace Fronter.Services;
 
@@ -182,6 +179,7 @@ public class ModCopier {
 			} else {
 				logger.Debug("Creating new playset...");
 				playset = new Playset {
+					Id = Guid.NewGuid().ToString(),
 					Name = playsetName,
 					IsActive = true,
 					IsRemoved = false,
@@ -293,7 +291,10 @@ public class ModCopier {
 
 	private void DeactivateCurrentPlayset(LauncherDbContext dbContext) {
 		logger.Debug("Deactivating currently active playset...");
-		dbContext.Playsets.Where(p => p.IsActive).ToList().ForEach(p => p.IsActive = false);
+		dbContext.Playsets
+			.Where(p => p.IsActive.HasValue && p.IsActive.Value == true)
+			.ToList()
+			.ForEach(p => p.IsActive = false);
 		dbContext.SaveChanges();
 	}
 }
