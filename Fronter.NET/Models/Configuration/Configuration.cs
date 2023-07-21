@@ -22,7 +22,6 @@ public class Configuration {
 	public ObservableCollection<TargetPlayset> AutoLocatedMods { get; } = new();
 	public bool CopyToTargetGameModDirectory { get; set; } = true;
 	public ushort ProgressOnCopyingComplete { get; set; } = 109;
-	public bool OverwritePlayset { get; set; } = false;
 	public bool UpdateCheckerEnabled { get; private set; } = false;
 	public bool CheckForUpdatesOnStartup { get; private set; } = false;
 	public string ConverterReleaseForumThread { get; private set; } = string.Empty;
@@ -106,9 +105,6 @@ public class Configuration {
 		});
 		parser.RegisterKeyword("progressOnCopyingComplete", reader => {
 			ProgressOnCopyingComplete = (ushort)reader.GetInt();
-		});
-		parser.RegisterKeyword("overwritePlayset", reader => {
-			OverwritePlayset = reader.GetString() == "true";
 		});
 		parser.RegisterKeyword("enableUpdateChecker", reader => {
 			UpdateCheckerEnabled = reader.GetString() == "true";
