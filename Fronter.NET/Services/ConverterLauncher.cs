@@ -72,12 +72,7 @@ internal class ConverterLauncher {
 			}
 
 			// Get timestamp datetime.
-			DateTime timestamp;
-			if (string.IsNullOrWhiteSpace(logLine.Timestamp)) {
-				timestamp = DateTime.Now;
-			} else {
-				timestamp = Convert.ToDateTime(logLine.Timestamp);
-			}
+			DateTime timestamp = logLine.TimestampAsDateTime;
 
 			// Get level to display.
 			var logLevel = level ?? lastLevelFromBackend ?? Level.Info;

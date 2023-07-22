@@ -61,6 +61,7 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.9" />
         <PackageReference Include="PGCG.commonItems" Version="8.1.5" />
         <PackageReference Include="Sentry" Version="3.34.0" />
+        <PackageReference Include="Sentry.Log4Net" Version="3.34.0" />
         <PackageReference Include="system.io.filesystem" Version="4.3.0" />
         <PackageReference Include="System.Net.Primitives" Version="4.3.1" />
     </ItemGroup>
