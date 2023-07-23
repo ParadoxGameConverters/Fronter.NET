@@ -3,6 +3,7 @@ using commonItems;
 using Fronter.Models.Configuration.Options;
 using Fronter.ViewModels;
 using log4net;
+using Sentry;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -52,6 +53,9 @@ public class Configuration {
 		} else {
 			logger.Warn($"{fronterOptionsPath} not found!");
 		}
+		
+		// Use the converter name as the app name in Sentry.
+		SentrySdk.ConfigureScope(scope => scope.SetTag("app", Name));
 
 		InitializePaths();
 

@@ -5,9 +5,11 @@ using Fronter.Extensions;
 using Fronter.Models.Configuration;
 using log4net;
 using log4net.Core;
+using Sentry;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Fronter.Services;
@@ -47,6 +49,13 @@ internal class ConverterLauncher {
 			logger.Error("Could not find converter executable!");
 			return false;
 		}
+		
+		// At this point the save location is not going to change, so it can be added to Sentry.
+		var saveLocation = config.RequiredFiles.FirstOrDefault(f => f?.Name == "SaveGame", null)?.Value;
+		SentrySdk.ConfigureScope(scope => {
+			scope.SetTag("app", config.Name);
+			scope.AddAttachment(saveLocation);
+		});
 
 		logger.Debug($"Using {backendExePathRelativeToFrontend} as converter backend...");
 		var startInfo = new ProcessStartInfo {

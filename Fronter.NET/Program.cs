@@ -28,7 +28,15 @@ internal static class Program {
 			options.EnableTracing = true;
 
 			options.MaxBreadcrumbs = 10000;
+			options.MaxAttachmentSize = long.MaxValue;
+			
+#if DEBUG
+			options.Environment = "Debug";
+#else
+			options.Environment = "Release"; 
+#endif
 		});
+		SentrySdk.ConfigureScope(scope => scope.AddAttachment("log.txt"));
 		
         var app = BuildAvaloniaApp();
         app.StartWithClassicDesktopLifetime(args);
