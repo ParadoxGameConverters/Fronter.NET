@@ -1,16 +1,18 @@
 ﻿using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
+using Bytewizer.Backblaze.Client;
 using commonItems;
 using Fronter.Extensions;
 using Fronter.LogAppenders;
 using Fronter.Models.Configuration;
-using Ionic.Zip;
 using log4net;
 using log4net.Core;
+using Microsoft.Extensions.Caching.Memory;
 using Sentry;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -121,31 +123,41 @@ internal class ConverterLauncher {
 			return true;
 		}
 
-		SendMessageToSentry(config, process.ExitCode);
+		try {
+			SendMessageToSentry(config, process.ExitCode);
+		} catch (Exception e) {
+			logger.Warn($"Failed to send message to Sentry: {e.Message}");
+		}
 		logger.Error("Converter error! See log.txt for details.");
 		logger.Error("If you require assistance please upload log.txt to forums for a detailed postmortem.");
 		logger.Debug($"Converter exit code: {process.ExitCode}");
 		return false;
 	}
 
-	private static void SendMessageToSentry(Configuration config, int processExitCode) {
+	private static async void SendMessageToSentry(Configuration config, int processExitCode) {
 		// At this point the save location is not going to change, so it can be added to Sentry.
 		var saveLocation = config.RequiredFiles.FirstOrDefault(f => f?.Name == "SaveGame", null)?.Value;
 		if (saveLocation is not null) {
 			Directory.CreateDirectory("temp");
-			using var zip = new ZipFile();
-			zip.AddFile(saveLocation);
-			zip.CompressionLevel = Ionic.Zlib.CompressionLevel.BestCompression;
-			zip.MaxOutputSegmentSize = 20*1000*1000;
-			zip.Save("temp/SaveGame.zip");
-
-			var segmentsCreated = zip.NumberOfSegmentsForMostRecentSave;
-			SentrySdk.ConfigureScope(scope => {
-				scope.AddAttachment("temp/SaveGame.zip");
-				for (int i = 1; i < segmentsCreated; ++i) {
-					scope.AddAttachment($"temp/SaveGame.z{i:00}");
-				}
-			});
+			
+			// Create zip with save file.
+			var dateTimeString = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+			var archivePath = $"temp/SaveGame_{dateTimeString}.zip";
+			using var zip = ZipFile.Open(archivePath, ZipArchiveMode.Create);
+			zip.CreateEntryFromFile(saveLocation, "SaveGame");
+			
+			var archiveSize = new FileInfo(archivePath).Length; // In bytes.
+			if (archiveSize <= 19 * 1024 * 1024) {
+				// Sentry allows up to 20 MB per compressed request.
+				// We leave 1 MB for the rest of the request, including log.txt attachment.
+				logger.Debug("Save file is equal or less than 19 MB, uploading to Sentry.");
+				SentrySdk.ConfigureScope(scope => {
+					scope.AddAttachment(archivePath);
+				});
+			} else {
+				logger.Debug("Save file is larger than 19 MB, uploading to Backblaze.");
+				await UploadSaveArchiveToBackblaze(archivePath);
+			}
 		}
 		
 		var gridAppender = LogManager.GetRepository().GetAppenders().First(a => a.Name == "grid");
@@ -158,6 +170,29 @@ internal class ConverterLauncher {
 		} else {
 			var message = $"Converter exited with code {processExitCode}";
 			SentrySdk.CaptureMessage(message, SentryLevel.Error);
+		}
+	}
+
+	private static async Task UploadSaveArchiveToBackblaze(string archivePath) {
+		// Init Backblaze B2 client.
+		var options = new ClientOptions();
+		var cache = new MemoryCache(new MemoryCacheOptions());
+		var client = new BackblazeClient(options, logger: null, cache);
+		const string keyId = "0030b6343d5e7b30000000001";
+		const string applicationKey = "K003NNlYJwOJQW0YmxY7ZmMBJekoyJM";
+		await client.ConnectAsync(keyId, applicationKey);
+			
+		// Upload zip to Backblaze B2.
+		await using var stream = File.OpenRead(archivePath);
+		var archiveName = new FileInfo(archivePath).Name;
+		var results = await client.UploadAsync("save-zips", archiveName, stream);
+		if (results.IsSuccessStatusCode) {
+			logger.Debug("Uploaded save file to Backblaze.");
+			var backblazeFileName = results.Response.FileName;
+			var backblazeFileId = results.Response.FileId;
+			SentrySdk.AddBreadcrumb($"Backblaze file name: {backblazeFileName}; file ID: {backblazeFileId}"); 
+		} else {
+			logger.Debug($"Save archive upload failed with status {results.StatusCode}");
 		}
 	}
 	
