@@ -4,6 +4,7 @@ using commonItems;
 using Fronter.Extensions;
 using Fronter.LogAppenders;
 using Fronter.Models.Configuration;
+using Ionic.Zip;
 using log4net;
 using log4net.Core;
 using Sentry;
@@ -54,7 +55,18 @@ internal class ConverterLauncher {
 		// At this point the save location is not going to change, so it can be added to Sentry.
 		var saveLocation = config.RequiredFiles.FirstOrDefault(f => f?.Name == "SaveGame", null)?.Value;
 		if (saveLocation is not null) {
+			Directory.CreateDirectory("temp");
+			using var zip = new ZipFile();
+			zip.AddFile(saveLocation);
+			zip.MaxOutputSegmentSize = 20*1024*1024; // 20 MB segments
+			zip.Save("temp/SaveGame.zip");
+
+			var segmentsCreated = zip.NumberOfSegmentsForMostRecentSave;
 			SentrySdk.ConfigureScope(scope => {
+				scope.AddAttachment("temp/SaveGame.zip");
+				for (int i = 1; i < segmentsCreated; ++i) {
+					scope.AddAttachment($"temp/SaveGame.z{i:00}");
+				}
 				scope.AddAttachment(saveLocation);
 			});
 		}
@@ -122,29 +134,32 @@ internal class ConverterLauncher {
 
 		await process.WaitForExitAsync();
 		timer.Stop();
-
+		
 		if (process.ExitCode == 0) {
 			logger.Info($"Converter exited at {timer.Elapsed.TotalSeconds} seconds.");
 			return true;
 		}
 
-		if (SentrySdk.IsEnabled) {
-			var gridAppender = LogManager.GetRepository().GetAppenders().First(a => a.Name == "grid");
-			if (gridAppender is LogGridAppender logGridAppender) {
-				var error = logGridAppender.LogLines
-					.LastOrDefault(l => l.Level is not null && l.Level >= Level.Error);
-				var sentryMessageLevel = error?.Level == Level.Fatal ? SentryLevel.Fatal : SentryLevel.Error;
-				SentrySdk.CaptureMessage(
-					message: error?.Message ?? $"Converter exited with code {process.ExitCode}", 
-					level: sentryMessageLevel
-				); 
-			}
-		}
-
+		SendMessageToSentry(process.ExitCode);
 		logger.Error("Converter error! See log.txt for details.");
 		logger.Error("If you require assistance please upload log.txt to forums for a detailed postmortem.");
 		logger.Debug($"Converter exit code: {process.ExitCode}");
 		return false;
 	}
+
+	private static void SendMessageToSentry(int processExitCode) {
+		var gridAppender = LogManager.GetRepository().GetAppenders().First(a => a.Name == "grid");
+		if (gridAppender is LogGridAppender logGridAppender) {
+			var error = logGridAppender.LogLines
+				.LastOrDefault(l => l.Level is not null && l.Level >= Level.Error);
+			var sentryMessageLevel = error?.Level == Level.Fatal ? SentryLevel.Fatal : SentryLevel.Error;
+			var message = error?.Message ?? $"Converter exited with code {processExitCode}";
+			SentrySdk.CaptureMessage(message, sentryMessageLevel);
+		} else {
+			var message = $"Converter exited with code {processExitCode}";
+			SentrySdk.CaptureMessage(message, SentryLevel.Error);
+		}
+	}
+	
 	private readonly Configuration config;
 }

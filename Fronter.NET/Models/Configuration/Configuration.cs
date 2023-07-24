@@ -153,6 +153,7 @@ public class Configuration {
 			options.Environment = "Release"; 
 #endif
 		});
+		Logger.Debug("Sentry initialized.");
 		SentrySdk.ConfigureScope(scope => scope.AddAttachment("log.txt"));
 	}
 		

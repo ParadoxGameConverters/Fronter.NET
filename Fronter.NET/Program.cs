@@ -1,6 +1,5 @@
 ﻿using Avalonia;
 using Avalonia.ReactiveUI;
-using Sentry;
 using System;
 
 namespace Fronter;
