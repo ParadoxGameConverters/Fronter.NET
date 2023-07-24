@@ -2,6 +2,7 @@
 using Avalonia.Controls.ApplicationLifetimes;
 using commonItems;
 using Fronter.Extensions;
+using Fronter.LogAppenders;
 using Fronter.Models.Configuration;
 using log4net;
 using log4net.Core;
@@ -52,10 +53,11 @@ internal class ConverterLauncher {
 		
 		// At this point the save location is not going to change, so it can be added to Sentry.
 		var saveLocation = config.RequiredFiles.FirstOrDefault(f => f?.Name == "SaveGame", null)?.Value;
-		SentrySdk.ConfigureScope(scope => {
-			scope.SetTag("app", config.Name);
-			scope.AddAttachment(saveLocation);
-		});
+		if (saveLocation is not null) {
+			SentrySdk.ConfigureScope(scope => {
+				scope.AddAttachment(saveLocation);
+			});
+		}
 
 		logger.Debug($"Using {backendExePathRelativeToFrontend} as converter backend...");
 		var startInfo = new ProcessStartInfo {
@@ -72,7 +74,8 @@ internal class ConverterLauncher {
 			startInfo.Arguments = $"-jar {CommonFunctions.TrimPath(backendExePathRelativeToFrontend)}";
 		}
 
-		using Process process = new() { StartInfo = startInfo };
+		using Process process = new();
+		process.StartInfo = startInfo;
 		process.OutputDataReceived += (sender, args) => {
 			var logLine = MessageSlicer.SliceMessage(args.Data ?? string.Empty);
 			var level = logLine.Level;
@@ -123,6 +126,19 @@ internal class ConverterLauncher {
 		if (process.ExitCode == 0) {
 			logger.Info($"Converter exited at {timer.Elapsed.TotalSeconds} seconds.");
 			return true;
+		}
+
+		if (SentrySdk.IsEnabled) {
+			var gridAppender = LogManager.GetRepository().GetAppenders().First(a => a.Name == "grid");
+			if (gridAppender is LogGridAppender logGridAppender) {
+				var error = logGridAppender.LogLines
+					.LastOrDefault(l => l.Level is not null && l.Level >= Level.Error);
+				var sentryMessageLevel = error?.Level == Level.Fatal ? SentryLevel.Fatal : SentryLevel.Error;
+				SentrySdk.CaptureMessage(
+					message: error?.Message ?? $"Converter exited with code {process.ExitCode}", 
+					level: sentryMessageLevel
+				); 
+			}
 		}
 
 		logger.Error("Converter error! See log.txt for details.");

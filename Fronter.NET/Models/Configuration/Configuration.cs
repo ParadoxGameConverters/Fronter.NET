@@ -53,9 +53,6 @@ public class Configuration {
 		} else {
 			logger.Warn($"{fronterOptionsPath} not found!");
 		}
-		
-		// Use the converter name as the app name in Sentry.
-		SentrySdk.ConfigureScope(scope => scope.SetTag("app", Name));
 
 		InitializePaths();
 
@@ -65,6 +62,9 @@ public class Configuration {
 	private void RegisterKeys(Parser parser) {
 		parser.RegisterKeyword("name", reader => {
 			Name = reader.GetString();
+		});
+		parser.RegisterKeyword("sentryDsn", reader => {
+			InitSentry(reader.GetString());
 		});
 		parser.RegisterKeyword("converterFolder", reader => {
 			ConverterFolder = reader.GetString();
@@ -127,6 +127,35 @@ public class Configuration {
 		});
 		parser.IgnoreAndLogUnregisteredItems();
 	}
+	
+	private static void InitSentry(string dsn) {
+		SentrySdk.Init(options => {
+			// A Sentry Data Source Name (DSN) is required.
+			// See https://docs.sentry.io/product/sentry-basics/dsn-explainer/
+			options.Dsn = dsn;
+
+			// This option is recommended. It enables Sentry's "Release Health" feature.
+			options.AutoSessionTracking = true;
+
+			// This option is recommended for client applications only. It ensures all threads use the same global scope.
+			// If you're writing a background service of any kind, you should remove this.
+			options.IsGlobalModeEnabled = true;
+
+			// This option will enable Sentry's tracing features. You still need to start transactions and spans.
+			options.EnableTracing = true;
+
+			options.MaxBreadcrumbs = int.MaxValue;
+			options.MaxAttachmentSize = long.MaxValue;
+			
+#if DEBUG
+			options.Environment = "Debug";
+#else
+			options.Environment = "Release"; 
+#endif
+		});
+		SentrySdk.ConfigureScope(scope => scope.AddAttachment("log.txt"));
+	}
+		
 
 	private void RegisterPreloadKeys(Parser parser) {
 		parser.RegisterRegex(CommonRegexes.String, (reader, incomingKey) => {
