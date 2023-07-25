@@ -153,6 +153,9 @@ public class Configuration {
 			options.Environment = "Release"; 
 #endif
 		});
+		SentrySdk.ConfigureScope(scope => {
+			scope.UnsetTag("version");
+		});
 		Logger.Debug("Sentry initialized.");
 	}
 		

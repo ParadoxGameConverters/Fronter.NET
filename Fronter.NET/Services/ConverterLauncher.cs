@@ -121,15 +121,18 @@ internal class ConverterLauncher {
 			logger.Info($"Converter exited at {timer.Elapsed.TotalSeconds} seconds.");
 			return true;
 		}
-
-		try {
-			SendMessageToSentry(config, process.ExitCode);
-		} catch (Exception e) {
-			logger.Warn($"Failed to send message to Sentry: {e.Message}");
-		}
-		logger.Error("Converter error! See log.txt for details.");
-		logger.Error("If you require assistance please upload log.txt to forums for a detailed postmortem.");
+		
 		logger.Debug($"Converter exit code: {process.ExitCode}");
+		logger.Error("Converter error! See log.txt for details.");
+		if (SentrySdk.IsEnabled) {
+			try {
+				SendMessageToSentry(config, process.ExitCode);
+			} catch (Exception e) {
+				logger.Warn($"Failed to send message to Sentry: {e.Message}");
+			}
+		} else {
+			logger.Error("If you require assistance please visit the converter's forum thread for a detailed postmortem.");
+		}
 		return false;
 	}
 
