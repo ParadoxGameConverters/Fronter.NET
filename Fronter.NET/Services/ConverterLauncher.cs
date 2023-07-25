@@ -143,9 +143,10 @@ internal class ConverterLauncher {
 			// Create zip with save file.
 			var dateTimeString = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
 			var archivePath = $"temp/SaveGame_{dateTimeString}.zip";
-			using var zip = ZipFile.Open(archivePath, ZipArchiveMode.Create);
-			zip.CreateEntryFromFile(saveLocation, "SaveGame");
-			
+			using (var zip = ZipFile.Open(archivePath, ZipArchiveMode.Create)) {
+				zip.CreateEntryFromFile(saveLocation, new FileInfo(saveLocation).Name);
+			}
+
 			var archiveSize = new FileInfo(archivePath).Length; // In bytes.
 			if (archiveSize <= 19 * 1024 * 1024) {
 				// Sentry allows up to 20 MB per compressed request.
@@ -181,7 +182,8 @@ internal class ConverterLauncher {
 		// Upload zip to Backblaze B2.
 		await using var stream = File.OpenRead(archivePath);
 		var archiveName = new FileInfo(archivePath).Name;
-		var results = await client.UploadAsync("save-zips", archiveName, stream);
+		const string bucketId = "e02b962384438d858e970b13";
+		var results = await client.UploadAsync(bucketId, archiveName, stream);
 		if (results.IsSuccessStatusCode) {
 			logger.Debug("Uploaded save file to Backblaze.");
 			var backblazeFileName = results.Response.FileName;
