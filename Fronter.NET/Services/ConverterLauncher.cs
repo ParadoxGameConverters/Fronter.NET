@@ -7,7 +7,6 @@ using Fronter.LogAppenders;
 using Fronter.Models.Configuration;
 using log4net;
 using log4net.Core;
-using Microsoft.Extensions.Caching.Memory;
 using Sentry;
 using System;
 using System.Diagnostics;
@@ -135,8 +134,9 @@ internal class ConverterLauncher {
 	}
 
 	private static async void SendMessageToSentry(Configuration config, int processExitCode) {
-		// At this point the save location is not going to change, so it can be added to Sentry.
-		var saveLocation = config.RequiredFiles.FirstOrDefault(f => f?.Name == "SaveGame", null)?.Value;
+		SentrySdk.ConfigureScope(scope => scope.AddAttachment("log.txt"));
+		
+		var saveLocation = config.RequiredFiles.FirstOrDefault(f => f.Name == "SaveGame")?.Value;
 		if (saveLocation is not null) {
 			Directory.CreateDirectory("temp");
 			
@@ -151,9 +151,7 @@ internal class ConverterLauncher {
 				// Sentry allows up to 20 MB per compressed request.
 				// We leave 1 MB for the rest of the request, including log.txt attachment.
 				logger.Debug("Save file is equal or less than 19 MB, uploading to Sentry.");
-				SentrySdk.ConfigureScope(scope => {
-					scope.AddAttachment(archivePath);
-				});
+				SentrySdk.ConfigureScope(scope => { scope.AddAttachment(archivePath); });
 			} else {
 				logger.Debug("Save file is larger than 19 MB, uploading to Backblaze.");
 				await UploadSaveArchiveToBackblaze(archivePath);
@@ -175,9 +173,7 @@ internal class ConverterLauncher {
 
 	private static async Task UploadSaveArchiveToBackblaze(string archivePath) {
 		// Init Backblaze B2 client.
-		var options = new ClientOptions();
-		var cache = new MemoryCache(new MemoryCacheOptions());
-		var client = new BackblazeClient(options, logger: null, cache);
+		var client = new BackblazeClient();
 		const string keyId = "0030b6343d5e7b30000000001";
 		const string applicationKey = "K003NNlYJwOJQW0YmxY7ZmMBJekoyJM";
 		await client.ConnectAsync(keyId, applicationKey);

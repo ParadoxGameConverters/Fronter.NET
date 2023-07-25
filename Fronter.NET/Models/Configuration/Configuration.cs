@@ -154,7 +154,6 @@ public class Configuration {
 #endif
 		});
 		Logger.Debug("Sentry initialized.");
-		SentrySdk.ConfigureScope(scope => scope.AddAttachment("log.txt"));
 	}
 		
 
