@@ -165,7 +165,7 @@ internal class ConverterLauncher {
 		var gridAppender = LogManager.GetRepository().GetAppenders().First(a => a.Name == "grid");
 		if (gridAppender is LogGridAppender logGridAppender) {
 			var error = logGridAppender.LogLines
-				.LastOrDefault(l => l.Level is not null && l.Level >= Level.Error);
+				.FirstOrDefault(l => l.Level is not null && l.Level >= Level.Error);
 			var sentryMessageLevel = error?.Level == Level.Fatal ? SentryLevel.Fatal : SentryLevel.Error;
 			var message = error?.Message ?? $"Converter exited with code {processExitCode}";
 			SentrySdk.CaptureMessage(message, sentryMessageLevel);

@@ -154,7 +154,7 @@ public class Configuration {
 #endif
 		});
 		SentrySdk.ConfigureScope(scope => {
-			scope.UnsetTag("version");
+			scope.UnsetTag("release");
 		});
 		Logger.Debug("Sentry initialized.");
 	}
