@@ -45,13 +45,13 @@
     </Target>
 
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="11.0.0" />
-        <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.0.0" />
-        <PackageReference Include="Avalonia.Desktop" Version="11.0.0" />
+        <PackageReference Include="Avalonia" Version="11.0.1" />
+        <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.0.1" />
+        <PackageReference Include="Avalonia.Desktop" Version="11.0.1" />
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.0" />
-        <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.0" />
-        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.0" />
+        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.1" />
+        <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.1" />
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.1" />
         <PackageReference Include="Backblaze.Client" Version="1.0.1" />
         <PackageReference Include="DynamicData" Version="7.14.2" />
         <PackageReference Include="MessageBox.Avalonia" Version="3.0.0" />
@@ -60,9 +60,8 @@
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.9" />
-        <PackageReference Include="PGCG.commonItems" Version="8.1.5" />
+        <PackageReference Include="PGCG.commonItems" Version="8.1.6" />
         <PackageReference Include="Sentry" Version="3.34.0" />
-        <PackageReference Include="Sentry.Log4Net" Version="3.34.0" />
         <PackageReference Include="system.io.filesystem" Version="4.3.0" />
         <PackageReference Include="System.Net.Primitives" Version="4.3.1" />
     </ItemGroup>
