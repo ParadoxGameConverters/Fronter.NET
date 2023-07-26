@@ -180,7 +180,7 @@ public class Configuration {
 				initialValue = Path.Combine(documentsDir, folder.SearchPath);
 			} else if (folder.SearchPathType == "storeFolder") {
 				string? possiblePath = null;
-				if (int.TryParse(folder.SteamGameId, out int steamId)) {
+				if (uint.TryParse(folder.SteamGameId, out uint steamId)) {
 					possiblePath = CommonFunctions.GetSteamInstallPath(steamId);
 				}
 				if (possiblePath is null && long.TryParse(folder.GOGGameId, out long gogId)) {
