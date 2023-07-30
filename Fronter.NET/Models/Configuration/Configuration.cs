@@ -158,7 +158,6 @@ public class Configuration {
 		});
 		Logger.Debug("Sentry initialized.");
 	}
-		
 
 	private void RegisterPreloadKeys(Parser parser) {
 		parser.RegisterRegex(CommonRegexes.String, (reader, incomingKey) => {

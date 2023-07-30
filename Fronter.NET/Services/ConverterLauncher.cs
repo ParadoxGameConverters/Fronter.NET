@@ -150,7 +150,7 @@ internal class ConverterLauncher {
 				zip.CreateEntryFromFile(saveLocation, new FileInfo(saveLocation).Name);
 			}
 
-			var archiveSize = new FileInfo(archivePath).Length; // In bytes.
+			var archiveSize = new FileInfo(archivePath).Length; // Size in bytes.
 			if (archiveSize <= 19 * 1024 * 1024) {
 				// Sentry allows up to 20 MB per compressed request.
 				// We leave 1 MB for the rest of the request, including log.txt attachment.
