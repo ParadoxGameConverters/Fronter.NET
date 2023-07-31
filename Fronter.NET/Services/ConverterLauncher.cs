@@ -5,8 +5,11 @@ using commonItems;
 using Fronter.Extensions;
 using Fronter.LogAppenders;
 using Fronter.Models.Configuration;
+using Fronter.Views;
 using log4net;
 using log4net.Core;
+using MsBox.Avalonia;
+using MsBox.Avalonia.Enums;
 using Sentry;
 using System;
 using System.Diagnostics;
@@ -125,8 +128,27 @@ internal class ConverterLauncher {
 		logger.Debug($"Converter exit code: {process.ExitCode}");
 		logger.Error("Converter error! See log.txt for details.");
 		if (SentrySdk.IsEnabled) {
+			// When Sentry is enabled, every event is reported but log and save are only uploaded if the user consents.
+			var saveUploadConsent = await MessageBoxManager.GetMessageBoxStandard(
+				title: "Save upload consent",
+				text: "Would you like the application to automatically upload your save file to our error database, " +
+				      "in order to help us fix this issue?",
+				ButtonEnum.OkCancel,
+				Icon.Question
+				).ShowWindowDialogAsync(MainWindow.Instance);
+			if (saveUploadConsent == ButtonResult.Ok) {
+				AttachLogAndSaveToSentry(config);
+				SentrySdk.ConfigureScope(scope => {
+					scope.SetTag("logProvided", "true");
+				});
+			} else {
+				SentrySdk.ConfigureScope(scope => {
+					scope.SetTag("logProvided", "false");
+				});
+			}
+
 			try {
-				SendMessageToSentry(config, process.ExitCode);
+				SendMessageToSentry(process.ExitCode);
 			} catch (Exception e) {
 				logger.Warn($"Failed to send message to Sentry: {e.Message}");
 			}
@@ -136,32 +158,36 @@ internal class ConverterLauncher {
 		return false;
 	}
 
-	private static async void SendMessageToSentry(Configuration config, int processExitCode) {
+	private static async void AttachLogAndSaveToSentry(Configuration config) {
 		SentrySdk.ConfigureScope(scope => scope.AddAttachment("log.txt"));
 		
 		var saveLocation = config.RequiredFiles.FirstOrDefault(f => f.Name == "SaveGame")?.Value;
-		if (saveLocation is not null) {
-			Directory.CreateDirectory("temp");
-			
-			// Create zip with save file.
-			var dateTimeString = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
-			var archivePath = $"temp/SaveGame_{dateTimeString}.zip";
-			using (var zip = ZipFile.Open(archivePath, ZipArchiveMode.Create)) {
-				zip.CreateEntryFromFile(saveLocation, new FileInfo(saveLocation).Name);
-			}
-
-			var archiveSize = new FileInfo(archivePath).Length; // Size in bytes.
-			if (archiveSize <= 19 * 1024 * 1024) {
-				// Sentry allows up to 20 MB per compressed request.
-				// We leave 1 MB for the rest of the request, including log.txt attachment.
-				logger.Debug("Save file is equal or less than 19 MB, uploading to Sentry.");
-				SentrySdk.ConfigureScope(scope => { scope.AddAttachment(archivePath); });
-			} else {
-				logger.Debug("Save file is larger than 19 MB, uploading to Backblaze.");
-				await UploadSaveArchiveToBackblaze(archivePath);
-			}
+		if (saveLocation is null) {
+			return;
 		}
+
+		Directory.CreateDirectory("temp");
 		
+		// Create zip with save file.
+		var dateTimeString = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+		var archivePath = $"temp/SaveGame_{dateTimeString}.zip";
+		using (var zip = ZipFile.Open(archivePath, ZipArchiveMode.Create)) {
+			zip.CreateEntryFromFile(saveLocation, new FileInfo(saveLocation).Name);
+		}
+
+		var archiveSize = new FileInfo(archivePath).Length; // Size in bytes.
+		if (archiveSize <= 19 * 1024 * 1024) {
+			// Sentry allows up to 20 MB per compressed request.
+			// We leave 1 MB for the rest of the request, including log.txt attachment.
+			logger.Debug("Save file is equal or less than 19 MB, uploading to Sentry.");
+			SentrySdk.ConfigureScope(scope => { scope.AddAttachment(archivePath); });
+		} else {
+			logger.Debug("Save file is larger than 19 MB, uploading to Backblaze.");
+			await UploadSaveArchiveToBackblaze(archivePath);
+		}
+	}
+
+	private static void SendMessageToSentry(int processExitCode) {
 		var gridAppender = LogManager.GetRepository().GetAppenders().First(a => a.Name == "grid");
 		if (gridAppender is LogGridAppender logGridAppender) {
 			var error = logGridAppender.LogLines
