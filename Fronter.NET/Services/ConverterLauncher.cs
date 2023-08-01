@@ -136,16 +136,20 @@ internal class ConverterLauncher {
 				ButtonEnum.OkCancel,
 				Icon.Question
 				).ShowWindowDialogAsync(MainWindow.Instance);
+			bool logProvided = false;
 			if (saveUploadConsent == ButtonResult.Ok) {
-				AttachLogAndSaveToSentry(config);
-				SentrySdk.ConfigureScope(scope => {
-					scope.SetTag("logProvided", "true");
-				});
-			} else {
-				SentrySdk.ConfigureScope(scope => {
-					scope.SetTag("logProvided", "false");
-				});
-			}
+				try {
+					AttachLogAndSaveToSentry(config);
+					logProvided = true;
+				} catch (Exception e) {
+					var warnMessage = $"Failed to attach log and save to Sentry event: {e.Message}";
+					logger.Warn(warnMessage);
+					SentrySdk.AddBreadcrumb(warnMessage);
+				}
+			} 
+			SentrySdk.ConfigureScope(scope => {
+				scope.SetTag("logProvided", logProvided.ToString());
+			});
 
 			try {
 				SendMessageToSentry(process.ExitCode);
@@ -204,15 +208,15 @@ internal class ConverterLauncher {
 	private static async Task UploadSaveArchiveToBackblaze(string archivePath) {
 		// Init Backblaze B2 client.
 		var client = new BackblazeClient();
-		const string keyId = "0030b6343d5e7b30000000001";
-		const string applicationKey = "K003NNlYJwOJQW0YmxY7ZmMBJekoyJM";
-		await client.ConnectAsync(keyId, applicationKey);
+		var backblazeKeyId = Environment.GetEnvironmentVariable("BACKBLAZE_KEY_ID");
+		var backblazeApplicationKey = Environment.GetEnvironmentVariable("BACKBLAZE_APPLICATION_KEY");
+		await client.ConnectAsync(backblazeKeyId, backblazeApplicationKey);
 			
 		// Upload zip to Backblaze B2.
 		await using var stream = File.OpenRead(archivePath);
 		var archiveName = new FileInfo(archivePath).Name;
-		const string bucketId = "e02b962384438d858e970b13";
-		var results = await client.UploadAsync(bucketId, archiveName, stream);
+		var backblazeBucketId = Environment.GetEnvironmentVariable("BACKBLAZE_BUCKET_ID");
+		var results = await client.UploadAsync(backblazeBucketId, archiveName, stream);
 		if (results.IsSuccessStatusCode) {
 			logger.Debug("Uploaded save file to Backblaze.");
 			var backblazeFileName = results.Response.FileName;
