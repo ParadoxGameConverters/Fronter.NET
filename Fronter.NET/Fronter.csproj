@@ -43,7 +43,7 @@
 			    public static string BackblazeApplicationKey = %22$(BACKBLAZE_APPLICATION_KEY)%22 %3B
 			    public static string BackblazeBucketId = %22$(BACKBLAZE_BUCKET_ID)%22 %3B
 			}"
-			Overwrite="true"
+            Overwrite="true"
         />
 	</Target>
 	<ItemGroup>

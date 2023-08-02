@@ -178,15 +178,19 @@ internal class ConverterLauncher {
 		using (var zip = ZipFile.Open(archivePath, ZipArchiveMode.Create)) {
 			zip.CreateEntryFromFile(saveLocation, new FileInfo(saveLocation).Name);
 		}
-
-		var archiveSize = new FileInfo(archivePath).Length; // Size in bytes.
-		if (archiveSize <= 19 * 1024 * 1024) {
-			// Sentry allows up to 20 MB per compressed request.
-			// We leave 1 MB for the rest of the request, including log.txt attachment.
-			logger.Debug("Save file is equal or less than 19 MB, uploading to Sentry.");
+		
+		// Sentry allows up to 20 MB per compressed request.
+		// So we need to calculate whether we can fit the save archive.
+		// Otherwise we upload it to Backblaze.
+		var logSize = new FileInfo("log.txt").Length; // Size in bytes.
+		const int spaceForBaseRequest = 1024 * 1024 / 2; // 0.5 MB, arbitrary.
+		var saveSizeLimitForSentry = 20 * 1024 * 1024 - logSize - spaceForBaseRequest;
+		var saveArchiveSize = new FileInfo(archivePath).Length;
+		if (saveArchiveSize <= saveSizeLimitForSentry) {
+			logger.Debug($"Save file is {saveArchiveSize} bytes, uploading to Sentry.");
 			SentrySdk.ConfigureScope(scope => { scope.AddAttachment(archivePath); });
 		} else {
-			logger.Debug("Save file is larger than 19 MB, uploading to Backblaze.");
+			logger.Debug($"Save file is {saveArchiveSize} bytes, uploading to Backblaze.");
 			await UploadSaveArchiveToBackblaze(archivePath);
 		}
 	}
