@@ -208,14 +208,12 @@ internal class ConverterLauncher {
 	private static async Task UploadSaveArchiveToBackblaze(string archivePath) {
 		// Init Backblaze B2 client.
 		var client = new BackblazeClient();
-		var backblazeKeyId = Environment.GetEnvironmentVariable("BACKBLAZE_KEY_ID");
-		var backblazeApplicationKey = Environment.GetEnvironmentVariable("BACKBLAZE_APPLICATION_KEY");
-		await client.ConnectAsync(backblazeKeyId, backblazeApplicationKey);
+		await client.ConnectAsync(Secrets.BackblazeKeyId, Secrets.BackblazeApplicationKey);
 			
 		// Upload zip to Backblaze B2.
 		await using var stream = File.OpenRead(archivePath);
 		var archiveName = new FileInfo(archivePath).Name;
-		var backblazeBucketId = Environment.GetEnvironmentVariable("BACKBLAZE_BUCKET_ID");
+		var backblazeBucketId = Secrets.BackblazeBucketId;
 		var results = await client.UploadAsync(backblazeBucketId, archiveName, stream);
 		if (results.IsSuccessStatusCode) {
 			logger.Debug("Uploaded save file to Backblaze.");
