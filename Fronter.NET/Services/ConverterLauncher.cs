@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Threading;
 using Bytewizer.Backblaze.Client;
 using commonItems;
 using Fronter.Extensions;
@@ -128,16 +129,9 @@ internal class ConverterLauncher {
 		logger.Debug($"Converter exit code: {process.ExitCode}");
 		logger.Error("Converter error! See log.txt for details.");
 		if (SentrySdk.IsEnabled) {
-			// When Sentry is enabled, every event is reported but log and save are only uploaded if the user consents.
-			var saveUploadConsent = await MessageBoxManager.GetMessageBoxStandard(
-				title: "Save upload consent",
-				text: "Would you like the application to automatically upload your save file to our error database, " +
-				      "in order to help us fix this issue?",
-				ButtonEnum.OkCancel,
-				Icon.Question
-				).ShowWindowDialogAsync(MainWindow.Instance);
 			bool logProvided = false;
-			if (saveUploadConsent == ButtonResult.Ok) {
+			var saveUploadConsent = await Dispatcher.UIThread.InvokeAsync(GetSaveUploadConsent);
+			if (saveUploadConsent) {
 				try {
 					AttachLogAndSaveToSentry(config);
 					logProvided = true;
@@ -150,16 +144,28 @@ internal class ConverterLauncher {
 			SentrySdk.ConfigureScope(scope => {
 				scope.SetTag("logProvided", logProvided.ToString());
 			});
-
+			
 			try {
 				SendMessageToSentry(process.ExitCode);
 			} catch (Exception e) {
 				logger.Warn($"Failed to send message to Sentry: {e.Message}");
 			}
 		} else {
-			logger.Error("If you require assistance please visit the converter's forum thread for a detailed postmortem.");
+			logger.Error("If you require assistance, please visit the converter's forum thread " +
+			             "for a detailed postmortem.");
 		}
 		return false;
+	}
+	
+	private static async Task<bool> GetSaveUploadConsent() {
+		var saveUploadConsent = await MessageBoxManager.GetMessageBoxStandard(
+			title: "Save upload consent",
+			text: "Would you like the application to automatically upload your save file to our error database, " +
+			      "in order to help us fix this issue?",
+			ButtonEnum.OkCancel,
+			Icon.Question
+		).ShowWindowDialogAsync(MainWindow.Instance);
+		return saveUploadConsent == ButtonResult.Ok;
 	}
 
 	private static async void AttachLogAndSaveToSentry(Configuration config) {
@@ -207,6 +213,7 @@ internal class ConverterLauncher {
 			var message = $"Converter exited with code {processExitCode}";
 			SentrySdk.CaptureMessage(message, SentryLevel.Error);
 		}
+		Logger.Notice("Uploaded information about the error, thank you!");
 	}
 
 	private static async Task UploadSaveArchiveToBackblaze(string archivePath) {
