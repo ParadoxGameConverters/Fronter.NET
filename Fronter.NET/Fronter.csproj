@@ -33,14 +33,15 @@
     <ItemGroup>
         <Resources Include="Resources/**/*.*" />
     </ItemGroup>
-
+    
+    <!-- https://stackoverflow.com/a/50905092/10249243 -->
     <Target Name="Secrets" BeforeTargets="BeforeBuild">
         <WriteLinesToFile 
             File="$(IntermediateOutputPath)gen.cs"
             Lines="static partial class Secrets {
 			    public static string BackblazeKeyId = %22$(BACKBLAZE_KEY_ID)%22 %3B
-				public static string BackblazeApplicationKey = %22$(BACKBLAZE_APPLICATION_KEY)%22 %3B
-				public static string BackblazeBucketId = %22$(BACKBLAZE_BUCKET_ID)%22 %3B
+			    public static string BackblazeApplicationKey = %22$(BACKBLAZE_APPLICATION_KEY)%22 %3B
+			    public static string BackblazeBucketId = %22$(BACKBLAZE_BUCKET_ID)%22 %3B
 			}"
 			Overwrite="true"
         />
@@ -48,6 +49,7 @@
 	<ItemGroup>
 		<Compile Include="$(IntermediateOutputPath)gen.cs" />
 	</ItemGroup>
+    
     <Target Name="CopyCustomContent" AfterTargets="Build">
         <Copy Condition="'$(Configuration)' == 'Debug'" SourceFiles="@(DebugResources)" DestinationFolder="$(OutDir)/%(RecursiveDir)" SkipUnchangedFiles="true" />
         <Copy SourceFiles="@(Images)" DestinationFolder="$(OutDir)/Assets/Images/%(RecursiveDir)" SkipUnchangedFiles="true" />
