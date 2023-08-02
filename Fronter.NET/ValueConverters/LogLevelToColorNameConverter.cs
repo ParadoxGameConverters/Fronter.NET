@@ -12,6 +12,8 @@ public class LogLevelToColorNameConverter : IValueConverter {
 		return input?.Name switch {
 			"PROGRESS" => Brushes.ForestGreen,
 			"NOTICE" => Brushes.CornflowerBlue,
+			"FATAL" => Brushes.DarkRed,
+			"CRITICAL" => Brushes.Red,
 			"ERROR" => Brushes.IndianRed,
 			"WARN" => Brushes.Orange,
 			"WARNING" => Brushes.Orange,

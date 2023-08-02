@@ -1,13 +1,21 @@
 ﻿using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
+using Bytewizer.Backblaze.Client;
 using commonItems;
 using Fronter.Extensions;
+using Fronter.LogAppenders;
 using Fronter.Models.Configuration;
+using Fronter.Views;
 using log4net;
 using log4net.Core;
+using MsBox.Avalonia;
+using MsBox.Avalonia.Enums;
+using Sentry;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Fronter.Services;
@@ -63,7 +71,8 @@ internal class ConverterLauncher {
 			startInfo.Arguments = $"-jar {CommonFunctions.TrimPath(backendExePathRelativeToFrontend)}";
 		}
 
-		using Process process = new() { StartInfo = startInfo };
+		using Process process = new();
+		process.StartInfo = startInfo;
 		process.OutputDataReceived += (sender, args) => {
 			var logLine = MessageSlicer.SliceMessage(args.Data ?? string.Empty);
 			var level = logLine.Level;
@@ -72,12 +81,7 @@ internal class ConverterLauncher {
 			}
 
 			// Get timestamp datetime.
-			DateTime timestamp;
-			if (string.IsNullOrWhiteSpace(logLine.Timestamp)) {
-				timestamp = DateTime.Now;
-			} else {
-				timestamp = Convert.ToDateTime(logLine.Timestamp);
-			}
+			DateTime timestamp = logLine.TimestampAsDateTime;
 
 			// Get level to display.
 			var logLevel = level ?? lastLevelFromBackend ?? Level.Info;
@@ -115,16 +119,115 @@ internal class ConverterLauncher {
 
 		await process.WaitForExitAsync();
 		timer.Stop();
-
+		
 		if (process.ExitCode == 0) {
 			logger.Info($"Converter exited at {timer.Elapsed.TotalSeconds} seconds.");
 			return true;
 		}
-
-		logger.Error("Converter error! See log.txt for details.");
-		logger.Error("If you require assistance please upload log.txt to forums for a detailed postmortem.");
+		
 		logger.Debug($"Converter exit code: {process.ExitCode}");
+		logger.Error("Converter error! See log.txt for details.");
+		if (SentrySdk.IsEnabled) {
+			// When Sentry is enabled, every event is reported but log and save are only uploaded if the user consents.
+			var saveUploadConsent = await MessageBoxManager.GetMessageBoxStandard(
+				title: "Save upload consent",
+				text: "Would you like the application to automatically upload your save file to our error database, " +
+				      "in order to help us fix this issue?",
+				ButtonEnum.OkCancel,
+				Icon.Question
+				).ShowWindowDialogAsync(MainWindow.Instance);
+			bool logProvided = false;
+			if (saveUploadConsent == ButtonResult.Ok) {
+				try {
+					AttachLogAndSaveToSentry(config);
+					logProvided = true;
+				} catch (Exception e) {
+					var warnMessage = $"Failed to attach log and save to Sentry event: {e.Message}";
+					logger.Warn(warnMessage);
+					SentrySdk.AddBreadcrumb(warnMessage);
+				}
+			} 
+			SentrySdk.ConfigureScope(scope => {
+				scope.SetTag("logProvided", logProvided.ToString());
+			});
+
+			try {
+				SendMessageToSentry(process.ExitCode);
+			} catch (Exception e) {
+				logger.Warn($"Failed to send message to Sentry: {e.Message}");
+			}
+		} else {
+			logger.Error("If you require assistance please visit the converter's forum thread for a detailed postmortem.");
+		}
 		return false;
 	}
+
+	private static async void AttachLogAndSaveToSentry(Configuration config) {
+		SentrySdk.ConfigureScope(scope => scope.AddAttachment("log.txt"));
+		
+		var saveLocation = config.RequiredFiles.FirstOrDefault(f => f.Name == "SaveGame")?.Value;
+		if (saveLocation is null) {
+			return;
+		}
+
+		Directory.CreateDirectory("temp");
+		
+		// Create zip with save file.
+		var dateTimeString = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+		var archivePath = $"temp/SaveGame_{dateTimeString}.zip";
+		using (var zip = ZipFile.Open(archivePath, ZipArchiveMode.Create)) {
+			zip.CreateEntryFromFile(saveLocation, new FileInfo(saveLocation).Name);
+		}
+		
+		// Sentry allows up to 20 MB per compressed request.
+		// So we need to calculate whether we can fit the save archive.
+		// Otherwise we upload it to Backblaze.
+		var logSize = new FileInfo("log.txt").Length; // Size in bytes.
+		const int spaceForBaseRequest = 1024 * 1024 / 2; // 0.5 MB, arbitrary.
+		var saveSizeLimitForSentry = 20 * 1024 * 1024 - (logSize + spaceForBaseRequest);
+		var saveArchiveSize = new FileInfo(archivePath).Length;
+		if (saveArchiveSize <= saveSizeLimitForSentry) {
+			logger.Debug($"Save file is {saveArchiveSize} bytes, uploading to Sentry.");
+			SentrySdk.ConfigureScope(scope => { scope.AddAttachment(archivePath); });
+		} else {
+			logger.Debug($"Save file is {saveArchiveSize} bytes, uploading to Backblaze.");
+			await UploadSaveArchiveToBackblaze(archivePath);
+		}
+	}
+
+	private static void SendMessageToSentry(int processExitCode) {
+		var gridAppender = LogManager.GetRepository().GetAppenders().First(a => a.Name == "grid");
+		if (gridAppender is LogGridAppender logGridAppender) {
+			var error = logGridAppender.LogLines
+				.FirstOrDefault(l => l.Level is not null && l.Level >= Level.Error);
+			var sentryMessageLevel = error?.Level == Level.Fatal ? SentryLevel.Fatal : SentryLevel.Error;
+			var message = error?.Message ?? $"Converter exited with code {processExitCode}";
+			SentrySdk.CaptureMessage(message, sentryMessageLevel);
+		} else {
+			var message = $"Converter exited with code {processExitCode}";
+			SentrySdk.CaptureMessage(message, SentryLevel.Error);
+		}
+	}
+
+	private static async Task UploadSaveArchiveToBackblaze(string archivePath) {
+		// Init Backblaze B2 client.
+		var client = new BackblazeClient();
+		await client.ConnectAsync(Secrets.BackblazeKeyId, Secrets.BackblazeApplicationKey);
+			
+		// Upload zip to Backblaze B2.
+		await using var stream = File.OpenRead(archivePath);
+		var archiveName = new FileInfo(archivePath).Name;
+		var backblazeBucketId = Secrets.BackblazeBucketId;
+		var results = await client.UploadAsync(backblazeBucketId, archiveName, stream);
+		if (results.IsSuccessStatusCode) {
+			logger.Debug("Uploaded save file to Backblaze.");
+			var backblazeFileName = results.Response.FileName;
+			var backblazeFileId = results.Response.FileId;
+			SentrySdk.AddBreadcrumb($"Backblaze file name: {backblazeFileName}; file ID: {backblazeFileId}"); 
+		} else {
+			logger.Debug($"Save archive upload failed with status {results.StatusCode}");
+		}
+	}
+	
 	private readonly Configuration config;
 }

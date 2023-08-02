@@ -33,6 +33,23 @@
     <ItemGroup>
         <Resources Include="Resources/**/*.*" />
     </ItemGroup>
+    
+    <!-- https://stackoverflow.com/a/50905092/10249243 -->
+    <Target Name="Secrets" BeforeTargets="BeforeBuild">
+        <WriteLinesToFile 
+            File="$(IntermediateOutputPath)gen.cs"
+            Lines="static partial class Secrets {
+			    public static string BackblazeKeyId = %22$(BACKBLAZE_KEY_ID)%22 %3B
+			    public static string BackblazeApplicationKey = %22$(BACKBLAZE_APPLICATION_KEY)%22 %3B
+			    public static string BackblazeBucketId = %22$(BACKBLAZE_BUCKET_ID)%22 %3B
+			}"
+            Overwrite="true"
+        />
+	</Target>
+	<ItemGroup>
+		<Compile Include="$(IntermediateOutputPath)gen.cs" />
+	</ItemGroup>
+    
     <Target Name="CopyCustomContent" AfterTargets="Build">
         <Copy Condition="'$(Configuration)' == 'Debug'" SourceFiles="@(DebugResources)" DestinationFolder="$(OutDir)/%(RecursiveDir)" SkipUnchangedFiles="true" />
         <Copy SourceFiles="@(Images)" DestinationFolder="$(OutDir)/Assets/Images/%(RecursiveDir)" SkipUnchangedFiles="true" />
@@ -52,6 +69,7 @@
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.2" />
         <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.2" />
         <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.2" />
+        <PackageReference Include="Backblaze.Client" Version="1.0.1" />
         <PackageReference Include="DynamicData" Version="7.14.2" />
         <PackageReference Include="MessageBox.Avalonia" Version="3.1.2" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.9">
@@ -60,6 +78,7 @@
         </PackageReference>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.9" />
         <PackageReference Include="PGCG.commonItems" Version="8.1.6" />
+        <PackageReference Include="Sentry" Version="3.34.0" />
         <PackageReference Include="system.io.filesystem" Version="4.3.0" />
         <PackageReference Include="System.Net.Primitives" Version="4.3.1" />
     </ItemGroup>
