@@ -56,7 +56,7 @@ public class Configuration {
 		}
 
 		if (SentryDsn is not null) {
-			InitSentry();
+			InitSentry(SentryDsn);
 		}
 
 		InitializePaths();
