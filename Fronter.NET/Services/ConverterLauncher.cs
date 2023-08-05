@@ -5,6 +5,7 @@ using Bytewizer.Backblaze.Client;
 using commonItems;
 using Fronter.Extensions;
 using Fronter.LogAppenders;
+using Fronter.Models;
 using Fronter.Models.Configuration;
 using Fronter.Views;
 using log4net;
@@ -216,6 +217,15 @@ internal class ConverterLauncher {
 		}
 	}
 
+	private static LogLine? GetFirstErrorLogLineFromGrid() {
+		var gridAppender = LogManager.GetRepository().GetAppenders().First(a => a.Name == "grid");
+		if (gridAppender is LogGridAppender logGridAppender) {
+			return logGridAppender.LogLines
+				.FirstOrDefault(l => l.Level is not null && l.Level >= Level.Error);
+		}
+		return null;
+	}
+
 	private static async void SendMessageToSentry(int processExitCode) {
 		// Identify user by username or IP address.
 		var ip = (await GetExternalIpAddress())?.ToString();
@@ -223,13 +233,10 @@ internal class ConverterLauncher {
 			scope.User = ip is null ? new User {Username = Environment.UserName} : new User {IpAddress = ip};
 		});
 
-		var gridAppender = LogManager.GetRepository().GetAppenders().First(a => a.Name == "grid");
-		if (gridAppender is LogGridAppender logGridAppender) {
-			var error = logGridAppender.LogLines
-				.FirstOrDefault(l => l.Level is not null && l.Level >= Level.Error);
-			var sentryMessageLevel = error?.Level == Level.Fatal ? SentryLevel.Fatal : SentryLevel.Error;
-			var message = error?.Message ?? $"Converter exited with code {processExitCode}";
-			SentrySdk.CaptureMessage(message, sentryMessageLevel);
+		var error = GetFirstErrorLogLineFromGrid();
+		if (error is not null) {
+			var sentryMessageLevel = error.Level == Level.Fatal ? SentryLevel.Fatal : SentryLevel.Error;
+			SentrySdk.CaptureMessage(error.Message, sentryMessageLevel);
 		} else {
 			var message = $"Converter exited with code {processExitCode}";
 			SentrySdk.CaptureMessage(message, SentryLevel.Error);
