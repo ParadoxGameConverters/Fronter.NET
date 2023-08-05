@@ -19,6 +19,7 @@ public class Configuration {
 	public string DisplayName { get; private set; } = string.Empty;
 	public string SourceGame { get; private set; } = string.Empty;
 	public string TargetGame { get; private set; } = string.Empty;
+	public string? SentryDsn { get; private set; }
 	public string? ModAutoGenerationSource { get; private set; } = null;
 	public ObservableCollection<Mod> AutoLocatedMods { get; } = new();
 	public bool CopyToTargetGameModDirectory { get; set; } = true;
@@ -54,6 +55,10 @@ public class Configuration {
 			logger.Warn($"{fronterOptionsPath} not found!");
 		}
 
+		if (SentryDsn is not null) {
+			InitSentry();
+		}
+
 		InitializePaths();
 
 		LoadExistingConfiguration();
@@ -64,7 +69,7 @@ public class Configuration {
 			Name = reader.GetString();
 		});
 		parser.RegisterKeyword("sentryDsn", reader => {
-			InitSentry(reader.GetString());
+			SentryDsn = reader.GetString();
 		});
 		parser.RegisterKeyword("converterFolder", reader => {
 			ConverterFolder = reader.GetString();
@@ -128,7 +133,16 @@ public class Configuration {
 		parser.IgnoreAndLogUnregisteredItems();
 	}
 	
-	private static void InitSentry(string dsn) {
+	private void InitSentry(string dsn) {
+		string? release = null;
+		// Try to get version from converter's version.txt
+		var versionFilePath = Path.Combine(ConverterFolder, "configurables/version.txt");
+		if (File.Exists(versionFilePath)) {
+			var version = new ConverterVersion();
+			version.LoadVersion(versionFilePath);
+			release = version.Version;
+		}
+		
 		SentrySdk.Init(options => {
 			// A Sentry Data Source Name (DSN) is required.
 			// See https://docs.sentry.io/product/sentry-basics/dsn-explainer/
@@ -147,15 +161,13 @@ public class Configuration {
 
 			options.MaxBreadcrumbs = int.MaxValue;
 			options.MaxAttachmentSize = long.MaxValue;
-			
+
+			options.Release = release;
 #if DEBUG
 			options.Environment = "Debug";
 #else
 			options.Environment = "Release"; 
 #endif
-		});
-		SentrySdk.ConfigureScope(scope => {
-			scope.UnsetTag("release");
 		});
 		Logger.Debug("Sentry initialized.");
 	}
