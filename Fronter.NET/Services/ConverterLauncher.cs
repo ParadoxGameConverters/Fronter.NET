@@ -17,6 +17,8 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 
 namespace Fronter.Services;
@@ -200,8 +202,29 @@ internal class ConverterLauncher {
 			await UploadSaveArchiveToBackblaze(archivePath);
 		}
 	}
+	
+	private static string? GetLocalIPAddress() {
+		try {
+			var host = Dns.GetHostEntry(Dns.GetHostName());
+			foreach (var ip in host.AddressList){
+				if (ip.AddressFamily == AddressFamily.InterNetwork) {
+					return ip.ToString();
+				}
+			}
+		} catch (Exception e) {
+			SentrySdk.AddBreadcrumb($"Failed to get IP address: {e.Message}");
+		}
+
+		return null;
+	}
 
 	private static void SendMessageToSentry(int processExitCode) {
+		// Identify user by username or IP address.
+		var ip = GetLocalIPAddress();
+		SentrySdk.ConfigureScope(scope => {
+			scope.User = ip is null ? new User {Username = Environment.UserName} : new User {IpAddress = ip};
+		});
+
 		var gridAppender = LogManager.GetRepository().GetAppenders().First(a => a.Name == "grid");
 		if (gridAppender is LogGridAppender logGridAppender) {
 			var error = logGridAppender.LogLines
@@ -230,7 +253,7 @@ internal class ConverterLauncher {
 			logger.Debug("Uploaded save file to Backblaze.");
 			var backblazeFileName = results.Response.FileName;
 			var backblazeFileId = results.Response.FileId;
-			SentrySdk.AddBreadcrumb($"Backblaze file name: {backblazeFileName}; file ID: {backblazeFileId}"); 
+			SentrySdk.AddBreadcrumb($"Backblaze file name: {backblazeFileName}; file ID: {backblazeFileId}");
 		} else {
 			logger.Debug($"Save archive upload failed with status {results.StatusCode}");
 		}
