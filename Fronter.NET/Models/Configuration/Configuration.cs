@@ -3,6 +3,7 @@ using commonItems;
 using Fronter.Models.Configuration.Options;
 using Fronter.ViewModels;
 using log4net;
+using Sentry;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -18,6 +19,7 @@ public class Configuration {
 	public string DisplayName { get; private set; } = string.Empty;
 	public string SourceGame { get; private set; } = string.Empty;
 	public string TargetGame { get; private set; } = string.Empty;
+	public string? SentryDsn { get; private set; }
 	public string? TargetPlaysetsSource { get; private set; } = null;
 	public ObservableCollection<TargetPlayset> AutoLocatedMods { get; } = new();
 	public bool CopyToTargetGameModDirectory { get; set; } = true;
@@ -53,6 +55,10 @@ public class Configuration {
 			logger.Warn($"{fronterOptionsPath} not found!");
 		}
 
+		if (SentryDsn is not null) {
+			InitSentry(SentryDsn);
+		}
+
 		InitializePaths();
 
 		LoadExistingConfiguration();
@@ -61,6 +67,9 @@ public class Configuration {
 	private void RegisterKeys(Parser parser) {
 		parser.RegisterKeyword("name", reader => {
 			Name = reader.GetString();
+		});
+		parser.RegisterKeyword("sentryDsn", reader => {
+			SentryDsn = reader.GetString();
 		});
 		parser.RegisterKeyword("converterFolder", reader => {
 			ConverterFolder = reader.GetString();
@@ -123,6 +132,45 @@ public class Configuration {
 		});
 		parser.IgnoreAndLogUnregisteredItems();
 	}
+	
+	private void InitSentry(string dsn) {
+		string? release = null;
+		// Try to get version from converter's version.txt
+		var versionFilePath = Path.Combine(ConverterFolder, "configurables/version.txt");
+		if (File.Exists(versionFilePath)) {
+			var version = new ConverterVersion();
+			version.LoadVersion(versionFilePath);
+			release = version.Version;
+		}
+		
+		SentrySdk.Init(options => {
+			// A Sentry Data Source Name (DSN) is required.
+			// See https://docs.sentry.io/product/sentry-basics/dsn-explainer/
+			options.Dsn = dsn;
+
+			// This option is recommended. It enables Sentry's "Release Health" feature.
+			options.AutoSessionTracking = true;
+
+			// This option is recommended for client applications only. It ensures all threads use the same global scope.
+			// If you're writing a background service of any kind, you should remove this.
+			options.IsGlobalModeEnabled = true;
+
+			// This option will enable Sentry's tracing features. You still need to start transactions and spans.
+			options.EnableTracing = true;
+			options.AttachStacktrace = false;
+
+			options.MaxBreadcrumbs = int.MaxValue;
+			options.MaxAttachmentSize = long.MaxValue;
+
+			options.Release = release;
+#if DEBUG
+			options.Environment = "Debug";
+#else
+			options.Environment = "Release"; 
+#endif
+		});
+		Logger.Debug("Sentry initialized.");
+	}
 
 	private void RegisterPreloadKeys(Parser parser) {
 		parser.RegisterRegex(CommonRegexes.String, (reader, incomingKey) => {
@@ -180,7 +228,7 @@ public class Configuration {
 				initialValue = Path.Combine(documentsDir, folder.SearchPath);
 			} else if (folder.SearchPathType == "storeFolder") {
 				string? possiblePath = null;
-				if (int.TryParse(folder.SteamGameId, out int steamId)) {
+				if (uint.TryParse(folder.SteamGameId, out uint steamId)) {
 					possiblePath = CommonFunctions.GetSteamInstallPath(steamId);
 				}
 				if (possiblePath is null && long.TryParse(folder.GOGGameId, out long gogId)) {
