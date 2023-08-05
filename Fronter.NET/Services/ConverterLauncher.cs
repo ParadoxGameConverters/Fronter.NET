@@ -18,7 +18,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
-using System.Net.Sockets;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Fronter.Services;
@@ -202,25 +202,23 @@ internal class ConverterLauncher {
 			await UploadSaveArchiveToBackblaze(archivePath);
 		}
 	}
-	
-	private static string? GetLocalIPAddress() {
+
+	private static async Task<IPAddress?> GetExternalIpAddress() {
 		try {
-			var host = Dns.GetHostEntry(Dns.GetHostName());
-			foreach (var ip in host.AddressList){
-				if (ip.AddressFamily == AddressFamily.InterNetwork) {
-					return ip.ToString();
-				}
-			}
+			var externalIpString = (await new HttpClient().GetStringAsync("https://icanhazip.com/"))
+				.Replace(@"\r", "")
+				.Replace(@"\n", "")
+				.Trim();
+			return !IPAddress.TryParse(externalIpString, out var ipAddress) ? null : ipAddress;
 		} catch (Exception e) {
 			SentrySdk.AddBreadcrumb($"Failed to get IP address: {e.Message}");
+			return null;
 		}
-
-		return null;
 	}
 
-	private static void SendMessageToSentry(int processExitCode) {
+	private static async void SendMessageToSentry(int processExitCode) {
 		// Identify user by username or IP address.
-		var ip = GetLocalIPAddress();
+		var ip = (await GetExternalIpAddress())?.ToString();
 		SentrySdk.ConfigureScope(scope => {
 			scope.User = ip is null ? new User {Username = Environment.UserName} : new User {IpAddress = ip};
 		});
