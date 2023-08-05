@@ -5,6 +5,7 @@ using Bytewizer.Backblaze.Client;
 using commonItems;
 using Fronter.Extensions;
 using Fronter.LogAppenders;
+using Fronter.Models;
 using Fronter.Models.Configuration;
 using Fronter.Views;
 using log4net;
@@ -17,6 +18,8 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Fronter.Services;
@@ -201,14 +204,39 @@ internal class ConverterLauncher {
 		}
 	}
 
-	private static void SendMessageToSentry(int processExitCode) {
+	private static async Task<IPAddress?> GetExternalIpAddress() {
+		try {
+			var externalIpString = (await new HttpClient().GetStringAsync("https://icanhazip.com/"))
+				.Replace(@"\r", "")
+				.Replace(@"\n", "")
+				.Trim();
+			return !IPAddress.TryParse(externalIpString, out var ipAddress) ? null : ipAddress;
+		} catch (Exception e) {
+			SentrySdk.AddBreadcrumb($"Failed to get IP address: {e.Message}");
+			return null;
+		}
+	}
+
+	private static LogLine? GetFirstErrorLogLineFromGrid() {
 		var gridAppender = LogManager.GetRepository().GetAppenders().First(a => a.Name == "grid");
 		if (gridAppender is LogGridAppender logGridAppender) {
-			var error = logGridAppender.LogLines
+			return logGridAppender.LogLines
 				.FirstOrDefault(l => l.Level is not null && l.Level >= Level.Error);
-			var sentryMessageLevel = error?.Level == Level.Fatal ? SentryLevel.Fatal : SentryLevel.Error;
-			var message = error?.Message ?? $"Converter exited with code {processExitCode}";
-			SentrySdk.CaptureMessage(message, sentryMessageLevel);
+		}
+		return null;
+	}
+
+	private static async void SendMessageToSentry(int processExitCode) {
+		// Identify user by username or IP address.
+		var ip = (await GetExternalIpAddress())?.ToString();
+		SentrySdk.ConfigureScope(scope => {
+			scope.User = ip is null ? new User {Username = Environment.UserName} : new User {IpAddress = ip};
+		});
+
+		var error = GetFirstErrorLogLineFromGrid();
+		if (error is not null) {
+			var sentryMessageLevel = error.Level == Level.Fatal ? SentryLevel.Fatal : SentryLevel.Error;
+			SentrySdk.CaptureMessage(error.Message, sentryMessageLevel);
 		} else {
 			var message = $"Converter exited with code {processExitCode}";
 			SentrySdk.CaptureMessage(message, SentryLevel.Error);
@@ -230,7 +258,7 @@ internal class ConverterLauncher {
 			logger.Debug("Uploaded save file to Backblaze.");
 			var backblazeFileName = results.Response.FileName;
 			var backblazeFileId = results.Response.FileId;
-			SentrySdk.AddBreadcrumb($"Backblaze file name: {backblazeFileName}; file ID: {backblazeFileId}"); 
+			SentrySdk.AddBreadcrumb($"Backblaze file name: {backblazeFileName}; file ID: {backblazeFileId}");
 		} else {
 			logger.Debug($"Save archive upload failed with status {results.StatusCode}");
 		}

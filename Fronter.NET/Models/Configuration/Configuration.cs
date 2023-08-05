@@ -143,6 +143,7 @@ public class Configuration {
 
 			// This option will enable Sentry's tracing features. You still need to start transactions and spans.
 			options.EnableTracing = true;
+			options.AttachStacktrace = false;
 
 			options.MaxBreadcrumbs = int.MaxValue;
 			options.MaxAttachmentSize = long.MaxValue;
