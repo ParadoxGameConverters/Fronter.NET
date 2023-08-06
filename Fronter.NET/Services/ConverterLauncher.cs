@@ -245,15 +245,22 @@ internal class ConverterLauncher {
 	}
 
 	private static async Task UploadSaveArchiveToBackblaze(string archivePath) {
-		// Init Backblaze B2 client.
+		// Add Backblaze credentials to breadcrumbs for debugging.
 		var client = new BackblazeClient();
-		await client.ConnectAsync(Secrets.BackblazeKeyId, Secrets.BackblazeApplicationKey);
+		var keyId = Secrets.BackblazeKeyId;
+		var applicationKey = Secrets.BackblazeApplicationKey;
+		var bucketId = Secrets.BackblazeBucketId;
+		SentrySdk.AddBreadcrumb($"Backblaze key ID: {keyId}");
+		SentrySdk.AddBreadcrumb($"Backblaze application key: {applicationKey}");
+		SentrySdk.AddBreadcrumb($"Backblaze bucket ID: {bucketId}");
+
+		// Init Backblaze B2 client.
+		await client.ConnectAsync(keyId, applicationKey);
 			
 		// Upload zip to Backblaze B2.
 		await using var stream = File.OpenRead(archivePath);
 		var archiveName = new FileInfo(archivePath).Name;
-		var backblazeBucketId = Secrets.BackblazeBucketId;
-		var results = await client.UploadAsync(backblazeBucketId, archiveName, stream);
+		var results = await client.UploadAsync(bucketId, archiveName, stream);
 		if (results.IsSuccessStatusCode) {
 			logger.Debug("Uploaded save file to Backblaze.");
 			var backblazeFileName = results.Response.FileName;
