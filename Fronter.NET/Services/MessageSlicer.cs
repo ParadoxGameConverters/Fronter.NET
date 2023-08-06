@@ -46,5 +46,5 @@ public static partial class MessageSlicer {
 	}
 
 	[GeneratedRegex(@"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})$")]
-	private static partial Regex GetDateTimeRegex();
+	internal static partial Regex GetDateTimeRegex();
 }
