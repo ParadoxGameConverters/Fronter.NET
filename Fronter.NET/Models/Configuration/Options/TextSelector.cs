@@ -2,7 +2,7 @@
 
 namespace Fronter.Models.Configuration.Options;
 
-public class TextSelector : Selector {
+public sealed class TextSelector : Selector {
 	public TextSelector(BufferedReader reader) {
 		var parser = new Parser();
 		RegisterKeys(parser);

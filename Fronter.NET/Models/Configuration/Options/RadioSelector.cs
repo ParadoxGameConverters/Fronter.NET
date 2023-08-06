@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Fronter.Models.Configuration.Options;
 
-public class RadioSelector : Selector {
+public sealed class RadioSelector : Selector {
 	private static readonly ILog logger = LogManager.GetLogger("Radio selector");
 	public RadioSelector(BufferedReader reader) {
 		var parser = new Parser();
@@ -71,5 +71,5 @@ public class RadioSelector : Selector {
 	}
 
 	private int optionCounter = 0;
-	public List<ToggleableOption> RadioOptions { get; } = new();
+	public IList<ToggleableOption> RadioOptions { get; } = new List<ToggleableOption>();
 }

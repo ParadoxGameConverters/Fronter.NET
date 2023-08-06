@@ -72,6 +72,10 @@
         <PackageReference Include="Backblaze.Client" Version="1.0.1" />
         <PackageReference Include="DynamicData" Version="7.14.2" />
         <PackageReference Include="MessageBox.Avalonia" Version="3.1.3" />
+        <PackageReference Include="Meziantou.Analyzer" Version="2.0.80">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.9">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

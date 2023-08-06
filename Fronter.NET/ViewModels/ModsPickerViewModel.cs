@@ -9,8 +9,8 @@ namespace Fronter.ViewModels;
 /// <summary>
 ///     The ModsPickerViewModel lets the user select paths to various stuff the converter needs to know where to find.
 /// </summary>
-public class ModsPickerViewModel : ViewModelBase {
-	public ModsPickerViewModel(Configuration config) {
+internal sealed class ModsPickerViewModel : ViewModelBase {
+	public ModsPickerViewModel(Config config) {
 		config.AutoLocatedMods.ToObservableChangeSet()
 			.Bind(out autoLocatedMods)
 			.Subscribe();

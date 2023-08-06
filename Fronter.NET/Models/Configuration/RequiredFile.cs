@@ -6,7 +6,7 @@ using System.IO;
 
 namespace Fronter.Models.Configuration;
 
-public class RequiredFile : RequiredPath {
+public sealed class RequiredFile : RequiredPath {
 	private static readonly ILog logger = LogManager.GetLogger("Required file");
 	public RequiredFile(BufferedReader reader) {
 		var parser = new Parser();

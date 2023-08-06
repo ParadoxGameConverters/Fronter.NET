@@ -15,6 +15,7 @@ using MsBox.Avalonia.Enums;
 using Sentry;
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -27,7 +28,7 @@ namespace Fronter.Services;
 internal class ConverterLauncher {
 	private static readonly ILog logger = LogManager.GetLogger("Converter launcher");
 	private Level? lastLevelFromBackend;
-	internal ConverterLauncher(Configuration config) {
+	internal ConverterLauncher(Config config) {
 		this.config = config;
 	}
 
@@ -174,7 +175,7 @@ internal class ConverterLauncher {
 		return saveUploadConsent == ButtonResult.Ok;
 	}
 
-	private static async void AttachLogAndSaveToSentry(Configuration config) {
+	private static async void AttachLogAndSaveToSentry(Config config) {
 		SentrySdk.ConfigureScope(scope => scope.AddAttachment("log.txt"));
 		
 		var saveLocation = config.RequiredFiles.FirstOrDefault(f => f.Name == "SaveGame")?.Value;
@@ -185,7 +186,7 @@ internal class ConverterLauncher {
 		Directory.CreateDirectory("temp");
 		
 		// Create zip with save file.
-		var dateTimeString = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+		var dateTimeString = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss", CultureInfo.InvariantCulture);
 		var archivePath = $"temp/SaveGame_{dateTimeString}.zip";
 		using (var zip = ZipFile.Open(archivePath, ZipArchiveMode.Create)) {
 			zip.CreateEntryFromFile(saveLocation, new FileInfo(saveLocation).Name);
@@ -286,5 +287,5 @@ internal class ConverterLauncher {
 		}
 	}
 	
-	private readonly Configuration config;
+	private readonly Config config;
 }
