@@ -280,7 +280,9 @@ internal class ConverterLauncher {
 				logger.Debug($"Save archive upload failed with status {results.StatusCode}");
 			}
 		} catch (Exception e) {
-			logger.Debug($"Failed to upload save file to Backblaze: {e.Message}");
+			var message = $"Failed to upload save file to Backblaze: {e.Message}";
+			logger.Debug(message);
+			SentrySdk.AddBreadcrumb(message);
 		}
 	}
 	
