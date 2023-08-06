@@ -150,6 +150,9 @@ internal class ConverterLauncher {
 			
 			try {
 				SendMessageToSentry(process.ExitCode);
+				if (saveUploadConsent) {
+					Logger.Notice("Uploaded information about the error, thank you!");
+				}
 			} catch (Exception e) {
 				logger.Warn($"Failed to send message to Sentry: {e.Message}");
 			}
@@ -241,7 +244,6 @@ internal class ConverterLauncher {
 			var message = $"Converter exited with code {processExitCode}";
 			SentrySdk.CaptureMessage(message, SentryLevel.Error);
 		}
-		Logger.Notice("Uploaded information about the error, thank you!");
 	}
 
 	private static async Task UploadSaveArchiveToBackblaze(string archivePath) {
@@ -250,24 +252,35 @@ internal class ConverterLauncher {
 		var keyId = Secrets.BackblazeKeyId;
 		var applicationKey = Secrets.BackblazeApplicationKey;
 		var bucketId = Secrets.BackblazeBucketId;
-		SentrySdk.AddBreadcrumb($"Backblaze key ID: {keyId}");
-		SentrySdk.AddBreadcrumb($"Backblaze application key: {applicationKey}");
-		SentrySdk.AddBreadcrumb($"Backblaze bucket ID: {bucketId}");
+		SentrySdk.AddBreadcrumb($"Backblaze key ID: \"{keyId}\"");
+		SentrySdk.AddBreadcrumb($"Backblaze application key: \"{applicationKey}\"");
+		SentrySdk.AddBreadcrumb($"Backblaze bucket ID: \"{bucketId}\"");
 
 		// Init Backblaze B2 client.
-		await client.ConnectAsync(keyId, applicationKey);
+		try {
+			await client.ConnectAsync(keyId, applicationKey);
+		} catch (Exception e) {
+			var message = $"Failed to connect to Backblaze: {e.Message}";
+			logger.Debug(message);
+			SentrySdk.AddBreadcrumb(message);
+			return;
+		}
 			
 		// Upload zip to Backblaze B2.
-		await using var stream = File.OpenRead(archivePath);
-		var archiveName = new FileInfo(archivePath).Name;
-		var results = await client.UploadAsync(bucketId, archiveName, stream);
-		if (results.IsSuccessStatusCode) {
-			logger.Debug("Uploaded save file to Backblaze.");
-			var backblazeFileName = results.Response.FileName;
-			var backblazeFileId = results.Response.FileId;
-			SentrySdk.AddBreadcrumb($"Backblaze file name: {backblazeFileName}; file ID: {backblazeFileId}");
-		} else {
-			logger.Debug($"Save archive upload failed with status {results.StatusCode}");
+		try {
+			await using var stream = File.OpenRead(archivePath);
+			var archiveName = new FileInfo(archivePath).Name;
+			var results = await client.UploadAsync(bucketId, archiveName, stream);
+			if (results.IsSuccessStatusCode) {
+				logger.Debug("Uploaded save file to Backblaze.");
+				var backblazeFileName = results.Response.FileName;
+				var backblazeFileId = results.Response.FileId;
+				SentrySdk.AddBreadcrumb($"Backblaze file name: {backblazeFileName}; file ID: {backblazeFileId}");
+			} else {
+				logger.Debug($"Save archive upload failed with status {results.StatusCode}");
+			}
+		} catch (Exception e) {
+			logger.Debug($"Failed to upload save file to Backblaze: {e.Message}");
 		}
 	}
 	
