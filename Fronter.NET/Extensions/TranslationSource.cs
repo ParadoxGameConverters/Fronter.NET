@@ -148,7 +148,7 @@ public sealed class TranslationSource : ReactiveObject {
 		}
 	}
 
-	public List<string> LoadedLanguages { get; } = new();
+	public IList<string> LoadedLanguages { get; } = new List<string>();
 	private readonly Dictionary<string, CultureInfo> languages = new();
 	private readonly Dictionary<string, Dictionary<string, string>> translations = new(); // key, <language, text>
 

@@ -5,8 +5,8 @@ using System.Text.RegularExpressions;
 
 namespace Fronter.Services;
 
-public static class MessageSlicer {
-	private static readonly Regex DateTimeRegex = new(@"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})$");
+public static partial class MessageSlicer {
+	private static readonly Regex DateTimeRegex = GetDateTimeRegex();
 
 	public static LogLine SliceMessage(string message) {
 		var logMessage = new LogLine();
@@ -44,4 +44,7 @@ public static class MessageSlicer {
 		var level = LogManager.GetRepository().LevelMap[levelStr];
 		return level;
 	}
+
+	[GeneratedRegex(@"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})$")]
+	private static partial Regex GetDateTimeRegex();
 }

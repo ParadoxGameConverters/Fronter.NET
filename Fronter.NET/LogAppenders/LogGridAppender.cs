@@ -10,11 +10,12 @@ using log4net.Appender;
 using log4net.Core;
 using System;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 
 namespace Fronter.LogAppenders;
 
-public class LogGridAppender : MemoryAppender {
+public sealed class LogGridAppender : MemoryAppender {
 	public ObservableCollection<LogLine> LogLines { get; } = new();
 	private ReadOnlyObservableCollection<LogLine> filteredLogLines;
 	public ReadOnlyObservableCollection<LogLine> FilteredLogLines => filteredLogLines;
@@ -45,7 +46,7 @@ public class LogGridAppender : MemoryAppender {
 	}
 
 	private static string GetTimestampString(DateTime dateTime) {
-		return dateTime.ToString("yyyy-MM-dd HH:mm:ss");
+		return dateTime.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
 	}
 
 	private void AddToLogGrid(LogLine logLine) {

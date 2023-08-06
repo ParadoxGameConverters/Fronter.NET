@@ -12,7 +12,7 @@ using System.Linq;
 
 namespace Fronter.Models.Configuration;
 
-public class Configuration {
+public class Config {
 	public string Name { get; private set; } = string.Empty;
 	public string ConverterFolder { get; private set; } = string.Empty;
 	public string BackendExePath { get; private set; } = string.Empty; // relative to ConverterFolder
@@ -29,14 +29,14 @@ public class Configuration {
 	public string ConverterReleaseForumThread { get; private set; } = string.Empty;
 	public string LatestGitHubConverterReleaseUrl { get; private set; } = string.Empty;
 	public string PagesCommitIdUrl { get; private set; } = string.Empty;
-	public List<RequiredFile> RequiredFiles { get; } = new();
-	public List<RequiredFolder> RequiredFolders { get; } = new();
-	public List<Option> Options { get; } = new();
+	public IList<RequiredFile> RequiredFiles { get; } = new List<RequiredFile>();
+	public IList<RequiredFolder> RequiredFolders { get; } = new List<RequiredFolder>();
+	public IList<Option> Options { get; } = new List<Option>();
 	private int optionCounter;
 
 	private static readonly ILog logger = LogManager.GetLogger("Configuration");
 
-	public Configuration() {
+	public Config() {
 		var parser = new Parser();
 		RegisterKeys(parser);
 		var fronterConfigurationPath = Path.Combine("Configuration", "fronter-configuration.txt");
@@ -65,18 +65,10 @@ public class Configuration {
 	}
 
 	private void RegisterKeys(Parser parser) {
-		parser.RegisterKeyword("name", reader => {
-			Name = reader.GetString();
-		});
-		parser.RegisterKeyword("sentryDsn", reader => {
-			SentryDsn = reader.GetString();
-		});
-		parser.RegisterKeyword("converterFolder", reader => {
-			ConverterFolder = reader.GetString();
-		});
-		parser.RegisterKeyword("backendExePath", reader => {
-			BackendExePath = reader.GetString();
-		});
+		parser.RegisterKeyword("name", reader => Name = reader.GetString());
+		parser.RegisterKeyword("sentryDsn", reader => SentryDsn = reader.GetString());
+		parser.RegisterKeyword("converterFolder", reader => ConverterFolder = reader.GetString());
+		parser.RegisterKeyword("backendExePath", reader => BackendExePath = reader.GetString());
 		parser.RegisterKeyword("requiredFolder", reader => {
 			var newFolder = new RequiredFolder(reader, this);
 			if (!string.IsNullOrEmpty(newFolder.Name)) {
@@ -97,18 +89,10 @@ public class Configuration {
 			var newOption = new Option(reader, ++optionCounter);
 			Options.Add(newOption);
 		});
-		parser.RegisterKeyword("displayName", reader => {
-			DisplayName = reader.GetString();
-		});
-		parser.RegisterKeyword("sourceGame", reader => {
-			SourceGame = reader.GetString();
-		});
-		parser.RegisterKeyword("targetGame", reader => {
-			TargetGame = reader.GetString();
-		});
-		parser.RegisterKeyword("autoGenerateModsFrom", reader => {
-			ModAutoGenerationSource = reader.GetString();
-		});
+		parser.RegisterKeyword("displayName", reader => DisplayName = reader.GetString());
+		parser.RegisterKeyword("sourceGame", reader => SourceGame = reader.GetString());
+		parser.RegisterKeyword("targetGame", reader => TargetGame = reader.GetString());
+		parser.RegisterKeyword("autoGenerateModsFrom", reader => ModAutoGenerationSource = reader.GetString());
 		parser.RegisterKeyword("copyToTargetGameModDirectory", reader => {
 			CopyToTargetGameModDirectory = reader.GetString() == "true";
 		});
@@ -127,9 +111,7 @@ public class Configuration {
 		parser.RegisterKeyword("latestGitHubConverterReleaseUrl", reader => {
 			LatestGitHubConverterReleaseUrl = reader.GetString();
 		});
-		parser.RegisterKeyword("pagesCommitIdUrl", reader => {
-			PagesCommitIdUrl = reader.GetString();
-		});
+		parser.RegisterKeyword("pagesCommitIdUrl", reader => PagesCommitIdUrl = reader.GetString());
 		parser.IgnoreAndLogUnregisteredItems();
 	}
 	
@@ -210,13 +192,17 @@ public class Configuration {
 		parser.RegisterRegex(CommonRegexes.Catchall, ParserHelpers.IgnoreAndLogItem);
 	}
 
-	public void InitializePaths() {
+	private void InitializePaths() {
 		if (!OperatingSystem.IsWindows()) {
 			return;
 		}
 
 		string documentsDir = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+		InitializeFolders(documentsDir);
+		InitializeFiles(documentsDir);
+	}
 
+	private void InitializeFolders(string documentsDir) {
 		foreach (var folder in RequiredFolders) {
 			string? initialValue = null;
 
@@ -255,7 +241,9 @@ public class Configuration {
 				AutoLocateMods();
 			}
 		}
+	}
 
+	private void InitializeFiles(string documentsDir) {
 		foreach (var file in RequiredFiles) {
 			string? initialDirectory = null;
 			string? initialValue = null;

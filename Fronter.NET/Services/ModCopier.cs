@@ -4,16 +4,17 @@ using Fronter.Models.Database;
 using log4net;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using Mod = Fronter.Models.Database.Mod;
 
 namespace Fronter.Services;
 
-public class ModCopier {
-	private readonly Configuration config;
+internal class ModCopier {
+	private readonly Config config;
 	private readonly ILog logger = LogManager.GetLogger("Mod copier");
-	public ModCopier(Configuration config) {
+	public ModCopier(Config config) {
 		this.config = config;
 	}
 
@@ -137,7 +138,7 @@ public class ModCopier {
 		return true;
 	}
 
-	public void CreatePlayset(string targetModsDirectory, string modName, string destModFolder) {
+	private void CreatePlayset(string targetModsDirectory, string modName, string destModFolder) {
 		var gameDocsDirectory = Directory.GetParent(targetModsDirectory)?.FullName;
 		if (gameDocsDirectory is null) {
 			logger.Warn($"Couldn't get parent directory of \"{targetModsDirectory}\".");
@@ -158,7 +159,7 @@ public class ModCopier {
 
 			var playsetName = $"{config.Name}: {modName}";
 			var dateTimeOffset = new DateTimeOffset(DateTime.UtcNow);
-			string unixTimeMilliSeconds = dateTimeOffset.ToUnixTimeMilliseconds().ToString();
+			string unixTimeMilliSeconds = dateTimeOffset.ToUnixTimeMilliseconds().ToString(CultureInfo.InvariantCulture);
 			
 			DeactivateCurrentPlayset(dbContext);
 

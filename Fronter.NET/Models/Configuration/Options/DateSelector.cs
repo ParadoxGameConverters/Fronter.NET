@@ -3,7 +3,7 @@ using System;
 
 namespace Fronter.Models.Configuration.Options; 
 
-public class DateSelector : Selector {
+public sealed class DateSelector : Selector {
 	public DateSelector(BufferedReader reader) {
 		var parser = new Parser();
 		RegisterKeys(parser);
