@@ -15,6 +15,7 @@ using MsBox.Avalonia.Enums;
 using Sentry;
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -27,7 +28,7 @@ namespace Fronter.Services;
 internal class ConverterLauncher {
 	private static readonly ILog logger = LogManager.GetLogger("Converter launcher");
 	private Level? lastLevelFromBackend;
-	internal ConverterLauncher(Configuration config) {
+	internal ConverterLauncher(Config config) {
 		this.config = config;
 	}
 
@@ -150,6 +151,9 @@ internal class ConverterLauncher {
 			
 			try {
 				SendMessageToSentry(process.ExitCode);
+				if (saveUploadConsent) {
+					Logger.Notice("Uploaded information about the error, thank you!");
+				}
 			} catch (Exception e) {
 				logger.Warn($"Failed to send message to Sentry: {e.Message}");
 			}
@@ -171,7 +175,7 @@ internal class ConverterLauncher {
 		return saveUploadConsent == ButtonResult.Ok;
 	}
 
-	private static async void AttachLogAndSaveToSentry(Configuration config) {
+	private static async void AttachLogAndSaveToSentry(Config config) {
 		SentrySdk.ConfigureScope(scope => scope.AddAttachment("log.txt"));
 		
 		var saveLocation = config.RequiredFiles.FirstOrDefault(f => f.Name == "SaveGame")?.Value;
@@ -182,7 +186,7 @@ internal class ConverterLauncher {
 		Directory.CreateDirectory("temp");
 		
 		// Create zip with save file.
-		var dateTimeString = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+		var dateTimeString = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss", CultureInfo.InvariantCulture);
 		var archivePath = $"temp/SaveGame_{dateTimeString}.zip";
 		using (var zip = ZipFile.Open(archivePath, ZipArchiveMode.Create)) {
 			zip.CreateEntryFromFile(saveLocation, new FileInfo(saveLocation).Name);
@@ -241,28 +245,47 @@ internal class ConverterLauncher {
 			var message = $"Converter exited with code {processExitCode}";
 			SentrySdk.CaptureMessage(message, SentryLevel.Error);
 		}
-		Logger.Notice("Uploaded information about the error, thank you!");
 	}
 
 	private static async Task UploadSaveArchiveToBackblaze(string archivePath) {
-		// Init Backblaze B2 client.
+		// Add Backblaze credentials to breadcrumbs for debugging.
 		var client = new BackblazeClient();
-		await client.ConnectAsync(Secrets.BackblazeKeyId, Secrets.BackblazeApplicationKey);
+		var keyId = Secrets.BackblazeKeyId;
+		var applicationKey = Secrets.BackblazeApplicationKey;
+		var bucketId = Secrets.BackblazeBucketId;
+		SentrySdk.AddBreadcrumb($"Backblaze key ID: \"{keyId}\"");
+		SentrySdk.AddBreadcrumb($"Backblaze application key: \"{applicationKey}\"");
+		SentrySdk.AddBreadcrumb($"Backblaze bucket ID: \"{bucketId}\"");
+
+		// Init Backblaze B2 client.
+		try {
+			await client.ConnectAsync(keyId, applicationKey);
+		} catch (Exception e) {
+			var message = $"Failed to connect to Backblaze: {e.Message}";
+			logger.Debug(message);
+			SentrySdk.AddBreadcrumb(message);
+			return;
+		}
 			
 		// Upload zip to Backblaze B2.
-		await using var stream = File.OpenRead(archivePath);
-		var archiveName = new FileInfo(archivePath).Name;
-		var backblazeBucketId = Secrets.BackblazeBucketId;
-		var results = await client.UploadAsync(backblazeBucketId, archiveName, stream);
-		if (results.IsSuccessStatusCode) {
-			logger.Debug("Uploaded save file to Backblaze.");
-			var backblazeFileName = results.Response.FileName;
-			var backblazeFileId = results.Response.FileId;
-			SentrySdk.AddBreadcrumb($"Backblaze file name: {backblazeFileName}; file ID: {backblazeFileId}");
-		} else {
-			logger.Debug($"Save archive upload failed with status {results.StatusCode}");
+		try {
+			await using var stream = File.OpenRead(archivePath);
+			var archiveName = new FileInfo(archivePath).Name;
+			var results = await client.UploadAsync(bucketId, archiveName, stream);
+			if (results.IsSuccessStatusCode) {
+				logger.Debug("Uploaded save file to Backblaze.");
+				var backblazeFileName = results.Response.FileName;
+				var backblazeFileId = results.Response.FileId;
+				SentrySdk.AddBreadcrumb($"Backblaze file name: {backblazeFileName}; file ID: {backblazeFileId}");
+			} else {
+				logger.Debug($"Save archive upload failed with status {results.StatusCode}");
+			}
+		} catch (Exception e) {
+			var message = $"Failed to upload save file to Backblaze: {e.Message}";
+			logger.Debug(message);
+			SentrySdk.AddBreadcrumb(message);
 		}
 	}
 	
-	private readonly Configuration config;
+	private readonly Config config;
 }

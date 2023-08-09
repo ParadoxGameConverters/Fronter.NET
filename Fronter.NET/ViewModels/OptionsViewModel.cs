@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 
 namespace Fronter.ViewModels;
 
-public class OptionsViewModel : ViewModelBase {
+public sealed class OptionsViewModel : ViewModelBase {
 	public OptionsViewModel(IEnumerable<Option> items) {
 		Items = new ObservableCollection<Option>(items);
 	}

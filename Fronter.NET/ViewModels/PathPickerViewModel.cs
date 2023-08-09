@@ -14,8 +14,8 @@ namespace Fronter.ViewModels;
 /// <summary>
 ///     The PathPickerViewModel lets the user select paths to various stuff the converter needs to know where to find.
 /// </summary>
-public class PathPickerViewModel : ViewModelBase {
-	public PathPickerViewModel(Configuration config) {
+internal sealed class PathPickerViewModel : ViewModelBase {
+	public PathPickerViewModel(Config config) {
 		RequiredFolders = new ObservableCollection<RequiredFolder>(config.RequiredFolders);
 		RequiredFiles = new ObservableCollection<RequiredFile>(config.RequiredFiles);
 

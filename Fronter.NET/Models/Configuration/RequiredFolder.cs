@@ -6,10 +6,10 @@ using System.IO;
 
 namespace Fronter.Models.Configuration;
 
-public class RequiredFolder : RequiredPath {
+public sealed class RequiredFolder : RequiredPath {
 	private static readonly ILog logger = LogManager.GetLogger("Required folder");
-	public RequiredFolder(BufferedReader reader, Configuration configuration) {
-		config = configuration;
+	public RequiredFolder(BufferedReader reader, Config config) {
+		this.config = config;
 
 		var parser = new Parser();
 		RegisterKeys(parser);
@@ -51,5 +51,5 @@ public class RequiredFolder : RequiredPath {
 		}
 	}
 
-	private readonly Configuration config;
+	private readonly Config config;
 }

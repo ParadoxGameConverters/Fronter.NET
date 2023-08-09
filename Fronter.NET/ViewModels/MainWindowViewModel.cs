@@ -28,7 +28,7 @@ using System.Threading;
 namespace Fronter.ViewModels;
 
 [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
-public class MainWindowViewModel : ViewModelBase {
+public sealed class MainWindowViewModel : ViewModelBase {
 	private static readonly ILog logger = LogManager.GetLogger("Frontend");
 	private readonly TranslationSource loc = TranslationSource.Instance;
 	public IEnumerable<MenuItemViewModel> LanguageMenuItems => loc.LoadedLanguages
@@ -51,10 +51,10 @@ public class MainWindowViewModel : ViewModelBase {
 			Items = Array.Empty<MenuItemViewModel>()
 		});
 
-	public Configuration Config { get; }
+	internal Config Config { get; }
 
-	public PathPickerViewModel PathPicker { get; }
-	public TargetPlaysetPickerViewModel TargetPlaysetPicker { get; }
+	internal PathPickerViewModel PathPicker { get; }
+	internal TargetPlaysetPickerViewModel TargetPlaysetPicker { get; }
 	public bool TargetPlaysetPickerTabVisible => Config.TargetPlaysetsSource is not null;
 	public OptionsViewModel Options { get; }
 	public bool OptionsTabVisible => Options.Items.Any();
@@ -88,7 +88,7 @@ public class MainWindowViewModel : ViewModelBase {
 	}
 
 	public MainWindowViewModel(DataGrid logGrid) {
-		Config = new Configuration();
+		Config = new Config();
 
 		var appenders = LogManager.GetRepository().GetAppenders();
 		var gridAppender = appenders.First(a => a.Name == "grid");

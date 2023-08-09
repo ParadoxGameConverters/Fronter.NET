@@ -5,7 +5,7 @@ namespace Fronter.Tests.Models;
 public class ConfigurationTests {
 	[Fact]
 	public void SimpleValuesAreLoaded() {
-		var config = new Configuration();
+		var config = new Config();
 		Assert.Equal("ImperatorToCK3", config.Name);
 		Assert.Equal("ImperatorToCK3", config.ConverterFolder);
 		Assert.Equal("ImperatorToCK3Converter", config.BackendExePath);
@@ -21,7 +21,7 @@ public class ConfigurationTests {
 
 	[Fact]
 	public void RequiredFoldersAndFilesAreLoaded() {
-		var config = new Configuration();
+		var config = new Config();
 		Assert.Collection(config.RequiredFolders,
 			folder => {
 				Assert.Equal("ImperatorDirectory", folder.Name);

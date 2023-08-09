@@ -75,7 +75,7 @@ public class Option {
 		return string.Empty;
 	}
 
-	public HashSet<string> GetValues() {
+	public ISet<string> GetValues() {
 		return CheckBoxSelector is not null ? CheckBoxSelector.GetSelectedValues() : new HashSet<string>();
 	}
 
