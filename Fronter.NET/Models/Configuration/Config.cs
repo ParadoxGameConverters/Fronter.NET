@@ -124,6 +124,10 @@ public class Config {
 			version.LoadVersion(versionFilePath);
 			release = version.Version;
 		}
+		if (release is null) {
+			Logger.Debug("Skipping Sentry initialization because converter version could not be determined.");
+			return;
+		}
 		
 		SentrySdk.Init(options => {
 			// A Sentry Data Source Name (DSN) is required.
