@@ -11,7 +11,7 @@
         <IsPackable>false</IsPackable>
         
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-        <AvaloniaVersion>11.0.3</AvaloniaVersion>
+        <AvaloniaVersion>11.0.4</AvaloniaVersion>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
         <OutputPath>..\..\Release\</OutputPath>
