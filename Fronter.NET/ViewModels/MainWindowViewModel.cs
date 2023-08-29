@@ -279,7 +279,9 @@ public sealed class MainWindowViewModel : ViewModelBase {
 		CheckForUpdates();
 	}
 
-	public static void Exit() {
+#pragma warning disable CA1822
+	public void Exit() {
+#pragma warning restore CA1822
 		if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
 			desktop.Shutdown(0);
 		}
