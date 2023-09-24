@@ -3,7 +3,7 @@
         <OutputType>WinExe</OutputType>
         <TargetFramework>net7.0</TargetFramework>
         <LangVersion>11</LangVersion>
-        <RuntimeIdentifiers>win-x64;osx-x64;linux-x64</RuntimeIdentifiers>
+        <RuntimeIdentifiers>win-x64;osx-arm64;linux-x64</RuntimeIdentifiers>
         <Nullable>enable</Nullable>
         
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
