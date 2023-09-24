@@ -18,7 +18,9 @@ then
   elif [ "$RUNNER_OS" = "macOS" ]
   then
     dotnet publish -c Release -p:PublishProfile=osx-arm64 --output:"${GITHUB_WORKSPACE}/${RELEASE_DIR}"
-    codesign --force -s - "${GITHUB_WORKSPACE}/${RELEASE_DIR}/ConverterFrontend" 
+    codesign --force -s - "${GITHUB_WORKSPACE}/${RELEASE_DIR}/ConverterFrontend"
+    echo "Checking signature..."
+    codesign -dv --verbose=4 "${GITHUB_WORKSPACE}/${RELEASE_DIR}/ConverterFrontend"
   fi
   cd "$GITHUB_WORKSPACE"
 
