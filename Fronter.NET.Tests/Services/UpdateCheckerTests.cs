@@ -13,32 +13,34 @@ public class UpdateCheckerTests {
 	private const string TestImperatorToCK3CommitIdTxtPath = "UpdateChecker/commit_id.txt";
 	private const string ImperatorToCK3CommitUrl = "https://paradoxgameconverters.com/commit_ids/ImperatorToCK3.txt";
 
-	static UpdateCheckerTests() {
-		App.ConfigureLogging();
-	}
-
 	[Fact]
 	public async void IncorrectCommitIdTxtPathIsLogged() {
+		var stringWriter = new StringWriter();
+		System.Console.SetOut(stringWriter);
+		LoggingConfigurator.ConfigureLogging(useConsole: true);
+
 		const string wrongCommitIdTxtPath = "missingFile.txt";
 
 		var isUpdateAvailable = await UpdateChecker.IsUpdateAvailable(wrongCommitIdTxtPath, ImperatorToCK3CommitUrl);
 		Assert.False(isUpdateAvailable);
 
-		await using var fileStream = new FileStream("log.txt", FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-		using var reader = new StreamReader(fileStream);
-		Assert.Contains($"File \"{wrongCommitIdTxtPath}\" does not exist!", await reader.ReadToEndAsync());
+		var consoleOutput = stringWriter.ToString();
+		Assert.Contains($"File \"{wrongCommitIdTxtPath}\" does not exist!", consoleOutput);
 	}
 
 	[Fact]
 	public async void IncorrectCommitIdUrlIsLogged() {
+		var stringWriter = new StringWriter();
+		System.Console.SetOut(stringWriter);
+		LoggingConfigurator.ConfigureLogging(useConsole: true);
+
 		const string wrongCommitIdUrl = "https://paradoxgameconverters.com/wrong_url";
 
 		var isUpdateAvailable = await UpdateChecker.IsUpdateAvailable(TestImperatorToCK3CommitIdTxtPath, wrongCommitIdUrl);
 		Assert.False(isUpdateAvailable);
 
-		await using var fileStream = new FileStream("log.txt", FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-		using var reader = new StreamReader(fileStream);
-		Assert.Contains($"Failed to get commit id from \"{wrongCommitIdUrl}\"; status code: NotFound!", await reader.ReadToEndAsync());
+		var consoleOutput = stringWriter.ToString();
+		Assert.Contains($"Failed to get commit id from \"{wrongCommitIdUrl}\"; status code: NotFound!", consoleOutput);
 	}
 
 	[Fact]

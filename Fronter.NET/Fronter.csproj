@@ -20,9 +20,6 @@
         <AvaloniaResource Include="Assets\**" />
         <AvaloniaResource Include="Styles\**" />
         <None Remove=".gitignore" />
-        <None Update="log4net_Fronter.config">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
     </ItemGroup>
     
     <ItemGroup>
@@ -37,15 +34,7 @@
     
     <!-- https://stackoverflow.com/a/50905092/10249243 -->
     <Target Name="Secrets" BeforeTargets="BeforeBuild">
-        <WriteLinesToFile 
-            File="$(IntermediateOutputPath)gen.cs"
-            Lines="static partial class Secrets {
-			    public static string BackblazeKeyId = %22$(BACKBLAZE_KEY_ID)%22 %3B
-			    public static string BackblazeApplicationKey = %22$(BACKBLAZE_APPLICATION_KEY)%22 %3B
-			    public static string BackblazeBucketId = %22$(BACKBLAZE_BUCKET_ID)%22 %3B
-			}"
-            Overwrite="true"
-        />
+        <WriteLinesToFile File="$(IntermediateOutputPath)gen.cs" Lines="static partial class Secrets {&#xD;&#xA;			    public static string BackblazeKeyId = %22$(BACKBLAZE_KEY_ID)%22 %3B&#xD;&#xA;			    public static string BackblazeApplicationKey = %22$(BACKBLAZE_APPLICATION_KEY)%22 %3B&#xD;&#xA;			    public static string BackblazeBucketId = %22$(BACKBLAZE_BUCKET_ID)%22 %3B&#xD;&#xA;			}" Overwrite="true" />
 	</Target>
 	<ItemGroup>
 		<Compile Include="$(IntermediateOutputPath)gen.cs" />
