@@ -91,17 +91,9 @@ public sealed class MainWindowViewModel : ViewModelBase {
 		Config = new Config();
 
 		var appenders = LogManager.GetRepository().GetAppenders();
-		Console.WriteLine("APPENDERS:\n\n");
-		foreach (var appender in appenders){
-			Console.WriteLine(appender.Name); // TODO: REMOVE THIS
-		}
-		// TODO: add LogGridAppender through code instead of log4net config file
-		var gridAppender = appenders.FirstOrDefault(a => a.Name == "grid");
-		//if (gridAppender is not LogGridAppender logGridAppender) {
-		//	throw new LogException($"Log appender \"{gridAppender.Name}\" is not a {typeof(LogGridAppender)}");
-		//}
-		if (gridAppender is not LogGridAppender logGridAppender) { // TODO: remove this
-			logGridAppender = new LogGridAppender();
+		var gridAppender = appenders.First(a => a.Name == "grid");
+		if (gridAppender is not LogGridAppender logGridAppender) {
+			throw new LogException($"Log appender \"{gridAppender.Name}\" is not a {typeof(LogGridAppender)}");
 		}
 		LogGridAppender = logGridAppender;
 		LogGridAppender.LogGrid = logGrid;

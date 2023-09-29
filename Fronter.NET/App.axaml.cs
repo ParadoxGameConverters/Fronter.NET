@@ -4,7 +4,6 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
 using commonItems;
-using Fronter.LogAppenders;
 using Fronter.ViewModels;
 using Fronter.Views;
 using log4net;
