@@ -1,9 +1,12 @@
 ﻿using Fronter.Models;
 using Fronter.Services;
+using log4net;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using Xunit;
+using FluentAssertions;
 
 namespace Fronter.Tests.Services;
 
@@ -13,20 +16,28 @@ public class UpdateCheckerTests {
 	private const string TestImperatorToCK3CommitIdTxtPath = "UpdateChecker/commit_id.txt";
 	private const string ImperatorToCK3CommitUrl = "https://paradoxgameconverters.com/commit_ids/ImperatorToCK3.txt";
 
-	static UpdateCheckerTests() {
-		App.ConfigureLogging();
-	}
-
 	[Fact]
 	public async void IncorrectCommitIdTxtPathIsLogged() {
+		// redirect console output to textwriter
+		var stringWriter = new StringWriter();
+		System.Console.SetOut(stringWriter);
+
+		
+		LoggingConfigurator.ConfigureLogging(useConsole: true);
+
+/* 		var logManager = LogManager.GetRepository();
+		logManager.GetAppenders()
+			.Select(a => a.GetType().ToString())
+			.Should().Equal("file", "grid");
+		Assert.Equal(2, logManager.GetAppenders().Count()); // TODO: REMOVE */
+
 		const string wrongCommitIdTxtPath = "missingFile.txt";
 
 		var isUpdateAvailable = await UpdateChecker.IsUpdateAvailable(wrongCommitIdTxtPath, ImperatorToCK3CommitUrl);
 		Assert.False(isUpdateAvailable);
 
-		await using var fileStream = new FileStream("log.txt", FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-		using var reader = new StreamReader(fileStream);
-		Assert.Contains($"File \"{wrongCommitIdTxtPath}\" does not exist!", await reader.ReadToEndAsync());
+		var consoleOutput = stringWriter.ToString();
+		Assert.Contains($"File \"{wrongCommitIdTxtPath}\" does not exist!", consoleOutput);
 	}
 
 	[Fact]

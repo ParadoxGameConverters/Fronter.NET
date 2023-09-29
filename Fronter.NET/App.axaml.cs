@@ -4,10 +4,10 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
 using commonItems;
+using Fronter.LogAppenders;
 using Fronter.ViewModels;
 using Fronter.Views;
 using log4net;
-using log4net.Config;
 using System;
 using System.IO;
 
@@ -19,7 +19,7 @@ public class App : Application {
 	private const string DefaultTheme = "Dark";
 
 	public override void Initialize() {
-		ConfigureLogging();
+		LoggingConfigurator.ConfigureLogging();
 
 		AvaloniaXamlLoader.Load(this);
 
@@ -39,17 +39,6 @@ public class App : Application {
 		}
 
 		base.OnFrameworkInitializationCompleted();
-	}
-
-	public static void ConfigureLogging() {
-		var repository = LogManager.GetRepository();
-
-		// add custom "PROGRESS" level
-		repository.LevelMap.Add(LogExtensions.ProgressLevel);
-
-		// configure log4net
-		var logConfiguration = new FileInfo("log4net_Fronter.config");
-		XmlConfigurator.Configure(logConfiguration);
 	}
 
 	private static async void LoadTheme() {
