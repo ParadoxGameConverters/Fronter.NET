@@ -42,21 +42,30 @@ public static class UpdateChecker {
 		}
 	}
 
-	public static async Task<UpdateInfoModel> GetLatestReleaseInfo(string converterName) {
-		var info = new UpdateInfoModel();
-		var apiUrl = $"https://api.github.com/repos/ParadoxGameConverters/{converterName}/releases/latest";
-
-		string osName;
+	private static (string, string)? GetOSNameAndArch() {
 		if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
-			osName = "win";
-		} else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
-			osName = "linux";
-		} else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) {
-			osName = "osx";
-		} else {
+			return ("win", "x64");
+		}
+		if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
+			return ("linux", "x64");
+		}
+		if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) {
+			return ("osx", "arm64");
+		}
+		return null;
+	}
+
+	public static async Task<UpdateInfoModel> GetLatestReleaseInfo(string converterName) {
+		var osNameAndArch = GetOSNameAndArch();
+		if (osNameAndArch is null) {
 			return new UpdateInfoModel();
 		}
 
+		var osName = osNameAndArch.Value.Item1;
+		var architecture = osNameAndArch.Value.Item2;
+
+		var info = new UpdateInfoModel();
+		var apiUrl = $"https://api.github.com/repos/ParadoxGameConverters/{converterName}/releases/latest";
 		var requestMessage = new HttpRequestMessage(HttpMethod.Get, apiUrl);
 		requestMessage.Headers.Add("User-Agent", "ParadoxGameConverters");
 
@@ -86,7 +95,7 @@ public static class UpdateChecker {
 			}
 
 			var assetNameWithoutExtension = CommonFunctions.TrimExtension(assetName);
-			if (!assetNameWithoutExtension.EndsWith($"-{osName}-x64")) {
+			if (!assetNameWithoutExtension.EndsWith($"-{osName}-{architecture}")) {
 				continue;
 			}
 
