@@ -9,6 +9,10 @@ namespace Fronter.Tests.ViewModels;
 [Collection("Sequential")]
 [CollectionDefinition("Sequential", DisableParallelization = true)]
 public class MainWindowViewModelTests {
+	public MainWindowViewModelTests() {
+		LoggingConfigurator.ConfigureLogging();
+	}
+
 	[Fact]
 	public void OptionsTabVisibleEqualsFalseWhenNoOptions() {
 		var vm = new MainWindowViewModel(new DataGrid());
