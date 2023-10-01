@@ -6,8 +6,10 @@ using Fronter.Views;
 using ReactiveUI;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Reactive;
+using System.Threading.Tasks;
 
 namespace Fronter.ViewModels;
 
@@ -30,12 +32,41 @@ internal sealed class PathPickerViewModel : ViewModelBase {
 	public ReactiveCommand<RequiredFolder, Unit> OpenFolderDialogCommand { get; }
 	public ReactiveCommand<RequiredFile, Unit> OpenFileDialogCommand { get; }
 
+	private async static Task<IStorageFolder?> GetStartLocationForFile(RequiredFile file, IStorageProvider storageProvider) {
+		string? path = null;
+		if (file.InitialDirectory is not null) {
+			path = file.InitialDirectory;
+		} else if (!string.IsNullOrEmpty(file.Value)) {
+			path = CommonFunctions.GetPath(file.Value);
+		}
+
+		if (string.IsNullOrEmpty(path)) {
+			return null;
+		}
+		if (!Directory.Exists(path)) {
+			return null;
+		}
+
+		return await storageProvider.TryGetFolderFromPathAsync(path);
+	}
+
+	private async static Task<IStorageFolder?> GetStartLocationForFolder(RequiredFolder folder, IStorageProvider storageProvider) {
+		var folderPath = folder.Value;
+		if (string.IsNullOrEmpty(folderPath)) {
+			return null;
+		}
+		if (!Directory.Exists(folderPath)) {
+			return null;
+		}
+		return await storageProvider.TryGetFolderFromPathAsync(folderPath);
+	}
+
 	public async void OpenFolderDialog(RequiredFolder folder) {
 		var storageProvider = MainWindow.Instance.StorageProvider;
 
 		var options = new FolderPickerOpenOptions {
 			Title = TranslationSource.Instance[folder.DisplayName],
-			SuggestedStartLocation = string.IsNullOrEmpty(folder.Value) ? null : await storageProvider.TryGetFolderFromPathAsync(folder.Value)
+			SuggestedStartLocation = await GetStartLocationForFolder(folder, storageProvider),
 		};
 
 		var window = MainWindow.Instance;
@@ -54,21 +85,16 @@ internal sealed class PathPickerViewModel : ViewModelBase {
 		folder.Value = absolutePath;
 	}
 	public async void OpenFileDialog(RequiredFile file) {
-		var options = new FilePickerOpenOptions {
-			Title = TranslationSource.Instance[file.DisplayName],
-			AllowMultiple = false
-		};
-
 		var storageProvider = MainWindow.Instance.StorageProvider;
 
-		if (file.InitialDirectory is not null) {
-			options.SuggestedStartLocation = await storageProvider.TryGetFolderFromPathAsync(file.InitialDirectory);
-		} else if (!string.IsNullOrEmpty(file.Value)) {
-			options.SuggestedStartLocation = await storageProvider.TryGetFolderFromPathAsync(CommonFunctions.GetPath(file.Value));
-		}
+		var options = new FilePickerOpenOptions {
+			Title = TranslationSource.Instance[file.DisplayName],
+			AllowMultiple = false,
+			SuggestedStartLocation = await GetStartLocationForFile(file, storageProvider),
+		};
 
 		var fileType = new FilePickerFileType(file.AllowedExtension.TrimStart('*', '.')) {
-			Patterns = new[] { file.AllowedExtension }
+			Patterns = new[] { file.AllowedExtension },
 		};
 		options.FileTypeFilter = new List<FilePickerFileType> { fileType };
 
