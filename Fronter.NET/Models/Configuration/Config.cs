@@ -122,7 +122,9 @@ public class Config {
 		if (File.Exists(versionFilePath)) {
 			var version = new ConverterVersion();
 			version.LoadVersion(versionFilePath);
-			release = version.Version;
+			if (!string.IsNullOrWhiteSpace(version.Version) && !string.IsNullOrWhiteSpace(Name)) {
+				release = $"{Name}@{version.Version}";
+			}
 		}
 		if (release is null) {
 			Logger.Debug("Skipping Sentry initialization because converter version could not be determined.");
