@@ -36,6 +36,7 @@ public static class LoggingConfigurator {
                 File = "log.txt",
                 AppendToFile = false,
                 Threshold = Level.All,
+                Layout = layout,
             };
             fileAppender.ActivateOptions();
             hierarchy.Root.AddAppender(fileAppender);
