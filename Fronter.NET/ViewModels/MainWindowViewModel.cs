@@ -240,6 +240,9 @@ public sealed class MainWindowViewModel : ViewModelBase {
 		}
 
 		var info = await UpdateChecker.GetLatestReleaseInfo(Config.Name);
+		if (info.ArchiveUrl is null) {
+			return;
+		}
 
 		var updateNowStr = loc.Translate("UPDATE_NOW");
 		var maybeLaterStr = loc.Translate("MAYBE_LATER");
@@ -264,12 +267,7 @@ public sealed class MainWindowViewModel : ViewModelBase {
 			return;
 		}
 
-		if (info.ArchiveUrl is not null) {
-			UpdateChecker.StartUpdaterAndDie(info.ArchiveUrl, Config.ConverterFolder);
-		} else {
-			BrowserLauncher.Open(Config.ConverterReleaseForumThread);
-			BrowserLauncher.Open(Config.LatestGitHubConverterReleaseUrl);
-		}
+		UpdateChecker.StartUpdaterAndDie(info.ArchiveUrl, Config.ConverterFolder);
 	}
 
 	public void CheckForUpdatesOnStartup() {

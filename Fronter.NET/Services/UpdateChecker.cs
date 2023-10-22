@@ -104,7 +104,7 @@ public static class UpdateChecker {
 		}
 
 		if (info.ArchiveUrl is null) {
-			Logger.Warn($"Release {info.Version} doesn't have a .zip or .tgz asset.");
+			Logger.Debug($"Release {info.Version} doesn't have a .zip or .tgz asset for this platform.");
 		}
 
 		return info;
@@ -133,12 +133,15 @@ public static class UpdateChecker {
 	public static void StartUpdaterAndDie(string archiveUrl, string converterBackendDirName) {
 		var updaterDirPath = Path.Combine(".", "Updater");
 		var updaterRunningDirPath = Path.Combine(".", "Updater-running");
-
+		
+		const string manualUpdateHint = "Try updating the converter manually.";
 		if (Directory.Exists(updaterRunningDirPath) && !SystemUtils.TryDeleteFolder(updaterRunningDirPath)) {
+			Logger.Warn($"Failed to delete Updater-running folder! {manualUpdateHint}");
 			return;
 		}
 
 		if (!SystemUtils.TryCopyFolder(updaterDirPath, updaterRunningDirPath)) {
+			Logger.Warn($"Failed to create Updater-running folder! {manualUpdateHint}");
 			return;
 		}
 
@@ -150,7 +153,13 @@ public static class UpdateChecker {
 		var proc = new Process();
 		proc.StartInfo.FileName = updaterRunningPath;
 		proc.StartInfo.Arguments = $"{archiveUrl} {converterBackendDirName}";
-		proc.Start();
+		try {
+			proc.Start();
+		} catch (Exception ex) {
+			Logger.Debug($"Updater process failed to start: {ex.Message}");
+			Logger.Error($"Failed to start updater, probably because of an antivirus. {manualUpdateHint}");
+			return;
+		}
 
 		// Die. The updater will start Fronter after a successful update.
 		MainWindow.Instance.Close();
