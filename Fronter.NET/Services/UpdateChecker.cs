@@ -104,7 +104,7 @@ public static class UpdateChecker {
 		}
 
 		if (info.ArchiveUrl is null) {
-			Logger.Warn($"Release {info.Version} doesn't have a .zip or .tgz asset.");
+			Logger.Debug($"Release {info.Version} doesn't have a .zip or .tgz asset for this platform.");
 		}
 
 		return info;
