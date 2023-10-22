@@ -134,7 +134,7 @@ public static class UpdateChecker {
 		var updaterDirPath = Path.Combine(".", "Updater");
 		var updaterRunningDirPath = Path.Combine(".", "Updater-running");
 		
-		const string manualUpdateHint = "Try updating the converter manually";
+		const string manualUpdateHint = "Try updating the converter manually.";
 		if (Directory.Exists(updaterRunningDirPath) && !SystemUtils.TryDeleteFolder(updaterRunningDirPath)) {
 			Logger.Warn($"Failed to delete Updater-running folder! {manualUpdateHint}");
 			return;
