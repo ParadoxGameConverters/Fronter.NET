@@ -70,7 +70,7 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.12" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.13" />
         <PackageReference Include="PGCG.commonItems" Version="8.4.2" />
         <PackageReference Include="Sentry" Version="3.40.1" />
         <PackageReference Include="system.io.filesystem" Version="4.3.0" />
