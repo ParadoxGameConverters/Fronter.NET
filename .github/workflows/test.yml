@@ -49,3 +49,24 @@ jobs:
       working-directory: Fronter.NET.Tests
       run: |
        dotnet test
+
+  try_running_executable_on_macos:
+    runs-on: macos-13
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        submodules: recursive
+    - name: "Setup Dotnet for use with actions"
+      uses: actions/setup-dotnet@v3
+      with:
+        global-json-file: global.json
+    - name: "Build frontend"
+      uses: ./.github/actions/build_frontend
+      with:
+        fronter_dir: '.'
+        release_dir: 'Publish'
+    - name: "Run executable"
+      working-directory: Publish
+      run: |
+       ./ConverterFrontend
