@@ -11,7 +11,7 @@
         <IsPackable>false</IsPackable>
         
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-        <AvaloniaVersion>11.0.5</AvaloniaVersion>
+        <AvaloniaVersion>11.0.6</AvaloniaVersion>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
         <OutputPath>..\..\Release\</OutputPath>
@@ -60,9 +60,9 @@
         <PackageReference Include="Avalonia.ReactiveUI" Version="$(AvaloniaVersion)" />
         <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
         <PackageReference Include="Backblaze.Client" Version="1.0.1" />
-        <PackageReference Include="DynamicData" Version="8.1.1" />
+        <PackageReference Include="DynamicData" Version="8.3.25" />
         <PackageReference Include="MessageBox.Avalonia" Version="3.1.5.1" />
-        <PackageReference Include="Meziantou.Analyzer" Version="2.0.112">
+        <PackageReference Include="Meziantou.Analyzer" Version="2.0.119">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -72,7 +72,7 @@
         </PackageReference>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.13" />
         <PackageReference Include="PGCG.commonItems" Version="8.4.2" />
-        <PackageReference Include="Sentry" Version="3.41.2" />
+        <PackageReference Include="Sentry" Version="3.41.3" />
         <PackageReference Include="System.Net.Primitives" Version="4.3.1" />
     </ItemGroup>
 
