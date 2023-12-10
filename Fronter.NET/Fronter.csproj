@@ -2,7 +2,6 @@
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
         <TargetFramework>net8.0</TargetFramework>
-        <ApplicationManifest>app.manifest</ApplicationManifest>
         <LangVersion>12</LangVersion>
         <RuntimeIdentifiers>win-x64;osx-arm64;linux-x64</RuntimeIdentifiers>
         <Nullable>enable</Nullable>
@@ -15,6 +14,7 @@
         <AvaloniaVersion>11.0.6</AvaloniaVersion>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <ApplicationManifest>app.manifest</ApplicationManifest>
         <OutputPath>..\..\Release\</OutputPath>
     </PropertyGroup>
     <ItemGroup>
