@@ -137,14 +137,14 @@ public static class UpdateChecker {
 
 	private static async Task DownloadFileAsync(string installerUrl, string fileName) {
 		using HttpClient client = new();
-		var responseBytes = await client.GetByteArrayAsync(installerUrl).ConfigureAwait(false);
-		await File.WriteAllBytesAsync(fileName, responseBytes).ConfigureAwait(false);
+		var responseBytes = await client.GetByteArrayAsync(installerUrl);
+		await File.WriteAllBytesAsync(fileName, responseBytes);
 	}
 
 	public static async void RunInstallerAndDie(string installerUrl) {
 		Logger.Debug("Downloading installer...");
 		var fileName = Path.GetTempFileName();
-		await DownloadFileAsync(installerUrl, fileName).ConfigureAwait(false);
+		await DownloadFileAsync(installerUrl, fileName);
 		
 		Logger.Debug("Running installer...");
 		var proc = new Process();
