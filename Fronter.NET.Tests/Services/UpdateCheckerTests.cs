@@ -1,5 +1,8 @@
-﻿using Fronter.Models;
+﻿using commonItems;
+using Fronter.Models;
 using Fronter.Services;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
@@ -60,7 +63,12 @@ public class UpdateCheckerTests {
 		Assert.NotNull(info.AssetUrl);
 		Assert.StartsWith($"https://github.com/ParadoxGameConverters/ImperatorToCK3/releases/download/{info.Version}/ImperatorToCK3", info.AssetUrl);
 
-		var expectedExtension = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ".zip" : ".tgz";
-		Assert.EndsWith(expectedExtension, info.AssetUrl);
+		string extension = CommonFunctions.GetExtension(info.AssetUrl);
+		if (OperatingSystem.IsWindows()) {
+			List<string> expectedExtensions = ["exe", "zip"];
+			Assert.Contains(extension, expectedExtensions);
+		} else {
+			Assert.Equal("tgz", extension);
+		}
 	}
 }
