@@ -5,9 +5,7 @@ using log4net;
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Net;
 using System.Net.Http;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -137,11 +135,16 @@ public static class UpdateChecker {
 		return stringBuilder.ToString();
 	}
 
-	public static void RunInstallerAndDie(string installerUrl) {
+	private static async Task DownloadFileAsync(string installerUrl, string fileName) {
+		using HttpClient client = new();
+		var responseBytes = await client.GetByteArrayAsync(installerUrl).ConfigureAwait(false);
+		await File.WriteAllBytesAsync(fileName, responseBytes).ConfigureAwait(false);
+	}
+
+	public static async void RunInstallerAndDie(string installerUrl) {
 		Logger.Debug("Downloading installer...");
-		using WebClient webClient = new();
 		var fileName = Path.GetTempFileName();
-		webClient.DownloadFile(installerUrl, fileName);
+		await DownloadFileAsync(installerUrl, fileName).ConfigureAwait(false);
 		
 		Logger.Debug("Running installer...");
 		var proc = new Process();
