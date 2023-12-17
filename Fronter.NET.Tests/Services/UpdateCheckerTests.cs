@@ -1,7 +1,9 @@
-﻿using Fronter.Models;
+﻿using commonItems;
+using Fronter.Models;
 using Fronter.Services;
+using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using Xunit;
 
@@ -16,7 +18,7 @@ public class UpdateCheckerTests {
 	[Fact]
 	public async void IncorrectCommitIdTxtPathIsLogged() {
 		var stringWriter = new StringWriter();
-		System.Console.SetOut(stringWriter);
+		Console.SetOut(stringWriter);
 		LoggingConfigurator.ConfigureLogging(useConsole: true);
 
 		const string wrongCommitIdTxtPath = "missingFile.txt";
@@ -31,7 +33,7 @@ public class UpdateCheckerTests {
 	[Fact]
 	public async void IncorrectCommitIdUrlIsLogged() {
 		var stringWriter = new StringWriter();
-		System.Console.SetOut(stringWriter);
+		Console.SetOut(stringWriter);
 		LoggingConfigurator.ConfigureLogging(useConsole: true);
 
 		const string wrongCommitIdUrl = "https://paradoxgameconverters.com/wrong_url";
@@ -60,7 +62,12 @@ public class UpdateCheckerTests {
 		Assert.NotNull(info.AssetUrl);
 		Assert.StartsWith($"https://github.com/ParadoxGameConverters/ImperatorToCK3/releases/download/{info.Version}/ImperatorToCK3", info.AssetUrl);
 
-		var expectedExtension = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ".zip" : ".tgz";
-		Assert.EndsWith(expectedExtension, info.AssetUrl);
+		string extension = CommonFunctions.GetExtension(info.AssetUrl);
+		if (OperatingSystem.IsWindows()) {
+			List<string> expectedExtensions = ["exe", "zip"];
+			Assert.Contains(extension, expectedExtensions);
+		} else {
+			Assert.Equal("tgz", extension);
+		}
 	}
 }

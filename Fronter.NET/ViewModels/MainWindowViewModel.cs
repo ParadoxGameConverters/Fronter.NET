@@ -270,9 +270,9 @@ public sealed class MainWindowViewModel : ViewModelBase {
 		// If we can use an installer, download it, run it, and exit.
 		if (info.UseInstaller) {
 			UpdateChecker.RunInstallerAndDie(info.AssetUrl);
+		} else{
+			UpdateChecker.StartUpdaterAndDie(info.AssetUrl, Config.ConverterFolder);
 		}
-
-		UpdateChecker.StartUpdaterAndDie(info.AssetUrl, Config.ConverterFolder);
 	}
 
 	public void CheckForUpdatesOnStartup() {
