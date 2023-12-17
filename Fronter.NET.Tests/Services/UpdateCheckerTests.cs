@@ -18,7 +18,7 @@ public class UpdateCheckerTests {
 	[Fact]
 	public async void IncorrectCommitIdTxtPathIsLogged() {
 		var stringWriter = new StringWriter();
-		System.Console.SetOut(stringWriter);
+		Console.SetOut(stringWriter);
 		LoggingConfigurator.ConfigureLogging(useConsole: true);
 
 		const string wrongCommitIdTxtPath = "missingFile.txt";
@@ -33,7 +33,7 @@ public class UpdateCheckerTests {
 	[Fact]
 	public async void IncorrectCommitIdUrlIsLogged() {
 		var stringWriter = new StringWriter();
-		System.Console.SetOut(stringWriter);
+		Console.SetOut(stringWriter);
 		LoggingConfigurator.ConfigureLogging(useConsole: true);
 
 		const string wrongCommitIdUrl = "https://paradoxgameconverters.com/wrong_url";
