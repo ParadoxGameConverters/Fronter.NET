@@ -5,6 +5,7 @@ using log4net;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -43,13 +44,13 @@ public static class UpdateChecker {
 	}
 
 	private static (string, string)? GetOSNameAndArch() {
-		if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
+		if (OperatingSystem.IsWindows()) {
 			return ("win", "x64");
 		}
-		if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
+		if (OperatingSystem.IsLinux()) {
 			return ("linux", "x64");
 		}
-		if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) {
+		if (OperatingSystem.IsMacOS()) {
 			return ("osx", "arm64");
 		}
 		return null;
@@ -90,8 +91,14 @@ public static class UpdateChecker {
 
 			assetName = assetName.ToLower();
 			var extension = CommonFunctions.GetExtension(assetName);
-			if (extension is not "zip" and not "tgz") {
+			if (extension is not "zip" and not "tgz" and not "exe") {
 				continue;
+			}
+			
+			// For Windows, prefer installer over archive.
+			if (extension == "exe" && osName == "win") {
+				info.AssetUrl = asset.BrowserDownloadUrl;
+				break;
 			}
 
 			var assetNameWithoutExtension = CommonFunctions.TrimExtension(assetName);
@@ -99,12 +106,12 @@ public static class UpdateChecker {
 				continue;
 			}
 
-			info.ArchiveUrl = asset.BrowserDownloadUrl;
+			info.AssetUrl = asset.BrowserDownloadUrl;
 			break;
 		}
 
-		if (info.ArchiveUrl is null) {
-			Logger.Debug($"Release {info.Version} doesn't have a .zip or .tgz asset for this platform.");
+		if (info.AssetUrl is null) {
+			Logger.Debug($"Release {info.Version} doesn't have a release build for this platform.");
 		}
 
 		return info;
@@ -130,6 +137,27 @@ public static class UpdateChecker {
 		return stringBuilder.ToString();
 	}
 
+	public static void RunInstallerAndDie(string installerUrl) {
+		Logger.Debug("Downloading installer...");
+		using WebClient webClient = new();
+		var fileName = Path.GetTempFileName();
+		webClient.DownloadFile(installerUrl, fileName);
+		
+		Logger.Debug("Running installer...");
+		var proc = new Process();
+		proc.StartInfo.FileName = fileName;
+		try {
+			proc.Start();
+		} catch (Exception ex) {
+			Logger.Debug($"Installer process failed to start: {ex.Message}");
+			Logger.Error($"Failed to start installer, probably because of an antivirus. Try updating the converter manually.");
+			return;
+		}
+
+		// Die. The installer will handle the rest.
+		MainWindow.Instance.Close();
+	}
+
 	public static void StartUpdaterAndDie(string archiveUrl, string converterBackendDirName) {
 		var updaterDirPath = Path.Combine(".", "Updater");
 		var updaterRunningDirPath = Path.Combine(".", "Updater-running");
@@ -146,7 +174,7 @@ public static class UpdateChecker {
 		}
 
 		string updaterRunningPath = Path.Combine(updaterRunningDirPath, "updater");
-		if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
+		if (OperatingSystem.IsWindows()) {
 			updaterRunningPath += ".exe";
 		}
 
