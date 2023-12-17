@@ -240,7 +240,7 @@ public sealed class MainWindowViewModel : ViewModelBase {
 		}
 
 		var info = await UpdateChecker.GetLatestReleaseInfo(Config.Name);
-		if (info.ArchiveUrl is null) {
+		if (info.AssetUrl is null) {
 			return;
 		}
 
@@ -266,8 +266,13 @@ public sealed class MainWindowViewModel : ViewModelBase {
 			logger.Info($"Update to version {info.Version} postponed.");
 			return;
 		}
+		
+		// If we can use an installer, download it, run it, and exit.
+		if (info.UseInstaller) {
+			UpdateChecker.RunInstallerAndDie(info.AssetUrl);
+		}
 
-		UpdateChecker.StartUpdaterAndDie(info.ArchiveUrl, Config.ConverterFolder);
+		UpdateChecker.StartUpdaterAndDie(info.AssetUrl, Config.ConverterFolder);
 	}
 
 	public void CheckForUpdatesOnStartup() {

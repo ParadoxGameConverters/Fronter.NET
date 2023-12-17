@@ -57,10 +57,10 @@ public class UpdateCheckerTests {
 		var versionRegex = new Regex(@"^\d+\.\d+\.\d+$");
 		Assert.Matches(versionRegex, info.Version);
 		Assert.False(string.IsNullOrWhiteSpace(info.Description));
-		Assert.NotNull(info.ArchiveUrl);
-		Assert.StartsWith($"https://github.com/ParadoxGameConverters/ImperatorToCK3/releases/download/{info.Version}/ImperatorToCK3", info.ArchiveUrl);
+		Assert.NotNull(info.AssetUrl);
+		Assert.StartsWith($"https://github.com/ParadoxGameConverters/ImperatorToCK3/releases/download/{info.Version}/ImperatorToCK3", info.AssetUrl);
 
 		var expectedExtension = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ".zip" : ".tgz";
-		Assert.EndsWith(expectedExtension, info.ArchiveUrl);
+		Assert.EndsWith(expectedExtension, info.AssetUrl);
 	}
 }
