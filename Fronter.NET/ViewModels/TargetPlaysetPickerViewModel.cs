@@ -3,6 +3,7 @@ using DynamicData.Binding;
 using Fronter.Models.Configuration;
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace Fronter.ViewModels;
 
@@ -30,6 +31,19 @@ public class TargetPlaysetPickerViewModel : ViewModelBase {
 	public bool TabDisabled { get; } = false;
 
 	public void ReloadPlaysets() {
+		selectedPlaysetID = string.Empty;
 		_config.AutoLocatePlaysets();
+	}
+
+	private string selectedPlaysetID = string.Empty;
+	
+	public TargetPlayset? SelectedPlayset {
+		get => TargetPlaysets.FirstOrDefault(p => p.Id == selectedPlaysetID);
+		set {
+			if (value is null) {
+				return;
+			}
+			selectedPlaysetID = value.Id;
+		}
 	}
 }

@@ -43,7 +43,12 @@
             <StackPanel>
                 <TextBlock Text="If you select a target game playset, the application will create its copy with the conversion mod included."></TextBlock>
                 <StackPanel Orientation="Horizontal">
-                    <ComboBox x:Name="PlaysetComboBox" SelectedIndex="0" ItemsSource="{Binding TargetPlaysets}">
+                    <ComboBox 
+                        x:Name="PlaysetComboBox" 
+                        SelectedIndex="0" 
+                        ItemsSource="{Binding TargetPlaysets}"
+                        SelectedItem="{Binding SelectedPlayset, FallbackValue={}}"
+                        >
                         <ComboBox.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding Name}" ToolTip.Tip="{Binding Name}" />
