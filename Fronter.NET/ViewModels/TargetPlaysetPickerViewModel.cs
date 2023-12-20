@@ -28,4 +28,8 @@ public class TargetPlaysetPickerViewModel : ViewModelBase {
 	public ReadOnlyObservableCollection<TargetPlayset> TargetPlaysets => targetPlaysets;
 
 	public bool TabDisabled { get; } = false;
+
+	public void ReloadPlaysets() {
+		_config.AutoLocatePlaysets();
+	}
 }

@@ -361,14 +361,12 @@ public class Config {
 		logger.Debug("Autolocating playsets...");
 
 		var destModsFolder = TargetGameModsPath;
-		logger.Error(destModsFolder);
 		var locatedPlaysetsCount = 0;
 		if (destModsFolder is not null) {
 			var dbContext = TargetDbManager.GetLauncherDbContext(this);
 			if (dbContext is not null) {
-				foreach (var playset in dbContext.Playsets) {
+				foreach (var playset in dbContext.Playsets.Where(p => p.IsRemoved == null || p.IsRemoved == false )) {
 					AutoLocatedPlaysets.Add(new TargetPlayset(playset));
-					logger.Error($"New playset: {playset.Name}");
 				}
 			}
 			
