@@ -32,13 +32,11 @@ internal class ModCopier {
 			return false;
 		}
 
-		var requiredFolders = config.RequiredFolders;
-		var targetGameModPath = requiredFolders.FirstOrDefault(f => f?.Name == "targetGameModPath", null);
-		if (targetGameModPath is null) {
+		string? destModsFolder = config.TargetGameModsPath;
+		if (destModsFolder is null) {
 			logger.Error("Copy failed - Target Folder isn't loaded!");
 			return false;
 		}
-		var destModsFolder = targetGameModPath.Value;
 		if (!Directory.Exists(destModsFolder)) {
 			logger.Error("Copy failed - Target Folder does not exist!");
 			return false;
@@ -144,7 +142,7 @@ internal class ModCopier {
 			logger.Warn($"Couldn't get parent directory of \"{targetModsDirectory}\".");
 			return;
 		}
-		var latestDbFilePath = GetLastUpdatedLauncherDbPath(gameDocsDirectory);
+		var latestDbFilePath = TargetDbManager.GetLastUpdatedLauncherDbPath(gameDocsDirectory);
 		if (latestDbFilePath is null) {
 			logger.Debug("Launcher's database not found.");
 			return;
@@ -232,16 +230,6 @@ internal class ModCopier {
 		} catch (Exception e) {
 			logger.Error(e);
 		}
-	}
-
-	private static string? GetLastUpdatedLauncherDbPath(string gameDocsDirectory) {
-		var possibleDbFileNames = new List<string> { "launcher-v2.sqlite", "launcher-v2_openbeta.sqlite" };
-		var latestDbFilePath = possibleDbFileNames
-			.Select(name => Path.Join(gameDocsDirectory, name))
-			.Where(File.Exists)
-			.OrderByDescending(File.GetLastWriteTimeUtc)
-			.FirstOrDefault(defaultValue: null);
-		return latestDbFilePath;
 	}
 
 	// Returns saved mod.

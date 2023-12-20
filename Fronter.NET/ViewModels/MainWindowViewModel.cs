@@ -55,7 +55,7 @@ public sealed class MainWindowViewModel : ViewModelBase {
 
 	internal PathPickerViewModel PathPicker { get; }
 	internal TargetPlaysetPickerViewModel TargetPlaysetPicker { get; }
-	public bool TargetPlaysetPickerTabVisible => Config.TargetPlaysetsSource is not null;
+	public bool TargetPlaysetPickerTabVisible => Config.TargetPlaysetSelectionEnabled;
 	public OptionsViewModel Options { get; }
 	public bool OptionsTabVisible => Options.Items.Any();
 

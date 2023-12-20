@@ -37,9 +37,8 @@
     </UserControl.Styles>
 
     <Grid RowDefinitions="Auto,*,*,*,*">
-        <TextBlock Grid.Column="0" Grid.Row="0" Text="{ns:Loc MODSDISABLED}" IsVisible="{Binding ModsDisabled}"></TextBlock>
-        <TextBlock Grid.Column="0" Grid.Row="0" Text="{ns:Loc MODSNOTFOUND}" IsVisible="{Binding !AutoLocatedMods.Count}"></TextBlock>
-        <TextBlock Grid.Column="0" Grid.Row="0" Text="{ns:Loc MODSFOUND}" IsVisible="{Binding AutoLocatedMods.Count}"></TextBlock>
+        <TextBlock Grid.Column="0" Grid.Row="0" Text="{ns:Loc MODSNOTFOUND}" IsVisible="{Binding !TargetPlaysets.Count}"></TextBlock>
+        <TextBlock Grid.Column="0" Grid.Row="0" Text="{ns:Loc MODSFOUND}" IsVisible="{Binding TargetPlaysets.Count}"></TextBlock>
         
         <ScrollViewer Grid.Column="0" Grid.Row="1" >
             <StackPanel>
@@ -47,7 +46,7 @@
                 <ComboBox x:Name="playsetComboBox" SelectedIndex="0" ItemsSource="{Binding TargetPlaysets}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Name}" ToolTip.Tip="{Binding FileName}" />
+                            <TextBlock Text="{Binding Name}" ToolTip.Tip="{Binding Name}" />
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>

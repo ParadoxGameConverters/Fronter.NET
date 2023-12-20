@@ -45,8 +45,8 @@ public sealed class RequiredFolder : RequiredPath {
 			base.Value = value;
 			logger.Info($"{TranslationSource.Instance[DisplayName]} set to: {value}");
 			
-			if (Name == config.TargetPlaysetsSource) {
-				config.AutoLocatePlaylists();
+			if (config.TargetPlaysetSelectionEnabled) {
+				config.AutoLocatePlaysets();
 			}
 		}
 	}

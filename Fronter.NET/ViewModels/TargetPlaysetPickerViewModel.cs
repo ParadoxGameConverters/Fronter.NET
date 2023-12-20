@@ -10,12 +10,16 @@ namespace Fronter.ViewModels;
 ///     The TargetPlaysetPickerViewModel lets the user select paths to various stuff the converter needs to know where to find.
 /// </summary>
 public class TargetPlaysetPickerViewModel : ViewModelBase {
-	public TargetPlaysetPickerViewModel(Configuration config) {
-		config.TargetPlaysets.ToObservableChangeSet()
+	private Config _config;
+	
+	public TargetPlaysetPickerViewModel(Config config) {
+		_config = config;
+		
+		config.AutoLocatedPlaysets.ToObservableChangeSet()
 			.Bind(out targetPlaysets)
 			.Subscribe();
 
-		if (config.TargetPlaysetsSource is null) {
+		if (!config.TargetPlaysetSelectionEnabled) {
 			TabDisabled = true;
 		}
 	}
