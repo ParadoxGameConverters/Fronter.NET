@@ -1,6 +1,7 @@
 ﻿using DynamicData;
 using DynamicData.Binding;
 using Fronter.Models.Configuration;
+using Fronter.Models.Database;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -11,10 +12,10 @@ namespace Fronter.ViewModels;
 ///     The TargetPlaysetPickerViewModel lets the user select paths to various stuff the converter needs to know where to find.
 /// </summary>
 public class TargetPlaysetPickerViewModel : ViewModelBase {
-	private Config _config;
+	private Config config;
 	
 	public TargetPlaysetPickerViewModel(Config config) {
-		_config = config;
+		this.config = config;
 		
 		config.AutoLocatedPlaysets.ToObservableChangeSet()
 			.Bind(out targetPlaysets)
@@ -25,25 +26,25 @@ public class TargetPlaysetPickerViewModel : ViewModelBase {
 		}
 	}
 
-	private readonly ReadOnlyObservableCollection<TargetPlayset> targetPlaysets;
-	public ReadOnlyObservableCollection<TargetPlayset> TargetPlaysets => targetPlaysets;
+	private readonly ReadOnlyObservableCollection<Playset> targetPlaysets;
+	public ReadOnlyObservableCollection<Playset> TargetPlaysets => targetPlaysets;
 
 	public bool TabDisabled { get; } = false;
 
 	public void ReloadPlaysets() {
-		selectedPlaysetID = string.Empty;
-		_config.AutoLocatePlaysets();
+		selectedPlaysetId = string.Empty;
+		config.AutoLocatePlaysets();
 	}
 
-	private string selectedPlaysetID = string.Empty;
+	private string selectedPlaysetId = string.Empty;
 	
-	public TargetPlayset? SelectedPlayset {
-		get => TargetPlaysets.FirstOrDefault(p => p.Id == selectedPlaysetID);
+	public Playset? SelectedPlayset {
+		get => TargetPlaysets.FirstOrDefault(p => p.Id == selectedPlaysetId);
 		set {
 			if (value is null) {
 				return;
 			}
-			selectedPlaysetID = value.Id;
+			selectedPlaysetId = value.Id;
 		}
 	}
 }

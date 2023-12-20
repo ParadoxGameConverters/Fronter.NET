@@ -1,6 +1,7 @@
 ﻿using Avalonia.Controls.ApplicationLifetimes;
 using commonItems;
 using Fronter.Models.Configuration.Options;
+using Fronter.Models.Database;
 using Fronter.Services;
 using Fronter.ViewModels;
 using log4net;
@@ -22,8 +23,8 @@ public class Config {
 	public string TargetGame { get; private set; } = string.Empty;
 	public string? SentryDsn { get; private set; }
 	public bool TargetPlaysetSelectionEnabled { get; private set; } = false;
-	public ObservableCollection<TargetPlayset> AutoLocatedPlaysets { get; } = [];
-	public TargetPlayset? SelectedPlayset { get; set; }
+	public ObservableCollection<Playset> AutoLocatedPlaysets { get; } = [];
+	public Playset? SelectedPlayset { get; set; }
 	public bool CopyToTargetGameModDirectory { get; set; } = true;
 	public ushort ProgressOnCopyingComplete { get; set; } = 109;
 	public bool UpdateCheckerEnabled { get; private set; } = false;
@@ -366,7 +367,7 @@ public class Config {
 			var dbContext = TargetDbManager.GetLauncherDbContext(this);
 			if (dbContext is not null) {
 				foreach (var playset in dbContext.Playsets.Where(p => p.IsRemoved == null || p.IsRemoved == false )) {
-					AutoLocatedPlaysets.Add(new TargetPlayset(playset));
+					AutoLocatedPlaysets.Add(playset);
 				}
 			}
 			
