@@ -9,8 +9,8 @@ namespace Fronter.Tests.ViewModels;
 [Collection("Sequential")]
 [CollectionDefinition("Sequential", DisableParallelization = true)]
 public class MainWindowViewModelTests {
-	static MainWindowViewModelTests() {
-		App.ConfigureLogging();
+	public MainWindowViewModelTests() {
+		LoggingConfigurator.ConfigureLogging();
 	}
 
 	[Fact]

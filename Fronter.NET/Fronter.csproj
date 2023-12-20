@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net7.0</TargetFramework>
-        <LangVersion>11</LangVersion>
-        <RuntimeIdentifiers>win-x64;osx-x64;linux-x64</RuntimeIdentifiers>
+        <TargetFramework>net8.0</TargetFramework>
+        <LangVersion>12</LangVersion>
+        <RuntimeIdentifiers>win-x64;osx-arm64;linux-x64</RuntimeIdentifiers>
         <Nullable>enable</Nullable>
         
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
@@ -11,17 +11,20 @@
         <IsPackable>false</IsPackable>
         
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+        <AvaloniaVersion>11.0.6</AvaloniaVersion>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <ApplicationManifest>app.manifest</ApplicationManifest>
         <OutputPath>..\..\Release\</OutputPath>
+        <NoWarn>1701;1702;MA0004</NoWarn>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <NoWarn>1701;1702;MA0004</NoWarn>
     </PropertyGroup>
     <ItemGroup>
         <AvaloniaResource Include="Assets\**" />
         <AvaloniaResource Include="Styles\**" />
         <None Remove=".gitignore" />
-        <None Update="log4net_Fronter.config">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
     </ItemGroup>
     
     <ItemGroup>
@@ -36,15 +39,7 @@
     
     <!-- https://stackoverflow.com/a/50905092/10249243 -->
     <Target Name="Secrets" BeforeTargets="BeforeBuild">
-        <WriteLinesToFile 
-            File="$(IntermediateOutputPath)gen.cs"
-            Lines="static partial class Secrets {
-			    public static string BackblazeKeyId = %22$(BACKBLAZE_KEY_ID)%22 %3B
-			    public static string BackblazeApplicationKey = %22$(BACKBLAZE_APPLICATION_KEY)%22 %3B
-			    public static string BackblazeBucketId = %22$(BACKBLAZE_BUCKET_ID)%22 %3B
-			}"
-            Overwrite="true"
-        />
+        <WriteLinesToFile File="$(IntermediateOutputPath)gen.cs" Lines="static partial class Secrets {&#xD;&#xA;			    public static string BackblazeKeyId = %22$(BACKBLAZE_KEY_ID)%22 %3B&#xD;&#xA;			    public static string BackblazeApplicationKey = %22$(BACKBLAZE_APPLICATION_KEY)%22 %3B&#xD;&#xA;			    public static string BackblazeBucketId = %22$(BACKBLAZE_BUCKET_ID)%22 %3B&#xD;&#xA;			}" Overwrite="true" />
 	</Target>
 	<ItemGroup>
 		<Compile Include="$(IntermediateOutputPath)gen.cs" />
@@ -62,28 +57,27 @@
     </Target>
 
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="11.0.2" />
-        <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.0.2" />
-        <PackageReference Include="Avalonia.Desktop" Version="11.0.2" />
+        <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
+        <PackageReference Include="Avalonia.Controls.DataGrid" Version="$(AvaloniaVersion)" />
+        <PackageReference Include="Avalonia.Desktop" Version="$(AvaloniaVersion)" />
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.2" />
-        <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.2" />
-        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.2" />
+        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
+        <PackageReference Include="Avalonia.ReactiveUI" Version="$(AvaloniaVersion)" />
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
         <PackageReference Include="Backblaze.Client" Version="1.0.1" />
-        <PackageReference Include="DynamicData" Version="7.14.2" />
-        <PackageReference Include="MessageBox.Avalonia" Version="3.1.3" />
-        <PackageReference Include="Meziantou.Analyzer" Version="2.0.80">
+        <PackageReference Include="DynamicData" Version="8.3.27" />
+        <PackageReference Include="MessageBox.Avalonia" Version="3.1.5.1" />
+        <PackageReference Include="Meziantou.Analyzer" Version="2.0.122">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.10">
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.13">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.10" />
-        <PackageReference Include="PGCG.commonItems" Version="8.3.0" />
-        <PackageReference Include="Sentry" Version="3.35.0" />
-        <PackageReference Include="system.io.filesystem" Version="4.3.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.13" />
+        <PackageReference Include="PGCG.commonItems" Version="8.4.2" />
+        <PackageReference Include="Sentry" Version="3.41.3" />
         <PackageReference Include="System.Net.Primitives" Version="4.3.1" />
     </ItemGroup>
 

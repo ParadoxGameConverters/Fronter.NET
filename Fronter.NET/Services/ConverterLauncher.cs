@@ -129,6 +129,12 @@ internal class ConverterLauncher {
 			logger.Info($"Converter exited at {timer.Elapsed.TotalSeconds} seconds.");
 			return true;
 		}
+
+		if (process.ExitCode == 1) {
+			// Exit code 1 is for user errors, so we don't need to send it to Sentry.
+			logger.Error($"Converter failed and exited at {timer.Elapsed.TotalSeconds} seconds.");
+			return false;
+		}
 		
 		logger.Debug($"Converter exit code: {process.ExitCode}");
 		logger.Error("Converter error! See log.txt for details.");

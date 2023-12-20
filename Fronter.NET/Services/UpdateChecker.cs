@@ -6,7 +6,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -42,21 +41,30 @@ public static class UpdateChecker {
 		}
 	}
 
-	public static async Task<UpdateInfoModel> GetLatestReleaseInfo(string converterName) {
-		var info = new UpdateInfoModel();
-		var apiUrl = $"https://api.github.com/repos/ParadoxGameConverters/{converterName}/releases/latest";
+	private static (string, string)? GetOSNameAndArch() {
+		if (OperatingSystem.IsWindows()) {
+			return ("win", "x64");
+		}
+		if (OperatingSystem.IsLinux()) {
+			return ("linux", "x64");
+		}
+		if (OperatingSystem.IsMacOS()) {
+			return ("osx", "arm64");
+		}
+		return null;
+	}
 
-		string osName;
-		if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
-			osName = "win";
-		} else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
-			osName = "linux";
-		} else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) {
-			osName = "osx";
-		} else {
+	public static async Task<UpdateInfoModel> GetLatestReleaseInfo(string converterName) {
+		var osNameAndArch = GetOSNameAndArch();
+		if (osNameAndArch is null) {
 			return new UpdateInfoModel();
 		}
 
+		var osName = osNameAndArch.Value.Item1;
+		var architecture = osNameAndArch.Value.Item2;
+
+		var info = new UpdateInfoModel();
+		var apiUrl = $"https://api.github.com/repos/ParadoxGameConverters/{converterName}/releases/latest";
 		var requestMessage = new HttpRequestMessage(HttpMethod.Get, apiUrl);
 		requestMessage.Headers.Add("User-Agent", "ParadoxGameConverters");
 
@@ -81,21 +89,27 @@ public static class UpdateChecker {
 
 			assetName = assetName.ToLower();
 			var extension = CommonFunctions.GetExtension(assetName);
-			if (extension is not "zip" and not "tgz") {
+			if (extension is not "zip" and not "tgz" and not "exe") {
 				continue;
+			}
+			
+			// For Windows, prefer installer over archive.
+			if (extension == "exe" && osName == "win") {
+				info.AssetUrl = asset.BrowserDownloadUrl;
+				break;
 			}
 
 			var assetNameWithoutExtension = CommonFunctions.TrimExtension(assetName);
-			if (!assetNameWithoutExtension.EndsWith($"-{osName}-x64")) {
+			if (!assetNameWithoutExtension.EndsWith($"-{osName}-{architecture}")) {
 				continue;
 			}
 
-			info.ArchiveUrl = asset.BrowserDownloadUrl;
+			info.AssetUrl = asset.BrowserDownloadUrl;
 			break;
 		}
 
-		if (info.ArchiveUrl is null) {
-			Logger.Warn($"Release {info.Version} doesn't have a .zip or .tgz asset.");
+		if (info.AssetUrl is null) {
+			Logger.Debug($"Release {info.Version} doesn't have a release build for this platform.");
 		}
 
 		return info;
@@ -121,27 +135,62 @@ public static class UpdateChecker {
 		return stringBuilder.ToString();
 	}
 
+	private static async Task DownloadFileAsync(string installerUrl, string fileName) {
+		using HttpClient client = new();
+		var responseBytes = await client.GetByteArrayAsync(installerUrl);
+		await File.WriteAllBytesAsync(fileName, responseBytes);
+	}
+
+	public static async void RunInstallerAndDie(string installerUrl) {
+		Logger.Debug("Downloading installer...");
+		var fileName = Path.GetTempFileName();
+		await DownloadFileAsync(installerUrl, fileName);
+		
+		Logger.Debug("Running installer...");
+		var proc = new Process();
+		proc.StartInfo.FileName = fileName;
+		try {
+			proc.Start();
+		} catch (Exception ex) {
+			Logger.Debug($"Installer process failed to start: {ex.Message}");
+			Logger.Error($"Failed to start installer, probably because of an antivirus. Try updating the converter manually.");
+			return;
+		}
+
+		// Die. The installer will handle the rest.
+		MainWindow.Instance.Close();
+	}
+
 	public static void StartUpdaterAndDie(string archiveUrl, string converterBackendDirName) {
 		var updaterDirPath = Path.Combine(".", "Updater");
 		var updaterRunningDirPath = Path.Combine(".", "Updater-running");
-
+		
+		const string manualUpdateHint = "Try updating the converter manually.";
 		if (Directory.Exists(updaterRunningDirPath) && !SystemUtils.TryDeleteFolder(updaterRunningDirPath)) {
+			Logger.Warn($"Failed to delete Updater-running folder! {manualUpdateHint}");
 			return;
 		}
 
 		if (!SystemUtils.TryCopyFolder(updaterDirPath, updaterRunningDirPath)) {
+			Logger.Warn($"Failed to create Updater-running folder! {manualUpdateHint}");
 			return;
 		}
 
 		string updaterRunningPath = Path.Combine(updaterRunningDirPath, "updater");
-		if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
+		if (OperatingSystem.IsWindows()) {
 			updaterRunningPath += ".exe";
 		}
 
 		var proc = new Process();
 		proc.StartInfo.FileName = updaterRunningPath;
 		proc.StartInfo.Arguments = $"{archiveUrl} {converterBackendDirName}";
-		proc.Start();
+		try {
+			proc.Start();
+		} catch (Exception ex) {
+			Logger.Debug($"Updater process failed to start: {ex.Message}");
+			Logger.Error($"Failed to start updater, probably because of an antivirus. {manualUpdateHint}");
+			return;
+		}
 
 		// Die. The updater will start Fronter after a successful update.
 		MainWindow.Instance.Close();

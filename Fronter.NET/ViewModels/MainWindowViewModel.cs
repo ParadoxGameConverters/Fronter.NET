@@ -240,6 +240,9 @@ public sealed class MainWindowViewModel : ViewModelBase {
 		}
 
 		var info = await UpdateChecker.GetLatestReleaseInfo(Config.Name);
+		if (info.AssetUrl is null) {
+			return;
+		}
 
 		var updateNowStr = loc.Translate("UPDATE_NOW");
 		var maybeLaterStr = loc.Translate("MAYBE_LATER");
@@ -263,12 +266,12 @@ public sealed class MainWindowViewModel : ViewModelBase {
 			logger.Info($"Update to version {info.Version} postponed.");
 			return;
 		}
-
-		if (info.ArchiveUrl is not null) {
-			UpdateChecker.StartUpdaterAndDie(info.ArchiveUrl, Config.ConverterFolder);
-		} else {
-			BrowserLauncher.Open(Config.ConverterReleaseForumThread);
-			BrowserLauncher.Open(Config.LatestGitHubConverterReleaseUrl);
+		
+		// If we can use an installer, download it, run it, and exit.
+		if (info.UseInstaller) {
+			UpdateChecker.RunInstallerAndDie(info.AssetUrl);
+		} else{
+			UpdateChecker.StartUpdaterAndDie(info.AssetUrl, Config.ConverterFolder);
 		}
 	}
 
@@ -279,7 +282,9 @@ public sealed class MainWindowViewModel : ViewModelBase {
 		CheckForUpdates();
 	}
 
-	public static void Exit() {
+#pragma warning disable CA1822
+	public void Exit() {
+#pragma warning restore CA1822
 		if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
 			desktop.Shutdown(0);
 		}

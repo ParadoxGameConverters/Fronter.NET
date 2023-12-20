@@ -124,7 +124,13 @@ public class Config {
 		if (File.Exists(versionFilePath)) {
 			var version = new ConverterVersion();
 			version.LoadVersion(versionFilePath);
-			release = version.Version;
+			if (!string.IsNullOrWhiteSpace(version.Version) && !string.IsNullOrWhiteSpace(Name)) {
+				release = $"{Name}@{version.Version}";
+			}
+		}
+		if (release is null) {
+			Logger.Debug("Skipping Sentry initialization because converter version could not be determined.");
+			return;
 		}
 		
 		SentrySdk.Init(options => {
@@ -398,7 +404,13 @@ public class Config {
 
 		foreach (var modFile in validModFiles) {
 			var path = Path.Combine(modPath, modFile);
-			var theMod = new Mod(path);
+			Mod theMod;
+			try {
+				theMod = new Mod(path);
+			} catch (IOException ex) {
+				logger.Warn($"Failed to parse mod file {modFile}: {ex.Message}");
+				continue;
+			}
 			if (string.IsNullOrEmpty(theMod.Name)) {
 				logger.Warn($"Mod at \"{path}\" has no defined name, skipping.");
 				continue;
