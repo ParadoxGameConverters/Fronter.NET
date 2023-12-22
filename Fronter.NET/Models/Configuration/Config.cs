@@ -9,6 +9,7 @@ using Sentry;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 
@@ -221,7 +222,7 @@ public class Config {
 				if (uint.TryParse(folder.SteamGameId, out uint steamId)) {
 					possiblePath = CommonFunctions.GetSteamInstallPath(steamId);
 				}
-				if (possiblePath is null && long.TryParse(folder.GOGGameId, out long gogId)) {
+				if (possiblePath is null && long.TryParse(folder.GOGGameId, CultureInfo.InvariantCulture, out long gogId)) {
 					possiblePath = CommonFunctions.GetGOGInstallPath(gogId);
 				}
 
