@@ -9,6 +9,7 @@
         xmlns:vc="clr-namespace:Fronter.ValueConverters"
         xmlns:log4netCore="clr-namespace:log4net.Core;assembly=log4net"
         xmlns:models="clr-namespace:Fronter.Models"
+        xmlns:controls="clr-namespace:Avalonia.Notification.Controls;assembly=Notification.Avalonia"
         mc:Ignorable="d" d:DesignWidth="710" d:DesignHeight="400"
         x:DataType="viewModels:MainWindowViewModel"
         x:Class="Fronter.Views.MainWindow"
@@ -23,6 +24,12 @@
     </Design.DataContext>
 
     <DockPanel>
+        
+    
+        <controls:NotificationMessageContainer Manager="{Binding NotificationManager}" />
+
+
+        
         <DockPanel.Background>
             <ImageBrush Source="/Assets/Images/background.png" Stretch="UniformToFill" Opacity="0.2" />
         </DockPanel.Background>

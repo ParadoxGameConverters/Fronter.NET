@@ -1,4 +1,6 @@
-﻿using commonItems;
+﻿using Avalonia.Media;
+using Avalonia.Notification;
+using commonItems;
 using Fronter.Models;
 using Fronter.Views;
 using log4net;
@@ -34,7 +36,7 @@ public static class UpdateChecker {
 			using var commitIdFileReader = new StreamReader(commitIdFilePath);
 			var localCommitId = (await commitIdFileReader.ReadLineAsync())?.Trim();
 
-			return localCommitId is not null && localCommitId != latestReleaseCommitId;
+			return localCommitId is not null && !localCommitId.Equals(latestReleaseCommitId);
 		} catch (Exception e) {
 			Logger.Warn($"Failed to get commit id from \"{commitIdUrl}\"; {e}!");
 			return false;
@@ -94,7 +96,7 @@ public static class UpdateChecker {
 			}
 			
 			// For Windows, prefer installer over archive.
-			if (extension == "exe" && osName == "win") {
+			if (extension.Equals("exe") && osName.Equals("win")) {
 				info.AssetUrl = asset.BrowserDownloadUrl;
 				break;
 			}
@@ -141,10 +143,31 @@ public static class UpdateChecker {
 		await File.WriteAllBytesAsync(fileName, responseBytes);
 	}
 
-	public static async void RunInstallerAndDie(string installerUrl) {
+	public static async void RunInstallerAndDie(string installerUrl, INotificationMessageManager notificationManager) {
 		Logger.Debug("Downloading installer...");
+		
+		
+		
 		var fileName = Path.GetTempFileName();
-		await DownloadFileAsync(installerUrl, fileName);
+		try {
+			await DownloadFileAsync(installerUrl, fileName);
+		} catch (Exception ex) {
+			Logger.Debug($"Failed to download installer: {ex.Message}");
+			notificationManager // TODO: TEST THIS
+				.CreateMessage()
+				.Accent(Brushes.Red)
+				.Animates(true)
+				.Background("#333")
+				.HasBadge("Error")
+				.HasMessage($"Failed to download installer, probably because of network issues.\n" +
+				            $"Try updating the converter manually.")
+				.Dismiss().WithButton("Dismiss", button => {
+					// TODO: OPEN THE RELEASES OR FORUM PAGE
+				})
+				.Queue();
+			return;
+		}
+		
 		
 		Logger.Debug("Running installer...");
 		var proc = new Process();

@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Notification;
 using Avalonia.Threading;
 using commonItems.Collections;
 using Fronter.Extensions;
@@ -36,13 +37,15 @@ public sealed class MainWindowViewModel : ViewModelBase {
 			Command = SetLanguageCommand,
 			CommandParameter = l,
 			Header = loc.TranslateLanguage(l),
-			Items = Array.Empty<MenuItemViewModel>()
+			Items = Array.Empty<MenuItemViewModel>(),
 		});
 	
-	private IdObjectCollection<string, FrontendTheme> Themes { get; } = new() {
-		new FrontendTheme {Id = "Light", LocKey = "THEME_LIGHT"},
-		new FrontendTheme {Id = "Dark", LocKey = "THEME_DARK"}
-	};
+	public INotificationMessageManager NotificationManager { get; } = new NotificationMessageManager();
+	
+	private IdObjectCollection<string, FrontendTheme> Themes { get; } = [
+		new() {Id = "Light", LocKey = "THEME_LIGHT"},
+		new() {Id = "Dark", LocKey = "THEME_DARK"},
+	];
 	public IEnumerable<MenuItemViewModel> ThemeMenuItems => Themes
 		.Select(theme => new MenuItemViewModel {
 			Command = SetThemeCommand,
@@ -91,7 +94,7 @@ public sealed class MainWindowViewModel : ViewModelBase {
 		Config = new Config();
 
 		var appenders = LogManager.GetRepository().GetAppenders();
-		var gridAppender = appenders.First(a => a.Name == "grid");
+		var gridAppender = appenders.First(a => a.Name.Equals("grid"));
 		if (gridAppender is not LogGridAppender logGridAppender) {
 			throw new LogException($"Log appender \"{gridAppender.Name}\" is not a {typeof(LogGridAppender)}");
 		}
@@ -262,14 +265,14 @@ public sealed class MainWindowViewModel : ViewModelBase {
 				MaxHeight = 720,
 			});
 		var result = await messageBoxWindow.ShowWindowDialogAsync(MainWindow.Instance);
-		if (result != updateNowStr) {
+		if (!result.Equals(updateNowStr)) {
 			logger.Info($"Update to version {info.Version} postponed.");
 			return;
 		}
 		
 		// If we can use an installer, download it, run it, and exit.
 		if (info.UseInstaller) {
-			UpdateChecker.RunInstallerAndDie(info.AssetUrl);
+			UpdateChecker.RunInstallerAndDie(info.AssetUrl, NotificationManager);
 		} else{
 			UpdateChecker.StartUpdaterAndDie(info.AssetUrl, Config.ConverterFolder);
 		}
