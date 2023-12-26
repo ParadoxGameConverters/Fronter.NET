@@ -272,7 +272,7 @@ public sealed class MainWindowViewModel : ViewModelBase {
 		
 		// If we can use an installer, download it, run it, and exit.
 		if (info.UseInstaller) {
-			UpdateChecker.RunInstallerAndDie(info.AssetUrl, NotificationManager);
+			UpdateChecker.RunInstallerAndDie(info.AssetUrl, Config, NotificationManager);
 		} else{
 			UpdateChecker.StartUpdaterAndDie(info.AssetUrl, Config.ConverterFolder);
 		}

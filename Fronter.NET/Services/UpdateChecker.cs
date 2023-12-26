@@ -1,7 +1,9 @@
 ﻿using Avalonia.Media;
 using Avalonia.Notification;
 using commonItems;
+using Fronter.Extensions;
 using Fronter.Models;
+using Fronter.Models.Configuration;
 using Fronter.Views;
 using log4net;
 using System;
@@ -16,7 +18,7 @@ namespace Fronter.Services;
 
 public static class UpdateChecker {
 	private static readonly ILog Logger = LogManager.GetLogger("Update checker");
-	private static readonly HttpClient HttpClient = new();
+	private static readonly HttpClient HttpClient = new() {Timeout = TimeSpan.FromMinutes(5)};
 	public static async Task<bool> IsUpdateAvailable(string commitIdFilePath, string commitIdUrl) {
 		if (!File.Exists(commitIdFilePath)) {
 			Logger.Warn($"File \"{commitIdFilePath}\" does not exist!");
@@ -138,36 +140,30 @@ public static class UpdateChecker {
 	}
 
 	private static async Task DownloadFileAsync(string installerUrl, string fileName) {
-		using HttpClient client = new();
-		var responseBytes = await client.GetByteArrayAsync(installerUrl);
+		var responseBytes = await HttpClient.GetByteArrayAsync(installerUrl);
 		await File.WriteAllBytesAsync(fileName, responseBytes);
 	}
 
-	public static async void RunInstallerAndDie(string installerUrl, INotificationMessageManager notificationManager) {
+	public static async void RunInstallerAndDie(string installerUrl, Config config, INotificationMessageManager notificationManager) {
 		Logger.Debug("Downloading installer...");
-		
-		
 		
 		var fileName = Path.GetTempFileName();
 		try {
 			await DownloadFileAsync(installerUrl, fileName);
 		} catch (Exception ex) {
 			Logger.Debug($"Failed to download installer: {ex.Message}");
-			notificationManager // TODO: TEST THIS
+			notificationManager
 				.CreateMessage()
 				.Accent(Brushes.Red)
 				.Animates(true)
 				.Background("#333")
 				.HasBadge("Error")
-				.HasMessage($"Failed to download installer, probably because of network issues.\n" +
+				.HasMessage($"Failed to download installer, probably because of network issues. \n" +
 				            $"Try updating the converter manually.")
-				.Dismiss().WithButton("Dismiss", button => {
-					// TODO: OPEN THE RELEASES OR FORUM PAGE
-				})
+				.SuggestManualUpdate(config)
 				.Queue();
 			return;
 		}
-		
 		
 		Logger.Debug("Running installer...");
 		var proc = new Process();
@@ -176,7 +172,16 @@ public static class UpdateChecker {
 			proc.Start();
 		} catch (Exception ex) {
 			Logger.Debug($"Installer process failed to start: {ex.Message}");
-			Logger.Error($"Failed to start installer, probably because of an antivirus. Try updating the converter manually.");
+			notificationManager
+				.CreateMessage()
+				.Accent(Brushes.Red)
+				.Animates(true)
+				.Background("#333")
+				.HasBadge("Error")
+				.HasMessage($"Failed to start installer, probably because of an antivirus. \n" +
+				            $"Try updating the converter manually.")
+				.SuggestManualUpdate(config)
+				.Queue();
 			return;
 		}
 

@@ -24,14 +24,8 @@
     </Design.DataContext>
 
     <DockPanel>
-        
-    
-        <controls:NotificationMessageContainer Manager="{Binding NotificationManager}" />
-
-
-        
         <DockPanel.Background>
-            <ImageBrush Source="/Assets/Images/background.png" Stretch="UniformToFill" Opacity="0.2" />
+            <ImageBrush Source="/Assets/Images/background.png" Stretch="UniformToFill" Opacity="0.18" />
         </DockPanel.Background>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="{ns:Loc MENUCONVERTER}">
@@ -71,6 +65,12 @@
         </Menu>
         
         <Grid RowDefinitions="6*, 4, 4*" DockPanel.Dock="Bottom">
+            <Border Grid.Column="0" Grid.Row="0" ZIndex="1000">
+                <controls:NotificationMessageContainer 
+                    Manager="{Binding NotificationManager}"
+                />
+            </Border>
+
             <TabControl Grid.Column="0" Grid.Row="0" MinHeight="150">
                 <TabItem Header="{ns:Loc PATHSTAB}" VerticalContentAlignment="Center">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" MinHeight="150">
