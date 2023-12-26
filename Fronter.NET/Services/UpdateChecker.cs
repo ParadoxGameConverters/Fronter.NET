@@ -153,11 +153,7 @@ public static class UpdateChecker {
 		} catch (Exception ex) {
 			Logger.Debug($"Failed to download installer: {ex.Message}");
 			notificationManager
-				.CreateMessage()
-				.Accent(Brushes.Red)
-				.Animates(true)
-				.Background("#333")
-				.HasBadge("Error")
+				.CreateError()
 				.HasMessage($"Failed to download installer, probably because of network issues. \n" +
 				            $"Try updating the converter manually.")
 				.SuggestManualUpdate(config)
@@ -173,11 +169,7 @@ public static class UpdateChecker {
 		} catch (Exception ex) {
 			Logger.Debug($"Installer process failed to start: {ex.Message}");
 			notificationManager
-				.CreateMessage()
-				.Accent(Brushes.Red)
-				.Animates(true)
-				.Background("#333")
-				.HasBadge("Error")
+				.CreateError()
 				.HasMessage($"Failed to start installer, probably because of an antivirus. \n" +
 				            $"Try updating the converter manually.")
 				.SuggestManualUpdate(config)

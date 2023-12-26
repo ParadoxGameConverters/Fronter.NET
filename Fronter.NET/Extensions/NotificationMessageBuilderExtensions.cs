@@ -1,10 +1,19 @@
-﻿using Avalonia.Notification;
+﻿using Avalonia.Media;
+using Avalonia.Notification;
 using Fronter.Models.Configuration;
 using Fronter.Services;
 
 namespace Fronter.Extensions;
 
 public static class NotificationMessageBuilderExtensions {
+	public static NotificationMessageBuilder CreateError(this INotificationMessageManager manager) {
+		return manager
+			.CreateMessage()
+			.Accent(Brushes.Red)
+			.Animates(true)
+			.Background("#333")
+			.HasBadge("Error");
+	}
 	public static NotificationMessageBuilder SuggestManualUpdate(this NotificationMessageBuilder builder, Config config) {
 		if (!string.IsNullOrWhiteSpace(config.LatestGitHubConverterReleaseUrl)) {
 			builder = builder
