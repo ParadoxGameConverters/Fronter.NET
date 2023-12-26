@@ -9,5 +9,6 @@
     <Application.Styles>
         <FluentTheme />
         <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"></StyleInclude>
+        <StyleInclude Source="avares://Notification.Avalonia/Themes/Generic.xaml" />
     </Application.Styles>
 </Application>
