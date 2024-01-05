@@ -100,8 +100,27 @@ internal class ConverterLauncher {
 
 		var timer = new Stopwatch();
 		timer.Start();
-
-		process.Start();
+		
+		try {
+			process.Start();
+		} catch (Exception e) {
+			logger.Error($"Failed to start converter backend: {e.Message}");
+			if (SentrySdk.IsEnabled) {
+				SentrySdk.AddBreadcrumb($"Failed to start converter backend: {e.Message}");
+			}
+			var messageText = $"Failed to start converter backend: {e.Message}";
+			if (!OperatingSystem.IsWindows()) {
+				messageText += "\n\nIf you are on Linux or macOS, remember to run ConverterFrontend with sudo." +
+				               "\n\nIf you believe this is a bug, please report it on the converter's forum thread.";
+			}
+			await MessageBoxManager.GetMessageBoxStandard(
+				title: "Failed to start converter",
+				text: messageText,
+				ButtonEnum.Ok,
+				Icon.Error
+			).ShowWindowDialogAsync(MainWindow.Instance);
+			return false;
+		}
 		process.EnableRaisingEvents = true;
 		process.PriorityClass = ProcessPriorityClass.RealTime;
 		process.PriorityBoostEnabled = OperatingSystem.IsWindows();
