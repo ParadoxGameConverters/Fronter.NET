@@ -109,6 +109,14 @@ internal class ConverterLauncher {
 				SentrySdk.AddBreadcrumb($"Failed to start converter backend: {e.Message}");
 			}
 			var messageText = $"Failed to start converter backend: {e.Message}";
+			if (!ElevatedPrivilegesDetector.IsAdministrator) {
+				messageText += "\n\nThe converter requires elevated privileges to run.";
+				if (OperatingSystem.IsWindows()) {
+					messageText += "\n\nRun ConverterFrontend as administrator.";
+				} else if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS() || OperatingSystem.IsFreeBSD()) {
+					messageText += "\n\nRun ConverterFrontend with sudo.";
+				}
+			}
 			if (!OperatingSystem.IsWindows()) {
 				messageText += "\n\nIf you are on Linux or macOS, remember to run ConverterFrontend with sudo." +
 				               "\n\nIf you believe this is a bug, please report it on the converter's forum thread.";
