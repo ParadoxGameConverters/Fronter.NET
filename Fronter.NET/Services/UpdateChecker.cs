@@ -1,5 +1,4 @@
-﻿using Avalonia.Media;
-using Avalonia.Notification;
+﻿using Avalonia.Notification;
 using commonItems;
 using Fronter.Extensions;
 using Fronter.Models;
