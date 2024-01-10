@@ -206,6 +206,7 @@ public sealed class MainWindowViewModel : ViewModelBase {
 				success = launchConverterTask.Result;
 			} catch (TaskCanceledException e) {
 				logger.Debug($"Converter backend task was cancelled: {e.Message}");
+				success = false;
 			} catch (Exception e) {
 				logger.Error($"Failed to start converter backend: {e.Message}");
 				if (SentrySdk.IsEnabled) {
