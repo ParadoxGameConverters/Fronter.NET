@@ -103,6 +103,27 @@ internal class ConverterLauncher {
 		
 		try {
 			process.Start();
+			process.EnableRaisingEvents = true;
+			process.PriorityClass = ProcessPriorityClass.RealTime;
+			process.PriorityBoostEnabled = OperatingSystem.IsWindows();
+
+			process.BeginOutputReadLine();
+
+			// Kill converter backend when frontend is closed.
+			if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
+				var processId = process.Id;
+				desktop.ShutdownRequested += (sender, args) => {
+					try {
+						var backendProcess = Process.GetProcessById(processId);
+						logger.Info("Killing converter backend...");
+						backendProcess.Kill();
+					} catch (ArgumentException) {
+						// Process already exited.
+					}
+				};
+			}
+
+			await process.WaitForExitAsync();
 		} catch (Exception e) {
 			logger.Error($"Failed to start converter backend: {e.Message}");
 			if (SentrySdk.IsEnabled) {
@@ -116,10 +137,10 @@ internal class ConverterLauncher {
 				} else if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS() || OperatingSystem.IsFreeBSD()) {
 					messageText += "\n\nRun ConverterFrontend with sudo.";
 				}
-			}
-			if (!OperatingSystem.IsWindows()) {
-				messageText += "\n\nIf you are on Linux or macOS, remember to run ConverterFrontend with sudo." +
-				               "\n\nIf you believe this is a bug, please report it on the converter's forum thread.";
+			} else if (SentrySdk.IsEnabled) {
+				SendMessageToSentry($"Failed to start converter backend: {e.Message}", SentryLevel.Error);
+			} else {
+				messageText += "\n\nIf you believe this is a bug, please report it on the converter's forum thread.";
 			}
 			await MessageBoxManager.GetMessageBoxStandard(
 				title: "Failed to start converter",
@@ -129,27 +150,6 @@ internal class ConverterLauncher {
 			).ShowWindowDialogAsync(MainWindow.Instance);
 			return false;
 		}
-		process.EnableRaisingEvents = true;
-		process.PriorityClass = ProcessPriorityClass.RealTime;
-		process.PriorityBoostEnabled = OperatingSystem.IsWindows();
-
-		process.BeginOutputReadLine();
-
-		// Kill converter backend when frontend is closed.
-		var processId = process.Id;
-		if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
-			desktop.ShutdownRequested += (sender, args) => {
-				try {
-					var backendProcess = Process.GetProcessById(processId);
-					logger.Info("Killing converter backend...");
-					backendProcess.Kill();
-				} catch (ArgumentException) {
-					// Process already exited.
-				}
-			};
-		}
-
-		await process.WaitForExitAsync();
 		timer.Stop();
 		
 		if (process.ExitCode == 0) {
@@ -263,21 +263,25 @@ internal class ConverterLauncher {
 		return null;
 	}
 
-	private static async void SendMessageToSentry(int processExitCode) {
+	private static void SendMessageToSentry(int processExitCode) {
+		LogLine? error = GetFirstErrorLogLineFromGrid();
+		if (error is not null) {
+			var sentryMessageLevel = error.Level == Level.Fatal ? SentryLevel.Fatal : SentryLevel.Error;
+			SendMessageToSentry(error.Message, sentryMessageLevel);
+		} else {
+			var message = $"Converter exited with code {processExitCode}";
+			SendMessageToSentry(message, SentryLevel.Error);
+		}
+	}
+	
+	private static async void SendMessageToSentry(string message, SentryLevel level) {
 		// Identify user by username or IP address.
 		var ip = (await GetExternalIpAddress())?.ToString();
 		SentrySdk.ConfigureScope(scope => {
 			scope.User = ip is null ? new User {Username = Environment.UserName} : new User {IpAddress = ip};
 		});
 
-		var error = GetFirstErrorLogLineFromGrid();
-		if (error is not null) {
-			var sentryMessageLevel = error.Level == Level.Fatal ? SentryLevel.Fatal : SentryLevel.Error;
-			SentrySdk.CaptureMessage(error.Message, sentryMessageLevel);
-		} else {
-			var message = $"Converter exited with code {processExitCode}";
-			SentrySdk.CaptureMessage(message, SentryLevel.Error);
-		}
+		SentrySdk.CaptureMessage(message, level);
 	}
 
 	private static async Task UploadSaveArchiveToBackblaze(string archivePath) {
