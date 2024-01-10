@@ -169,9 +169,8 @@ internal class ConverterLauncher {
 	
 	private static async Task<bool> GetSaveUploadConsent() {
 		var saveUploadConsent = await MessageBoxManager.GetMessageBoxStandard(
-			title: "Save upload consent",
-			text: "Would you like the application to automatically upload your save file to our error database, " +
-			      "in order to help us fix this issue?",
+			title: TranslationSource.Instance.Translate("SAVE_UPLOAD_CONSENT_TITLE"),
+			text: TranslationSource.Instance.Translate("SAVE_UPLOAD_CONSENT_BODY"),
 			ButtonEnum.OkCancel,
 			Icon.Question
 		).ShowWindowDialogAsync(MainWindow.Instance);

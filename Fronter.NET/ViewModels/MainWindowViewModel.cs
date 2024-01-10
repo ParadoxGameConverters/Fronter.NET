@@ -212,22 +212,22 @@ public sealed class MainWindowViewModel : ViewModelBase {
 				if (SentrySdk.IsEnabled) {
 					SentrySdk.AddBreadcrumb($"Failed to start converter backend: {e.Message}");
 				}
-				var messageText = $"Failed to start converter backend: {e.Message}";
+				var messageText = $"{loc.Translate("FAILED_TO_START_CONVERTER_BACKEND")}: {e.Message}";
 				if (!ElevatedPrivilegesDetector.IsAdministrator) {
-					messageText += "\n\nThe converter requires elevated privileges to run.";
+					messageText += "\n\n" + loc.Translate("ELEVATED_PRIVILEGES_REQUIRED");
 					if (OperatingSystem.IsWindows()) {
-						messageText += "\n\nRun ConverterFrontend as administrator.";
+						messageText += "\n\n" + loc.Translate("RUN_AS_ADMIN");
 					} else if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS() || OperatingSystem.IsFreeBSD()) {
-						messageText += "\n\nRun ConverterFrontend with sudo.";
+						messageText += "\n\n" + loc.Translate("RUN_WITH_SUDO");
 					}
 				} else if (SentrySdk.IsEnabled) {
 					SentryHelper.SendMessageToSentry($"Failed to start converter backend: {e.Message}", SentryLevel.Error);
 				} else {
-					messageText += "\n\nIf you believe this is a bug, please report it on the converter's forum thread.";
+					messageText += "\n\n" + loc.Translate("FAILED_TO_START_CONVERTER_POSSIBLE_BUG");
 				}
 				
 				Dispatcher.UIThread.Post(() => MessageBoxManager.GetMessageBoxStandard(
-					title: "Failed to start converter",
+					title: loc.Translate("FAILED_TO_START_CONVERTER"),
 					text: messageText,
 					ButtonEnum.Ok,
 					Icon.Error
