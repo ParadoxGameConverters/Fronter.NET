@@ -26,6 +26,7 @@ using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Fronter.ViewModels;
 
@@ -203,7 +204,9 @@ public sealed class MainWindowViewModel : ViewModelBase {
 				var launchConverterTask = converterLauncher.LaunchConverter();
 				launchConverterTask.Wait();
 				success = launchConverterTask.Result;
-			}  catch (Exception e) {
+			} catch (TaskCanceledException e) {
+				logger.Debug($"Converter backend task was cancelled: {e.Message}");
+			} catch (Exception e) {
 				logger.Error($"Failed to start converter backend: {e.Message}");
 				if (SentrySdk.IsEnabled) {
 					SentrySdk.AddBreadcrumb($"Failed to start converter backend: {e.Message}");
