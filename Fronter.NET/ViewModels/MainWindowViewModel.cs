@@ -221,13 +221,14 @@ public sealed class MainWindowViewModel : ViewModelBase {
 				} else {
 					messageText += "\n\nIf you believe this is a bug, please report it on the converter's forum thread.";
 				}
-
-				MessageBoxManager.GetMessageBoxStandard(
+				
+				Dispatcher.UIThread.Post(() => MessageBoxManager.GetMessageBoxStandard(
 					title: "Failed to start converter",
 					text: messageText,
 					ButtonEnum.Ok,
 					Icon.Error
-				).ShowWindowDialogAsync(MainWindow.Instance).Wait();
+				).ShowWindowDialogAsync(MainWindow.Instance).Wait());
+				
 				success = false;
 			}
 			
