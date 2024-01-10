@@ -17,6 +17,7 @@ using MsBox.Avalonia.Dto;
 using MsBox.Avalonia.Enums;
 using MsBox.Avalonia.Models;
 using ReactiveUI;
+using Sentry;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -197,9 +198,39 @@ public sealed class MainWindowViewModel : ViewModelBase {
 		bool success;
 		var converterThread = new Thread(() => {
 			ConvertStatus = "CONVERTSTATUSIN";
-			var launchConverterTask = converterLauncher.LaunchConverter();
-			launchConverterTask.Wait();
-			success = launchConverterTask.Result;
+
+			try {
+				var launchConverterTask = converterLauncher.LaunchConverter();
+				launchConverterTask.Wait();
+				success = launchConverterTask.Result;
+			}  catch (Exception e) {
+				logger.Error($"Failed to start converter backend: {e.Message}");
+				if (SentrySdk.IsEnabled) {
+					SentrySdk.AddBreadcrumb($"Failed to start converter backend: {e.Message}");
+				}
+				var messageText = $"Failed to start converter backend: {e.Message}";
+				if (!ElevatedPrivilegesDetector.IsAdministrator) {
+					messageText += "\n\nThe converter requires elevated privileges to run.";
+					if (OperatingSystem.IsWindows()) {
+						messageText += "\n\nRun ConverterFrontend as administrator.";
+					} else if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS() || OperatingSystem.IsFreeBSD()) {
+						messageText += "\n\nRun ConverterFrontend with sudo.";
+					}
+				} else if (SentrySdk.IsEnabled) {
+					SentryHelper.SendMessageToSentry($"Failed to start converter backend: {e.Message}", SentryLevel.Error);
+				} else {
+					messageText += "\n\nIf you believe this is a bug, please report it on the converter's forum thread.";
+				}
+
+				MessageBoxManager.GetMessageBoxStandard(
+					title: "Failed to start converter",
+					text: messageText,
+					ButtonEnum.Ok,
+					Icon.Error
+				).ShowWindowDialogAsync(MainWindow.Instance).Wait();
+				success = false;
+			}
+			
 			if (success) {
 				ConvertStatus = "CONVERTSTATUSPOSTSUCCESS";
 
