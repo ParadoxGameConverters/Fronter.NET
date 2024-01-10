@@ -4,8 +4,6 @@ using Avalonia.Threading;
 using Bytewizer.Backblaze.Client;
 using commonItems;
 using Fronter.Extensions;
-using Fronter.LogAppenders;
-using Fronter.Models;
 using Fronter.Models.Configuration;
 using Fronter.Views;
 using log4net;
@@ -19,8 +17,6 @@ using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Fronter.Services;
@@ -101,26 +97,7 @@ internal class ConverterLauncher {
 		var timer = new Stopwatch();
 		timer.Start();
 		
-		try {
-			process.Start();
-		} catch (Exception e) {
-			logger.Error($"Failed to start converter backend: {e.Message}");
-			if (SentrySdk.IsEnabled) {
-				SentrySdk.AddBreadcrumb($"Failed to start converter backend: {e.Message}");
-			}
-			var messageText = $"Failed to start converter backend: {e.Message}";
-			if (!OperatingSystem.IsWindows()) {
-				messageText += "\n\nIf you are on Linux or macOS, remember to run ConverterFrontend with sudo." +
-				               "\n\nIf you believe this is a bug, please report it on the converter's forum thread.";
-			}
-			await MessageBoxManager.GetMessageBoxStandard(
-				title: "Failed to start converter",
-				text: messageText,
-				ButtonEnum.Ok,
-				Icon.Error
-			).ShowWindowDialogAsync(MainWindow.Instance);
-			return false;
-		}
+		process.Start();
 		process.EnableRaisingEvents = true;
 		process.PriorityClass = ProcessPriorityClass.RealTime;
 		process.PriorityBoostEnabled = OperatingSystem.IsWindows();
@@ -128,8 +105,8 @@ internal class ConverterLauncher {
 		process.BeginOutputReadLine();
 
 		// Kill converter backend when frontend is closed.
-		var processId = process.Id;
 		if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
+			var processId = process.Id;
 			desktop.ShutdownRequested += (sender, args) => {
 				try {
 					var backendProcess = Process.GetProcessById(processId);
@@ -142,6 +119,7 @@ internal class ConverterLauncher {
 		}
 
 		await process.WaitForExitAsync();
+		
 		timer.Stop();
 		
 		if (process.ExitCode == 0) {
@@ -175,7 +153,7 @@ internal class ConverterLauncher {
 			});
 			
 			try {
-				SendMessageToSentry(process.ExitCode);
+				SentryHelper.SendMessageToSentry(process.ExitCode);
 				if (saveUploadConsent) {
 					Logger.Notice("Uploaded information about the error, thank you!");
 				}
@@ -230,45 +208,6 @@ internal class ConverterLauncher {
 		} else {
 			logger.Debug($"Save file is {saveArchiveSize} bytes, uploading to Backblaze.");
 			await UploadSaveArchiveToBackblaze(archivePath);
-		}
-	}
-
-	private static async Task<IPAddress?> GetExternalIpAddress() {
-		try {
-			var externalIpString = (await new HttpClient().GetStringAsync("https://icanhazip.com/"))
-				.Replace(@"\r", "")
-				.Replace(@"\n", "")
-				.Trim();
-			return !IPAddress.TryParse(externalIpString, out var ipAddress) ? null : ipAddress;
-		} catch (Exception e) {
-			SentrySdk.AddBreadcrumb($"Failed to get IP address: {e.Message}");
-			return null;
-		}
-	}
-
-	private static LogLine? GetFirstErrorLogLineFromGrid() {
-		var gridAppender = LogManager.GetRepository().GetAppenders().First(a => a.Name == "grid");
-		if (gridAppender is LogGridAppender logGridAppender) {
-			return logGridAppender.LogLines
-				.FirstOrDefault(l => l.Level is not null && l.Level >= Level.Error);
-		}
-		return null;
-	}
-
-	private static async void SendMessageToSentry(int processExitCode) {
-		// Identify user by username or IP address.
-		var ip = (await GetExternalIpAddress())?.ToString();
-		SentrySdk.ConfigureScope(scope => {
-			scope.User = ip is null ? new User {Username = Environment.UserName} : new User {IpAddress = ip};
-		});
-
-		var error = GetFirstErrorLogLineFromGrid();
-		if (error is not null) {
-			var sentryMessageLevel = error.Level == Level.Fatal ? SentryLevel.Fatal : SentryLevel.Error;
-			SentrySdk.CaptureMessage(error.Message, sentryMessageLevel);
-		} else {
-			var message = $"Converter exited with code {processExitCode}";
-			SentrySdk.CaptureMessage(message, SentryLevel.Error);
 		}
 	}
 
