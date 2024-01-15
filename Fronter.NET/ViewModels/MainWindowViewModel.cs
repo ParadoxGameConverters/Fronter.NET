@@ -300,32 +300,16 @@ public sealed class MainWindowViewModel : ViewModelBase {
 				MaxWidth = 1280,
 				MaxHeight = 720,
 			});
-
-		try {
-			var result = await messageBoxWindow.ShowWindowDialogAsync(MainWindow.Instance);
+		
+		bool performUpdate = true;
+		await Dispatcher.UIThread.InvokeAsync(async () => {
+			string result = await messageBoxWindow.ShowWindowDialogAsync(MainWindow.Instance);
 			if (!result.Equals(updateNowStr)) {
-				logger.Info($"Update to version {info.Version} postponed.");
-				return;
+				performUpdate = false;
 			}
-		} catch (NullReferenceException e) { // TODO: remove this catch when problem's resolved
-			// TODO: use Polly to retry (https://github.com/App-vNext/Polly)
-			if (SentrySdk.IsEnabled) {
-				SentrySdk.AddBreadcrumb("NullReferenceException: " + e.Message);
-				SentrySdk.AddBreadcrumb("Stack trace: " + e.StackTrace);
-				SentrySdk.AddBreadcrumb("Exception source: " + e.Source);
-				SentrySdk.AddBreadcrumb("Exception target site: " + e.TargetSite);
-				SentrySdk.AddBreadcrumb("Exception data: " + e.Data);
-				SentrySdk.AddBreadcrumb("Exception help link: " + e.HelpLink);
-				SentrySdk.AddBreadcrumb("Exception HResult: " + e.HResult);
-				SentrySdk.AddBreadcrumb("Exception inner exception: " + e.InnerException);
-				if (messageBoxWindow is null) {
-					SentrySdk.AddBreadcrumb("messageBoxWindow is null");
-				}
-				if (MainWindow.Instance is null) {
-					SentrySdk.AddBreadcrumb("MainWindow.Instance is null");
-				}
-				SentrySdk.CaptureException(e);
-			}
+		}, DispatcherPriority.Normal);
+		
+		if (!performUpdate) {
 			return;
 		}
 		
