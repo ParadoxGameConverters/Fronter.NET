@@ -301,12 +301,10 @@ public sealed class MainWindowViewModel : ViewModelBase {
 				MaxHeight = 720,
 			});
 		
-		bool performUpdate = true;
+		bool performUpdate = false;
 		await Dispatcher.UIThread.InvokeAsync(async () => {
 			string result = await messageBoxWindow.ShowWindowDialogAsync(MainWindow.Instance);
-			if (!result.Equals(updateNowStr)) {
-				performUpdate = false;
-			}
+			performUpdate = result.Equals(updateNowStr);
 		}, DispatcherPriority.Normal);
 		
 		if (!performUpdate) {
