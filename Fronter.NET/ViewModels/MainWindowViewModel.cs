@@ -293,10 +293,10 @@ public sealed class MainWindowViewModel : ViewModelBase {
 				ContentHeader = loc.Translate("NEW_VERSION_HEADER"),
 				ContentMessage = msgBody,
 				Markdown = true,
-				ButtonDefinitions = new[] {
+				ButtonDefinitions = [
 					new ButtonDefinition {Name = updateNowStr, IsDefault = true},
 					new ButtonDefinition {Name = maybeLaterStr, IsCancel = true}
-				},
+				],
 				MaxWidth = 1280,
 				MaxHeight = 720,
 			});
