@@ -16,10 +16,10 @@
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <OutputPath>..\..\Release\</OutputPath>
-        <NoWarn>1701;1702;MA0001;MA0004;MA0011;MA0075</NoWarn>
+        <NoWarn>1701;1702;MA0001;MA0004;MA0011;MA0075;MA0076</NoWarn>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-        <NoWarn>1701;1702;MA0001;MA0004;MA0011;MA0075</NoWarn>
+        <NoWarn>1701;1702;MA0001;MA0004;MA0011;MA0075;MA0076</NoWarn>
     </PropertyGroup>
     <ItemGroup>
         <AvaloniaResource Include="Assets\**" />
