@@ -310,6 +310,7 @@ public sealed class MainWindowViewModel : ViewModelBase {
 		}, DispatcherPriority.Normal);
 		
 		if (!performUpdate) {
+			logger.Info($"Update to version {info.Version} postponed.");
 			return;
 		}
 		
