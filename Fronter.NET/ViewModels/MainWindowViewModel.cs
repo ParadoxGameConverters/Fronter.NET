@@ -308,6 +308,7 @@ public sealed class MainWindowViewModel : ViewModelBase {
 				return;
 			}
 		} catch (NullReferenceException e) { // TODO: remove this catch when problem's resolved
+			// TODO: use Polly to retry (https://github.com/App-vNext/Polly)
 			if (SentrySdk.IsEnabled) {
 				SentrySdk.AddBreadcrumb("NullReferenceException: " + e.Message);
 				SentrySdk.AddBreadcrumb("Stack trace: " + e.StackTrace);
