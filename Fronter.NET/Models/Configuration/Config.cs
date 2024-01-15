@@ -94,16 +94,16 @@ public class Config {
 		parser.RegisterKeyword("targetGame", reader => TargetGame = reader.GetString());
 		parser.RegisterKeyword("autoGenerateModsFrom", reader => ModAutoGenerationSource = reader.GetString());
 		parser.RegisterKeyword("copyToTargetGameModDirectory", reader => {
-			CopyToTargetGameModDirectory = reader.GetString() == "true";
+			CopyToTargetGameModDirectory = reader.GetString().Equals("true");
 		});
 		parser.RegisterKeyword("progressOnCopyingComplete", reader => {
 			ProgressOnCopyingComplete = (ushort)reader.GetInt();
 		});
 		parser.RegisterKeyword("enableUpdateChecker", reader => {
-			UpdateCheckerEnabled = reader.GetString() == "true";
+			UpdateCheckerEnabled = reader.GetString().Equals("true");
 		});
 		parser.RegisterKeyword("checkForUpdatesOnStartup", reader => {
-			CheckForUpdatesOnStartup = reader.GetString() == "true";
+			CheckForUpdatesOnStartup = reader.GetString().Equals("true");
 		});
 		parser.RegisterKeyword("converterReleaseForumThread", reader => {
 			ConverterReleaseForumThread = reader.GetString();
@@ -167,27 +167,27 @@ public class Config {
 			var valueReader = new BufferedReader(valueStr);
 
 			foreach (var folder in RequiredFolders) {
-				if (folder.Name == incomingKey && Directory.Exists(valueStr)) {
+				if (folder.Name.Equals(incomingKey) && Directory.Exists(valueStr)) {
 					folder.Value = valueStr;
 				}
 			}
 
 			foreach (var file in RequiredFiles) {
-				if (file.Name == incomingKey && File.Exists(valueStr)) {
+				if (file.Name.Equals(incomingKey) && File.Exists(valueStr)) {
 					file.Value = valueStr;
 				}
 			}
 			foreach (var option in Options) {
-				if (option.Name == incomingKey && option.CheckBoxSelector is null) {
+				if (option.Name.Equals(incomingKey) && option.CheckBoxSelector is null) {
 					option.SetValue(valueStr);
-				} else if (option.Name == incomingKey && option.CheckBoxSelector is not null) {
+				} else if (option.Name.Equals(incomingKey) && option.CheckBoxSelector is not null) {
 					var selections = valueReader.GetStrings();
 					var values = selections.ToHashSet();
 					option.SetValue(values);
 					option.SetCheckBoxSelectorPreloaded();
 				}
 			}
-			if (incomingKey == "selectedMods") {
+			if (incomingKey.Equals("selectedMods")) {
 				var theList = valueReader.GetStrings();
 				var matchingMods = AutoLocatedMods.Where(m => theList.Contains(m.FileName));
 				foreach (var mod in matchingMods) {
@@ -216,9 +216,9 @@ public class Config {
 				continue;
 			}
 
-			if (folder.SearchPathType == "windowsUsersFolder") {
+			if (folder.SearchPathType.Equals("windowsUsersFolder")) {
 				initialValue = Path.Combine(documentsDir, folder.SearchPath);
-			} else if (folder.SearchPathType == "storeFolder") {
+			} else if (folder.SearchPathType.Equals("storeFolder")) {
 				string? possiblePath = null;
 				if (uint.TryParse(folder.SteamGameId, out uint steamId)) {
 					possiblePath = CommonFunctions.GetSteamInstallPath(steamId);
@@ -235,7 +235,7 @@ public class Config {
 				if (!string.IsNullOrEmpty(folder.SearchPath)) {
 					initialValue = Path.Combine(initialValue, folder.SearchPath);
 				}
-			} else if (folder.SearchPathType == "direct") {
+			} else if (folder.SearchPathType.Equals("direct")) {
 				initialValue = folder.SearchPath;
 			}
 
@@ -243,7 +243,7 @@ public class Config {
 				folder.Value = initialValue;
 			}
 
-			if (folder.Name == ModAutoGenerationSource) {
+			if (folder.Name.Equals(ModAutoGenerationSource)) {
 				AutoLocateMods();
 			}
 		}
@@ -256,12 +256,12 @@ public class Config {
 
 			if (!string.IsNullOrEmpty(file.Value)) {
 				initialDirectory = CommonFunctions.GetPath(file.Value);
-			} else if (file.SearchPathType == "windowsUsersFolder") {
+			} else if (file.SearchPathType.Equals("windowsUsersFolder")) {
 				initialDirectory = Path.Combine(documentsDir, file.SearchPath);
 				if (!string.IsNullOrEmpty(file.FileName)) {
 					initialValue = Path.Combine(initialDirectory, file.FileName);
 				}
-			} else if (file.SearchPathType == "converterFolder") {
+			} else if (file.SearchPathType.Equals("converterFolder")) {
 				var currentDir = Directory.GetCurrentDirectory();
 				initialDirectory = Path.Combine(currentDir, file.SearchPath);
 				if (!string.IsNullOrEmpty(file.FileName)) {
@@ -368,7 +368,7 @@ public class Config {
 		// Do we have a mod path?
 		string? modPath = null;
 		foreach (var folder in RequiredFolders) {
-			if (folder.Name == ModAutoGenerationSource) {
+			if (folder.Name.Equals(ModAutoGenerationSource)) {
 				modPath = folder.Value;
 			}
 		}
@@ -399,7 +399,7 @@ public class Config {
 			}
 
 			var extension = CommonFunctions.GetExtension(file);
-			if (extension != "mod") {
+			if (!extension.Equals("mod")) {
 				continue;
 			}
 
