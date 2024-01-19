@@ -1,7 +1,8 @@
-﻿using Avalonia;
+﻿using Amazon.S3;
+using Amazon.S3.Transfer;
+using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
-using Bytewizer.Backblaze.Client;
 using commonItems;
 using Fronter.Extensions;
 using Fronter.Models.Configuration;
@@ -212,40 +213,32 @@ internal class ConverterLauncher {
 
 	private static async Task UploadSaveArchiveToBackblaze(string archivePath) {
 		// Add Backblaze credentials to breadcrumbs for debugging.
-		var client = new BackblazeClient();
 		var keyId = Secrets.BackblazeKeyId;
 		var applicationKey = Secrets.BackblazeApplicationKey;
 		var bucketId = Secrets.BackblazeBucketId;
 		SentrySdk.AddBreadcrumb($"Backblaze key ID: \"{keyId}\"");
 		SentrySdk.AddBreadcrumb($"Backblaze application key: \"{applicationKey}\"");
 		SentrySdk.AddBreadcrumb($"Backblaze bucket ID: \"{bucketId}\"");
+		
+		var s3Config = new AmazonS3Config {
+			ServiceURL = "https://s3.eu-central-003.backblazeb2.com",
+		};
 
-		// Init Backblaze B2 client.
+		var s3Client = new AmazonS3Client(keyId, applicationKey, s3Config);
+		var fileTransferUtility = new TransferUtility(s3Client);
+
 		try {
-			await client.ConnectAsync(keyId, applicationKey);
-		} catch (Exception e) {
-			var message = $"Failed to connect to Backblaze: {e.Message}";
-			logger.Debug(message);
-			SentrySdk.AddBreadcrumb(message);
-			return;
+			await fileTransferUtility.UploadAsync(archivePath, "save-zips");
+			Logger.Info("Upload completed.");
 		}
-			
-		// Upload zip to Backblaze B2.
-		try {
-			await using var stream = File.OpenRead(archivePath);
-			var archiveName = new FileInfo(archivePath).Name;
-			var results = await client.UploadAsync(bucketId, archiveName, stream);
-			if (results.IsSuccessStatusCode) {
-				logger.Debug("Uploaded save file to Backblaze.");
-				var backblazeFileName = results.Response.FileName;
-				var backblazeFileId = results.Response.FileId;
-				SentrySdk.AddBreadcrumb($"Backblaze file name: {backblazeFileName}; file ID: {backblazeFileId}");
-			} else {
-				logger.Debug($"Save archive upload failed with status {results.StatusCode}");
-			}
-		} catch (Exception e) {
-			var message = $"Failed to upload save file to Backblaze: {e.Message}";
-			logger.Debug(message);
+		catch (AmazonS3Exception e) {
+			string message = $"Error encountered on server. Message:'{e.Message}' when writing an object.";
+			Logger.Error(message);
+			SentrySdk.AddBreadcrumb(message);
+		}
+		catch (Exception e) {
+			string message = $"Unknown encountered on server. Message:'{e.Message}' when writing an object.";
+			Logger.Error(message);
 			SentrySdk.AddBreadcrumb(message);
 		}
 	}
