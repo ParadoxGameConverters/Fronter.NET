@@ -303,8 +303,8 @@ public sealed class MainWindowViewModel : ViewModelBase {
 		
 		bool performUpdate = false;
 		await Dispatcher.UIThread.InvokeAsync(async () => {
-			string result = await messageBoxWindow.ShowWindowDialogAsync(MainWindow.Instance);
-			performUpdate = result.Equals(updateNowStr);
+			string? result = await messageBoxWindow.ShowWindowDialogAsync(MainWindow.Instance);
+			performUpdate = result is not null && result.Equals(updateNowStr);
 		}, DispatcherPriority.Normal);
 		
 		if (!performUpdate) {
