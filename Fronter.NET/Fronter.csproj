@@ -64,7 +64,7 @@
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
         <PackageReference Include="Avalonia.ReactiveUI" Version="$(AvaloniaVersion)" />
         <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
-        <PackageReference Include="AWSSDK.S3" Version="3.7.305.17" />
+        <PackageReference Include="AWSSDK.S3" Version="3.7.305.18" />
         <PackageReference Include="DynamicData" Version="8.3.27" />
         <PackageReference Include="MessageBox.Avalonia" Version="3.1.5.1" />
         <PackageReference Include="Meziantou.Analyzer" Version="2.0.139">
