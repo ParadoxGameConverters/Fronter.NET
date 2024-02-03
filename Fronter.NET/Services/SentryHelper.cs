@@ -27,7 +27,7 @@ public static class SentryHelper {
 		// Identify user by username or IP address.
 		string? ip = (await GetExternalIpAddress())?.ToString();
 		SentrySdk.ConfigureScope(scope => {
-			scope.User = ip is null ? new User {Username = Environment.UserName} : new User {IpAddress = ip};
+			scope.User = ip is null ? new() {Username = Environment.UserName} : new() {IpAddress = ip};
 		});
 
 		SentrySdk.CaptureMessage(message, level);
