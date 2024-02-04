@@ -100,16 +100,16 @@ public class Config {
 			TargetPlaysetSelectionEnabled = reader.GetBool();
 		});
 		parser.RegisterKeyword("copyToTargetGameModDirectory", reader => {
-			CopyToTargetGameModDirectory = reader.GetString() == "true";
+			CopyToTargetGameModDirectory = reader.GetString().Equals("true");
 		});
 		parser.RegisterKeyword("progressOnCopyingComplete", reader => {
 			ProgressOnCopyingComplete = (ushort)reader.GetInt();
 		});
 		parser.RegisterKeyword("enableUpdateChecker", reader => {
-			UpdateCheckerEnabled = reader.GetString() == "true";
+			UpdateCheckerEnabled = reader.GetString().Equals("true");
 		});
 		parser.RegisterKeyword("checkForUpdatesOnStartup", reader => {
-			CheckForUpdatesOnStartup = reader.GetString() == "true";
+			CheckForUpdatesOnStartup = reader.GetString().Equals("true");
 		});
 		parser.RegisterKeyword("converterReleaseForumThread", reader => {
 			ConverterReleaseForumThread = reader.GetString();
@@ -173,20 +173,20 @@ public class Config {
 			var valueReader = new BufferedReader(valueStr);
 
 			foreach (var folder in RequiredFolders) {
-				if (folder.Name == incomingKey && Directory.Exists(valueStr)) {
+				if (folder.Name.Equals(incomingKey) && Directory.Exists(valueStr)) {
 					folder.Value = valueStr;
 				}
 			}
 
 			foreach (var file in RequiredFiles) {
-				if (file.Name == incomingKey && File.Exists(valueStr)) {
+				if (file.Name.Equals(incomingKey) && File.Exists(valueStr)) {
 					file.Value = valueStr;
 				}
 			}
 			foreach (var option in Options) {
-				if (option.Name == incomingKey && option.CheckBoxSelector is null) {
+				if (option.Name.Equals(incomingKey) && option.CheckBoxSelector is null) {
 					option.SetValue(valueStr);
-				} else if (option.Name == incomingKey && option.CheckBoxSelector is not null) {
+				} else if (option.Name.Equals(incomingKey) && option.CheckBoxSelector is not null) {
 					var selections = valueReader.GetStrings();
 					var values = selections.ToHashSet();
 					option.SetValue(values);
@@ -215,9 +215,9 @@ public class Config {
 				continue;
 			}
 
-			if (folder.SearchPathType == "windowsUsersFolder") {
+			if (folder.SearchPathType.Equals("windowsUsersFolder")) {
 				initialValue = Path.Combine(documentsDir, folder.SearchPath);
-			} else if (folder.SearchPathType == "storeFolder") {
+			} else if (folder.SearchPathType.Equals("storeFolder")) {
 				string? possiblePath = null;
 				if (uint.TryParse(folder.SteamGameId, out uint steamId)) {
 					possiblePath = CommonFunctions.GetSteamInstallPath(steamId);
@@ -234,7 +234,7 @@ public class Config {
 				if (!string.IsNullOrEmpty(folder.SearchPath)) {
 					initialValue = Path.Combine(initialValue, folder.SearchPath);
 				}
-			} else if (folder.SearchPathType == "direct") {
+			} else if (folder.SearchPathType.Equals("direct")) {
 				initialValue = folder.SearchPath;
 			}
 
@@ -251,12 +251,12 @@ public class Config {
 
 			if (!string.IsNullOrEmpty(file.Value)) {
 				initialDirectory = CommonFunctions.GetPath(file.Value);
-			} else if (file.SearchPathType == "windowsUsersFolder") {
+			} else if (file.SearchPathType.Equals("windowsUsersFolder")) {
 				initialDirectory = Path.Combine(documentsDir, file.SearchPath);
 				if (!string.IsNullOrEmpty(file.FileName)) {
 					initialValue = Path.Combine(initialDirectory, file.FileName);
 				}
-			} else if (file.SearchPathType == "converterFolder") {
+			} else if (file.SearchPathType.Equals("converterFolder")) {
 				var currentDir = Directory.GetCurrentDirectory();
 				initialDirectory = Path.Combine(currentDir, file.SearchPath);
 				if (!string.IsNullOrEmpty(file.FileName)) {

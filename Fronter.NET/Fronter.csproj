@@ -11,15 +11,15 @@
         <IsPackable>false</IsPackable>
         
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-        <AvaloniaVersion>11.0.6</AvaloniaVersion>
+        <AvaloniaVersion>11.0.7</AvaloniaVersion>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <OutputPath>..\..\Release\</OutputPath>
-        <NoWarn>1701;1702;MA0004</NoWarn>
+        <NoWarn>1701;1702;MA0001;MA0004;MA0011;MA0075;MA0076</NoWarn>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <NoWarn>1701;1702;MA0004</NoWarn>
+        <NoWarn>1701;1702;MA0001;MA0004;MA0011;MA0075;MA0076</NoWarn>
     </PropertyGroup>
     <ItemGroup>
         <AvaloniaResource Include="Assets\**" />
@@ -64,20 +64,22 @@
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
         <PackageReference Include="Avalonia.ReactiveUI" Version="$(AvaloniaVersion)" />
         <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
-        <PackageReference Include="Backblaze.Client" Version="1.0.1" />
+        <PackageReference Include="AWSSDK.S3" Version="3.7.305.22" />
         <PackageReference Include="DynamicData" Version="8.3.27" />
         <PackageReference Include="MessageBox.Avalonia" Version="3.1.5.1" />
-        <PackageReference Include="Meziantou.Analyzer" Version="2.0.122">
+        <PackageReference Include="Meziantou.Analyzer" Version="2.0.139">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.13">
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.15">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.13" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.1" />
+        <PackageReference Include="Mono.Posix.NETStandard" Version="1.0.0" />
+        <PackageReference Include="Notification.Avalonia" Version="2.1.0" />
         <PackageReference Include="PGCG.commonItems" Version="8.4.2" />
-        <PackageReference Include="Sentry" Version="3.41.3" />
+        <PackageReference Include="Sentry" Version="4.0.0" />
         <PackageReference Include="System.Net.Primitives" Version="4.3.1" />
     </ItemGroup>
 

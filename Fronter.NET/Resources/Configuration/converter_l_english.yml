@@ -61,3 +61,13 @@ l_english:
   THEME_HIGH_CONTRAST: "High contrast"
   
   MENU_HELP: "Help"
+  
+  SAVE_UPLOAD_CONSENT_TITLE: "Save upload consent"
+  SAVE_UPLOAD_CONSENT_BODY: "Would you like the application to automatically upload your save file to our error database, in order to help us fix this issue?"
+  
+  FAILED_TO_START_CONVERTER: "Failed to start converter"
+  FAILED_TO_START_CONVERTER_BACKEND: "Failed to start converter backend"
+  ELEVATED_PRIVILEGES_REQUIRED: "The converter requires elevated privileges to run."
+  RUN_AS_ADMIN: "Run ConverterFrontend as administrator."
+  RUN_WITH_SUDO: "Run ConverterFrontend with sudo."
+  FAILED_TO_START_CONVERTER_POSSIBLE_BUG: "If you believe this is a bug, please report it on the converter's forum thread."

@@ -32,7 +32,7 @@ internal sealed class PathPickerViewModel : ViewModelBase {
 	public ReactiveCommand<RequiredFolder, Unit> OpenFolderDialogCommand { get; }
 	public ReactiveCommand<RequiredFile, Unit> OpenFileDialogCommand { get; }
 
-	private async static Task<IStorageFolder?> GetStartLocationForFile(RequiredFile file, IStorageProvider storageProvider) {
+	private static async Task<IStorageFolder?> GetStartLocationForFile(RequiredFile file, IStorageProvider storageProvider) {
 		string? path = null;
 		if (file.InitialDirectory is not null) {
 			path = file.InitialDirectory;
@@ -50,7 +50,7 @@ internal sealed class PathPickerViewModel : ViewModelBase {
 		return await storageProvider.TryGetFolderFromPathAsync(path);
 	}
 
-	private async static Task<IStorageFolder?> GetStartLocationForFolder(RequiredFolder folder, IStorageProvider storageProvider) {
+	private static async Task<IStorageFolder?> GetStartLocationForFolder(RequiredFolder folder, IStorageProvider storageProvider) {
 		var folderPath = folder.Value;
 		if (string.IsNullOrEmpty(folderPath)) {
 			return null;

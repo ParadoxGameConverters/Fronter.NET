@@ -1,11 +1,10 @@
-﻿using Avalonia;
+﻿using Amazon.S3;
+using Amazon.S3.Transfer;
+using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
-using Bytewizer.Backblaze.Client;
 using commonItems;
 using Fronter.Extensions;
-using Fronter.LogAppenders;
-using Fronter.Models;
 using Fronter.Models.Configuration;
 using Fronter.Views;
 using log4net;
@@ -19,8 +18,6 @@ using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Fronter.Services;
@@ -100,7 +97,7 @@ internal class ConverterLauncher {
 
 		var timer = new Stopwatch();
 		timer.Start();
-
+		
 		process.Start();
 		process.EnableRaisingEvents = true;
 		process.PriorityClass = ProcessPriorityClass.RealTime;
@@ -109,8 +106,8 @@ internal class ConverterLauncher {
 		process.BeginOutputReadLine();
 
 		// Kill converter backend when frontend is closed.
-		var processId = process.Id;
 		if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
+			var processId = process.Id;
 			desktop.ShutdownRequested += (sender, args) => {
 				try {
 					var backendProcess = Process.GetProcessById(processId);
@@ -123,6 +120,7 @@ internal class ConverterLauncher {
 		}
 
 		await process.WaitForExitAsync();
+		
 		timer.Stop();
 		
 		if (process.ExitCode == 0) {
@@ -156,7 +154,7 @@ internal class ConverterLauncher {
 			});
 			
 			try {
-				SendMessageToSentry(process.ExitCode);
+				SentryHelper.SendMessageToSentry(process.ExitCode);
 				if (saveUploadConsent) {
 					Logger.Notice("Uploaded information about the error, thank you!");
 				}
@@ -172,9 +170,8 @@ internal class ConverterLauncher {
 	
 	private static async Task<bool> GetSaveUploadConsent() {
 		var saveUploadConsent = await MessageBoxManager.GetMessageBoxStandard(
-			title: "Save upload consent",
-			text: "Would you like the application to automatically upload your save file to our error database, " +
-			      "in order to help us fix this issue?",
+			title: TranslationSource.Instance.Translate("SAVE_UPLOAD_CONSENT_TITLE"),
+			text: TranslationSource.Instance.Translate("SAVE_UPLOAD_CONSENT_BODY"),
 			ButtonEnum.OkCancel,
 			Icon.Question
 		).ShowWindowDialogAsync(MainWindow.Instance);
@@ -214,81 +211,34 @@ internal class ConverterLauncher {
 		}
 	}
 
-	private static async Task<IPAddress?> GetExternalIpAddress() {
-		try {
-			var externalIpString = (await new HttpClient().GetStringAsync("https://icanhazip.com/"))
-				.Replace(@"\r", "")
-				.Replace(@"\n", "")
-				.Trim();
-			return !IPAddress.TryParse(externalIpString, out var ipAddress) ? null : ipAddress;
-		} catch (Exception e) {
-			SentrySdk.AddBreadcrumb($"Failed to get IP address: {e.Message}");
-			return null;
-		}
-	}
-
-	private static LogLine? GetFirstErrorLogLineFromGrid() {
-		var gridAppender = LogManager.GetRepository().GetAppenders().First(a => a.Name == "grid");
-		if (gridAppender is LogGridAppender logGridAppender) {
-			return logGridAppender.LogLines
-				.FirstOrDefault(l => l.Level is not null && l.Level >= Level.Error);
-		}
-		return null;
-	}
-
-	private static async void SendMessageToSentry(int processExitCode) {
-		// Identify user by username or IP address.
-		var ip = (await GetExternalIpAddress())?.ToString();
-		SentrySdk.ConfigureScope(scope => {
-			scope.User = ip is null ? new User {Username = Environment.UserName} : new User {IpAddress = ip};
-		});
-
-		var error = GetFirstErrorLogLineFromGrid();
-		if (error is not null) {
-			var sentryMessageLevel = error.Level == Level.Fatal ? SentryLevel.Fatal : SentryLevel.Error;
-			SentrySdk.CaptureMessage(error.Message, sentryMessageLevel);
-		} else {
-			var message = $"Converter exited with code {processExitCode}";
-			SentrySdk.CaptureMessage(message, SentryLevel.Error);
-		}
-	}
-
 	private static async Task UploadSaveArchiveToBackblaze(string archivePath) {
 		// Add Backblaze credentials to breadcrumbs for debugging.
-		var client = new BackblazeClient();
 		var keyId = Secrets.BackblazeKeyId;
 		var applicationKey = Secrets.BackblazeApplicationKey;
 		var bucketId = Secrets.BackblazeBucketId;
 		SentrySdk.AddBreadcrumb($"Backblaze key ID: \"{keyId}\"");
 		SentrySdk.AddBreadcrumb($"Backblaze application key: \"{applicationKey}\"");
 		SentrySdk.AddBreadcrumb($"Backblaze bucket ID: \"{bucketId}\"");
+		
+		var s3Config = new AmazonS3Config {
+			ServiceURL = "https://s3.eu-central-003.backblazeb2.com",
+		};
 
-		// Init Backblaze B2 client.
+		var s3Client = new AmazonS3Client(keyId, applicationKey, s3Config);
+		var fileTransferUtility = new TransferUtility(s3Client);
+
 		try {
-			await client.ConnectAsync(keyId, applicationKey);
-		} catch (Exception e) {
-			var message = $"Failed to connect to Backblaze: {e.Message}";
-			logger.Debug(message);
-			SentrySdk.AddBreadcrumb(message);
-			return;
+			await fileTransferUtility.UploadAsync(archivePath, "save-zips");
+			Logger.Info("Upload completed.");
 		}
-			
-		// Upload zip to Backblaze B2.
-		try {
-			await using var stream = File.OpenRead(archivePath);
-			var archiveName = new FileInfo(archivePath).Name;
-			var results = await client.UploadAsync(bucketId, archiveName, stream);
-			if (results.IsSuccessStatusCode) {
-				logger.Debug("Uploaded save file to Backblaze.");
-				var backblazeFileName = results.Response.FileName;
-				var backblazeFileId = results.Response.FileId;
-				SentrySdk.AddBreadcrumb($"Backblaze file name: {backblazeFileName}; file ID: {backblazeFileId}");
-			} else {
-				logger.Debug($"Save archive upload failed with status {results.StatusCode}");
-			}
-		} catch (Exception e) {
-			var message = $"Failed to upload save file to Backblaze: {e.Message}";
-			logger.Debug(message);
+		catch (AmazonS3Exception e) {
+			string message = $"Error encountered on server. Message:'{e.Message}' when writing an object.";
+			Logger.Error(message);
+			SentrySdk.AddBreadcrumb(message);
+		}
+		catch (Exception e) {
+			string message = $"Unknown encountered on server. Message:'{e.Message}' when writing an object.";
+			Logger.Error(message);
 			SentrySdk.AddBreadcrumb(message);
 		}
 	}

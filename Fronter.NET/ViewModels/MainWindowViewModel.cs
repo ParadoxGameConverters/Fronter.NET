@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Notification;
 using Avalonia.Threading;
 using commonItems.Collections;
 using Fronter.Extensions;
@@ -16,6 +17,7 @@ using MsBox.Avalonia.Dto;
 using MsBox.Avalonia.Enums;
 using MsBox.Avalonia.Models;
 using ReactiveUI;
+using Sentry;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -24,6 +26,7 @@ using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Fronter.ViewModels;
 
@@ -36,13 +39,15 @@ public sealed class MainWindowViewModel : ViewModelBase {
 			Command = SetLanguageCommand,
 			CommandParameter = l,
 			Header = loc.TranslateLanguage(l),
-			Items = Array.Empty<MenuItemViewModel>()
+			Items = Array.Empty<MenuItemViewModel>(),
 		});
 	
-	private IdObjectCollection<string, FrontendTheme> Themes { get; } = new() {
-		new FrontendTheme {Id = "Light", LocKey = "THEME_LIGHT"},
-		new FrontendTheme {Id = "Dark", LocKey = "THEME_DARK"}
-	};
+	public INotificationMessageManager NotificationManager { get; } = new NotificationMessageManager();
+	
+	private IdObjectCollection<string, FrontendTheme> Themes { get; } = [
+		new() {Id = "Light", LocKey = "THEME_LIGHT"},
+		new() {Id = "Dark", LocKey = "THEME_DARK"},
+	];
 	public IEnumerable<MenuItemViewModel> ThemeMenuItems => Themes
 		.Select(theme => new MenuItemViewModel {
 			Command = SetThemeCommand,
@@ -91,7 +96,7 @@ public sealed class MainWindowViewModel : ViewModelBase {
 		Config = new Config();
 
 		var appenders = LogManager.GetRepository().GetAppenders();
-		var gridAppender = appenders.First(a => a.Name == "grid");
+		var gridAppender = appenders.First(a => a.Name.Equals("grid"));
 		if (gridAppender is not LogGridAppender logGridAppender) {
 			throw new LogException($"Log appender \"{gridAppender.Name}\" is not a {typeof(LogGridAppender)}");
 		}
@@ -194,9 +199,43 @@ public sealed class MainWindowViewModel : ViewModelBase {
 		bool success;
 		var converterThread = new Thread(() => {
 			ConvertStatus = "CONVERTSTATUSIN";
-			var launchConverterTask = converterLauncher.LaunchConverter();
-			launchConverterTask.Wait();
-			success = launchConverterTask.Result;
+
+			try {
+				var launchConverterTask = converterLauncher.LaunchConverter();
+				launchConverterTask.Wait();
+				success = launchConverterTask.Result;
+			} catch (TaskCanceledException e) {
+				logger.Debug($"Converter backend task was cancelled: {e.Message}");
+				success = false;
+			} catch (Exception e) {
+				logger.Error($"Failed to start converter backend: {e.Message}");
+				if (SentrySdk.IsEnabled) {
+					SentrySdk.AddBreadcrumb($"Failed to start converter backend: {e.Message}");
+				}
+				var messageText = $"{loc.Translate("FAILED_TO_START_CONVERTER_BACKEND")}: {e.Message}";
+				if (!ElevatedPrivilegesDetector.IsAdministrator) {
+					messageText += "\n\n" + loc.Translate("ELEVATED_PRIVILEGES_REQUIRED");
+					if (OperatingSystem.IsWindows()) {
+						messageText += "\n\n" + loc.Translate("RUN_AS_ADMIN");
+					} else if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS() || OperatingSystem.IsFreeBSD()) {
+						messageText += "\n\n" + loc.Translate("RUN_WITH_SUDO");
+					}
+				} else if (SentrySdk.IsEnabled) {
+					SentryHelper.SendMessageToSentry($"Failed to start converter backend: {e.Message}", SentryLevel.Error);
+				} else {
+					messageText += "\n\n" + loc.Translate("FAILED_TO_START_CONVERTER_POSSIBLE_BUG");
+				}
+				
+				Dispatcher.UIThread.Post(() => MessageBoxManager.GetMessageBoxStandard(
+					title: loc.Translate("FAILED_TO_START_CONVERTER"),
+					text: messageText,
+					ButtonEnum.Ok,
+					Icon.Error
+				).ShowWindowDialogAsync(MainWindow.Instance).Wait());
+				
+				success = false;
+			}
+			
 			if (success) {
 				ConvertStatus = "CONVERTSTATUSPOSTSUCCESS";
 
@@ -254,22 +293,28 @@ public sealed class MainWindowViewModel : ViewModelBase {
 				ContentHeader = loc.Translate("NEW_VERSION_HEADER"),
 				ContentMessage = msgBody,
 				Markdown = true,
-				ButtonDefinitions = new[] {
+				ButtonDefinitions = [
 					new ButtonDefinition {Name = updateNowStr, IsDefault = true},
 					new ButtonDefinition {Name = maybeLaterStr, IsCancel = true}
-				},
+				],
 				MaxWidth = 1280,
 				MaxHeight = 720,
 			});
-		var result = await messageBoxWindow.ShowWindowDialogAsync(MainWindow.Instance);
-		if (result != updateNowStr) {
+		
+		bool performUpdate = false;
+		await Dispatcher.UIThread.InvokeAsync(async () => {
+			string? result = await messageBoxWindow.ShowWindowDialogAsync(MainWindow.Instance);
+			performUpdate = result is not null && result.Equals(updateNowStr);
+		}, DispatcherPriority.Normal);
+		
+		if (!performUpdate) {
 			logger.Info($"Update to version {info.Version} postponed.");
 			return;
 		}
 		
 		// If we can use an installer, download it, run it, and exit.
 		if (info.UseInstaller) {
-			UpdateChecker.RunInstallerAndDie(info.AssetUrl);
+			UpdateChecker.RunInstallerAndDie(info.AssetUrl, Config, NotificationManager);
 		} else{
 			UpdateChecker.StartUpdaterAndDie(info.AssetUrl, Config.ConverterFolder);
 		}
