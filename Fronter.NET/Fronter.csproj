@@ -11,7 +11,7 @@
         <IsPackable>false</IsPackable>
         
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-        <AvaloniaVersion>11.0.7</AvaloniaVersion>
+        <AvaloniaVersion>11.0.9</AvaloniaVersion>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
         <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -64,10 +64,10 @@
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
         <PackageReference Include="Avalonia.ReactiveUI" Version="$(AvaloniaVersion)" />
         <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
-        <PackageReference Include="AWSSDK.S3" Version="3.7.305.22" />
+        <PackageReference Include="AWSSDK.S3" Version="3.7.305.24" />
         <PackageReference Include="DynamicData" Version="8.3.27" />
         <PackageReference Include="MessageBox.Avalonia" Version="3.1.5.1" />
-        <PackageReference Include="Meziantou.Analyzer" Version="2.0.139">
+        <PackageReference Include="Meziantou.Analyzer" Version="2.0.140">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -79,7 +79,7 @@
         <PackageReference Include="Mono.Posix.NETStandard" Version="1.0.0" />
         <PackageReference Include="Notification.Avalonia" Version="2.1.0" />
         <PackageReference Include="PGCG.commonItems" Version="8.4.2" />
-        <PackageReference Include="Sentry" Version="4.0.1" />
+        <PackageReference Include="Sentry" Version="4.1.0" />
         <PackageReference Include="System.Net.Primitives" Version="4.3.1" />
     </ItemGroup>
 
