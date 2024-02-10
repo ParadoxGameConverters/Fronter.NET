@@ -181,7 +181,7 @@ internal class ConverterLauncher {
 	private static async void AttachLogAndSaveToSentry(Config config) {
 		SentrySdk.ConfigureScope(scope => scope.AddAttachment("log.txt"));
 		
-		var saveLocation = config.RequiredFiles.FirstOrDefault(f => f.Name == "SaveGame")?.Value;
+		var saveLocation = config.RequiredFiles.FirstOrDefault(f => f.Name.Equals("SaveGame"))?.Value;
 		if (saveLocation is null) {
 			return;
 		}
@@ -190,7 +190,8 @@ internal class ConverterLauncher {
 		
 		// Create zip with save file.
 		var dateTimeString = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss", CultureInfo.InvariantCulture);
-		var archivePath = $"temp/SaveGame_{dateTimeString}.zip";
+		var asciiSaveName = CommonFunctions.TrimExtension(Path.GetFileName(saveLocation)).FoldToASCII();
+		var archivePath = $"temp/SaveGame_{dateTimeString}_{asciiSaveName}.zip";
 		using (var zip = ZipFile.Open(archivePath, ZipArchiveMode.Create)) {
 			zip.CreateEntryFromFile(saveLocation, new FileInfo(saveLocation).Name);
 		}
