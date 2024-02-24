@@ -38,7 +38,7 @@ then
   pip3 install -r requirements.txt 
   python3 -m PyInstaller --icon=updater.ico updater.py
   mkdir -p "${GITHUB_WORKSPACE}/${RELEASE_DIR}/Updater"
-  mv dist/updater/* "${GITHUB_WORKSPACE}/${RELEASE_DIR}/Updater/"
+  mv dist/* "${GITHUB_WORKSPACE}/${RELEASE_DIR}/Updater/"
 
   printf "\n✔ Successfully built updater.\n"
 fi
