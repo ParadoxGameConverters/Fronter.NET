@@ -36,7 +36,7 @@ then
   pip3 install pip-tools
   python3 -m piptools compile -o requirements.txt pyproject.toml
   pip3 install -r requirements.txt 
-  python3 -m PyInstaller --icon=updater.ico updater.py
+  python3 -m PyInstaller --onefile --icon=updater.ico updater.py
   mkdir -p "${GITHUB_WORKSPACE}/${RELEASE_DIR}/Updater"
   mv dist/* "${GITHUB_WORKSPACE}/${RELEASE_DIR}/Updater/"
 
