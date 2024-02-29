@@ -5,9 +5,6 @@ using log4net.Core;
 using Sentry;
 using System;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 
 namespace Fronter.Services;
 
@@ -23,7 +20,7 @@ public static class SentryHelper {
 		}
 	}
 	
-	public static async void SendMessageToSentry(string message, SentryLevel level) {
+	public static void SendMessageToSentry(string message, SentryLevel level) {
 		// Identify user by IP address and machine/user name.
 		string name = Environment.MachineName;
 		if (string.IsNullOrWhiteSpace(name)) {
