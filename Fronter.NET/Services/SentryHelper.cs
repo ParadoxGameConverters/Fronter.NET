@@ -24,10 +24,13 @@ public static class SentryHelper {
 	}
 	
 	public static async void SendMessageToSentry(string message, SentryLevel level) {
-		// Identify user by username or IP address.
-		string? ip = (await GetExternalIpAddress())?.ToString();
+		// Identify user by IP address and machine/user name.
+		string name = Environment.MachineName;
+		if (string.IsNullOrWhiteSpace(name)) {
+			name = Environment.UserName;
+		}
 		SentrySdk.ConfigureScope(scope => {
-			scope.User = ip is null ? new() {Username = Environment.UserName} : new() {IpAddress = ip};
+			scope.User = new() {Username = name, IpAddress = "{{auto}}"};
 		});
 
 		SentrySdk.CaptureMessage(message, level);
@@ -40,18 +43,5 @@ public static class SentryHelper {
 				.FirstOrDefault(l => l.Level is not null && l.Level >= Level.Error);
 		}
 		return null;
-	}
-
-	private static async Task<IPAddress?> GetExternalIpAddress() {
-		try {
-			var externalIpString = (await new HttpClient().GetStringAsync("https://icanhazip.com/"))
-				.Replace(@"\r", "")
-				.Replace(@"\n", "")
-				.Trim();
-			return !IPAddress.TryParse(externalIpString, out var ipAddress) ? null : ipAddress;
-		} catch (Exception e) {
-			SentrySdk.AddBreadcrumb($"Failed to get IP address: {e.Message}");
-			return null;
-		}
 	}
 }
