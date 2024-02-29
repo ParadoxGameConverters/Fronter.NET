@@ -70,8 +70,14 @@ public static class UpdateChecker {
 		var apiUrl = $"https://api.github.com/repos/ParadoxGameConverters/{converterName}/releases/latest";
 		var requestMessage = new HttpRequestMessage(HttpMethod.Get, apiUrl);
 		requestMessage.Headers.Add("User-Agent", "ParadoxGameConverters");
-
-		var responseMessage = await HttpClient.SendAsync(requestMessage);
+	
+		HttpResponseMessage responseMessage;
+		try {
+			responseMessage = await HttpClient.SendAsync(requestMessage);
+		} catch (Exception e) {
+			Logger.Warn($"Failed to get release info from \"{apiUrl}\": {e}!");
+			return info;
+		}
 		await using var responseStream = await responseMessage.Content.ReadAsStreamAsync();
 
 		var releaseInfo = await JsonSerializer.DeserializeAsync<ConverterReleaseInfo>(responseStream);
