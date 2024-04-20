@@ -33,9 +33,9 @@ then
   printf "\nBuilding updater...\n"
 
   cd "${FRONTER_DIR}/Updater"
-  pip3 install --break-system-packages pip-tools
+  PIP_BREAK_SYSTEM_PACKAGES=1 pip3 install pip-tools
   python3 -m piptools compile -o requirements.txt pyproject.toml
-  pip3 install --break-system-packages -r requirements.txt 
+  PIP_BREAK_SYSTEM_PACKAGES=1 pip3 install -r requirements.txt 
   python3 -m PyInstaller --onefile --icon=updater.ico updater.py
   mkdir -p "${GITHUB_WORKSPACE}/${RELEASE_DIR}/Updater"
   mv dist/* "${GITHUB_WORKSPACE}/${RELEASE_DIR}/Updater/"
