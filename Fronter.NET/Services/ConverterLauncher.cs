@@ -13,6 +13,7 @@ using MsBox.Avalonia;
 using MsBox.Avalonia.Enums;
 using Sentry;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -68,7 +69,7 @@ internal class ConverterLauncher {
 			RedirectStandardInput = true,
 		};
 		var extension = CommonFunctions.GetExtension(backendExePathRelativeToFrontend);
-		if (extension == "jar") {
+		if (string.Equals(extension, "jar", StringComparison.OrdinalIgnoreCase)) {
 			startInfo.FileName = "javaw";
 			startInfo.Arguments = $"-jar {CommonFunctions.TrimPath(backendExePathRelativeToFrontend)}";
 		}
@@ -136,7 +137,9 @@ internal class ConverterLauncher {
 		
 		logger.Debug($"Converter exit code: {process.ExitCode}");
 		logger.Error("Converter error! See log.txt for details.");
-		if (SentrySdk.IsEnabled) {
+		var helpPageOpened = await TryOpenHelpPage(process.ExitCode);
+		
+		if (!helpPageOpened && SentrySdk.IsEnabled) {
 			bool logProvided = false;
 			var saveUploadConsent = await Dispatcher.UIThread.InvokeAsync(GetSaveUploadConsent);
 			if (saveUploadConsent) {
@@ -242,6 +245,37 @@ internal class ConverterLauncher {
 			Logger.Error(message);
 			SentrySdk.AddBreadcrumb(message);
 		}
+	}
+	
+	/// <summary>
+	/// Tries to open a help page based on the converter backend exit code.
+	/// </summary>
+	/// <param name="exitCode">Exit code of the converter backend.</param>
+	/// <returns>true if a help page was opened, otherwise false</returns>
+	private static async Task<bool> TryOpenHelpPage(int exitCode) {
+		if (OperatingSystem.IsWindows()) {
+			var exitCodeToHelpDict = new Dictionary<int, string> {
+				{-1073741790, "https://answers.microsoft.com/en-us/windows/forum/all/the-application-was-unable-to-start-correctly/e06ee08a-26c5-447a-80bd-ed339488d0f3"}, // -1073741790 = 0xC0000022
+				{-1073741795, "https://ugetfix.com/ask/how-to-fix-file-system-error-1073741795-in-windows/"},
+			};
+			if (!exitCodeToHelpDict.TryGetValue(exitCode, out var helpLink)) {
+				return false;
+			}
+
+			var msgBoxResult = await Dispatcher.UIThread.InvokeAsync(() => MessageBoxManager.GetMessageBoxStandard(
+				title: "Fix suggestion",
+				text: "Would you like to open a help page with instructions on how to fix this issue?",
+				ButtonEnum.YesNo,
+				Icon.Info
+			).ShowWindowDialogAsync(MainWindow.Instance));
+
+			if (msgBoxResult == ButtonResult.Yes) {
+				BrowserLauncher.Open(helpLink);
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	private readonly Config config;
