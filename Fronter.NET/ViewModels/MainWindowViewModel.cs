@@ -17,7 +17,6 @@ using MsBox.Avalonia.Dto;
 using MsBox.Avalonia.Enums;
 using MsBox.Avalonia.Models;
 using ReactiveUI;
-using Sentry;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -209,9 +208,6 @@ public sealed class MainWindowViewModel : ViewModelBase {
 				success = false;
 			} catch (Exception e) {
 				logger.Error($"Failed to start converter backend: {e.Message}");
-				if (SentrySdk.IsEnabled) {
-					SentrySdk.AddBreadcrumb($"Failed to start converter backend: {e.Message}");
-				}
 				var messageText = $"{loc.Translate("FAILED_TO_START_CONVERTER_BACKEND")}: {e.Message}";
 				if (!ElevatedPrivilegesDetector.IsAdministrator) {
 					messageText += "\n\n" + loc.Translate("ELEVATED_PRIVILEGES_REQUIRED");
@@ -220,8 +216,6 @@ public sealed class MainWindowViewModel : ViewModelBase {
 					} else if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS() || OperatingSystem.IsFreeBSD()) {
 						messageText += "\n\n" + loc.Translate("RUN_WITH_SUDO");
 					}
-				} else if (SentrySdk.IsEnabled) {
-					SentryHelper.SendMessageToSentry($"Failed to start converter backend: {e.Message}", SentryLevel.Error);
 				} else {
 					messageText += "\n\n" + loc.Translate("FAILED_TO_START_CONVERTER_POSSIBLE_BUG");
 				}

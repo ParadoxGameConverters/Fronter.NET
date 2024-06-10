@@ -3,7 +3,6 @@ using commonItems;
 using Fronter.Models.Configuration.Options;
 using Fronter.ViewModels;
 using log4net;
-using Sentry;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -53,10 +52,6 @@ public class Config {
 			logger.Info("Frontend options loaded.");
 		} else {
 			logger.Warn($"{fronterOptionsPath} not found!");
-		}
-
-		if (SentryDsn is not null) {
-			InitSentry(SentryDsn);
 		}
 
 		InitializePaths();
@@ -115,50 +110,6 @@ public class Config {
 		parser.IgnoreAndLogUnregisteredItems();
 	}
 	
-	private void InitSentry(string dsn) {
-		string? release = null;
-		// Try to get version from converter's version.txt
-		var versionFilePath = Path.Combine(ConverterFolder, "configurables/version.txt");
-		if (File.Exists(versionFilePath)) {
-			var version = new ConverterVersion();
-			version.LoadVersion(versionFilePath);
-			if (!string.IsNullOrWhiteSpace(version.Version) && !string.IsNullOrWhiteSpace(Name)) {
-				release = $"{Name}@{version.Version}";
-			}
-		}
-		if (release is null) {
-			Logger.Debug("Skipping Sentry initialization because converter version could not be determined.");
-			return;
-		}
-		
-		SentrySdk.Init(options => {
-			// A Sentry Data Source Name (DSN) is required.
-			// See https://docs.sentry.io/product/sentry-basics/dsn-explainer/
-			options.Dsn = dsn;
-
-			// This option is recommended. It enables Sentry's "Release Health" feature.
-			options.AutoSessionTracking = true;
-
-			// This option is recommended for client applications only. It ensures all threads use the same global scope.
-			// If you're writing a background service of any kind, you should remove this.
-			options.IsGlobalModeEnabled = true;
-
-			// This option will enable Sentry's tracing features. You still need to start transactions and spans.
-			options.EnableTracing = true;
-			options.AttachStacktrace = false;
-
-			options.MaxBreadcrumbs = int.MaxValue;
-			options.MaxAttachmentSize = long.MaxValue;
-
-			options.Release = release;
-#if DEBUG
-			options.Environment = "Debug";
-#else
-			options.Environment = "Release"; 
-#endif
-		});
-		Logger.Debug("Sentry initialized.");
-	}
 
 	private void RegisterPreloadKeys(Parser parser) {
 		parser.RegisterRegex(CommonRegexes.String, (reader, incomingKey) => {

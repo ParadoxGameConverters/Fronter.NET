@@ -139,25 +139,23 @@ internal class ConverterLauncher {
 		logger.Error("Converter error! See log.txt for details.");
 		var helpPageOpened = await TryOpenHelpPage(process.ExitCode);
 		
-		if (!helpPageOpened && SentrySdk.IsEnabled) {
-			bool logProvided = false;
+		if (!helpPageOpened && config.SentryDsn is not null) {
 			var saveUploadConsent = await Dispatcher.UIThread.InvokeAsync(GetSaveUploadConsent);
-			if (saveUploadConsent) {
-				try {
-					AttachLogAndSaveToSentry(config);
-					logProvided = true;
-				} catch (Exception e) {
-					var warnMessage = $"Failed to attach log and save to Sentry event: {e.Message}";
-					logger.Warn(warnMessage);
-					SentrySdk.AddBreadcrumb(warnMessage);
-				}
-			} 
-			SentrySdk.ConfigureScope(scope => {
-				scope.SetTag("logProvided", logProvided.ToString());
-			});
-			
+			if (!saveUploadConsent) {
+				return false;
+			}
+
+			var sentryHelper = new SentryHelper(config);
 			try {
-				SentryHelper.SendMessageToSentry(process.ExitCode);
+				AttachLogAndSaveToSentry(config);
+			} catch (Exception e) {
+				var warnMessage = $"Failed to attach log and save to Sentry event: {e.Message}";
+				logger.Warn(warnMessage);
+				SentrySdk.AddBreadcrumb(warnMessage);
+			}
+				
+			try {
+				sentryHelper.SendMessageToSentry(process.ExitCode);
 				if (saveUploadConsent) {
 					Logger.Notice("Uploaded information about the error, thank you!");
 				}
