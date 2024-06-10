@@ -109,7 +109,6 @@ public class Config {
 		parser.RegisterKeyword("pagesCommitIdUrl", reader => PagesCommitIdUrl = reader.GetString());
 		parser.IgnoreAndLogUnregisteredItems();
 	}
-	
 
 	private void RegisterPreloadKeys(Parser parser) {
 		parser.RegisterRegex(CommonRegexes.String, (reader, incomingKey) => {
