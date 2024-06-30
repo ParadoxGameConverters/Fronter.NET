@@ -13,6 +13,6 @@ public class Mod : ViewModelBase {
 		FileName = CommonFunctions.TrimPath(modPath);
 	}
 	public string Name { get; private set; } = string.Empty;
-	public string FileName { get; private set; }
+	public string FileName { get; }
 	public bool Enabled { get; set; } = false;
 }

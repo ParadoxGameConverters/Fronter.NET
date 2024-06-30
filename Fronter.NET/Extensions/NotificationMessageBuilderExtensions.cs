@@ -10,7 +10,7 @@ public static class NotificationMessageBuilderExtensions {
 		return manager
 			.CreateMessage()
 			.Accent(Brushes.Red)
-			.Animates(true)
+			.Animates(animates: true)
 			.Background("#333")
 			.HasBadge("Error");
 	}

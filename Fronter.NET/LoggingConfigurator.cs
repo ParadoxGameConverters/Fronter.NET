@@ -10,7 +10,7 @@ namespace Fronter;
 public static class LoggingConfigurator {
 	public static void ConfigureLogging(bool useConsole = false) {
 		var appenders = new List<IAppender>();
-		
+
         var layout = new PatternLayout {
             ConversionPattern = "%date{yyyy'-'MM'-'dd HH':'mm':'ss} [%level] %message%newline",
         };

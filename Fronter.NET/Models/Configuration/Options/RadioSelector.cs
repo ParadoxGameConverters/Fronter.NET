@@ -62,7 +62,7 @@ public sealed class RadioSelector : Selector {
 	}
 
 	public ToggleableOption? SelectedOption {
-		get => RadioOptions.FirstOrDefault(option => option!.Value, null);
+		get => RadioOptions.FirstOrDefault(option => option!.Value, defaultValue: null);
 		set {
 			foreach (var option in RadioOptions) {
 				option.Value = option == value;

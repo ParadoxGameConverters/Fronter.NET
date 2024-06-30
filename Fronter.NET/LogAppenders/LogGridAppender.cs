@@ -16,7 +16,7 @@ using System.Linq;
 namespace Fronter.LogAppenders;
 
 public sealed class LogGridAppender : MemoryAppender {
-	public ObservableCollection<LogLine> LogLines { get; } = new();
+	public ObservableCollection<LogLine> LogLines { get; } = [];
 	private ReadOnlyObservableCollection<LogLine> filteredLogLines;
 	public ReadOnlyObservableCollection<LogLine> FilteredLogLines => filteredLogLines;
 
@@ -100,6 +100,6 @@ public sealed class LogGridAppender : MemoryAppender {
 	}
 
 	public void ScrollToLogEnd() {
-		Dispatcher.UIThread.Post(() => LogGrid?.ScrollIntoView(lastVisibleRow, null), DispatcherPriority.Background);
+		Dispatcher.UIThread.Post(() => LogGrid?.ScrollIntoView(lastVisibleRow, column: null), DispatcherPriority.Background);
 	}
 }

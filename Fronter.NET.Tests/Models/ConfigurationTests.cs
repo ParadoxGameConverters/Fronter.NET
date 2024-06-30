@@ -40,7 +40,7 @@ public class ConfigurationTests {
 			},
 			folder => {
 				Assert.Equal("targetGameModPath", folder.Name);
-				Assert.Equal("Paradox Interactive\\Crusader Kings III\\mod", folder.SearchPath);
+				Assert.Equal(@"Paradox Interactive\Crusader Kings III\mod", folder.SearchPath);
 			}
 		);
 
@@ -52,7 +52,7 @@ public class ConfigurationTests {
 				Assert.True(file.Mandatory);
 				Assert.True(file.Outputtable);
 				Assert.Equal("windowsUsersFolder", file.SearchPathType);
-				Assert.Equal("Paradox Interactive\\Imperator\\save games", file.SearchPath );
+				Assert.Equal(@"Paradox Interactive\Imperator\save games", file.SearchPath );
 				Assert.Equal("*.rome", file.AllowedExtension);
 			});
 	}

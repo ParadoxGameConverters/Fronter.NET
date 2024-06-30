@@ -8,6 +8,7 @@ using Fronter.ViewModels;
 using Fronter.Views;
 using log4net;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
 namespace Fronter;
@@ -59,6 +60,7 @@ public class App : Application {
 	/// Sets a theme
 	/// </summary>
 	/// <param name="themeName">Name of the theme to set.</param>
+	[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 	public static void SetTheme(string themeName) {
 		var app = Application.Current;
 		if (app is null) {

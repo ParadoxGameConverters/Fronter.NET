@@ -74,7 +74,7 @@ public sealed class TranslationSource : ReactiveObject {
 	}
 
 	public string TranslateLanguage(string language) {
-		return !languages.ContainsKey(language) ? string.Empty : languages[language].NativeName;
+		return !languages.TryGetValue(language, out CultureInfo? cultureInfo) ? string.Empty : cultureInfo.NativeName;
 	}
 
 	public string this[string key] => Translate(key);

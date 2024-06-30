@@ -33,7 +33,7 @@ internal class ModCopier {
 		}
 
 		var requiredFolders = config.RequiredFolders;
-		var targetGameModPath = requiredFolders.FirstOrDefault(f => f?.Name == "targetGameModPath", null);
+		var targetGameModPath = requiredFolders.FirstOrDefault(f => f?.Name == "targetGameModPath", defaultValue: null);
 		if (targetGameModPath is null) {
 			logger.Error("Copy failed - Target Folder isn't loaded!");
 			return false;
@@ -53,7 +53,7 @@ internal class ModCopier {
 		}
 		var requiredFiles = config.RequiredFiles;
 		if (string.IsNullOrEmpty(targetName)) {
-			var saveGame = requiredFiles.FirstOrDefault(f => f?.Name == "SaveGame", null);
+			var saveGame = requiredFiles.FirstOrDefault(f => f?.Name == "SaveGame", defaultValue: null);
 			if (saveGame is null) {
 				logger.Error("Copy failed - SaveGame is does not exist!");
 				return false;
@@ -293,7 +293,7 @@ internal class ModCopier {
 	private void DeactivateCurrentPlayset(LauncherDbContext dbContext) {
 		logger.Debug("Deactivating currently active playset...");
 		dbContext.Playsets
-			.Where(p => p.IsActive.HasValue && p.IsActive.Value == true)
+			.Where(p => p.IsActive == true)
 			.ToList()
 			.ForEach(p => p.IsActive = false);
 		dbContext.SaveChanges();

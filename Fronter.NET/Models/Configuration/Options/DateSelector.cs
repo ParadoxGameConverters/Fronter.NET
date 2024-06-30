@@ -1,7 +1,7 @@
 ﻿using commonItems;
 using System;
 
-namespace Fronter.Models.Configuration.Options; 
+namespace Fronter.Models.Configuration.Options;
 
 public sealed class DateSelector : Selector {
 	public DateSelector(BufferedReader reader) {
