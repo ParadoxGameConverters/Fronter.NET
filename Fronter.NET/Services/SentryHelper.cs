@@ -65,6 +65,8 @@ public class SentryHelper {
 
 	public void AddBreadcrumb(string text) => SentrySdk.AddBreadcrumb(text);
 
+	public void AddAttachment(string filePath) => SentrySdk.ConfigureScope(scope => scope.AddAttachment(filePath));
+
 	public void SendMessageToSentry(int processExitCode) {
 		LogLine? error = GetFirstErrorLogLineFromGrid();
 		if (error is not null) {
