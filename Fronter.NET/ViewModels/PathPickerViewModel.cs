@@ -6,6 +6,7 @@ using Fronter.Views;
 using ReactiveUI;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reactive;
@@ -61,6 +62,7 @@ internal sealed class PathPickerViewModel : ViewModelBase {
 		return await storageProvider.TryGetFolderFromPathAsync(folderPath);
 	}
 
+	[SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
 	public async void OpenFolderDialog(RequiredFolder folder) {
 		var storageProvider = MainWindow.Instance.StorageProvider;
 
@@ -84,6 +86,8 @@ internal sealed class PathPickerViewModel : ViewModelBase {
 		var absolutePath = selectedFileUri.LocalPath;
 		folder.Value = absolutePath;
 	}
+
+	[SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
 	public async void OpenFileDialog(RequiredFile file) {
 		var storageProvider = MainWindow.Instance.StorageProvider;
 

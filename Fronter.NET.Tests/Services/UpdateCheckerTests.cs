@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Fronter.Tests.Services;
@@ -16,7 +17,7 @@ public class UpdateCheckerTests {
 	private const string ImperatorToCK3CommitUrl = "https://paradoxgameconverters.com/commit_ids/ImperatorToCK3.txt";
 
 	[Fact]
-	public async void IncorrectCommitIdTxtPathIsLogged() {
+	public async Task IncorrectCommitIdTxtPathIsLogged() {
 		var stringWriter = new StringWriter();
 		Console.SetOut(stringWriter);
 		LoggingConfigurator.ConfigureLogging(useConsole: true);
@@ -31,7 +32,7 @@ public class UpdateCheckerTests {
 	}
 
 	[Fact]
-	public async void IncorrectCommitIdUrlIsLogged() {
+	public async Task IncorrectCommitIdUrlIsLogged() {
 		var stringWriter = new StringWriter();
 		Console.SetOut(stringWriter);
 		LoggingConfigurator.ConfigureLogging(useConsole: true);
@@ -46,14 +47,14 @@ public class UpdateCheckerTests {
 	}
 
 	[Fact]
-	public async void UpdateCheckerCanFindUpdate() {
+	public async Task UpdateCheckerCanFindUpdate() {
 		bool isUpdateAvailable = await UpdateChecker.IsUpdateAvailable(TestImperatorToCK3CommitIdTxtPath,
 			ImperatorToCK3CommitUrl);
 		Assert.True(isUpdateAvailable);
 	}
 
 	[Fact]
-	public async void LatestReleaseInfoIsDownloaded() {
+	public async Task LatestReleaseInfoIsDownloaded() {
 		UpdateInfoModel info = await UpdateChecker.GetLatestReleaseInfo("ImperatorToCK3");
 
 		var versionRegex = new Regex(@"^\d+\.\d+\.\d+$");

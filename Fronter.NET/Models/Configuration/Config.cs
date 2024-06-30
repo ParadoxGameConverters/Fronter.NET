@@ -20,7 +20,7 @@ public class Config {
 	public string TargetGame { get; private set; } = string.Empty;
 	public string? SentryDsn { get; private set; }
 	public string? ModAutoGenerationSource { get; private set; } = null;
-	public ObservableCollection<Mod> AutoLocatedMods { get; } = new();
+	public ObservableCollection<Mod> AutoLocatedMods { get; } = [];
 	public bool CopyToTargetGameModDirectory { get; set; } = true;
 	public ushort ProgressOnCopyingComplete { get; set; } = 109;
 	public bool UpdateCheckerEnabled { get; private set; } = false;

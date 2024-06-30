@@ -11,14 +11,14 @@ using System.Linq;
 
 namespace Fronter.Services;
 
-public class SentryHelper { 
+public class SentryHelper {
 	public SentryHelper(Config config) {
 		this.config = config;
 		InitSentry();
 	}
-	
+
 	private readonly Config config;
-	
+
 	private void InitSentry() {
 		string? release = null;
 		// Try to get version from converter's version.txt
@@ -47,7 +47,7 @@ public class SentryHelper {
 			// This option is recommended for client applications only. It ensures all threads use the same global scope.
 			// If you're writing a background service of any kind, you should remove this.
 			options.IsGlobalModeEnabled = true;
-			
+
 			options.AttachStacktrace = false;
 
 			options.MaxBreadcrumbs = int.MaxValue;
@@ -77,16 +77,14 @@ public class SentryHelper {
 			SendMessageToSentry(message, SentryLevel.Error);
 		}
 	}
-	
+
 	public void SendMessageToSentry(string message, SentryLevel level) {
 		// Identify user by IP address and machine/user name.
 		string name = Environment.MachineName;
 		if (string.IsNullOrWhiteSpace(name)) {
 			name = Environment.UserName;
 		}
-		SentrySdk.ConfigureScope(scope => {
-			scope.User = new() {Username = name, IpAddress = "{{auto}}"};
-		});
+		SentrySdk.ConfigureScope(scope => scope.User = new() { Username = name, IpAddress = "{{auto}}" });
 
 		SentrySdk.CaptureMessage(message, level);
 	}

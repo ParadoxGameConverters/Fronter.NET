@@ -11,7 +11,6 @@ using log4net;
 using log4net.Core;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Enums;
-using Sentry;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -196,13 +195,13 @@ internal class ConverterLauncher {
 		using (var zip = ZipFile.Open(archivePath, ZipArchiveMode.Create)) {
 			zip.CreateEntryFromFile(saveLocation, new FileInfo(saveLocation).Name);
 		}
-		
+
 		// Sentry allows up to 20 MB per compressed request.
 		// So we need to calculate whether we can fit the save archive.
 		// Otherwise we upload it to Backblaze.
 		var logSize = new FileInfo("log.txt").Length; // Size in bytes.
 		const int spaceForBaseRequest = 1024 * 1024 / 2; // 0.5 MB, arbitrary.
-		var saveSizeLimitForSentry = 20 * 1024 * 1024 - (logSize + spaceForBaseRequest);
+		var saveSizeLimitForSentry = (20 * 1024 * 1024) - (logSize + spaceForBaseRequest);
 		var saveArchiveSize = new FileInfo(archivePath).Length;
 		if (saveArchiveSize <= saveSizeLimitForSentry) {
 			logger.Debug($"Save file is {saveArchiveSize} bytes, uploading to Sentry.");
@@ -273,9 +272,9 @@ internal class ConverterLauncher {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	private readonly Config config;
 }

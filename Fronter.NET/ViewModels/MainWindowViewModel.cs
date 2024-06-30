@@ -40,9 +40,9 @@ public sealed class MainWindowViewModel : ViewModelBase {
 			Header = loc.TranslateLanguage(l),
 			Items = Array.Empty<MenuItemViewModel>(),
 		});
-	
+
 	public INotificationMessageManager NotificationManager { get; } = new NotificationMessageManager();
-	
+
 	private IdObjectCollection<string, FrontendTheme> Themes { get; } = [
 		new() {Id = "Light", LocKey = "THEME_LIGHT"},
 		new() {Id = "Dark", LocKey = "THEME_DARK"},
@@ -219,17 +219,17 @@ public sealed class MainWindowViewModel : ViewModelBase {
 				} else {
 					messageText += "\n\n" + loc.Translate("FAILED_TO_START_CONVERTER_POSSIBLE_BUG");
 				}
-				
+
 				Dispatcher.UIThread.Post(() => MessageBoxManager.GetMessageBoxStandard(
 					title: loc.Translate("FAILED_TO_START_CONVERTER"),
 					text: messageText,
 					ButtonEnum.Ok,
 					Icon.Error
 				).ShowWindowDialogAsync(MainWindow.Instance).Wait());
-				
+
 				success = false;
 			}
-			
+
 			if (success) {
 				ConvertStatus = "CONVERTSTATUSPOSTSUCCESS";
 
@@ -294,18 +294,18 @@ public sealed class MainWindowViewModel : ViewModelBase {
 				MaxWidth = 1280,
 				MaxHeight = 720,
 			});
-		
+
 		bool performUpdate = false;
 		await Dispatcher.UIThread.InvokeAsync(async () => {
 			string? result = await messageBoxWindow.ShowWindowDialogAsync(MainWindow.Instance);
 			performUpdate = result is not null && result.Equals(updateNowStr);
 		}, DispatcherPriority.Normal);
-		
+
 		if (!performUpdate) {
 			logger.Info($"Update to version {info.Version} postponed.");
 			return;
 		}
-		
+
 		// If we can use an installer, download it, run it, and exit.
 		if (info.UseInstaller) {
 			UpdateChecker.RunInstallerAndDie(info.AssetUrl, Config, NotificationManager);
@@ -325,7 +325,7 @@ public sealed class MainWindowViewModel : ViewModelBase {
 	public void Exit() {
 #pragma warning restore CA1822
 		if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
-			desktop.Shutdown(0);
+			desktop.Shutdown(exitCode: 0);
 		}
 	}
 
@@ -347,7 +347,9 @@ public sealed class MainWindowViewModel : ViewModelBase {
 		await messageBoxWindow.ShowWindowDialogAsync(MainWindow.Instance);
 	}
 
+#pragma warning disable CA1822
 	public void OpenPatreonPage() {
+#pragma warning restore CA1822
 		BrowserLauncher.Open("https://www.patreon.com/ParadoxGameConverters");
 	}
 
@@ -355,7 +357,9 @@ public sealed class MainWindowViewModel : ViewModelBase {
 		loc.SaveLanguage(languageKey);
 	}
 
+#pragma warning disable CA1822
 	public void SetTheme(string themeName) {
+#pragma warning restore CA1822
 		App.SaveTheme(themeName);
 	}
 
