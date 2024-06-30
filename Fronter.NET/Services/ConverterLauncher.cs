@@ -147,7 +147,7 @@ internal class ConverterLauncher {
 
 			var sentryHelper = new SentryHelper(config);
 			try {
-				AttachLogAndSaveToSentry(config);
+				AttachLogAndSaveToSentry(config, sentryHelper);
 			} catch (Exception e) {
 				var warnMessage = $"Failed to attach log and save to Sentry event: {e.Message}";
 				logger.Warn(warnMessage);
