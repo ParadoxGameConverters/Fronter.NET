@@ -151,7 +151,7 @@ internal class ConverterLauncher {
 			} catch (Exception e) {
 				var warnMessage = $"Failed to attach log and save to Sentry event: {e.Message}";
 				logger.Warn(warnMessage);
-				SentrySdk.AddBreadcrumb(warnMessage);
+				sentryHelper.AddBreadcrumb(warnMessage);
 			}
 				
 			try {
@@ -179,8 +179,8 @@ internal class ConverterLauncher {
 		return saveUploadConsent == ButtonResult.Ok;
 	}
 
-	private static async void AttachLogAndSaveToSentry(Config config) {
-		SentrySdk.ConfigureScope(scope => scope.AddAttachment("log.txt"));
+	private static async void AttachLogAndSaveToSentry(Config config, SentryHelper sentryHelper) {
+		sentryHelper.AddAttachment("log.txt");
 		
 		var saveLocation = config.RequiredFiles.FirstOrDefault(f => f.Name.Equals("SaveGame"))?.Value;
 		if (saveLocation is null) {
@@ -206,21 +206,22 @@ internal class ConverterLauncher {
 		var saveArchiveSize = new FileInfo(archivePath).Length;
 		if (saveArchiveSize <= saveSizeLimitForSentry) {
 			logger.Debug($"Save file is {saveArchiveSize} bytes, uploading to Sentry.");
-			SentrySdk.ConfigureScope(scope => { scope.AddAttachment(archivePath); });
+			sentryHelper.AddAttachment(archivePath);
 		} else {
 			logger.Debug($"Save file is {saveArchiveSize} bytes, uploading to Backblaze.");
-			await UploadSaveArchiveToBackblaze(archivePath);
+			await UploadSaveArchiveToBackblaze(archivePath, sentryHelper);
 		}
 	}
 
-	private static async Task UploadSaveArchiveToBackblaze(string archivePath) {
+	private static async Task UploadSaveArchiveToBackblaze(string archivePath, SentryHelper sentryHelper) {
 		// Add Backblaze credentials to breadcrumbs for debugging.
 		var keyId = Secrets.BackblazeKeyId;
 		var applicationKey = Secrets.BackblazeApplicationKey;
 		var bucketId = Secrets.BackblazeBucketId;
-		SentrySdk.AddBreadcrumb($"Backblaze key ID: \"{keyId}\"");
-		SentrySdk.AddBreadcrumb($"Backblaze application key: \"{applicationKey}\"");
-		SentrySdk.AddBreadcrumb($"Backblaze bucket ID: \"{bucketId}\"");
+		sentryHelper.AddBreadcrumb($"Backblaze key ID: \"{keyId}\"");
+		sentryHelper.AddBreadcrumb($"Backblaze application key: \"{applicationKey}\"");
+		sentryHelper.AddBreadcrumb($"Backblaze bucket ID: \"{bucketId}\"");
+		sentryHelper.AddBreadcrumb($"Archive name: {Path.GetFileName(archivePath)}");
 		
 		var s3Config = new AmazonS3Config {
 			ServiceURL = "https://s3.eu-central-003.backblazeb2.com",
@@ -236,12 +237,12 @@ internal class ConverterLauncher {
 		catch (AmazonS3Exception e) {
 			string message = $"Error encountered on server. Message:'{e.Message}' when writing an object.";
 			Logger.Error(message);
-			SentrySdk.AddBreadcrumb(message);
+			sentryHelper.AddBreadcrumb(message);
 		}
 		catch (Exception e) {
 			string message = $"Unknown encountered on server. Message:'{e.Message}' when writing an object.";
 			Logger.Error(message);
-			SentrySdk.AddBreadcrumb(message);
+			sentryHelper.AddBreadcrumb(message);
 		}
 	}
 	
