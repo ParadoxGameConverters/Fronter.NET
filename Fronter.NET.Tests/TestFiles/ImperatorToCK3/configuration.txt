@@ -1,0 +1,16 @@
+ImperatorDirectory = "C:/Program Files (x86)/Steam/steamapps/common/ImperatorRome"
+ImperatorDocDirectory = "C:\Users\TestUser\OneDrive\Dokumenty\Paradox Interactive\Imperator"
+CK3directory = "C:/Program Files (x86)/Steam/steamapps/common/Crusader Kings III"
+targetGameModPath = "C:\Users\TestUser\OneDrive\Dokumenty\Paradox Interactive\Crusader Kings III\mod"
+SaveGame = "C:\Users\TestUser\OneDrive\Dokumenty\Paradox Interactive\Imperator\save games\test save.rome"
+selectedMods = {
+}
+HeresiesInHistoricalAreas = "1"
+StaticDeJure = "1"
+FillerDukes = "1"
+UseCK3Flags = "1"
+ImperatorCurrencyRate = "1.0"
+ImperatorCivilizationWorth = "0.4"
+LegionConversion = "0"
+output_name = "test_save"
+bookmark_date = "867.1.1"
