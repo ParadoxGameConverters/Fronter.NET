@@ -73,4 +73,13 @@ public class ConfigurationTests {
 		Assert.Equal("test_save", config.Options.First(o => o.Name == "output_name").GetValue());
 		Assert.Equal("867.1.1", config.Options.First(o => o.Name == "bookmark_date").GetValue());
 	}
+	
+	[Fact]
+	public void EmptyStringCanBeUsedAsDateOptionValue() {
+		var config = new Config();
+		config.LoadExistingConfiguration();
+		var bookmarkDateOption = config.Options.First(o => o.Name == "bookmark_date");
+		bookmarkDateOption.SetValue(string.Empty);
+		Assert.Equal(string.Empty, bookmarkDateOption.GetValue());
+	}
 }

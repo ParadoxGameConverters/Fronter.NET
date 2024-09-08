@@ -85,7 +85,7 @@ public class Option {
 		if (TextSelector is not null) {
 			TextSelector.Value = selection;
 		} else if (DateSelector is not null) {
-			DateSelector.Value = new Date(selection);
+			DateSelector.Value = string.IsNullOrWhiteSpace(selection) ? null : new Date(selection);
 		} else if (RadioSelector is not null) {
 			RadioSelector.SetSelectedValue(selection);
 		} else {
