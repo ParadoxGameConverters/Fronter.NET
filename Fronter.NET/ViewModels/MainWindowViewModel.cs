@@ -52,7 +52,7 @@ public sealed class MainWindowViewModel : ViewModelBase {
 			Command = SetThemeCommand,
 			CommandParameter = theme.Id,
 			Header = loc.Translate(theme.LocKey),
-			Items = Array.Empty<MenuItemViewModel>()
+			Items = Array.Empty<MenuItemViewModel>(),
 		});
 
 	internal Config Config { get; }
@@ -254,7 +254,7 @@ public sealed class MainWindowViewModel : ViewModelBase {
 				ContentTitle = loc.Translate("CONVERSION_FAILED"),
 				ContentMessage = loc.Translate("CONVERSION_FAILED_MESSAGE"),
 				Markdown = true,
-				ButtonDefinitions = ButtonEnum.OkCancel
+				ButtonDefinitions = ButtonEnum.OkCancel,
 			});
 		var result = await messageBoxWindow.ShowWindowDialogAsync(MainWindow.Instance);
 		if (result == ButtonResult.Ok) {
@@ -288,8 +288,8 @@ public sealed class MainWindowViewModel : ViewModelBase {
 				ContentMessage = msgBody,
 				Markdown = true,
 				ButtonDefinitions = [
-					new ButtonDefinition {Name = updateNowStr, IsDefault = true},
-					new ButtonDefinition {Name = maybeLaterStr, IsCancel = true}
+					new() {Name = updateNowStr, IsDefault = true},
+					new() {Name = maybeLaterStr, IsCancel = true},
 				],
 				MaxWidth = 1280,
 				MaxHeight = 720,
@@ -298,7 +298,7 @@ public sealed class MainWindowViewModel : ViewModelBase {
 		bool performUpdate = false;
 		await Dispatcher.UIThread.InvokeAsync(async () => {
 			string? result = await messageBoxWindow.ShowWindowDialogAsync(MainWindow.Instance);
-			performUpdate = result is not null && result.Equals(updateNowStr);
+			performUpdate = result?.Equals(updateNowStr) == true;
 		}, DispatcherPriority.Normal);
 
 		if (!performUpdate) {
@@ -342,7 +342,7 @@ public sealed class MainWindowViewModel : ViewModelBase {
 				SizeToContent = SizeToContent.WidthAndHeight,
 				MinHeight = 250,
 				ShowInCenter = true,
-				WindowStartupLocation = WindowStartupLocation.CenterOwner
+				WindowStartupLocation = WindowStartupLocation.CenterOwner,
 			});
 		await messageBoxWindow.ShowWindowDialogAsync(MainWindow.Instance);
 	}

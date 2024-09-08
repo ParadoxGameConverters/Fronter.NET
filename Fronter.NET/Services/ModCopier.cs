@@ -11,7 +11,7 @@ using Mod = Fronter.Models.Database.Mod;
 
 namespace Fronter.Services;
 
-internal class ModCopier {
+internal sealed class ModCopier {
 	private readonly Config config;
 	private readonly ILog logger = LogManager.GetLogger("Mod copier");
 	public ModCopier(Config config) {
@@ -169,7 +169,7 @@ internal class ModCopier {
 				logger.Debug("Removing mods from existing playset...");
 				dbContext.PlaysetsMods.RemoveRange(dbContext.PlaysetsMods.Where(pm => pm.PlaysetId == playset.Id));
 				dbContext.SaveChanges();
-				
+
 				logger.Debug("Re-activating existing playset...");
 				// Set isActive to true and updatedOn to current time.
 				playset.IsActive = true;
@@ -255,7 +255,7 @@ internal class ModCopier {
 			Version = "1",
 			GameRegistryId = gameRegistryId,
 			Name = modName,
-			DirPath = dirPath
+			DirPath = dirPath,
 		};
 		dbContext.Mods.Add(mod);
 		dbContext.SaveChanges();
@@ -266,7 +266,7 @@ internal class ModCopier {
 	private static void AddModToPlayset(LauncherDbContext dbContext, Mod mod, Playset playset) {
 		var playsetMod = new PlaysetsMod {
 			Playset = playset,
-			Mod = mod
+			Mod = mod,
 		};
 		dbContext.PlaysetsMods.Add(playsetMod);
 		dbContext.SaveChanges();

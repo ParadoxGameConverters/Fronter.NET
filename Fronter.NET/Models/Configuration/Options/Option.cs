@@ -7,6 +7,8 @@ namespace Fronter.Models.Configuration.Options;
 public class Option {
 	private static readonly ILog logger = LogManager.GetLogger("Option");
 	public Option(BufferedReader reader, int id) {
+		Id = id;
+
 		var parser = new Parser();
 		RegisterKeys(parser);
 		parser.ParseStream(reader);
@@ -87,7 +89,7 @@ public class Option {
 		} else if (RadioSelector is not null) {
 			RadioSelector.SetSelectedValue(selection);
 		} else {
-			Logger.Warn($"Option {Name} has no selector to set value!")
+			Logger.Warn($"Option {Name} has no selector to set value!");
 		}
 	}
 
