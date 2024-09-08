@@ -82,9 +82,13 @@ public class Option {
 	public void SetValue(string selection) {
 		if (TextSelector is not null) {
 			TextSelector.Value = selection;
+		} else if (DateSelector is not null) {
+			DateSelector.Value = new Date(selection);
+		} else if (RadioSelector is not null) {
+			RadioSelector.SetSelectedValue(selection);
 		}
 
-		RadioSelector?.SetSelectedValue(selection);
+		Logger.Warn($"Option {Name} has no selector to set value!");
 	}
 
 	public void SetValue(ISet<string> selection) {

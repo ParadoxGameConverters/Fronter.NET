@@ -1,4 +1,5 @@
 ﻿using Fronter.Models.Configuration;
+using System.Linq;
 using Xunit;
 namespace Fronter.Tests.Models;
 
@@ -55,5 +56,21 @@ public class ConfigurationTests {
 				Assert.Equal(@"Paradox Interactive\Imperator\save games", file.SearchPath );
 				Assert.Equal("*.rome", file.AllowedExtension);
 			});
+	}
+
+	[Fact]
+	public void ExistingConverterConfigurationIsCorrectlyLoaded() {
+		var config = new Config();
+		config.LoadExistingConfiguration();
+		
+		Assert.Equal("1", config.Options.First(o => o.Name == "HeresiesInHistoricalAreas").GetValue());
+		Assert.Equal("1", config.Options.First(o => o.Name == "StaticDeJure").GetValue());
+		Assert.Equal("1", config.Options.First(o => o.Name == "FillerDukes").GetValue());
+		Assert.Equal("1", config.Options.First(o => o.Name == "UseCK3Flags").GetValue());
+		Assert.Equal("1.0", config.Options.First(o => o.Name == "ImperatorCurrencyRate").GetValue());
+		Assert.Equal("0.4", config.Options.First(o => o.Name == "ImperatorCivilizationWorth").GetValue());
+		Assert.Equal("0", config.Options.First(o => o.Name == "LegionConversion").GetValue());
+		Assert.Equal("test_save", config.Options.First(o => o.Name == "output_name").GetValue());
+		Assert.Equal("867.1.1", config.Options.First(o => o.Name == "bookmark_date").GetValue());
 	}
 }

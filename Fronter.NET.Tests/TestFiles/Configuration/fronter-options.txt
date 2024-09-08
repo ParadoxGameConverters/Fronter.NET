@@ -1,25 +1,120 @@
 option = {
-	name = ImperatorDeJure
-	displayName = IMPERATORDEJURE
-	tooltip = IMPERATORDEJURETIP
+	name = HeresiesInHistoricalAreas
+	displayName = HERESIES_IN_HISTORICAL_AREAS
+	tooltip = HERESIES_IN_HISTORICAL_AREAS_TIP
 	radioSelector = {
 		radioOption = {
 			name = 1
-			displayName = IMPERATORDEJURE1
-			tooltip = IMPERATORDEJURE1TIP
+			displayName = HERESIES_IN_HISTORICAL_AREAS_1
 			default = false
 		}
-		#radioOption = {
-		#	name = 2
-		#	displayName = IMPERATORDEJURE2
-		#	tooltip = IMPERATORDEJURE2TIP
-		#	default = false
-		#}
 		radioOption = {
-			name = 3
-			displayName = IMPERATORDEJURE3
-			tooltip = IMPERATORDEJURE3TIP
-			default = true		
+			name = 2
+			displayName = HERESIES_IN_HISTORICAL_AREAS_2
+			default = true
+		}
+	}
+}
+
+option = {
+	name = StaticDeJure
+	displayName = STATIC_DEJURE
+	tooltip = STATIC_DEJURE_TIP
+	radioSelector = {
+		radioOption = {
+			name = 1
+			displayName = STATIC_DEJURE_1
+			tooltip = STATIC_DEJURE_1_TIP
+			default = true
+		}
+		radioOption = {
+			name = 2
+			displayName = STATIC_DEJURE_2
+			tooltip = STATIC_DEJURE_2_TIP
+			default = false
+		}
+	}
+}
+
+option = {
+	name = FillerDukes
+	displayName = FILLER_DUKES
+	tooltip = FILLER_DUKES_TIP
+	radioSelector = {
+		radioOption = {
+			name = 0
+			displayName = FILLER_DUKES_0
+			tooltip = FILLER_DUKES_0_TIP
+			default = false
+		}
+		radioOption = {
+			name = 1
+			displayName = FILLER_DUKES_1
+			tooltip = FILLER_DUKES_1_TIP
+			default = true
+		}
+	}
+}
+
+option = {
+	name = UseCK3Flags
+	displayName = USE_CK3_FLAGS
+	tooltip = USE_CK3_FLAGS_TIP
+	radioSelector = {
+		radioOption = {
+			name = 0
+			displayName = USE_CK3_FLAGS_0
+			tooltip = USE_CK3_FLAGS_0_TIP
+			default = false
+		}
+		radioOption = {
+			name = 1
+			displayName = USE_CK3_FLAGS_1
+			tooltip = USE_CK3_FLAGS_1_TIP
+			default = true
+		}
+	}
+}
+
+option = {
+	name = ImperatorCurrencyRate
+	displayName = IMPERATOR_CURRENCY_RATE
+	tooltip = IMPERATOR_CURRENCY_RATE_TIP
+	textSelector = {
+		value = "1.0"
+		editable = true
+		tooltip = IMPERATOR_CURRENCY_RATE_INPUT_TIP
+	}
+}
+
+option = {
+	name = ImperatorCivilizationWorth
+	displayName = IMPERATOR_CIVILIZATION_WORTH
+	tooltip = IMPERATOR_CIVILIZATION_WORTH_TIP
+	textSelector = {
+		value = "0.4"
+		editable = true
+		tooltip = IMPERATOR_CIVILIZATION_WORTH_INPUT_TIP
+	}
+}
+
+option = {
+	name = LegionConversion
+	displayName = LEGION_CONVERSION
+	tooltip = LEGION_CONVERSION_TIP
+	radioSelector = {
+		radioOption = {
+			name = 0
+			displayName = LEGION_CONVERSION_NO
+			default = true
+		}
+		radioOption = {
+			name = 1
+			displayName = LEGION_CONVERSION_SPECIAL
+		}
+		radioOption = {
+			name = 2
+			displayName = LEGION_CONVERSION_MAA
 		}
 	}
 }
@@ -28,7 +123,7 @@ option = {
 	name = output_name
 	displayName = MODNAME
 	tooltip = MODNAMETIP
-	textSelector = {	
+	textSelector = {
 		value = ""
 		editable = true
 		tooltip = MODNAMETIP2
@@ -39,8 +134,10 @@ option = {
 	name = bookmark_date
 	displayName = BOOKMARKDATE
 	tooltip = BOOKMARKDATETIP
-	textSelector = {	
-		value = "867.1.1"
+	dateSelector = {
+		value = ""
+		minDate = "1.1.1"
+		maxDate = "1444.1.1"
 		editable = true
 		tooltip = BOOKMARKDATETIP2
 	}
