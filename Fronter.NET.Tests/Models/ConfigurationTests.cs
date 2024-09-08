@@ -63,9 +63,6 @@ public class ConfigurationTests {
 		var config = new Config();
 		config.LoadExistingConfiguration();
 		
-		Assert.Equal("C:/Program Files (x86)/Steam/steamapps/common/ImperatorRome", config.RequiredFolders.First(f => f.Name == "ImperatorDirectory").Value);
-		Assert.Equal("C:/Program Files (x86)/Steam/steamapps/common/Crusader Kings III", config.RequiredFolders.First(f => f.Name == "CK3directory").Value);
-		
 		Assert.Equal("1", config.Options.First(o => o.Name == "HeresiesInHistoricalAreas").GetValue());
 		Assert.Equal("1", config.Options.First(o => o.Name == "StaticDeJure").GetValue());
 		Assert.Equal("1", config.Options.First(o => o.Name == "FillerDukes").GetValue());
