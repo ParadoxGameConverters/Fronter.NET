@@ -98,7 +98,7 @@ internal sealed class PathPickerViewModel : ViewModelBase {
 		};
 
 		var fileType = new FilePickerFileType(file.AllowedExtension.TrimStart('*', '.')) {
-			Patterns = new[] { file.AllowedExtension },
+			Patterns = [file.AllowedExtension],
 		};
 		options.FileTypeFilter = new List<FilePickerFileType> { fileType };
 

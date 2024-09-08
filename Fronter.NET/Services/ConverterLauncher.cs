@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 
 namespace Fronter.Services;
 
-internal class ConverterLauncher {
+internal sealed class ConverterLauncher {
 	private static readonly ILog logger = LogManager.GetLogger("Converter launcher");
 	private Level? lastLevelFromBackend;
 	internal ConverterLauncher(Config config) {

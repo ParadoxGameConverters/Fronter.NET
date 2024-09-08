@@ -70,7 +70,7 @@ public static class UpdateChecker {
 		var apiUrl = $"https://api.github.com/repos/ParadoxGameConverters/{converterName}/releases/latest";
 		var requestMessage = new HttpRequestMessage(HttpMethod.Get, apiUrl);
 		requestMessage.Headers.Add("User-Agent", "ParadoxGameConverters");
-	
+
 		HttpResponseMessage responseMessage;
 		try {
 			responseMessage = await HttpClient.SendAsync(requestMessage);
@@ -101,7 +101,7 @@ public static class UpdateChecker {
 			if (extension is not "zip" and not "tgz" and not "exe") {
 				continue;
 			}
-			
+
 			// For Windows, prefer installer over archive.
 			if (extension.Equals("exe") && osName.Equals("win")) {
 				info.AssetUrl = asset.BrowserDownloadUrl;
@@ -151,7 +151,7 @@ public static class UpdateChecker {
 
 	public static async void RunInstallerAndDie(string installerUrl, Config config, INotificationMessageManager notificationManager) {
 		Logger.Debug("Downloading installer...");
-		
+
 		var fileName = Path.GetTempFileName();
 		try {
 			await DownloadFileAsync(installerUrl, fileName);
@@ -159,13 +159,13 @@ public static class UpdateChecker {
 			Logger.Debug($"Failed to download installer: {ex.Message}");
 			notificationManager
 				.CreateError()
-				.HasMessage($"Failed to download installer, probably because of network issues. \n" +
-				            $"Try updating the converter manually.")
+				.HasMessage("Failed to download installer, probably because of network issues. \n" +
+				            "Try updating the converter manually.")
 				.SuggestManualUpdate(config)
 				.Queue();
 			return;
 		}
-		
+
 		Logger.Debug("Running installer...");
 		var proc = new Process();
 		proc.StartInfo.FileName = fileName;
@@ -175,8 +175,8 @@ public static class UpdateChecker {
 			Logger.Debug($"Installer process failed to start: {ex.Message}");
 			notificationManager
 				.CreateError()
-				.HasMessage($"Failed to start installer, probably because of an antivirus. \n" +
-				            $"Try updating the converter manually.")
+				.HasMessage("Failed to start installer, probably because of an antivirus. \n" +
+				            "Try updating the converter manually.")
 				.SuggestManualUpdate(config)
 				.Queue();
 			return;
@@ -189,7 +189,7 @@ public static class UpdateChecker {
 	public static void StartUpdaterAndDie(string archiveUrl, string converterBackendDirName) {
 		var updaterDirPath = Path.Combine(".", "Updater");
 		var updaterRunningDirPath = Path.Combine(".", "Updater-running");
-		
+
 		const string manualUpdateHint = "Try updating the converter manually.";
 		if (Directory.Exists(updaterRunningDirPath) && !SystemUtils.TryDeleteFolder(updaterRunningDirPath)) {
 			Logger.Warn($"Failed to delete Updater-running folder! {manualUpdateHint}");
