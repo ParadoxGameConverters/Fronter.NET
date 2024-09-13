@@ -16,8 +16,7 @@ jobs:
     - name: "Setup Dotnet for use with actions"
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '9.0.x'
-        dotnet-quality: 'preview'
+        global-json-file: global.json
     - name: "Build"
       working-directory: Fronter.NET
       run: |
