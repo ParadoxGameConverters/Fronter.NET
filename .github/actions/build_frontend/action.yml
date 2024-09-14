@@ -14,6 +14,9 @@ inputs:
   build_ConverterFrontend:
     description: Whether to build ConverterFrontend
     default: true
+  self_contained:
+    description: Whether to include .NET runtime in the ConverterFrontend executable.
+    default: true
   build_updater:
     description: Whether to build updater
     default: true
@@ -25,6 +28,7 @@ runs:
         FRONTER_DIR: ${{ inputs.fronter_dir }}
         RELEASE_DIR: ${{ inputs.release_dir }}
         BUILD_CONVERTERFRONTEND: ${{ inputs.build_ConverterFrontend }}
+        SELF_CONTAINED: ${{ inputs.self_contained }}
         BUILD_UPDATER: ${{ inputs.build_updater }}
       run: |
         read script_path < <(echo "${{ github.action_path }}/entrypoint.sh" | sed 's.\\./.g')
