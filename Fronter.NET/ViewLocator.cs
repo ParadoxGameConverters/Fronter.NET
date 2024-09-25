@@ -5,7 +5,7 @@ using System;
 
 namespace Fronter;
 
-public class ViewLocator : IDataTemplate {
+public sealed class ViewLocator : IDataTemplate {
 	public Control Build(object? data) {
 		if (data is null) {
 			return new TextBlock { Text = "Not Found." };

@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace Fronter.Services;
 
-public class SentryHelper {
+public sealed class SentryHelper {
 	public SentryHelper(Config config) {
 		this.config = config;
 		InitSentry();
@@ -57,7 +57,7 @@ public class SentryHelper {
 #if DEBUG
 			options.Environment = "Debug";
 #else
-			options.Environment = "Release"; 
+			options.Environment = "Release";
 #endif
 		});
 		Logger.Debug("Sentry initialized.");

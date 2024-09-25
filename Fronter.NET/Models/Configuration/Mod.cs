@@ -3,7 +3,7 @@ using Fronter.ViewModels;
 
 namespace Fronter.Models.Configuration;
 
-public class Mod : ViewModelBase {
+public sealed class Mod : ViewModelBase {
 	public Mod(string modPath) {
 		var parser = new Parser();
 		parser.RegisterKeyword("name", reader => Name = reader.GetString());
