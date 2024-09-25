@@ -123,7 +123,12 @@ public sealed class MainWindowViewModel : ViewModelBase {
 	#endregion
 
 	public void ToggleLogFilterLevel(string value) {
-		LogFilterLevel = LogManager.GetRepository().LevelMap[value];
+		var level = LogManager.GetRepository().LevelMap[value];
+		if (level is null) {
+			logger.Error($"Unknown log level: {value}");
+		} else {
+			LogFilterLevel = level;
+		}
 		LogGridAppender.ToggleLogFilterLevel();
 		this.RaisePropertyChanged(nameof(FilteredLogLines));
 		Dispatcher.UIThread.Post(ScrollToLogEnd, DispatcherPriority.Normal);
