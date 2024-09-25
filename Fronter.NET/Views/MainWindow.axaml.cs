@@ -4,7 +4,7 @@ using Avalonia.Markup.Xaml;
 
 namespace Fronter.Views;
 
-public partial class MainWindow : Window {
+public sealed partial class MainWindow : Window {
 	public static MainWindow Instance { get; } = new();
 
 	public MainWindow() {

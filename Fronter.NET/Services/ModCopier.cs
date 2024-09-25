@@ -150,7 +150,7 @@ internal sealed class ModCopier {
 			return;
 		}
 		logger.Debug($"Launcher's database found at \"{latestDbFilePath}\".");
-		
+
 		logger.Info("Setting up playset...");
 		string connectionString = $"Data Source={latestDbFilePath};";
 		try {
@@ -160,7 +160,7 @@ internal sealed class ModCopier {
 			var playsetName = $"{config.Name}: {modName}";
 			var dateTimeOffset = new DateTimeOffset(DateTime.UtcNow);
 			string unixTimeMilliSeconds = dateTimeOffset.ToUnixTimeMilliseconds().ToString(CultureInfo.InvariantCulture);
-			
+
 			DeactivateCurrentPlayset(dbContext);
 
 			// Check if a playset with the same name already exists.
@@ -190,7 +190,7 @@ internal sealed class ModCopier {
 				dbContext.Playsets.Add(playset);
 				dbContext.SaveChanges();
 			}
-			
+
 			Logger.Debug("Adding mods to playset...");
 			var playsetInfo = LoadPlaysetInfo();
 			if (playsetInfo.Count == 0) {
@@ -259,7 +259,7 @@ internal sealed class ModCopier {
 		};
 		dbContext.Mods.Add(mod);
 		dbContext.SaveChanges();
-		
+
 		return mod;
 	}
 

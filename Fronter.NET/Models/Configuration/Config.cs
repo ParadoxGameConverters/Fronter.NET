@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace Fronter.Models.Configuration;
 
-public class Config {
+public sealed class Config {
 	public string Name { get; private set; } = string.Empty;
 	public string ConverterFolder { get; private set; } = string.Empty;
 	public string BackendExePath { get; private set; } = string.Empty; // relative to ConverterFolder

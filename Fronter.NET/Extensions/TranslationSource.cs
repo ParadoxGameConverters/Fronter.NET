@@ -10,7 +10,7 @@ using System.Text.RegularExpressions;
 namespace Fronter.Extensions;
 
 // idea based on https://gist.github.com/jakubfijalkowski/0771bfbd26ce68456d3e
-public sealed class TranslationSource : ReactiveObject {
+public sealed partial class TranslationSource : ReactiveObject {
 	private static readonly ILog logger = LogManager.GetLogger("Translator");
 	private TranslationSource() {
 		const string languagesPath = "languages.txt";
@@ -69,7 +69,7 @@ public sealed class TranslationSource : ReactiveObject {
 			return string.Empty;
 		}
 
-		toReturn = Regex.Replace(toReturn, @"\\n", Environment.NewLine);
+		toReturn = NewLineInStringRegex().Replace(toReturn, Environment.NewLine);
 		return toReturn;
 	}
 
@@ -161,4 +161,7 @@ public sealed class TranslationSource : ReactiveObject {
 			this.RaisePropertyChanged("Item");
 		}
 	}
+
+	[GeneratedRegex(@"\\n")]
+	private static partial Regex NewLineInStringRegex();
 }

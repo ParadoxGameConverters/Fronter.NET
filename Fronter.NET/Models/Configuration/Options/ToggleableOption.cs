@@ -3,7 +3,7 @@ using ReactiveUI;
 
 namespace Fronter.Models.Configuration.Options;
 
-public class ToggleableOption : ReactiveObject {
+public sealed class ToggleableOption : ReactiveObject {
 	public ToggleableOption(BufferedReader reader, int id) {
 		Id = id;
 

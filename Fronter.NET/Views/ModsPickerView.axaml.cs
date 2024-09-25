@@ -3,7 +3,7 @@ using Avalonia.Markup.Xaml;
 
 namespace Fronter.Views;
 
-public partial class ModsPickerView : UserControl {
+public sealed partial class ModsPickerView : UserControl {
 	public ModsPickerView() {
 		InitializeComponent();
 	}

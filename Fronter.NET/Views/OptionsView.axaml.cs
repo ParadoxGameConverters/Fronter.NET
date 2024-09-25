@@ -3,7 +3,7 @@ using Avalonia.Markup.Xaml;
 
 namespace Fronter.Views;
 
-public partial class OptionsView : UserControl {
+public sealed partial class OptionsView : UserControl {
 	public OptionsView() {
 		InitializeComponent();
 	}

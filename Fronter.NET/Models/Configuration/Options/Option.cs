@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Fronter.Models.Configuration.Options;
 
-public class Option {
+public sealed class Option {
 	private static readonly ILog logger = LogManager.GetLogger("Option");
 	public Option(BufferedReader reader, int id) {
 		Id = id;
