@@ -78,7 +78,7 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.8" />
         <PackageReference Include="Mono.Posix.NETStandard" Version="1.0.0" />
         <PackageReference Include="Notification.Avalonia" Version="2.1.0" />
-        <PackageReference Include="PGCG.commonItems" Version="14.1.0" />
+        <PackageReference Include="PGCG.commonItems" Version="14.1.1" />
         <PackageReference Include="Roslynator.Analyzers" Version="4.12.7">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
