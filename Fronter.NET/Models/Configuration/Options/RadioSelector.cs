@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Fronter.Models.Configuration.Options;
 
-public sealed class RadioSelector : Selector {
+public sealed class RadioSelector {
 	private static readonly ILog logger = LogManager.GetLogger("Radio selector");
 	public RadioSelector(BufferedReader reader) {
 		var parser = new Parser();

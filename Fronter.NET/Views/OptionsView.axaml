@@ -73,14 +73,20 @@
                             />
                         </Border>
                         
-                        <DatePicker 
-                            ToolTip.Tip="{ns:DynamicLoc DateSelector.Tooltip, FallbackValue={}}"
-                            SelectedDate="{Binding DateSelector.DateTimeOffsetValue, FallbackValue={}}" 
-                            IsVisible="{Binding DateSelector, Converter={x:Static ObjectConverters.IsNotNull}}"
-                            IsEnabled="{Binding DateSelector.Editable, FallbackValue=false}"
-                            MinYear="{Binding DateSelector.MinDate, FallbackValue={}}"
-                            MaxYear="{Binding DateSelector.MaxDate, FallbackValue={}}"
-                        />
+                        <StackPanel Orientation="Horizontal" IsVisible="{Binding DateSelector, Converter={x:Static ObjectConverters.IsNotNull}}">
+                            <DatePicker
+                                ToolTip.Tip="{ns:DynamicLoc DateSelector.Tooltip, FallbackValue={}}"
+                                SelectedDate="{Binding DateSelector.DateTimeOffsetValue, FallbackValue={}}" 
+                                IsEnabled="{Binding DateSelector.Editable, FallbackValue=false}"
+                                MinYear="{Binding DateSelector.MinDate, FallbackValue={}}"
+                                MaxYear="{Binding DateSelector.MaxDate, FallbackValue={}}"
+                            />
+                            <Button
+                                Command="{Binding DateSelector.ClearValue, FallbackValue={}}"
+                                Margin="5,0,0,0"
+                                IsVisible="{Binding DateSelector.DateTimeOffsetValue, Converter={x:Static ObjectConverters.IsNotNull}, FallbackValue={}}"
+                                Content="❌" />
+                        </StackPanel>
                     </StackPanel>
                 </Border>
             </DataTemplate>

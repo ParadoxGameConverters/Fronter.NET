@@ -1,16 +1,17 @@
 ﻿using commonItems;
+using ReactiveUI;
 using System;
 
 namespace Fronter.Models.Configuration.Options;
 
-public sealed class DateSelector : Selector {
+public sealed class DateSelector : ReactiveObject {
 	public DateSelector(BufferedReader reader) {
 		var parser = new Parser();
 		RegisterKeys(parser);
 		parser.ParseStream(reader);
 	}
 	private void RegisterKeys(Parser parser) {
-		parser.RegisterKeyword("editable", reader => Editable = reader.GetString() == "true");
+		parser.RegisterKeyword("editable", reader => Editable = string.Equals(reader.GetString(), "true", StringComparison.OrdinalIgnoreCase));
 		parser.RegisterKeyword("value", reader => {
 			var valueStr = reader.GetString();
 			Value = string.IsNullOrWhiteSpace(valueStr) ? null : new Date(valueStr);
@@ -24,7 +25,13 @@ public sealed class DateSelector : Selector {
 	public bool Editable { get; private set; } = true; // editable unless disabled
 	public DateTimeOffset MinDate { get; set; } = DateTimeOffset.MinValue;
 	public DateTimeOffset MaxDate { get; set; } = DateTimeOffset.MaxValue;
-	public DateTimeOffset? DateTimeOffsetValue { get; set; }
+	private DateTimeOffset? dateTimeOffsetValue;
+	public DateTimeOffset? DateTimeOffsetValue {
+		get => dateTimeOffsetValue;
+		set {
+			this.RaiseAndSetIfChanged(ref dateTimeOffsetValue, value);
+		}
+	}
 
 	public Date? Value {
 		get {
@@ -45,4 +52,8 @@ public sealed class DateSelector : Selector {
 	}
 
 	public string? Tooltip { get; private set; }
+
+	public void ClearValue() {
+		DateTimeOffsetValue = null;
+	}
 }
