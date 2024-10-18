@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Fronter.Models.Configuration.Options;
 
-public sealed class CheckBoxSelector : Selector {
+public sealed class CheckBoxSelector {
 	public CheckBoxSelector(BufferedReader reader) {
 		var parser = new Parser();
 		RegisterKeys(parser);
