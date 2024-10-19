@@ -67,7 +67,7 @@
         <PackageReference Include="AWSSDK.S3" Version="3.7.405" />
         <PackageReference Include="DynamicData" Version="9.0.4" />
         <PackageReference Include="MessageBox.Avalonia" Version="3.1.6.13" />
-        <PackageReference Include="Meziantou.Analyzer" Version="2.0.170">
+        <PackageReference Include="Meziantou.Analyzer" Version="2.0.172">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
