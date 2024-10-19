@@ -20,7 +20,7 @@ public static class UpdateChecker {
 	private static readonly HttpClient HttpClient = new() {Timeout = TimeSpan.FromMinutes(5)};
 	public static async Task<bool> IsUpdateAvailable(string commitIdFilePath, string commitIdUrl) {
 		if (!File.Exists(commitIdFilePath)) {
-			Logger.Warn($"File \"{commitIdFilePath}\" does not exist!");
+			Logger.Debug($"File \"{commitIdFilePath}\" does not exist!");
 			return false;
 		}
 
