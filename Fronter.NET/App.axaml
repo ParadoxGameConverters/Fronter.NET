@@ -10,5 +10,6 @@
         <FluentTheme />
         <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"></StyleInclude>
         <StyleInclude Source="avares://Notification.Avalonia/Themes/Generic.xaml" />
+        <StyleInclude Source="avares://MsBox.Avalonia.Markdown/Controls/MarkdownView.axaml" />
     </Application.Styles>
 </Application>
