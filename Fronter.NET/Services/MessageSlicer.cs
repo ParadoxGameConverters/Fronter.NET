@@ -1,11 +1,13 @@
 ﻿using Fronter.Models;
 using log4net;
 using log4net.Core;
+using System;
 using System.Text.RegularExpressions;
 
 namespace Fronter.Services;
 
 public static partial class MessageSlicer {
+	private static readonly ILog logger = LogManager.GetLogger("Frontend");
 	private static readonly Regex dateTimeRegex = GetDateTimeRegex();
 
 	public static LogLine SliceMessage(string message) {
@@ -38,10 +40,15 @@ public static partial class MessageSlicer {
 	}
 
 	private static Level GetLogLevel(string levelStr) {
-		if (levelStr == "WARNING") {
+		if (levelStr.Equals("WARNING", StringComparison.OrdinalIgnoreCase)) {
 			levelStr = "WARN";
 		}
 		var level = LogManager.GetRepository().LevelMap[levelStr];
+		if (level == null) {
+			logger.Warn($"Unknown log level: {levelStr}");
+			level = Level.Debug;
+		}
+
 		return level;
 	}
 
