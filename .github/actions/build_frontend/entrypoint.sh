@@ -38,7 +38,7 @@ then
 
   if [ "$RUNNER_OS" = "macOS" ]
   then
-    brew uninstall packaging
+    brew uninstall python-packaging
   fi
 
   PIP_BREAK_SYSTEM_PACKAGES=1 pip3 install -r requirements.txt 

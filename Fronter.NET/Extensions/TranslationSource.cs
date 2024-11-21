@@ -28,7 +28,7 @@ public sealed partial class TranslationSource : ReactiveObject {
 				cultureInfo = CultureInfo.GetCultureInfo(cultureName);
 			} catch (CultureNotFoundException) {
 				logger.Debug($"Culture {cultureName} for language {langKey} not found!");
-				if (langKey == "english") {
+				if (string.Equals(langKey, "english", StringComparison.OrdinalIgnoreCase)) {
 					cultureInfo = CultureInfo.InvariantCulture;
 				} else {
 					return;
@@ -95,7 +95,7 @@ public sealed partial class TranslationSource : ReactiveObject {
 		var fileNames = SystemUtils.GetAllFilesInFolder("Configuration");
 
 		foreach (var fileName in fileNames) {
-			if (!fileName.EndsWith(".yml")) {
+			if (!fileName.EndsWith(".yml", StringComparison.OrdinalIgnoreCase)) {
 				continue;
 			}
 
@@ -148,9 +148,9 @@ public sealed partial class TranslationSource : ReactiveObject {
 		}
 	}
 
-	public IList<string> LoadedLanguages { get; } = new List<string>();
-	private readonly Dictionary<string, CultureInfo> languages = new();
-	private readonly Dictionary<string, Dictionary<string, string>> translations = new(); // key, <language, text>
+	public IList<string> LoadedLanguages { get; } = [];
+	private readonly Dictionary<string, CultureInfo> languages = [];
+	private readonly Dictionary<string, Dictionary<string, string>> translations = []; // key, <language, text>
 
 	private string currentLanguage = "english";
 	public string CurrentLanguage {
