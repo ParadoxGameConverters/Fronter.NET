@@ -141,7 +141,7 @@ public sealed partial class TranslationSource : ReactiveObject {
 				if (translations.TryGetValue(key, out var dictionary)) {
 					dictionary[language] = text;
 				} else {
-					var newDict = new Dictionary<string, string> { [language] = text };
+					var newDict = new Dictionary<string, string>(StringComparer.Ordinal) { [language] = text };
 					translations.Add(key, newDict);
 				}
 			}

@@ -16,7 +16,7 @@ public sealed class ToggleableOption : ReactiveObject {
 		parser.RegisterKeyword("tooltip", reader => Tooltip = reader.GetString());
 		parser.RegisterKeyword("displayName", reader => DisplayName = reader.GetString());
 		parser.RegisterKeyword("default", reader => {
-			var value = reader.GetString() == "true";
+			var value = reader.GetString().Equals("true", System.StringComparison.OrdinalIgnoreCase);
 			PendingInitialValue = value;
 			if (value) {
 				Value = true;

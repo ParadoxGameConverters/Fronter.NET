@@ -1,5 +1,6 @@
 ﻿using commonItems;
 using log4net;
+using System;
 using System.Collections.Generic;
 
 namespace Fronter.Models.Configuration.Options;
@@ -78,7 +79,9 @@ public sealed class Option {
 	}
 
 	public ISet<string> GetValues() {
-		return CheckBoxSelector is not null ? CheckBoxSelector.GetSelectedValues() : new HashSet<string>();
+		return CheckBoxSelector is not null
+			? CheckBoxSelector.GetSelectedValues()
+			: new HashSet<string>(StringComparer.Ordinal);
 	}
 
 	public void SetValue(string selection) {

@@ -132,14 +132,14 @@ public sealed class Config {
 					option.SetValue(valueStr);
 				} else if (option.Name.Equals(incomingKey) && option.CheckBoxSelector is not null) {
 					var selections = valueReader.GetStrings();
-					var values = selections.ToHashSet();
+					var values = selections.ToHashSet(StringComparer.Ordinal);
 					option.SetValue(values);
 					option.SetCheckBoxSelectorPreloaded();
 				}
 			}
 			if (incomingKey.Equals("selectedMods")) {
 				var theList = valueReader.GetStrings();
-				var matchingMods = AutoLocatedMods.Where(m => theList.Contains(m.FileName));
+				var matchingMods = AutoLocatedMods.Where(m => theList.Contains(m.FileName, StringComparer.Ordinal));
 				foreach (var mod in matchingMods) {
 					mod.Enabled = true;
 				}
