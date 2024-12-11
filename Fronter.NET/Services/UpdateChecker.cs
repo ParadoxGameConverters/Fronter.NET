@@ -109,7 +109,7 @@ public static class UpdateChecker {
 			}
 
 			var assetNameWithoutExtension = CommonFunctions.TrimExtension(assetName);
-			if (!assetNameWithoutExtension.EndsWith($"-{osName}-{architecture}")) {
+			if (!assetNameWithoutExtension.EndsWith($"-{osName}-{architecture}", StringComparison.OrdinalIgnoreCase)) {
 				continue;
 			}
 

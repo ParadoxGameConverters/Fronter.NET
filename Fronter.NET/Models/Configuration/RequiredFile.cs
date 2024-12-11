@@ -2,6 +2,7 @@
 using commonItems;
 using Fronter.Extensions;
 using log4net;
+using System;
 using System.IO;
 
 namespace Fronter.Models.Configuration;
@@ -18,8 +19,8 @@ public sealed class RequiredFile : RequiredPath {
 		parser.RegisterKeyword("name", reader => Name = reader.GetString());
 		parser.RegisterKeyword("tooltip", reader => Tooltip = reader.GetString());
 		parser.RegisterKeyword("displayName", reader => DisplayName = reader.GetString());
-		parser.RegisterKeyword("mandatory", reader => Mandatory = reader.GetString() == "true");
-		parser.RegisterKeyword("outputtable", reader => Outputtable = reader.GetString() == "true");
+		parser.RegisterKeyword("mandatory", reader => Mandatory = reader.GetString().Equals("true", StringComparison.OrdinalIgnoreCase));
+		parser.RegisterKeyword("outputtable", reader => Outputtable = reader.GetString().Equals("true", StringComparison.OrdinalIgnoreCase));
 
 		parser.RegisterKeyword("searchPathType", reader => SearchPathType = reader.GetString());
 		parser.RegisterKeyword("searchPath", reader => SearchPath = reader.GetString());

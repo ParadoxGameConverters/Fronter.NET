@@ -1,4 +1,5 @@
 ﻿using commonItems;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -20,7 +21,7 @@ public sealed class CheckBoxSelector {
 	}
 
 	public ISet<string> GetSelectedValues() {
-		var toReturn = new HashSet<string>();
+		var toReturn = new HashSet<string>(StringComparer.Ordinal);
 		foreach (ToggleableOption option in CheckBoxOptions.Where(option => option.Value)) {
 			toReturn.Add(option.Name);
 		}

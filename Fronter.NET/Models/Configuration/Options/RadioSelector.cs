@@ -50,7 +50,7 @@ public sealed class RadioSelector {
 	public void SetSelectedValue(string selection) {
 		var isSet = false;
 		foreach (var option in RadioOptions) {
-			if (option.Name == selection) {
+			if (option.Name.Equals(selection)) {
 				option.Value = true;
 				isSet = true;
 			} else {

@@ -33,7 +33,7 @@ internal sealed class ModCopier {
 		}
 
 		var requiredFolders = config.RequiredFolders;
-		var targetGameModPath = requiredFolders.FirstOrDefault(f => f?.Name == "targetGameModPath", defaultValue: null);
+		var targetGameModPath = requiredFolders.FirstOrDefault(f => string.Equals(f?.Name, "targetGameModPath", StringComparison.Ordinal), defaultValue: null);
 		if (targetGameModPath is null) {
 			logger.Error("Copy failed - Target Folder isn't loaded!");
 			return false;
@@ -47,13 +47,13 @@ internal sealed class ModCopier {
 		string? targetName = null;
 		foreach (var option in options) {
 			var value = option.GetValue();
-			if (option.Name == "output_name" && !string.IsNullOrEmpty(value)) {
+			if (option.Name.Equals("output_name") && !string.IsNullOrEmpty(value)) {
 				targetName = value;
 			}
 		}
 		var requiredFiles = config.RequiredFiles;
 		if (string.IsNullOrEmpty(targetName)) {
-			var saveGame = requiredFiles.FirstOrDefault(f => f?.Name == "SaveGame", defaultValue: null);
+			var saveGame = requiredFiles.FirstOrDefault(f => string.Equals(f?.Name, "SaveGame", StringComparison.Ordinal), defaultValue: null);
 			if (saveGame is null) {
 				logger.Error("Copy failed - SaveGame is does not exist!");
 				return false;
@@ -209,10 +209,10 @@ internal sealed class ModCopier {
 					AddModToPlayset(dbContext, mod, playset);
 				} else {
 					var gameRegistryId = playsetModPath;
-					if (!gameRegistryId.StartsWith("mod/")) {
+					if (!gameRegistryId.StartsWith("mod/", StringComparison.Ordinal)) {
 						gameRegistryId = $"mod/{gameRegistryId}";
 					}
-					if (!gameRegistryId.EndsWith(".mod")) {
+					if (!gameRegistryId.EndsWith(".mod", StringComparison.Ordinal)) {
 						gameRegistryId = $"{gameRegistryId}.mod";
 					}
 
