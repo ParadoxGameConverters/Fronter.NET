@@ -278,6 +278,7 @@ internal sealed class ConverterLauncher {
 				BrowserLauncher.Open(helpLink);
 				return true;
 			}
+			Logger.Debug("User declined to open help page.");
 		}
 
 		return false;
