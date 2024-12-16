@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Fronter.Models.Configuration.Options;
 
-public sealed class Option {
+internal sealed class Option {
 	private static readonly ILog logger = LogManager.GetLogger("Option");
 	public Option(BufferedReader reader, int id) {
 		Id = id;
@@ -78,7 +78,7 @@ public sealed class Option {
 		return string.Empty;
 	}
 
-	public ISet<string> GetValues() {
+	public HashSet<string> GetValues() {
 		return CheckBoxSelector is not null
 			? CheckBoxSelector.GetSelectedValues()
 			: new HashSet<string>(StringComparer.Ordinal);

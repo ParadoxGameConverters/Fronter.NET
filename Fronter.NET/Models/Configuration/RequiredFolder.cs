@@ -7,7 +7,7 @@ using System.IO;
 
 namespace Fronter.Models.Configuration;
 
-public sealed class RequiredFolder : RequiredPath {
+internal sealed class RequiredFolder : RequiredPath {
 	private static readonly ILog logger = LogManager.GetLogger("Required folder");
 	public RequiredFolder(BufferedReader reader, Config config) {
 		this.config = config;

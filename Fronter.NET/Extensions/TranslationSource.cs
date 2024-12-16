@@ -10,7 +10,7 @@ using System.Text.RegularExpressions;
 namespace Fronter.Extensions;
 
 // idea based on https://gist.github.com/jakubfijalkowski/0771bfbd26ce68456d3e
-public sealed partial class TranslationSource : ReactiveObject {
+internal sealed partial class TranslationSource : ReactiveObject {
 	private static readonly ILog logger = LogManager.GetLogger("Translator");
 	private TranslationSource() {
 		const string languagesPath = "languages.txt";
@@ -148,7 +148,7 @@ public sealed partial class TranslationSource : ReactiveObject {
 		}
 	}
 
-	public IList<string> LoadedLanguages { get; } = [];
+	public List<string> LoadedLanguages { get; } = [];
 	private readonly Dictionary<string, CultureInfo> languages = [];
 	private readonly Dictionary<string, Dictionary<string, string>> translations = []; // key, <language, text>
 

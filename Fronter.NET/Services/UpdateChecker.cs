@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace Fronter.Services;
 
-public static class UpdateChecker {
+internal static class UpdateChecker {
 	private static readonly ILog Logger = LogManager.GetLogger("Update checker");
 	private static readonly HttpClient HttpClient = new() {Timeout = TimeSpan.FromMinutes(5)};
 	public static async Task<bool> IsUpdateAvailable(string commitIdFilePath, string commitIdUrl) {
@@ -149,7 +149,7 @@ public static class UpdateChecker {
 		await File.WriteAllBytesAsync(fileName, responseBytes);
 	}
 
-	public static async void RunInstallerAndDie(string installerUrl, Config config, INotificationMessageManager notificationManager) {
+	public static async Task RunInstallerAndDie(string installerUrl, Config config, INotificationMessageManager notificationManager) {
 		Logger.Debug("Downloading installer...");
 
 		var fileName = Path.GetTempFileName();

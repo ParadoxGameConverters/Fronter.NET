@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace Fronter.Services;
 
-public sealed class SentryHelper {
+internal sealed class SentryHelper {
 	public SentryHelper(Config config) {
 		this.config = config;
 		InitSentry();
