@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Fronter.Models.Configuration.Options;
 
-public sealed class CheckBoxSelector {
+internal sealed class CheckBoxSelector {
 	public CheckBoxSelector(BufferedReader reader) {
 		var parser = new Parser();
 		RegisterKeys(parser);
@@ -20,7 +20,7 @@ public sealed class CheckBoxSelector {
 		parser.RegisterRegex(CommonRegexes.Catchall, ParserHelpers.IgnoreAndLogItem);
 	}
 
-	public ISet<string> GetSelectedValues() {
+	public HashSet<string> GetSelectedValues() {
 		var toReturn = new HashSet<string>(StringComparer.Ordinal);
 		foreach (ToggleableOption option in CheckBoxOptions.Where(option => option.Value)) {
 			toReturn.Add(option.Name);
@@ -28,7 +28,7 @@ public sealed class CheckBoxSelector {
 		return toReturn;
 	}
 
-	public ISet<int> GetSelectedIds() {
+	public HashSet<int> GetSelectedIds() {
 		var toReturn = new HashSet<int>();
 		foreach (ToggleableOption option in CheckBoxOptions.Where(option => option.Value)) {
 			toReturn.Add(option.Id);
@@ -49,5 +49,5 @@ public sealed class CheckBoxSelector {
 
 	private int optionCounter = 0;
 	public bool Preloaded { get; set; } = false;
-	public IList<ToggleableOption> CheckBoxOptions { get; } = new List<ToggleableOption>();
+	public List<ToggleableOption> CheckBoxOptions { get; } = [];
 }

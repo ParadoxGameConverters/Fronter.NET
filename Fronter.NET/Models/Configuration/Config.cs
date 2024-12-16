@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace Fronter.Models.Configuration;
 
-public sealed class Config {
+internal sealed class Config {
 	public string Name { get; private set; } = string.Empty;
 	public string ConverterFolder { get; private set; } = string.Empty;
 	public string BackendExePath { get; private set; } = string.Empty; // relative to ConverterFolder
@@ -28,9 +28,9 @@ public sealed class Config {
 	public string ConverterReleaseForumThread { get; private set; } = string.Empty;
 	public string LatestGitHubConverterReleaseUrl { get; private set; } = string.Empty;
 	public string PagesCommitIdUrl { get; private set; } = string.Empty;
-	public IList<RequiredFile> RequiredFiles { get; } = new List<RequiredFile>();
-	public IList<RequiredFolder> RequiredFolders { get; } = new List<RequiredFolder>();
-	public IList<Option> Options { get; } = new List<Option>();
+	public List<RequiredFile> RequiredFiles { get; } = [];
+	public List<RequiredFolder> RequiredFolders { get; } = [];
+	public List<Option> Options { get; } = [];
 	private int optionCounter;
 
 	private static readonly ILog logger = LogManager.GetLogger("Configuration");

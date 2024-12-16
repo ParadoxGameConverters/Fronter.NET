@@ -30,7 +30,7 @@ using System.Threading.Tasks;
 namespace Fronter.ViewModels;
 
 [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
-public sealed class MainWindowViewModel : ViewModelBase {
+internal sealed class MainWindowViewModel : ViewModelBase {
 	private static readonly ILog logger = LogManager.GetLogger("Frontend");
 	private readonly TranslationSource loc = TranslationSource.Instance;
 	public IEnumerable<MenuItemViewModel> LanguageMenuItems => loc.LoadedLanguages
@@ -313,7 +313,7 @@ public sealed class MainWindowViewModel : ViewModelBase {
 
 		// If we can use an installer, download it, run it, and exit.
 		if (info.UseInstaller) {
-			UpdateChecker.RunInstallerAndDie(info.AssetUrl, Config, NotificationManager);
+			await UpdateChecker.RunInstallerAndDie(info.AssetUrl, Config, NotificationManager);
 		} else{
 			UpdateChecker.StartUpdaterAndDie(info.AssetUrl, Config.ConverterFolder);
 		}

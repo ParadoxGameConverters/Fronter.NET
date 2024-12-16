@@ -95,4 +95,8 @@
     <ItemGroup>
       <Folder Include="Models\Database\" />
     </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="Fronter.Tests"/>
+    </ItemGroup>
 </Project>
