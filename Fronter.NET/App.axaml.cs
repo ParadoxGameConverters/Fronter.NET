@@ -10,6 +10,7 @@ using log4net;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Threading;
 
 namespace Fronter;
 
@@ -34,8 +35,15 @@ public sealed class App : Application {
 			var mainWindowViewModel = new MainWindowViewModel(window.FindControl<DataGrid>("LogGrid")!);
 			window.DataContext = mainWindowViewModel;
 
-			desktop.MainWindow.Opened += (sender, args) => DebugInfo.LogEverything();
-			desktop.MainWindow.Opened += (sender, args) => mainWindowViewModel.CheckForUpdatesOnStartup();
+			var debugInfoThread = new Thread(DebugInfo.LogEverything) {
+				Name = "Debug info logger",
+			};
+			var updateCheckerThread = new Thread(() => mainWindowViewModel.CheckForUpdatesOnStartup()) {
+				Name = "Update checker",
+			};
+
+			desktop.MainWindow.Opened += (sender, args) => debugInfoThread.Start();
+			desktop.MainWindow.Opened += (sender, args) => updateCheckerThread.Start();
 		}
 
 		base.OnFrameworkInitializationCompleted();
