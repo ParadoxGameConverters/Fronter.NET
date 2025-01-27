@@ -10,6 +10,7 @@ using log4net;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Fronter;
 
@@ -23,7 +24,7 @@ public sealed class App : Application {
 
 		AvaloniaXamlLoader.Load(this);
 
-		LoadTheme();
+		_ = Task.Run(LoadTheme);
 	}
 
 	public override void OnFrameworkInitializationCompleted() {
@@ -34,14 +35,14 @@ public sealed class App : Application {
 			var mainWindowViewModel = new MainWindowViewModel(window.FindControl<DataGrid>("LogGrid")!);
 			window.DataContext = mainWindowViewModel;
 
-			desktop.MainWindow.Opened += (sender, args) => DebugInfo.LogEverything();
-			desktop.MainWindow.Opened += (sender, args) => mainWindowViewModel.CheckForUpdatesOnStartup();
+			desktop.MainWindow.Opened += (sender, args) => _ = Task.Run(DebugInfo.LogEverything);
+			desktop.MainWindow.Opened += (sender, args) => _ = mainWindowViewModel.CheckForUpdatesOnStartup();
 		}
 
 		base.OnFrameworkInitializationCompleted();
 	}
 
-	private static async void LoadTheme() {
+	private static async Task LoadTheme() {
 		if (!File.Exists(FronterThemePath)) {
 			SetTheme(DefaultTheme);
 			return;
@@ -85,7 +86,7 @@ public sealed class App : Application {
 	/// Sets and saves a theme
 	/// </summary>
 	/// <param name="themeName" >Name of the theme to set and save.</param>
-	public static async void SaveTheme(string themeName) {
+	public static async Task SaveTheme(string themeName) {
 		SetTheme(themeName);
 		try {
 			await using var fs = new FileStream(FronterThemePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);

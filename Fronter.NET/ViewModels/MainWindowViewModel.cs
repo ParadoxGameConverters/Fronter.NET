@@ -184,7 +184,7 @@ internal sealed class MainWindowViewModel : ViewModelBase {
 		});
 		copyThread.Start();
 	}
-	public void LaunchConverter() {
+	public async Task LaunchConverter() {
 		ConvertButtonEnabled = false;
 		ClearLogGrid();
 
@@ -201,7 +201,7 @@ internal sealed class MainWindowViewModel : ViewModelBase {
 
 		var converterLauncher = new ConverterLauncher(Config);
 		bool success;
-		var converterThread = new Thread(() => {
+		await Task.Run(async () => {
 			ConvertStatus = "CONVERTSTATUSIN";
 
 			try {
@@ -245,14 +245,13 @@ internal sealed class MainWindowViewModel : ViewModelBase {
 				}
 			} else {
 				ConvertStatus = "CONVERTSTATUSPOSTFAIL";
-				Dispatcher.UIThread.Post(ShowErrorMessageBox);
+				await Dispatcher.UIThread.InvokeAsync(ShowErrorMessageBox);
 				ConvertButtonEnabled = true;
 			}
 		});
-		converterThread.Start();
 	}
 
-	private async void ShowErrorMessageBox() {
+	private async Task ShowErrorMessageBox() {
 		var messageBoxWindow = MessageBoxManager
 			.GetMessageBoxStandard(new MessageBoxStandardParams {
 				Icon = Icon.Error,
@@ -267,7 +266,7 @@ internal sealed class MainWindowViewModel : ViewModelBase {
 		}
 	}
 
-	public async void CheckForUpdates() {
+	public async Task CheckForUpdates() {
 		if (!Config.UpdateCheckerEnabled) {
 			return;
 		}
@@ -319,11 +318,11 @@ internal sealed class MainWindowViewModel : ViewModelBase {
 		}
 	}
 
-	public void CheckForUpdatesOnStartup() {
+	public async Task CheckForUpdatesOnStartup() {
 		if (!Config.CheckForUpdatesOnStartup) {
 			return;
 		}
-		CheckForUpdates();
+		await CheckForUpdates();
 	}
 
 #pragma warning disable CA1822
@@ -335,7 +334,7 @@ internal sealed class MainWindowViewModel : ViewModelBase {
 	}
 
 #pragma warning disable CA1822
-	public async void OpenAboutDialog() {
+	public async Task OpenAboutDialog() {
 #pragma warning restore CA1822
 		var messageBoxWindow = MessageBoxManager
 			.GetMessageBoxStandard(new MessageBoxStandardParams {
@@ -365,7 +364,7 @@ internal sealed class MainWindowViewModel : ViewModelBase {
 #pragma warning disable CA1822
 	public void SetTheme(string themeName) {
 #pragma warning restore CA1822
-		App.SaveTheme(themeName);
+		_ = App.SaveTheme(themeName);
 	}
 
 	public string WindowTitle {
