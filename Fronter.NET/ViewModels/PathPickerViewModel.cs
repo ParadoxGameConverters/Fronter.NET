@@ -23,8 +23,8 @@ internal sealed class PathPickerViewModel : ViewModelBase {
 		RequiredFiles = new ObservableCollection<RequiredFile>(config.RequiredFiles);
 
 		// Create reactive commands.
-		OpenFolderDialogCommand = ReactiveCommand.Create<RequiredFolder>(OpenFolderDialog);
-		OpenFileDialogCommand = ReactiveCommand.Create<RequiredFile>(OpenFileDialog);
+		OpenFolderDialogCommand = ReactiveCommand.CreateFromTask<RequiredFolder>(OpenFolderDialog);
+		OpenFileDialogCommand = ReactiveCommand.CreateFromTask<RequiredFile>(OpenFileDialog);
 	}
 
 	public ObservableCollection<RequiredFolder> RequiredFolders { get; }
@@ -63,7 +63,7 @@ internal sealed class PathPickerViewModel : ViewModelBase {
 	}
 
 	[SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
-	public async void OpenFolderDialog(RequiredFolder folder) {
+	public async Task OpenFolderDialog(RequiredFolder folder) {
 		var storageProvider = MainWindow.Instance.StorageProvider;
 
 		var options = new FolderPickerOpenOptions {
@@ -88,7 +88,7 @@ internal sealed class PathPickerViewModel : ViewModelBase {
 	}
 
 	[SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
-	public async void OpenFileDialog(RequiredFile file) {
+	public async Task OpenFileDialog(RequiredFile file) {
 		var storageProvider = MainWindow.Instance.StorageProvider;
 
 		var options = new FilePickerOpenOptions {
