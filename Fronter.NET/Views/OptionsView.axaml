@@ -74,13 +74,33 @@
                         </Border>
                         
                         <StackPanel Orientation="Horizontal" IsVisible="{Binding DateSelector, Converter={x:Static ObjectConverters.IsNotNull}}">
+                            <TextBox
+                                IsVisible="{Binding !DateSelector.UseDatePicker, FallbackValue={}}"
+                                ToolTip.Tip="{ns:DynamicLoc DateSelector.Tooltip, FallbackValue={}}"
+                                Text="{Binding DateSelector.TextValue, FallbackValue={}}"
+                                IsEnabled="{Binding DateSelector.Editable, FallbackValue=false}">
+                            </TextBox>
+                                
                             <DatePicker
+                                IsVisible="{Binding DateSelector.UseDatePicker, FallbackValue={}}"
                                 ToolTip.Tip="{ns:DynamicLoc DateSelector.Tooltip, FallbackValue={}}"
                                 SelectedDate="{Binding DateSelector.DateTimeOffsetValue, FallbackValue={}}" 
                                 IsEnabled="{Binding DateSelector.Editable, FallbackValue=false}"
                                 MinYear="{Binding DateSelector.MinDate, FallbackValue={}}"
                                 MaxYear="{Binding DateSelector.MaxDate, FallbackValue={}}"
                             />
+                            <Button
+                                ToolTip.Tip="Use calendar date picker"
+                                Command="{Binding DateSelector.ToggleUseDatePicker, FallbackValue={}}"
+                                Margin="5,0,0,0"
+                                IsVisible="{Binding !DateSelector.UseDatePicker, FallbackValue={}}"
+                                Content="📅" />
+                            <Button
+                                ToolTip.Tip="Use text input"
+                                Command="{Binding DateSelector.ToggleUseDatePicker, FallbackValue={}}"
+                                Margin="5,0,0,0"
+                                IsVisible="{Binding DateSelector.UseDatePicker, FallbackValue={}}"
+                                Content="⌨" />
                             <Button
                                 Command="{Binding DateSelector.ClearValue, FallbackValue={}}"
                                 Margin="5,0,0,0"
