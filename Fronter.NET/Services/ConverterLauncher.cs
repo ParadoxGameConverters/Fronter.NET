@@ -152,7 +152,7 @@ internal sealed class ConverterLauncher {
 
 			var sentryHelper = new SentryHelper(config);
 			try {
-				AttachLogAndSaveToSentry(config, sentryHelper);
+				await AttachLogAndSaveToSentry(config, sentryHelper);
 			} catch (Exception e) {
 				var warnMessage = $"Failed to attach log and save to Sentry event: {e.Message}";
 				logger.Warn(warnMessage);
@@ -184,7 +184,7 @@ internal sealed class ConverterLauncher {
 		return saveUploadConsent == ButtonResult.Ok;
 	}
 
-	private static async void AttachLogAndSaveToSentry(Config config, SentryHelper sentryHelper) {
+	private static async Task AttachLogAndSaveToSentry(Config config, SentryHelper sentryHelper) {
 		sentryHelper.AddAttachment("log.txt");
 
 		var saveLocation = config.RequiredFiles.FirstOrDefault(f => f.Name.Equals("SaveGame"))?.Value;
