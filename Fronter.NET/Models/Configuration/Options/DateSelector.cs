@@ -73,6 +73,7 @@ public sealed class DateSelector : ReactiveObject {
 
 				DateTimeOffsetValue = new Date(value).ToDateTimeOffset();
 			}
+			this.RaisePropertyChanged(nameof(TextValue));
 		}
 	}
 
@@ -109,7 +110,6 @@ public sealed class DateSelector : ReactiveObject {
 		UseDatePicker = !UseDatePicker;
 	}
 	public void ClearValue() {
-		DateTimeOffsetValue = null;
 		TextValue = null;
 	}
 }
