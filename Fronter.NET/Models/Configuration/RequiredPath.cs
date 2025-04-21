@@ -7,20 +7,19 @@ public class RequiredPath : ViewModelBase {
 	public bool Mandatory { get; protected set; } = false;
 	public virtual bool Outputtable { get; protected set; } = false;
 	public string Name { get; protected set; } = string.Empty;
-	private string displayName = string.Empty;
+
 	public string DisplayName {
-		get => displayName;
-		protected set => this.RaiseAndSetIfChanged(ref displayName, value);
-	}
+		get;
+		protected set => this.RaiseAndSetIfChanged(ref field, value);
+	} = string.Empty;
 
 	public string? Tooltip { get; protected set; }
 
 	public string SearchPathType { get; protected set; } = string.Empty;
 	public string SearchPath { get; protected set; } = string.Empty;
 
-	private string valueStr = string.Empty;
 	public virtual string Value {
-		get => valueStr;
-		set => this.RaiseAndSetIfChanged(ref valueStr, value);
-	}
+		get;
+		set => this.RaiseAndSetIfChanged(ref field, value);
+	} = string.Empty;
 }

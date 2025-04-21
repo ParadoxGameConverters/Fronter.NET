@@ -29,7 +29,11 @@ public sealed class ToggleableOption : ReactiveObject {
 	public string DisplayName { get; private set; } = string.Empty;
 	public string? Tooltip { get; private set; }
 	public bool? PendingInitialValue { get; set; }
-	private bool boolValue = false;
-	public bool Value { get => boolValue; set => this.RaiseAndSetIfChanged(ref boolValue, value); }
+
+	public bool Value {
+		get;
+		set => this.RaiseAndSetIfChanged(ref field, value);
+	} = false;
+
 	public int Id { get; } = 0;
 }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Fronter.Models.Database;
+﻿namespace Fronter.Models.Database;
 
 public partial class Playset
 {
