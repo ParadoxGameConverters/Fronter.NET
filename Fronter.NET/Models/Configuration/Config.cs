@@ -259,14 +259,18 @@ internal sealed class Config {
 		try {
 			using var writer = new StreamWriter(outConfPath);
 			foreach (var folder in RequiredFolders) {
-				writer.WriteLine($"{folder.Name} = \"{folder.Value}\"");
+				// In the folder path, replace backslashes with forward slashes.
+				string pathToWrite = folder.Value.Replace('\\', '/');
+				writer.WriteLine($"{folder.Name} = \"{pathToWrite}\"");
 			}
 
 			foreach (var file in RequiredFiles) {
 				if (!file.Outputtable) {
 					continue;
 				}
-				writer.WriteLine($"{file.Name} = \"{file.Value}\"");
+				// In the file path, replace backslashes with forward slashes.
+				string pathToWrite = file.Value.Replace('\\', '/');
+				writer.WriteLine($"{file.Name} = \"{pathToWrite}\"");
 			}
 
 			if (ModAutoGenerationSource is not null) {
