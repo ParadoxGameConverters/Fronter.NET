@@ -15,7 +15,6 @@ using log4net.Core;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Dto;
 using MsBox.Avalonia.Enums;
-using MsBox.Avalonia.Models;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
@@ -68,28 +67,25 @@ internal sealed class MainWindowViewModel : ViewModelBase {
 		private set => this.RaiseAndSetIfChanged(ref LogGridAppender.LogFilterLevel, value);
 	}
 
-	private string saveStatus = "CONVERTSTATUSPRE";
-	private string convertStatus = "CONVERTSTATUSPRE";
-	private string copyStatus = "CONVERTSTATUSPRE";
-
 	public string SaveStatus {
-		get => saveStatus;
-		set => this.RaiseAndSetIfChanged(ref saveStatus, value);
-	}
-	public string ConvertStatus {
-		get => convertStatus;
-		set => this.RaiseAndSetIfChanged(ref convertStatus, value);
-	}
-	public string CopyStatus {
-		get => copyStatus;
-		set => this.RaiseAndSetIfChanged(ref copyStatus, value);
-	}
+		get;
+		set => this.RaiseAndSetIfChanged(ref field, value);
+	} = "CONVERTSTATUSPRE";
 
-	private bool convertButtonEnabled = true;
+	public string ConvertStatus {
+		get;
+		set => this.RaiseAndSetIfChanged(ref field, value);
+	} = "CONVERTSTATUSPRE";
+
+	public string CopyStatus {
+		get;
+		set => this.RaiseAndSetIfChanged(ref field, value);
+	} = "CONVERTSTATUSPRE";
+
 	public bool ConvertButtonEnabled {
-		get => convertButtonEnabled;
-		set => this.RaiseAndSetIfChanged(ref convertButtonEnabled, value);
-	}
+		get;
+		set => this.RaiseAndSetIfChanged(ref field, value);
+	} = true;
 
 	public MainWindowViewModel(DataGrid logGrid) {
 		Config = new Config();
@@ -134,17 +130,15 @@ internal sealed class MainWindowViewModel : ViewModelBase {
 		Dispatcher.UIThread.Post(ScrollToLogEnd, DispatcherPriority.Normal);
 	}
 
-	private ushort progress = 0;
 	public ushort Progress {
-		get => progress;
-		set => this.RaiseAndSetIfChanged(ref progress, value);
-	}
+		get;
+		set => this.RaiseAndSetIfChanged(ref field, value);
+	} = 0;
 
-	private bool indeterminateProgress = false;
 	public bool IndeterminateProgress {
-		get => indeterminateProgress;
-		set => this.RaiseAndSetIfChanged(ref indeterminateProgress, value);
-	}
+		get;
+		set => this.RaiseAndSetIfChanged(ref field, value);
+	} = false;
 
 	private bool VerifyMandatoryPaths() {
 		foreach (var folder in Config.RequiredFolders) {

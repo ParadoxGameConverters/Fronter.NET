@@ -78,7 +78,7 @@ public sealed class DateSelector : ReactiveObject {
 	}
 
 	private static void ValidateYearString(string value) {
-		if (!int.TryParse(value, out var year)) {
+		if (!int.TryParse(value, out int _)) {
 			throw new DataValidationException($"'{value}' is not a valid integer.");
 		}
 	}
