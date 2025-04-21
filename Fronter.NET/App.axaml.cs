@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
+using Avalonia.Threading;
 using commonItems;
 using Fronter.ViewModels;
 using Fronter.Views;
@@ -68,18 +69,22 @@ public sealed class App : Application {
 			return;
 		}
 
-		switch (themeName) {
-			case "Light":
-				if (app.RequestedThemeVariant != ThemeVariant.Light) {
-					app.RequestedThemeVariant = ThemeVariant.Light;
-				}
-				break;
-			case "Dark":
-				if (app.RequestedThemeVariant != ThemeVariant.Dark) {
-					app.RequestedThemeVariant = ThemeVariant.Dark;
-				}
-				break;
-		}
+		Dispatcher.UIThread.Post(() => {
+			switch (themeName) {
+				case "Light":
+					if (app.RequestedThemeVariant != ThemeVariant.Light) {
+						app.RequestedThemeVariant = ThemeVariant.Light;
+					}
+
+					break;
+				case "Dark":
+					if (app.RequestedThemeVariant != ThemeVariant.Dark) {
+						app.RequestedThemeVariant = ThemeVariant.Dark;
+					}
+
+					break;
+			}
+		});
 	}
 
 	/// <summary>
