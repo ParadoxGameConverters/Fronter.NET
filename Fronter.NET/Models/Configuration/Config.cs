@@ -258,42 +258,14 @@ internal sealed class Config {
 		var outConfPath = Path.Combine(ConverterFolder, "configuration.txt");
 		try {
 			using var writer = new StreamWriter(outConfPath);
-			foreach (var folder in RequiredFolders) {
-				// In the folder path, replace backslashes with forward slashes.
-				string pathToWrite = folder.Value.Replace('\\', '/');
-				writer.WriteLine($"{folder.Name} = \"{pathToWrite}\"");
-			}
-
-			foreach (var file in RequiredFiles) {
-				if (!file.Outputtable) {
-					continue;
-				}
-				// In the file path, replace backslashes with forward slashes.
-				string pathToWrite = file.Value.Replace('\\', '/');
-				writer.WriteLine($"{file.Name} = \"{pathToWrite}\"");
-			}
+			WriteRequiredFolders(writer);
+			WriteRequiredFiles(writer);
 
 			if (ModAutoGenerationSource is not null) {
-				writer.WriteLine("selectedMods = {");
-				foreach (var mod in AutoLocatedMods) {
-					if (mod.Enabled) {
-						writer.WriteLine($"\t\"{mod.FileName}\"");
-					}
-				}
-				writer.WriteLine("}");
+				WriteSelectedMods(writer);
 			}
 
-			foreach (var option in Options) {
-				if (option.CheckBoxSelector is not null) {
-					writer.Write($"{option.Name} = {{ ");
-					foreach (var value in option.GetValues()) {
-						writer.Write($"\"{value}\" ");
-					}
-					writer.WriteLine("}");
-				} else {
-					writer.WriteLine($"{option.Name} = \"{option.GetValue()}\"");
-				}
-			}
+			WriteOptions(writer);
 
 			SetSavingStatus("CONVERTSTATUSPOSTSUCCESS");
 			return true;
@@ -301,6 +273,52 @@ internal sealed class Config {
 			logger.Error($"Could not open configuration.txt! Error: {ex}");
 			SetSavingStatus("CONVERTSTATUSPOSTFAIL");
 			return false;
+		}
+	}
+
+	private void WriteSelectedMods(StreamWriter writer) {
+		writer.WriteLine("selectedMods = {");
+		foreach (var mod in AutoLocatedMods) {
+			if (mod.Enabled) {
+				writer.WriteLine($"\t\"{mod.FileName}\"");
+			}
+		}
+
+		writer.WriteLine("}");
+	}
+
+	private void WriteOptions(StreamWriter writer) {
+		foreach (var option in Options) {
+			if (option.CheckBoxSelector is not null) {
+				writer.Write($"{option.Name} = {{ ");
+				foreach (var value in option.GetValues()) {
+					writer.Write($"\"{value}\" ");
+				}
+
+				writer.WriteLine("}");
+			} else {
+				writer.WriteLine($"{option.Name} = \"{option.GetValue()}\"");
+			}
+		}
+	}
+
+	private void WriteRequiredFiles(StreamWriter writer) {
+		foreach (var file in RequiredFiles) {
+			if (!file.Outputtable) {
+				continue;
+			}
+
+			// In the file path, replace backslashes with forward slashes.
+			string pathToWrite = file.Value.Replace('\\', '/');
+			writer.WriteLine($"{file.Name} = \"{pathToWrite}\"");
+		}
+	}
+
+	private void WriteRequiredFolders(StreamWriter writer) {
+		foreach (var folder in RequiredFolders) {
+			// In the folder path, replace backslashes with forward slashes.
+			string pathToWrite = folder.Value.Replace('\\', '/');
+			writer.WriteLine($"{folder.Name} = \"{pathToWrite}\"");
 		}
 	}
 
@@ -345,20 +363,7 @@ internal sealed class Config {
 		logger.Debug($"Mods autolocation path set to: \"{modPath}\"");
 
 		// Are there mods inside?
-		var validModFiles = new List<string>();
-		foreach (var file in SystemUtils.GetAllFilesInFolder(modPath)) {
-			var lastDot = file.LastIndexOf('.');
-			if (lastDot == -1) {
-				continue;
-			}
-
-			var extension = CommonFunctions.GetExtension(file);
-			if (!extension.Equals("mod")) {
-				continue;
-			}
-
-			validModFiles.Add(file);
-		}
+		List<string> validModFiles = GetValidModFiles(modPath);
 
 		if (validModFiles.Count == 0) {
 			logger.Debug($"No mod files could be found in \"{modPath}\"");
@@ -381,5 +386,24 @@ internal sealed class Config {
 			AutoLocatedMods.Add(theMod);
 		}
 		logger.Debug($"Autolocated {AutoLocatedMods.Count} mods");
+	}
+
+	private static List<string> GetValidModFiles(string modPath) {
+		var validModFiles = new List<string>();
+		foreach (var file in SystemUtils.GetAllFilesInFolder(modPath)) {
+			var lastDot = file.LastIndexOf('.');
+			if (lastDot == -1) {
+				continue;
+			}
+
+			var extension = CommonFunctions.GetExtension(file);
+			if (!extension.Equals("mod")) {
+				continue;
+			}
+
+			validModFiles.Add(file);
+		}
+
+		return validModFiles;
 	}
 }
