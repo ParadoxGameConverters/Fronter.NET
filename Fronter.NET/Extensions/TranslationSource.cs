@@ -152,15 +152,14 @@ internal sealed partial class TranslationSource : ReactiveObject {
 	private readonly Dictionary<string, CultureInfo> languages = [];
 	private readonly Dictionary<string, Dictionary<string, string>> translations = []; // key, <language, text>
 
-	private string currentLanguage = "english";
 	public string CurrentLanguage {
-		get => currentLanguage;
+		get;
 		private set {
-			currentLanguage = value;
+			field = value;
 			this.RaisePropertyChanged(nameof(CurrentLanguage));
 			this.RaisePropertyChanged("Item");
 		}
-	}
+	} = "english";
 
 	[GeneratedRegex(@"\\n")]
 	private static partial Regex NewLineInStringRegex();

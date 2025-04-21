@@ -12,9 +12,8 @@ public sealed class LogLine : ReactiveObject {
 	public Level? Level { get; set; }
 	public string LevelName => Level?.Name ?? string.Empty;
 
-	private string message = string.Empty;
 	public string Message {
-		get => message;
-		set => this.RaiseAndSetIfChanged(ref message, value);
-	}
+		get;
+		set => this.RaiseAndSetIfChanged(ref field, value);
+	} = string.Empty;
 }
