@@ -88,6 +88,16 @@ internal static class UpdateChecker {
 		info.Description = releaseInfo.Body;
 		info.Version = releaseInfo.Name;
 
+		DetermineReleaseBuildUrl(releaseInfo, info, osName, architecture);
+
+		if (info.AssetUrl is null) {
+			Logger.Debug($"Release {info.Version} doesn't have a release build for this platform.");
+		}
+
+		return info;
+	}
+
+	private static void DetermineReleaseBuildUrl(ConverterReleaseInfo releaseInfo, UpdateInfoModel info, string osName, string architecture) {
 		var assets = releaseInfo.Assets;
 		foreach (var asset in assets) {
 			string? assetName = asset.Name;
@@ -116,12 +126,6 @@ internal static class UpdateChecker {
 			info.AssetUrl = asset.BrowserDownloadUrl;
 			break;
 		}
-
-		if (info.AssetUrl is null) {
-			Logger.Debug($"Release {info.Version} doesn't have a release build for this platform.");
-		}
-
-		return info;
 	}
 
 	public static string GetUpdateMessageBody(string baseBody, UpdateInfoModel updateInfo) {
