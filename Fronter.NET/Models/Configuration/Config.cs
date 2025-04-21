@@ -276,25 +276,25 @@ internal sealed class Config {
 		}
 	}
 
-	private void WriteSelectedMods(StreamWriter writer)
-	{
+	private void WriteSelectedMods(StreamWriter writer) {
 		writer.WriteLine("selectedMods = {");
 		foreach (var mod in AutoLocatedMods) {
 			if (mod.Enabled) {
 				writer.WriteLine($"\t\"{mod.FileName}\"");
 			}
 		}
+
 		writer.WriteLine("}");
 	}
 
-	private void WriteOptions(StreamWriter writer)
-	{
+	private void WriteOptions(StreamWriter writer) {
 		foreach (var option in Options) {
 			if (option.CheckBoxSelector is not null) {
 				writer.Write($"{option.Name} = {{ ");
 				foreach (var value in option.GetValues()) {
 					writer.Write($"\"{value}\" ");
 				}
+
 				writer.WriteLine("}");
 			} else {
 				writer.WriteLine($"{option.Name} = \"{option.GetValue()}\"");
@@ -302,20 +302,19 @@ internal sealed class Config {
 		}
 	}
 
-	private void WriteRequiredFiles(StreamWriter writer)
-	{
+	private void WriteRequiredFiles(StreamWriter writer) {
 		foreach (var file in RequiredFiles) {
 			if (!file.Outputtable) {
 				continue;
 			}
+
 			// In the file path, replace backslashes with forward slashes.
 			string pathToWrite = file.Value.Replace('\\', '/');
 			writer.WriteLine($"{file.Name} = \"{pathToWrite}\"");
 		}
 	}
 
-	private void WriteRequiredFolders(StreamWriter writer)
-	{
+	private void WriteRequiredFolders(StreamWriter writer) {
 		foreach (var folder in RequiredFolders) {
 			// In the folder path, replace backslashes with forward slashes.
 			string pathToWrite = folder.Value.Replace('\\', '/');
