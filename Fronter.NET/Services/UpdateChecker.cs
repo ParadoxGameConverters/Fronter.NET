@@ -1,4 +1,8 @@
-﻿using Avalonia.Notification;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Layout;
+using Avalonia.Media;
+using Avalonia.Notification;
 using commonItems;
 using Fronter.Extensions;
 using Fronter.Models;
@@ -112,7 +116,7 @@ internal static class UpdateChecker {
 				continue;
 			}
 
-			// For Windows, prefer installer over archive.
+			// For Windows, prefer an installer over an archive.
 			if (extension.Equals("exe") && osName.Equals("win")) {
 				info.AssetUrl = asset.BrowserDownloadUrl;
 				break;
@@ -155,6 +159,21 @@ internal static class UpdateChecker {
 
 	public static async Task RunInstallerAndDie(string installerUrl, Config config, INotificationMessageManager notificationManager) {
 		Logger.Debug("Downloading installer...");
+		var downloadingMessage = notificationManager.CreateMessage()
+			.Accent(Brushes.Gray)
+			.Background(Brushes.Gray)
+			.HasMessage("Downloading installer...")
+			.WithOverlay(new ProgressBar {
+				VerticalAlignment = VerticalAlignment.Bottom,
+				HorizontalAlignment = HorizontalAlignment.Stretch,
+				Height = 3,
+				BorderThickness = new Thickness(0),
+				Foreground = Brushes.Green,
+				Background = Brushes.Gray,
+				IsIndeterminate = true,
+				IsHitTestVisible = false
+			})
+			.Queue();
 
 		var fileName = Path.GetTempFileName();
 		try {
@@ -169,6 +188,8 @@ internal static class UpdateChecker {
 				.Queue();
 			return;
 		}
+
+		notificationManager.Dismiss(downloadingMessage);
 
 		Logger.Debug("Running installer...");
 		var proc = new Process();
