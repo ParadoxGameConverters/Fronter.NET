@@ -295,8 +295,8 @@ internal sealed class MainWindowViewModel : ViewModelBase {
 
 		bool performUpdate = false;
 		await Dispatcher.UIThread.InvokeAsync(async () => {
-			string? result = await messageBoxWindow.ShowWindowDialogAsync(MainWindow.Instance);
-			performUpdate = result?.Equals(updateNowStr) == true;
+			string result = await messageBoxWindow.ShowWindowDialogAsync(MainWindow.Instance);
+			performUpdate = result.Equals(updateNowStr);
 		}, DispatcherPriority.Normal);
 
 		if (!performUpdate) {
@@ -307,7 +307,7 @@ internal sealed class MainWindowViewModel : ViewModelBase {
 		// If we can use an installer, download it, run it, and exit.
 		if (info.UseInstaller) {
 			await UpdateChecker.RunInstallerAndDie(info.AssetUrl, Config, NotificationManager);
-		} else{
+		} else {
 			UpdateChecker.StartUpdaterAndDie(info.AssetUrl, Config.ConverterFolder);
 		}
 	}
