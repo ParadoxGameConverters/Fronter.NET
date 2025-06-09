@@ -11,7 +11,7 @@
         <IsPackable>false</IsPackable>
         
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-        <AvaloniaVersion>[11.1.5]</AvaloniaVersion>
+        <AvaloniaVersion>[11.3.1]</AvaloniaVersion>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
         <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -65,26 +65,26 @@
         <PackageReference Include="Avalonia.ReactiveUI" Version="$(AvaloniaVersion)" />
         <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
         <PackageReference Include="AWSSDK.S3" Version="[3.7.411.7]" /> <!-- versions >= 3.7.412.0 didn't work correctly with Backblaze B2 as of 2025-05-17: https://www.backblaze.com/docs/en/cloud-storage-use-the-aws-sdk-for-net-with-backblaze-b2?highlight=Data%20Integrity%20Protection%20Headers -->
-        <PackageReference Include="DynamicData" Version="9.2.1" />
+        <PackageReference Include="DynamicData" Version="9.4.1" />
         <PackageReference Include="MessageBox.Avalonia" Version="3.2.0" />
         <PackageReference Include="MessageBox.Avalonia.Markdown" Version="3.2.0" />
-        <PackageReference Include="Meziantou.Analyzer" Version="2.0.199">
+        <PackageReference Include="Meziantou.Analyzer" Version="2.0.201">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.4">
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.5">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.4" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.5" />
         <PackageReference Include="Mono.Posix.NETStandard" Version="1.0.0" />
         <PackageReference Include="Notification.Avalonia" Version="2.1.0" />
-        <PackageReference Include="PGCG.commonItems" Version="15.1.9" />
+        <PackageReference Include="PGCG.commonItems" Version="15.1.10" />
         <PackageReference Include="Roslynator.Analyzers" Version="4.13.1">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Sentry" Version="5.6.0" />
+        <PackageReference Include="Sentry" Version="5.10.0" />
     </ItemGroup>
 
     <ItemGroup>
