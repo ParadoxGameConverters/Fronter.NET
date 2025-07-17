@@ -36,3 +36,8 @@ l_italian:
   LOGLEVEL1: "Avvertenza"
   LOGLEVEL2: "Info"
   LOGLEVEL3: "Debug"
+  CHECKFORUPDATES: "Controlla gli aggiornamenti"
+  MENU_THEME: "Tema"
+  MENU_HELP: "Aiuto"
+  THEME_LIGHT: "Chiaro"
+  THEME_DARK: "Scuro"
