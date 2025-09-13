@@ -3,7 +3,7 @@ using System.Security.Principal;
 
 namespace Fronter.Services;
 
-public static class ElevatedPrivilegesDetector {
+internal static class ElevatedPrivilegesDetector {
 	public static bool IsAdministrator =>
 		OperatingSystem.IsWindows() ?
 			new WindowsPrincipal(WindowsIdentity.GetCurrent())

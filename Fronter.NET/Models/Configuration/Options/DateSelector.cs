@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Fronter.Models.Configuration.Options;
 
-public sealed class DateSelector : ReactiveObject {
+internal sealed class DateSelector : ReactiveObject {
 	public DateSelector(BufferedReader reader) {
 		var parser = new Parser();
 		RegisterKeys(parser);

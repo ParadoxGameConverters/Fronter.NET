@@ -3,7 +3,7 @@ using Avalonia.Markup.Xaml;
 
 namespace Fronter.Views;
 
-public sealed partial class PathPickerView : UserControl {
+internal sealed partial class PathPickerView : UserControl {
 	public PathPickerView() {
 		InitializeComponent();
 	}

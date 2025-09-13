@@ -7,7 +7,7 @@ using Logger = commonItems.Logger;
 
 namespace Fronter;
 
-public static class LoggingConfigurator {
+internal static class LoggingConfigurator {
 	public static void ConfigureLogging(bool useConsole = false) {
 		var appenders = new List<IAppender>();
 

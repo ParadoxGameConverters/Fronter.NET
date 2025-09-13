@@ -3,7 +3,7 @@ using Fronter.ValueConverters;
 
 namespace Fronter.Extensions;
 
-public sealed class DynamicLocExtension : MultiBinding {
+internal sealed class DynamicLocExtension : MultiBinding {
 	public DynamicLocExtension(string path) {
 		Bindings.Add(new Binding(path));
 
