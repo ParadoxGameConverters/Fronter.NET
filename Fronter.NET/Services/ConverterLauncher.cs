@@ -82,13 +82,10 @@ internal sealed class ConverterLauncher {
 				return;
 			}
 
-			// Get timestamp datetime.
-			DateTime timestamp = logLine.TimestampAsDateTime;
-
 			// Get level to display.
 			var logLevel = level ?? lastLevelFromBackend ?? Level.Info;
 
-			logger.LogWithCustomTimestamp(timestamp, logLevel, logLine.Message);
+			logger.LogWithCustomTimestamp(logLine.Timestamp, logLevel, logLine.Message);
 
 			if (level is not null) {
 				lastLevelFromBackend = level;

@@ -7,7 +7,7 @@ using System.IO;
 
 namespace Fronter.Models.Configuration;
 
-public sealed class RequiredFile : RequiredPath {
+internal sealed class RequiredFile : RequiredPath {
 	private static readonly ILog logger = LogManager.GetLogger("Required file");
 	public RequiredFile(BufferedReader reader) {
 		var parser = new Parser();

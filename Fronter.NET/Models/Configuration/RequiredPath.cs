@@ -3,7 +3,7 @@ using ReactiveUI;
 
 namespace Fronter.Models.Configuration;
 
-public class RequiredPath : ViewModelBase {
+internal class RequiredPath : ViewModelBase {
 	public bool Mandatory { get; protected set; } = false;
 	public virtual bool Outputtable { get; protected set; } = false;
 	public string Name { get; protected set; } = string.Empty;

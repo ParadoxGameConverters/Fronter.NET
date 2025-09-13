@@ -97,6 +97,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="Fronter.Tests"/>
+        <InternalsVisibleTo Include="Fronter.Tests" />
     </ItemGroup>
 </Project>

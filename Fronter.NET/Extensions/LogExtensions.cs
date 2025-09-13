@@ -4,7 +4,7 @@ using System;
 
 namespace Fronter.Extensions;
 
-public static class LogExtensions {
+internal static class LogExtensions {
 	public static void LogWithCustomTimestamp(this ILog log, DateTime timestamp, Level level, string message) {
 		var loggingEventDate = new LoggingEventData {
 			// The incoming timeStamp is in local timezone, but Log4Net expects it to be in UTC.

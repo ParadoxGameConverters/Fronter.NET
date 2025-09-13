@@ -5,7 +5,7 @@ using System.Globalization;
 
 namespace Fronter.ValueConverters;
 
-public sealed class EnumToBooleanConverter : IValueConverter {
+internal sealed class EnumToBooleanConverter : IValueConverter {
 	public static readonly EnumToBooleanConverter Instance = new();
 
 	public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) {

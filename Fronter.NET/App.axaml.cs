@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace Fronter;
 
-public sealed class App : Application {
+internal sealed class App : Application {
 	private static readonly ILog logger = LogManager.GetLogger("Frontend");
 	private const string FronterThemePath = "Configuration/fronter-theme.txt";
 	private const string DefaultTheme = "Dark";
