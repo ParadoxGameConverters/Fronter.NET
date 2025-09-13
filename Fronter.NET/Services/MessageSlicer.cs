@@ -4,14 +4,13 @@ using log4net;
 using log4net.Core;
 using System;
 using System.Globalization;
-using System.Text.RegularExpressions;
 
 namespace Fronter.Services;
 
-internal static partial class MessageSlicer {
+internal static class MessageSlicer {
     private static readonly ILog logger = LogManager.GetLogger("Frontend");
 
-    public static LogLine SliceMessageV2(string message) {
+    public static LogLine SliceMessage(string message) {
         ReadOnlySpan<char> span = message.AsSpan();
 
         int posOpen = span.IndexOf('[');
@@ -113,57 +112,4 @@ internal static partial class MessageSlicer {
 
         return true;
     }
-
-
-	public static LogLine SliceMessage(string message) => SliceMessageV2(message);
-
-	public static LogLine SliceMessageV1(string message) {
-		var posOpen = message.IndexOf('[');
-		var posClose = message.IndexOf(']');
-
-		if (posOpen < 0 || posOpen > posClose) {
-			return new LogLine(DateTime.Now, level: null, message);
-		}
-
-		var timestampPart = message[..posOpen].Trim();
-		string msg = string.Empty;
-		Level? level;
-		DateTime timestamp;
-		if (dateTimeRegex.IsMatch(timestampPart)) {
-			timestamp = Convert.ToDateTime(timestampPart);
-		} else if (!message.TrimStart().StartsWith('[')) {
-			timestamp = DateTime.Now;
-			msg = message;
-			level = null;
-			return new LogLine(timestamp, level, msg);
-		}
-
-		timestamp = DateTime.Now;
-		var logLevelStr = message.Substring(posOpen + 1, posClose - posOpen - 1);
-		level = GetLogLevelV1(logLevelStr);
-		if (message.Length >= posClose + 2) {
-			msg = message[(posClose + 2)..];
-		}
-
-		return new LogLine(timestamp, level, msg);
-	}
-
-
-
-	private static Level GetLogLevelV1(string levelStr) { // TODO: remove this after switching to V2
-		if (levelStr.Equals("WARNING", StringComparison.OrdinalIgnoreCase)) {
-			levelStr = "WARN";
-		}
-		var level = LogManager.GetRepository().LevelMap[levelStr];
-		if (level == null) {
-			logger.Warn($"Unknown log level: {levelStr}");
-			level = Level.Debug;
-		}
-
-		return level;
-	}
-
-	private static readonly Regex dateTimeRegex = GetDateTimeRegex(); // TODO: remove this after switching to V2
-	[GeneratedRegex(@"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})$")]
-	private static partial Regex GetDateTimeRegex(); // TODO: remove this after switching to V2
 }
