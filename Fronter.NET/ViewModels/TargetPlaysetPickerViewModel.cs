@@ -10,7 +10,7 @@ namespace Fronter.ViewModels;
 /// <summary>
 ///     The TargetPlaysetPickerViewModel lets the user select paths to various stuff the converter needs to know where to find.
 /// </summary>
-public class TargetPlaysetPickerViewModel : ViewModelBase {
+internal class TargetPlaysetPickerViewModel : ViewModelBase {
 	private Config config;
 	
 	public TargetPlaysetPickerViewModel(Config config) {

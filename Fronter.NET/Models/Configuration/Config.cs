@@ -271,17 +271,6 @@ internal sealed class Config {
 		}
 	}
 
-	private void WriteSelectedMods(StreamWriter writer) {
-		writer.WriteLine("selectedMods = {");
-		foreach (var mod in AutoLocatedMods) {
-			if (mod.Enabled) {
-				writer.WriteLine($"\t\"{mod.FileName}\"");
-			}
-		}
-
-		writer.WriteLine("}");
-	}
-
 	private void WriteOptions(StreamWriter writer) {
 		foreach (var option in Options) {
 			if (option.CheckBoxSelector is not null) {

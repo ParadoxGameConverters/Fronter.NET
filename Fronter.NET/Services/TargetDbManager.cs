@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Fronter.Services;
 
-public class TargetDbManager {
+internal class TargetDbManager {
 	public static string? GetLastUpdatedLauncherDbPath(string gameDocsDirectory) {
 		var possibleDbFileNames = new List<string> { "launcher-v2.sqlite", "launcher-v2_openbeta.sqlite" };
 		var latestDbFilePath = possibleDbFileNames
