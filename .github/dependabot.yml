@@ -8,6 +8,21 @@ updates:
     # Check the nuget registry for updates every week:
     schedule:
       interval: "weekly"
+    ignore:
+      - dependency-name: "Avalonia"
+        versions: [">= 11.2.0"]
+      - dependency-name: "Avalonia.Controls.DataGrid"
+      - dependency-name: "Avalonia.Desktop"
+      - dependency-name: "Avalonia.Diagnostics"
+      - dependency-name: "Avalonia.ReactiveUI"
+      - dependency-name: "Avalonia.Themes.Fluent"
+      - dependency-name: "AWSSDK.S3"
+        versions: [">= 3.7.411.7"]
+
+  - package-ecosystem: "dotnet-sdk"
+    directory: "/"
+    schedule:
+      interval: "weekly"
 
   - package-ecosystem: "github-actions"
     # Workflow files stored in the

@@ -2,4 +2,4 @@
 
 namespace Fronter.ViewModels;
 
-public class ViewModelBase : ReactiveObject;
+internal class ViewModelBase : ReactiveObject;

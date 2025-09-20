@@ -5,12 +5,12 @@ using Fronter.Services;
 
 namespace Fronter.Extensions;
 
-public static class NotificationMessageBuilderExtensions {
+internal static class NotificationMessageBuilderExtensions {
 	public static NotificationMessageBuilder CreateError(this INotificationMessageManager manager) {
 		return manager
 			.CreateMessage()
 			.Accent(Brushes.Red)
-			.Animates(true)
+			.Animates(animates: true)
 			.Background("#333")
 			.HasBadge("Error");
 	}

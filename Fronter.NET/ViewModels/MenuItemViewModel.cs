@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Fronter.ViewModels;
 
-public sealed class MenuItemViewModel {
+internal sealed class MenuItemViewModel {
 	public required string Header { get; set; }
 	public required IReactiveCommand Command { get; set; }
 	public required object CommandParameter { get; set; }

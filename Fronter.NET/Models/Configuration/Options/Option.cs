@@ -1,12 +1,15 @@
 ﻿using commonItems;
 using log4net;
+using System;
 using System.Collections.Generic;
 
 namespace Fronter.Models.Configuration.Options;
 
-public class Option {
+internal sealed class Option {
 	private static readonly ILog logger = LogManager.GetLogger("Option");
 	public Option(BufferedReader reader, int id) {
+		Id = id;
+
 		var parser = new Parser();
 		RegisterKeys(parser);
 		parser.ParseStream(reader);
@@ -75,16 +78,22 @@ public class Option {
 		return string.Empty;
 	}
 
-	public ISet<string> GetValues() {
-		return CheckBoxSelector is not null ? CheckBoxSelector.GetSelectedValues() : new HashSet<string>();
+	public HashSet<string> GetValues() {
+		return CheckBoxSelector is not null
+			? CheckBoxSelector.GetSelectedValues()
+			: new HashSet<string>(StringComparer.Ordinal);
 	}
 
 	public void SetValue(string selection) {
 		if (TextSelector is not null) {
 			TextSelector.Value = selection;
+		} else if (DateSelector is not null) {
+			DateSelector.Value = string.IsNullOrWhiteSpace(selection) ? null : new Date(selection);
+		} else if (RadioSelector is not null) {
+			RadioSelector.SetSelectedValue(selection);
+		} else {
+			Logger.Warn($"Option {Name} has no selector to set value!");
 		}
-
-		RadioSelector?.SetSelectedValue(selection);
 	}
 
 	public void SetValue(ISet<string> selection) {

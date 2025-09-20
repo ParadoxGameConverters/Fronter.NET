@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Fronter.NET.Tests/Fronter.Tests.csproj" />
+  <Project Path="Fronter.NET/Fronter.csproj" />
+</Solution>

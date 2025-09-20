@@ -6,20 +6,23 @@ using System;
 namespace Fronter.ValueConverters;
 
 // based on https://stackoverflow.com/a/5551986/10249243
-public class LogLevelToColorNameConverter : IValueConverter {
+internal sealed class LogLevelToColorNameConverter : IValueConverter {
 	public object Convert(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture) {
-		var input = value as Level;
-		return input?.Name switch {
-			"PROGRESS" => Brushes.ForestGreen,
-			"NOTICE" => Brushes.CornflowerBlue,
-			"FATAL" => Brushes.DarkRed,
-			"CRITICAL" => Brushes.Red,
-			"ERROR" => Brushes.IndianRed,
-			"WARN" => Brushes.Orange,
-			"WARNING" => Brushes.Orange,
-			"INFO" => Brushes.Transparent,
+		if (value is not Level input) {
+			return Brushes.Transparent;
+		}
+		// Tried to order this by expected frequency for better performance.
+		return input.Name switch {
 			"DEBUG" => Brushes.SlateGray,
-			_ => Brushes.Transparent
+			"INFO" => Brushes.Transparent,
+			"PROGRESS" => Brushes.ForestGreen,
+			"WARN" => Brushes.Orange,
+			"NOTICE" => Brushes.CornflowerBlue,
+			"ERROR" => Brushes.IndianRed,
+			"FATAL" => Brushes.DarkRed,
+			"WARNING" => Brushes.Orange,
+			"CRITICAL" => Brushes.Red,
+			_ => Brushes.Transparent,
 		};
 	}
 

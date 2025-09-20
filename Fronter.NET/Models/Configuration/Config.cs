@@ -5,7 +5,6 @@ using Fronter.Models.Database;
 using Fronter.Services;
 using Fronter.ViewModels;
 using log4net;
-using Sentry;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,7 +14,7 @@ using System.Linq;
 
 namespace Fronter.Models.Configuration;
 
-public class Config {
+internal sealed class Config {
 	public string Name { get; private set; } = string.Empty;
 	public string ConverterFolder { get; private set; } = string.Empty;
 	public string BackendExePath { get; private set; } = string.Empty; // relative to ConverterFolder
@@ -33,9 +32,9 @@ public class Config {
 	public string ConverterReleaseForumThread { get; private set; } = string.Empty;
 	public string LatestGitHubConverterReleaseUrl { get; private set; } = string.Empty;
 	public string PagesCommitIdUrl { get; private set; } = string.Empty;
-	public IList<RequiredFile> RequiredFiles { get; } = new List<RequiredFile>();
-	public IList<RequiredFolder> RequiredFolders { get; } = new List<RequiredFolder>();
-	public IList<Option> Options { get; } = new List<Option>();
+	public List<RequiredFile> RequiredFiles { get; } = [];
+	public List<RequiredFolder> RequiredFolders { get; } = [];
+	public List<Option> Options { get; } = [];
 	private int optionCounter;
 
 	private static readonly ILog logger = LogManager.GetLogger("Configuration");
@@ -57,10 +56,6 @@ public class Config {
 			logger.Info("Frontend options loaded.");
 		} else {
 			logger.Warn($"{fronterOptionsPath} not found!");
-		}
-
-		if (SentryDsn is not null) {
-			InitSentry(SentryDsn);
 		}
 
 		InitializePaths();
@@ -120,51 +115,6 @@ public class Config {
 		parser.RegisterKeyword("pagesCommitIdUrl", reader => PagesCommitIdUrl = reader.GetString());
 		parser.IgnoreAndLogUnregisteredItems();
 	}
-	
-	private void InitSentry(string dsn) {
-		string? release = null;
-		// Try to get version from converter's version.txt
-		var versionFilePath = Path.Combine(ConverterFolder, "configurables/version.txt");
-		if (File.Exists(versionFilePath)) {
-			var version = new ConverterVersion();
-			version.LoadVersion(versionFilePath);
-			if (!string.IsNullOrWhiteSpace(version.Version) && !string.IsNullOrWhiteSpace(Name)) {
-				release = $"{Name}@{version.Version}";
-			}
-		}
-		if (release is null) {
-			Logger.Debug("Skipping Sentry initialization because converter version could not be determined.");
-			return;
-		}
-		
-		SentrySdk.Init(options => {
-			// A Sentry Data Source Name (DSN) is required.
-			// See https://docs.sentry.io/product/sentry-basics/dsn-explainer/
-			options.Dsn = dsn;
-
-			// This option is recommended. It enables Sentry's "Release Health" feature.
-			options.AutoSessionTracking = true;
-
-			// This option is recommended for client applications only. It ensures all threads use the same global scope.
-			// If you're writing a background service of any kind, you should remove this.
-			options.IsGlobalModeEnabled = true;
-
-			// This option will enable Sentry's tracing features. You still need to start transactions and spans.
-			options.EnableTracing = true;
-			options.AttachStacktrace = false;
-
-			options.MaxBreadcrumbs = int.MaxValue;
-			options.MaxAttachmentSize = long.MaxValue;
-
-			options.Release = release;
-#if DEBUG
-			options.Environment = "Debug";
-#else
-			options.Environment = "Release"; 
-#endif
-		});
-		Logger.Debug("Sentry initialized.");
-	}
 
 	private void RegisterPreloadKeys(Parser parser) {
 		parser.RegisterRegex(CommonRegexes.String, (reader, incomingKey) => {
@@ -188,7 +138,7 @@ public class Config {
 					option.SetValue(valueStr);
 				} else if (option.Name.Equals(incomingKey) && option.CheckBoxSelector is not null) {
 					var selections = valueReader.GetStrings();
-					var values = selections.ToHashSet();
+					var values = selections.ToHashSet(StringComparer.Ordinal);
 					option.SetValue(values);
 					option.SetCheckBoxSelectorPreloaded();
 				}
@@ -303,32 +253,14 @@ public class Config {
 		var outConfPath = Path.Combine(ConverterFolder, "configuration.txt");
 		try {
 			using var writer = new StreamWriter(outConfPath);
-			foreach (var folder in RequiredFolders) {
-				writer.WriteLine($"{folder.Name} = \"{folder.Value}\"");
-			}
 
-			foreach (var file in RequiredFiles) {
-				if (!file.Outputtable) {
-					continue;
-				}
-				writer.WriteLine($"{file.Name} = \"{file.Value}\"");
-			}
-			
+			WriteRequiredFolders(writer);
+			WriteRequiredFiles(writer);
 			if (SelectedPlayset is not null) {
 				writer.WriteLine($"selectedPlayset = {SelectedPlayset.Id}");
 			}
 
-			foreach (var option in Options) {
-				if (option.CheckBoxSelector is not null) {
-					writer.Write($"{option.Name} = {{ ");
-					foreach (var value in option.GetValues()) {
-						writer.Write($"\"{value}\" ");
-					}
-					writer.WriteLine("}");
-				} else {
-					writer.WriteLine($"{option.Name} = \"{option.GetValue()}\"");
-				}
-			}
+			WriteOptions(writer);
 
 			SetSavingStatus("CONVERTSTATUSPOSTSUCCESS");
 			return true;
@@ -336,6 +268,52 @@ public class Config {
 			logger.Error($"Could not open configuration.txt! Error: {ex}");
 			SetSavingStatus("CONVERTSTATUSPOSTFAIL");
 			return false;
+		}
+	}
+
+	private void WriteSelectedMods(StreamWriter writer) {
+		writer.WriteLine("selectedMods = {");
+		foreach (var mod in AutoLocatedMods) {
+			if (mod.Enabled) {
+				writer.WriteLine($"\t\"{mod.FileName}\"");
+			}
+		}
+
+		writer.WriteLine("}");
+	}
+
+	private void WriteOptions(StreamWriter writer) {
+		foreach (var option in Options) {
+			if (option.CheckBoxSelector is not null) {
+				writer.Write($"{option.Name} = {{ ");
+				foreach (var value in option.GetValues()) {
+					writer.Write($"\"{value}\" ");
+				}
+
+				writer.WriteLine("}");
+			} else {
+				writer.WriteLine($"{option.Name} = \"{option.GetValue()}\"");
+			}
+		}
+	}
+
+	private void WriteRequiredFiles(StreamWriter writer) {
+		foreach (var file in RequiredFiles) {
+			if (!file.Outputtable) {
+				continue;
+			}
+
+			// In the file path, replace backslashes with forward slashes.
+			string pathToWrite = file.Value.Replace('\\', '/');
+			writer.WriteLine($"{file.Name} = \"{pathToWrite}\"");
+		}
+	}
+
+	private void WriteRequiredFolders(StreamWriter writer) {
+		foreach (var folder in RequiredFolders) {
+			// In the folder path, replace backslashes with forward slashes.
+			string pathToWrite = folder.Value.Replace('\\', '/');
+			writer.WriteLine($"{folder.Name} = \"{pathToWrite}\"");
 		}
 	}
 
@@ -376,5 +354,24 @@ public class Config {
 		}
 		
 		logger.Debug($"Autolocated {locatedPlaysetsCount} playsets.");
+	}
+
+	private static List<string> GetValidModFiles(string modPath) {
+		var validModFiles = new List<string>();
+		foreach (var file in SystemUtils.GetAllFilesInFolder(modPath)) {
+			var lastDot = file.LastIndexOf('.');
+			if (lastDot == -1) {
+				continue;
+			}
+
+			var extension = CommonFunctions.GetExtension(file);
+			if (!extension.Equals("mod")) {
+				continue;
+			}
+
+			validModFiles.Add(file);
+		}
+
+		return validModFiles;
 	}
 }

@@ -10,7 +10,7 @@ using System.Text.RegularExpressions;
 namespace Fronter.Extensions;
 
 // idea based on https://gist.github.com/jakubfijalkowski/0771bfbd26ce68456d3e
-public sealed class TranslationSource : ReactiveObject {
+internal sealed partial class TranslationSource : ReactiveObject {
 	private static readonly ILog logger = LogManager.GetLogger("Translator");
 	private TranslationSource() {
 		const string languagesPath = "languages.txt";
@@ -28,7 +28,7 @@ public sealed class TranslationSource : ReactiveObject {
 				cultureInfo = CultureInfo.GetCultureInfo(cultureName);
 			} catch (CultureNotFoundException) {
 				logger.Debug($"Culture {cultureName} for language {langKey} not found!");
-				if (langKey == "english") {
+				if (string.Equals(langKey, "english", StringComparison.OrdinalIgnoreCase)) {
 					cultureInfo = CultureInfo.InvariantCulture;
 				} else {
 					return;
@@ -69,12 +69,12 @@ public sealed class TranslationSource : ReactiveObject {
 			return string.Empty;
 		}
 
-		toReturn = Regex.Replace(toReturn, @"\\n", Environment.NewLine);
+		toReturn = NewLineInStringRegex().Replace(toReturn, Environment.NewLine);
 		return toReturn;
 	}
 
 	public string TranslateLanguage(string language) {
-		return !languages.ContainsKey(language) ? string.Empty : languages[language].NativeName;
+		return !languages.TryGetValue(language, out CultureInfo? cultureInfo) ? string.Empty : cultureInfo.NativeName;
 	}
 
 	public string this[string key] => Translate(key);
@@ -95,7 +95,7 @@ public sealed class TranslationSource : ReactiveObject {
 		var fileNames = SystemUtils.GetAllFilesInFolder("Configuration");
 
 		foreach (var fileName in fileNames) {
-			if (!fileName.EndsWith(".yml")) {
+			if (!fileName.EndsWith(".yml", StringComparison.OrdinalIgnoreCase)) {
 				continue;
 			}
 
@@ -141,24 +141,26 @@ public sealed class TranslationSource : ReactiveObject {
 				if (translations.TryGetValue(key, out var dictionary)) {
 					dictionary[language] = text;
 				} else {
-					var newDict = new Dictionary<string, string> { [language] = text };
+					var newDict = new Dictionary<string, string>(StringComparer.Ordinal) { [language] = text };
 					translations.Add(key, newDict);
 				}
 			}
 		}
 	}
 
-	public IList<string> LoadedLanguages { get; } = new List<string>();
-	private readonly Dictionary<string, CultureInfo> languages = new();
-	private readonly Dictionary<string, Dictionary<string, string>> translations = new(); // key, <language, text>
+	public List<string> LoadedLanguages { get; } = [];
+	private readonly Dictionary<string, CultureInfo> languages = [];
+	private readonly Dictionary<string, Dictionary<string, string>> translations = []; // key, <language, text>
 
-	private string currentLanguage = "english";
 	public string CurrentLanguage {
-		get => currentLanguage;
+		get;
 		private set {
-			currentLanguage = value;
+			field = value;
 			this.RaisePropertyChanged(nameof(CurrentLanguage));
 			this.RaisePropertyChanged("Item");
 		}
-	}
+	} = "english";
+
+	[GeneratedRegex(@"\\n")]
+	private static partial Regex NewLineInStringRegex();
 }

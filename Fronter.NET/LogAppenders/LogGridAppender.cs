@@ -10,13 +10,12 @@ using log4net.Appender;
 using log4net.Core;
 using System;
 using System.Collections.ObjectModel;
-using System.Globalization;
 using System.Linq;
 
 namespace Fronter.LogAppenders;
 
-public sealed class LogGridAppender : MemoryAppender {
-	public ObservableCollection<LogLine> LogLines { get; } = new();
+internal sealed class LogGridAppender : MemoryAppender {
+	public ObservableCollection<LogLine> LogLines { get; } = [];
 	private ReadOnlyObservableCollection<LogLine> filteredLogLines;
 	public ReadOnlyObservableCollection<LogLine> FilteredLogLines => filteredLogLines;
 
@@ -33,20 +32,14 @@ public sealed class LogGridAppender : MemoryAppender {
 	}
 
 	protected override void Append(LoggingEvent loggingEvent) {
-		var newLogLine = new LogLine {
-			Level = loggingEvent.Level,
-			// Tab characters are incorrectly displayed in the log grid as of Avalonia 0.10.18.
-			Message = loggingEvent.RenderedMessage.Replace("\t", "    "),
-			Timestamp = GetTimestampString(loggingEvent.TimeStamp)
-		};
+		// Tab characters are incorrectly displayed in the log grid as of Avalonia 0.10.18.
+		string message = loggingEvent.RenderedMessage?.Replace("\t", "    ") ?? string.Empty;
+
+		var newLogLine = new LogLine(loggingEvent.TimeStamp, loggingEvent.Level, message);
 		AddToLogGrid(newLogLine);
 		ScrollToLogEnd();
 
 		base.Append(loggingEvent);
-	}
-
-	private static string GetTimestampString(DateTime dateTime) {
-		return dateTime.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
 	}
 
 	private void AddToLogGrid(LogLine logLine) {
@@ -100,6 +93,6 @@ public sealed class LogGridAppender : MemoryAppender {
 	}
 
 	public void ScrollToLogEnd() {
-		Dispatcher.UIThread.Post(() => LogGrid?.ScrollIntoView(lastVisibleRow, null), DispatcherPriority.Background);
+		Dispatcher.UIThread.Post(() => LogGrid?.ScrollIntoView(lastVisibleRow, column: null), DispatcherPriority.Background);
 	}
 }

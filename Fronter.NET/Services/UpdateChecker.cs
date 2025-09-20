@@ -1,4 +1,8 @@
-﻿using Avalonia.Notification;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Layout;
+using Avalonia.Media;
+using Avalonia.Notification;
 using commonItems;
 using Fronter.Extensions;
 using Fronter.Models;
@@ -15,12 +19,12 @@ using System.Threading.Tasks;
 
 namespace Fronter.Services;
 
-public static class UpdateChecker {
+internal static class UpdateChecker {
 	private static readonly ILog Logger = LogManager.GetLogger("Update checker");
 	private static readonly HttpClient HttpClient = new() {Timeout = TimeSpan.FromMinutes(5)};
 	public static async Task<bool> IsUpdateAvailable(string commitIdFilePath, string commitIdUrl) {
 		if (!File.Exists(commitIdFilePath)) {
-			Logger.Warn($"File \"{commitIdFilePath}\" does not exist!");
+			Logger.Debug($"File \"{commitIdFilePath}\" does not exist!");
 			return false;
 		}
 
@@ -71,7 +75,13 @@ public static class UpdateChecker {
 		var requestMessage = new HttpRequestMessage(HttpMethod.Get, apiUrl);
 		requestMessage.Headers.Add("User-Agent", "ParadoxGameConverters");
 
-		var responseMessage = await HttpClient.SendAsync(requestMessage);
+		HttpResponseMessage responseMessage;
+		try {
+			responseMessage = await HttpClient.SendAsync(requestMessage);
+		} catch (Exception e) {
+			Logger.Warn($"Failed to get release info from \"{apiUrl}\": {e}!");
+			return info;
+		}
 		await using var responseStream = await responseMessage.Content.ReadAsStreamAsync();
 
 		var releaseInfo = await JsonSerializer.DeserializeAsync<ConverterReleaseInfo>(responseStream);
@@ -82,6 +92,16 @@ public static class UpdateChecker {
 		info.Description = releaseInfo.Body;
 		info.Version = releaseInfo.Name;
 
+		DetermineReleaseBuildUrl(releaseInfo, info, osName, architecture);
+
+		if (info.AssetUrl is null) {
+			Logger.Debug($"Release {info.Version} doesn't have a release build for this platform.");
+		}
+
+		return info;
+	}
+
+	private static void DetermineReleaseBuildUrl(ConverterReleaseInfo releaseInfo, UpdateInfoModel info, string osName, string architecture) {
 		var assets = releaseInfo.Assets;
 		foreach (var asset in assets) {
 			string? assetName = asset.Name;
@@ -95,27 +115,21 @@ public static class UpdateChecker {
 			if (extension is not "zip" and not "tgz" and not "exe") {
 				continue;
 			}
-			
-			// For Windows, prefer installer over archive.
+
+			// For Windows, prefer an installer over an archive.
 			if (extension.Equals("exe") && osName.Equals("win")) {
 				info.AssetUrl = asset.BrowserDownloadUrl;
 				break;
 			}
 
 			var assetNameWithoutExtension = CommonFunctions.TrimExtension(assetName);
-			if (!assetNameWithoutExtension.EndsWith($"-{osName}-{architecture}")) {
+			if (!assetNameWithoutExtension.EndsWith($"-{osName}-{architecture}", StringComparison.OrdinalIgnoreCase)) {
 				continue;
 			}
 
 			info.AssetUrl = asset.BrowserDownloadUrl;
 			break;
 		}
-
-		if (info.AssetUrl is null) {
-			Logger.Debug($"Release {info.Version} doesn't have a release build for this platform.");
-		}
-
-		return info;
 	}
 
 	public static string GetUpdateMessageBody(string baseBody, UpdateInfoModel updateInfo) {
@@ -143,9 +157,24 @@ public static class UpdateChecker {
 		await File.WriteAllBytesAsync(fileName, responseBytes);
 	}
 
-	public static async void RunInstallerAndDie(string installerUrl, Config config, INotificationMessageManager notificationManager) {
+	public static async Task RunInstallerAndDie(string installerUrl, Config config, INotificationMessageManager notificationManager) {
 		Logger.Debug("Downloading installer...");
-		
+		var downloadingMessage = notificationManager.CreateMessage()
+			.Accent(Brushes.Gray)
+			.Background(Brushes.Gray)
+			.HasMessage("Downloading installer...")
+			.WithOverlay(new ProgressBar {
+				VerticalAlignment = VerticalAlignment.Bottom,
+				HorizontalAlignment = HorizontalAlignment.Stretch,
+				Height = 3,
+				BorderThickness = new Thickness(0),
+				Foreground = Brushes.Green,
+				Background = Brushes.Gray,
+				IsIndeterminate = true,
+				IsHitTestVisible = false
+			})
+			.Queue();
+
 		var fileName = Path.GetTempFileName();
 		try {
 			await DownloadFileAsync(installerUrl, fileName);
@@ -153,13 +182,15 @@ public static class UpdateChecker {
 			Logger.Debug($"Failed to download installer: {ex.Message}");
 			notificationManager
 				.CreateError()
-				.HasMessage($"Failed to download installer, probably because of network issues. \n" +
-				            $"Try updating the converter manually.")
+				.HasMessage("Failed to download installer, probably because of network issues. \n" +
+				            "Try updating the converter manually.")
 				.SuggestManualUpdate(config)
 				.Queue();
 			return;
 		}
-		
+
+		notificationManager.Dismiss(downloadingMessage);
+
 		Logger.Debug("Running installer...");
 		var proc = new Process();
 		proc.StartInfo.FileName = fileName;
@@ -169,8 +200,8 @@ public static class UpdateChecker {
 			Logger.Debug($"Installer process failed to start: {ex.Message}");
 			notificationManager
 				.CreateError()
-				.HasMessage($"Failed to start installer, probably because of an antivirus. \n" +
-				            $"Try updating the converter manually.")
+				.HasMessage("Failed to start installer, probably because of an antivirus. \n" +
+				            "Try updating the converter manually.")
 				.SuggestManualUpdate(config)
 				.Queue();
 			return;
@@ -183,7 +214,7 @@ public static class UpdateChecker {
 	public static void StartUpdaterAndDie(string archiveUrl, string converterBackendDirName) {
 		var updaterDirPath = Path.Combine(".", "Updater");
 		var updaterRunningDirPath = Path.Combine(".", "Updater-running");
-		
+
 		const string manualUpdateHint = "Try updating the converter manually.";
 		if (Directory.Exists(updaterRunningDirPath) && !SystemUtils.TryDeleteFolder(updaterRunningDirPath)) {
 			Logger.Warn($"Failed to delete Updater-running folder! {manualUpdateHint}");

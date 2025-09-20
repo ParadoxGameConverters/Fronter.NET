@@ -6,6 +6,7 @@ using Fronter.Views;
 using ReactiveUI;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reactive;
@@ -22,8 +23,8 @@ internal sealed class PathPickerViewModel : ViewModelBase {
 		RequiredFiles = new ObservableCollection<RequiredFile>(config.RequiredFiles);
 
 		// Create reactive commands.
-		OpenFolderDialogCommand = ReactiveCommand.Create<RequiredFolder>(OpenFolderDialog);
-		OpenFileDialogCommand = ReactiveCommand.Create<RequiredFile>(OpenFileDialog);
+		OpenFolderDialogCommand = ReactiveCommand.CreateFromTask<RequiredFolder>(OpenFolderDialog);
+		OpenFileDialogCommand = ReactiveCommand.CreateFromTask<RequiredFile>(OpenFileDialog);
 	}
 
 	public ObservableCollection<RequiredFolder> RequiredFolders { get; }
@@ -61,7 +62,8 @@ internal sealed class PathPickerViewModel : ViewModelBase {
 		return await storageProvider.TryGetFolderFromPathAsync(folderPath);
 	}
 
-	public async void OpenFolderDialog(RequiredFolder folder) {
+	[SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
+	public async Task OpenFolderDialog(RequiredFolder folder) {
 		var storageProvider = MainWindow.Instance.StorageProvider;
 
 		var options = new FolderPickerOpenOptions {
@@ -84,7 +86,9 @@ internal sealed class PathPickerViewModel : ViewModelBase {
 		var absolutePath = selectedFileUri.LocalPath;
 		folder.Value = absolutePath;
 	}
-	public async void OpenFileDialog(RequiredFile file) {
+
+	[SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
+	public async Task OpenFileDialog(RequiredFile file) {
 		var storageProvider = MainWindow.Instance.StorageProvider;
 
 		var options = new FilePickerOpenOptions {
@@ -94,7 +98,7 @@ internal sealed class PathPickerViewModel : ViewModelBase {
 		};
 
 		var fileType = new FilePickerFileType(file.AllowedExtension.TrimStart('*', '.')) {
-			Patterns = new[] { file.AllowedExtension },
+			Patterns = [file.AllowedExtension],
 		};
 		options.FileTypeFilter = new List<FilePickerFileType> { fileType };
 

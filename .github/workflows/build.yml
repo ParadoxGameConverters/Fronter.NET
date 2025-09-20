@@ -7,17 +7,23 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [[self-hosted, linux], macos-13, [self-hosted, windows]]
+        os: [[self-hosted, linux], [self-hosted, windows], macos-15]
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         submodules: recursive
     - name: "Setup Dotnet for use with actions"
-      uses: actions/setup-dotnet@v4
+      # don't run on self-hosted Windows
+      if: ${{ !contains(toJSON(matrix.os), 'windows') || !contains(toJSON(matrix.os), 'self-hosted') }}
+      uses: actions/setup-dotnet@v5
       with:
         global-json-file: global.json
     - name: "Build"
-      working-directory: Fronter.NET
-      run: |
-       dotnet build
+      uses: ./.github/actions/build_frontend
+      with:
+        fronter_dir: .
+        release_dir: Publish
+        build_ConverterFrontend: true
+        self_contained: true
+        build_updater: true
