@@ -21,15 +21,18 @@ namespace Fronter.Services;
 
 internal static class UpdateChecker {
 	private static readonly ILog Logger = LogManager.GetLogger("Update checker");
-	private static readonly HttpClient HttpClient = new() {Timeout = TimeSpan.FromMinutes(5)};
-	public static async Task<bool> IsUpdateAvailable(string commitIdFilePath, string commitIdUrl) {
+	private static readonly HttpClient SharedHttpClient = CreateSharedHttpClient();
+
+	private static HttpClient CreateSharedHttpClient() => new() {Timeout = TimeSpan.FromMinutes(5)};
+	public static async Task<bool> IsUpdateAvailable(string commitIdFilePath, string commitIdUrl, HttpClient? httpClient = null) {
 		if (!File.Exists(commitIdFilePath)) {
 			Logger.Debug($"File \"{commitIdFilePath}\" does not exist!");
 			return false;
 		}
 
+		var client = httpClient ?? SharedHttpClient;
 		try {
-			var response = await HttpClient.GetAsync(commitIdUrl);
+			var response = await client.GetAsync(commitIdUrl);
 			if (!response.IsSuccessStatusCode) {
 				Logger.Warn($"Failed to get commit id from \"{commitIdUrl}\"; status code: {response.StatusCode}!");
 				return false;
@@ -61,7 +64,7 @@ internal static class UpdateChecker {
 		return null;
 	}
 
-	public static async Task<UpdateInfoModel> GetLatestReleaseInfo(string converterName) {
+	public static async Task<UpdateInfoModel> GetLatestReleaseInfo(string converterName, HttpClient? httpClient = null) {
 		var osNameAndArch = GetOSNameAndArch();
 		if (osNameAndArch is null) {
 			return new UpdateInfoModel();
@@ -76,8 +79,9 @@ internal static class UpdateChecker {
 		requestMessage.Headers.Add("User-Agent", "ParadoxGameConverters");
 
 		HttpResponseMessage responseMessage;
+		var client = httpClient ?? SharedHttpClient;
 		try {
-			responseMessage = await HttpClient.SendAsync(requestMessage);
+			responseMessage = await client.SendAsync(requestMessage);
 		} catch (Exception e) {
 			Logger.Warn($"Failed to get release info from \"{apiUrl}\": {e}!");
 			return info;
@@ -153,7 +157,7 @@ internal static class UpdateChecker {
 	}
 
 	private static async Task DownloadFileAsync(string installerUrl, string fileName) {
-		var responseBytes = await HttpClient.GetByteArrayAsync(installerUrl);
+		var responseBytes = await SharedHttpClient.GetByteArrayAsync(installerUrl);
 		await File.WriteAllBytesAsync(fileName, responseBytes);
 	}
 
