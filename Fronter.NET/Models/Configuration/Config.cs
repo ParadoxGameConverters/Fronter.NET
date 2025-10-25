@@ -1,11 +1,14 @@
 ﻿using Avalonia.Controls.ApplicationLifetimes;
 using commonItems;
 using Fronter.Models.Configuration.Options;
+using Fronter.Models.Database;
+using Fronter.Services;
 using Fronter.ViewModels;
 using log4net;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 
@@ -19,8 +22,9 @@ internal sealed class Config {
 	public string SourceGame { get; private set; } = string.Empty;
 	public string TargetGame { get; private set; } = string.Empty;
 	public string? SentryDsn { get; private set; }
-	public string? ModAutoGenerationSource { get; private set; } = null;
-	public ObservableCollection<Mod> AutoLocatedMods { get; } = [];
+	public bool TargetPlaysetSelectionEnabled { get; private set; } = false;
+	public ObservableCollection<Playset> AutoLocatedPlaysets { get; } = [];
+	public Playset? SelectedPlayset { get; set; }
 	public bool CopyToTargetGameModDirectory { get; set; } = true;
 	public ushort ProgressOnCopyingComplete { get; set; } = 109;
 	public bool UpdateCheckerEnabled { get; private set; } = false;
@@ -87,7 +91,9 @@ internal sealed class Config {
 		parser.RegisterKeyword("displayName", reader => DisplayName = reader.GetString());
 		parser.RegisterKeyword("sourceGame", reader => SourceGame = reader.GetString());
 		parser.RegisterKeyword("targetGame", reader => TargetGame = reader.GetString());
-		parser.RegisterKeyword("autoGenerateModsFrom", reader => ModAutoGenerationSource = reader.GetString());
+		parser.RegisterKeyword("targetPlaysetSelectionEnabled", reader => {
+			TargetPlaysetSelectionEnabled = reader.GetBool();
+		});
 		parser.RegisterKeyword("copyToTargetGameModDirectory", reader => {
 			CopyToTargetGameModDirectory = reader.GetString().Equals("true");
 		});
@@ -112,8 +118,8 @@ internal sealed class Config {
 
 	private void RegisterPreloadKeys(Parser parser) {
 		parser.RegisterRegex(CommonRegexes.String, (reader, incomingKey) => {
-			var valueStringOfItem = reader.GetStringOfItem();
-			var valueStr = valueStringOfItem.ToString().RemQuotes();
+			StringOfItem valueStringOfItem = reader.GetStringOfItem();
+			string valueStr = valueStringOfItem.ToString().RemQuotes();
 			var valueReader = new BufferedReader(valueStr);
 
 			foreach (var folder in RequiredFolders) {
@@ -135,13 +141,6 @@ internal sealed class Config {
 					var values = selections.ToHashSet(StringComparer.Ordinal);
 					option.SetValue(values);
 					option.SetCheckBoxSelectorPreloaded();
-				}
-			}
-			if (incomingKey.Equals("selectedMods")) {
-				var theList = valueReader.GetStrings();
-				var matchingMods = AutoLocatedMods.Where(m => theList.Contains(m.FileName, StringComparer.Ordinal));
-				foreach (var mod in matchingMods) {
-					mod.Enabled = true;
 				}
 			}
 		});
@@ -173,7 +172,7 @@ internal sealed class Config {
 				if (uint.TryParse(folder.SteamGameId, out uint steamId)) {
 					possiblePath = CommonFunctions.GetSteamInstallPath(steamId);
 				}
-				if (possiblePath is null && long.TryParse(folder.GOGGameId, out long gogId)) {
+				if (possiblePath is null && long.TryParse(folder.GOGGameId, CultureInfo.InvariantCulture, out long gogId)) {
 					possiblePath = CommonFunctions.GetGOGInstallPath(gogId);
 				}
 
@@ -191,10 +190,6 @@ internal sealed class Config {
 
 			if (Directory.Exists(initialValue)) {
 				folder.Value = initialValue;
-			}
-
-			if (folder.Name.Equals(ModAutoGenerationSource)) {
-				AutoLocateMods();
 			}
 		}
 	}
@@ -258,11 +253,11 @@ internal sealed class Config {
 		var outConfPath = Path.Combine(ConverterFolder, "configuration.txt");
 		try {
 			using var writer = new StreamWriter(outConfPath);
+
 			WriteRequiredFolders(writer);
 			WriteRequiredFiles(writer);
-
-			if (ModAutoGenerationSource is not null) {
-				WriteSelectedMods(writer);
+			if (SelectedPlayset is not null) {
+				writer.WriteLine($"selectedPlayset = {SelectedPlayset.Id}");
 			}
 
 			WriteOptions(writer);
@@ -274,17 +269,6 @@ internal sealed class Config {
 			SetSavingStatus("CONVERTSTATUSPOSTFAIL");
 			return false;
 		}
-	}
-
-	private void WriteSelectedMods(StreamWriter writer) {
-		writer.WriteLine("selectedMods = {");
-		foreach (var mod in AutoLocatedMods) {
-			if (mod.Enabled) {
-				writer.WriteLine($"\t\"{mod.FileName}\"");
-			}
-		}
-
-		writer.WriteLine("}");
 	}
 
 	private void WriteOptions(StreamWriter writer) {
@@ -332,60 +316,33 @@ internal sealed class Config {
 		}
 	}
 
-	public void AutoLocateMods() {
-		logger.Debug("Clearing previously located mods...");
-		AutoLocatedMods.Clear();
-		logger.Debug("Autolocating mods...");
+	public string? TargetGameModsPath {
+		get {
+			var targetGameModPath = RequiredFolders
+				.FirstOrDefault(f => f?.Name == "targetGameModPath", defaultValue: null);
+			return targetGameModPath?.Value;
+		}
+	}
 
-		// Do we have a mod path?
-		string? modPath = null;
-		foreach (var folder in RequiredFolders) {
-			if (folder.Name.Equals(ModAutoGenerationSource)) {
-				modPath = folder.Value;
+	public void AutoLocatePlaysets() {
+		logger.Debug("Clearing previously located playsets...");
+		AutoLocatedPlaysets.Clear();
+		logger.Debug("Autolocating playsets...");
+
+		var destModsFolder = TargetGameModsPath;
+		var locatedPlaysetsCount = 0;
+		if (destModsFolder is not null) {
+			var dbContext = TargetDbManager.GetLauncherDbContext(this);
+			if (dbContext is not null) {
+				foreach (var playset in dbContext.Playsets.Where(p => p.IsRemoved == null || p.IsRemoved == false )) {
+					AutoLocatedPlaysets.Add(playset);
+				}
 			}
+			
+			locatedPlaysetsCount = AutoLocatedPlaysets.Count;
 		}
-		if (modPath is null) {
-			logger.Warn("No folder found as source for mods autolocation.");
-			return;
-		}
-
-		// Does it exist?
-		if (!Directory.Exists(modPath)) {
-			logger.Warn($"Mod path \"{modPath}\" does not exist or can not be accessed!");
-			return;
-		}
-
-		// Are we looking at documents directory?
-		var combinedPath = Path.Combine(modPath, "mod");
-		if (Directory.Exists(combinedPath)) {
-			modPath = combinedPath;
-		}
-		logger.Debug($"Mods autolocation path set to: \"{modPath}\"");
-
-		// Are there mods inside?
-		List<string> validModFiles = GetValidModFiles(modPath);
-
-		if (validModFiles.Count == 0) {
-			logger.Debug($"No mod files could be found in \"{modPath}\"");
-			return;
-		}
-
-		foreach (var modFile in validModFiles) {
-			var path = Path.Combine(modPath, modFile);
-			Mod theMod;
-			try {
-				theMod = new Mod(path);
-			} catch (IOException ex) {
-				logger.Warn($"Failed to parse mod file {modFile}: {ex.Message}");
-				continue;
-			}
-			if (string.IsNullOrEmpty(theMod.Name)) {
-				logger.Warn($"Mod at \"{path}\" has no defined name, skipping.");
-				continue;
-			}
-			AutoLocatedMods.Add(theMod);
-		}
-		logger.Debug($"Autolocated {AutoLocatedMods.Count} mods");
+		
+		logger.Debug($"Autolocated {locatedPlaysetsCount} playsets.");
 	}
 
 	private static List<string> GetValidModFiles(string modPath) {

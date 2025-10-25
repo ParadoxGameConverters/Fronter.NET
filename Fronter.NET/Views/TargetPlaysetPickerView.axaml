@@ -4,13 +4,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:viewModels="clr-namespace:Fronter.ViewModels"
              xmlns:ns="clr-namespace:Fronter.Extensions"
-             x:Class="Fronter.Views.ModsPickerView"
-             x:DataType="viewModels:ModsPickerViewModel"
+             x:Class="Fronter.Views.TargetPlaysetPickerView"
+             x:DataType="viewModels:TargetPlaysetPickerViewModel"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
 
     <Design.DataContext>
-        <viewModels:ModsPickerViewModel />
+        <viewModels:TargetPlaysetPickerViewModel />
     </Design.DataContext>
     
     <UserControl.Styles>
@@ -37,23 +37,27 @@
     </UserControl.Styles>
 
     <Grid RowDefinitions="Auto,*,*,*,*">
-        <TextBlock Grid.Column="0" Grid.Row="0" Text="{ns:Loc MODSDISABLED}" IsVisible="{Binding ModsDisabled}"></TextBlock>
-        <TextBlock Grid.Column="0" Grid.Row="0" Text="{ns:Loc MODSNOTFOUND}" IsVisible="{Binding !AutoLocatedMods.Count}"></TextBlock>
-        <TextBlock Grid.Column="0" Grid.Row="0" Text="{ns:Loc MODSFOUND}" IsVisible="{Binding AutoLocatedMods.Count}"></TextBlock>
-        
-        <ScrollViewer Grid.Column="0" Grid.Row="1" >
+        <TextBlock Grid.Column="0" Grid.Row="0" Text="{ns:Loc MODSNOTFOUND}" IsVisible="{Binding !TargetPlaysets.Count}"></TextBlock>
+
+        <ScrollViewer Grid.Column="0" Grid.Row="0" >
             <StackPanel>
-                <ItemsControl ItemsSource="{Binding AutoLocatedMods}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <CheckBox
-                                Content="{Binding Name}"
-                                ToolTip.Tip="{Binding FileName}"
-                                IsChecked="{Binding Enabled, Mode=TwoWay}"
-                            />
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                <TextBlock Text="If you select a target game playset, the application will create its copy with the conversion mod included."></TextBlock>
+                <StackPanel Orientation="Horizontal">
+                    <ComboBox 
+                        x:Name="PlaysetComboBox" 
+                        SelectedIndex="0" 
+                        ItemsSource="{Binding TargetPlaysets}"
+                        SelectedItem="{Binding SelectedPlayset, FallbackValue={}}"
+                        Margin="0 10 10 10"
+                        >
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}" ToolTip.Tip="{Binding Name}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <Button Content="Reload" Command="{Binding ReloadPlaysets}"/>
+                </StackPanel>
             </StackPanel>
         </ScrollViewer>
     </Grid>
