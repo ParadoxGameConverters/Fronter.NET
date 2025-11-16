@@ -88,7 +88,11 @@ internal sealed class Option {
 		if (TextSelector is not null) {
 			TextSelector.Value = selection;
 		} else if (DateSelector is not null) {
-			DateSelector.Value = string.IsNullOrWhiteSpace(selection) ? null : new Date(selection);
+			if (string.IsNullOrWhiteSpace(selection)) {
+				DateSelector.Value = null;
+			} else {
+				DateSelector.Value = new Date(selection);
+			}
 		} else if (RadioSelector is not null) {
 			RadioSelector.SetSelectedValue(selection);
 		} else {

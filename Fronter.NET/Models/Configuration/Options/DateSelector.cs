@@ -16,7 +16,11 @@ internal sealed class DateSelector : ReactiveObject {
 		parser.RegisterKeyword("editable", reader => Editable = string.Equals(reader.GetString(), "true", StringComparison.OrdinalIgnoreCase));
 		parser.RegisterKeyword("value", reader => {
 			var valueStr = reader.GetString();
-			Value = string.IsNullOrWhiteSpace(valueStr) ? null : new Date(valueStr);
+			if (string.IsNullOrWhiteSpace(valueStr)) {
+				Value = null;
+			} else {
+				Value = new Date(valueStr);
+			}
 		});
 		parser.RegisterKeyword("minDate", reader => MinDate = new Date(reader.GetString()).ToDateTimeOffset());
 		parser.RegisterKeyword("maxDate", reader => MaxDate = new Date(reader.GetString()).ToDateTimeOffset());
@@ -46,7 +50,7 @@ internal sealed class DateSelector : ReactiveObject {
 			if (value is null) {
 				DateTimeOffsetValue = null;
 			} else {
-				DateTimeOffsetValue = value.ToDateTimeOffset();
+				DateTimeOffsetValue = value.Value.ToDateTimeOffset();
 			}
 		}
 	}
