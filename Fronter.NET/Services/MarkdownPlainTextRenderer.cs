@@ -12,7 +12,7 @@ internal static class MarkdownPlainTextRenderer {
 
 	private static readonly Regex HeadingRegex = R(@"^\s{0,3}#{1,6}\s+(?<text>.*)$");
 	private static readonly Regex UnorderedListRegex = R(@"^\s{0,3}[-*+]\s+(?<text>.*)$");
-	private static readonly Regex OrderedListRegex = R(@"^\s{0,3}(?<num>\d+)[\.|\)]\s+(?<text>.*)$");
+	private static readonly Regex OrderedListRegex = R(@"^\s{0,3}(?<num>\d+)[\.\)]\s+(?<text>.*)$");
 	private static readonly Regex BlockquoteRegex = R(@"^\s{0,3}>\s?(?<text>.*)$");
 	private static readonly Regex TrailingHeadingHashesRegex = R(@"\s+#+\s*$");
 
