@@ -45,7 +45,6 @@ internal static class MarkdownPlainTextRenderer {
 		bool previousOutputWasHeading = false;
 
 		foreach (string line in lines.Select(l => l.TrimEnd())) {
-
 			if (IsFencedCodeBlockDelimiter(line)) {
 				inFencedCodeBlock = !inFencedCodeBlock;
 				continue; // omit the fences themselves
