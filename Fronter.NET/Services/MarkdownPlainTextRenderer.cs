@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -183,12 +184,7 @@ internal static class MarkdownPlainTextRenderer {
 		}
 
 		// If backticks are unbalanced, treat as plain text.
-		int backtickCount = 0;
-		foreach (char c in input) {
-			if (c == '`') {
-				backtickCount++;
-			}
-		}
+		int backtickCount = input.Where(c => c == '`').Count();
 		if (backtickCount % 2 != 0) {
 			return ProcessInlineOutsideCode(input);
 		}
