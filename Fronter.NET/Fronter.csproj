@@ -12,7 +12,7 @@
         <IsPackable>false</IsPackable>
         
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-        <AvaloniaVersion>[11.1.5]</AvaloniaVersion>
+        <AvaloniaVersion>[11.3.11]</AvaloniaVersion>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
         <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -63,7 +63,7 @@
         <PackageReference Include="Avalonia.Desktop" Version="$(AvaloniaVersion)" />
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
-        <PackageReference Include="Avalonia.ReactiveUI" Version="$(AvaloniaVersion)" />
+        <PackageReference Include="Avalonia.ReactiveUI" Version="11.3.9" />
         <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
         <PackageReference Include="AWSSDK.S3" Version="[3.7.411.7]" /> <!-- versions >= 3.7.412.0 didn't work correctly with Backblaze B2 as of 2025-05-17: https://www.backblaze.com/docs/en/cloud-storage-use-the-aws-sdk-for-net-with-backblaze-b2?highlight=Data%20Integrity%20Protection%20Headers -->
         <PackageReference Include="DynamicData" Version="9.4.1" />
