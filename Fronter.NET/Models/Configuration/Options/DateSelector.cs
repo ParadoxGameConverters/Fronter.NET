@@ -2,7 +2,7 @@
 using commonItems;
 using ReactiveUI;
 using System;
-using System.Linq;
+using System.Globalization;
 
 namespace Fronter.Models.Configuration.Options;
 
@@ -61,19 +61,7 @@ internal sealed class DateSelector : ReactiveObject {
 			if (string.IsNullOrWhiteSpace(value)) {
 				DateTimeOffsetValue = null;
 			} else {
-				var dateElements = value.Split('.').Where(x => !string.IsNullOrEmpty(x)).ToArray();
-				if (dateElements.Length >= 3) {
-					ValidateYearString(dateElements[0]);
-					ValidateMonthString(dateElements[1]);
-					ValidateDayString(dateElements[2]);
-				} else if (dateElements.Length == 2) {
-					ValidateYearString(dateElements[0]);
-					ValidateMonthString(dateElements[1]);
-				} else if (dateElements.Length == 1) {
-					ValidateYearString(dateElements[0]);
-				} else {
-					throw new DataValidationException($"'{value}' is not a valid date, it should be in the format YYYY.MM.DD.");
-				}
+				ValidateDateString(value);
 
 				DateTimeOffsetValue = new Date(value).ToDateTimeOffset();
 			}
@@ -81,21 +69,52 @@ internal sealed class DateSelector : ReactiveObject {
 		}
 	}
 
-	private static void ValidateYearString(string value) {
-		if (!int.TryParse(value, out int _)) {
+	private static void ValidateDateString(string value) {
+		int segmentCount = 0;
+		ReadOnlySpan<char> span = value.AsSpan();
+
+		int start = 0;
+		for (int i = 0; i <= span.Length; i++) {
+			bool atEnd = i == span.Length;
+			if (!atEnd && span[i] != '.') {
+				continue;
+			}
+
+			var segment = span[start..i].Trim();
+			start = i + 1;
+
+			if (segment.Length == 0) {
+				throw new DataValidationException($"'{value}' is not a valid date, it should be in the format YYYY.MM.DD.");
+			}
+
+			segmentCount++;
+			if (segmentCount == 1) {
+				ValidateYearSpan(segment);
+			} else if (segmentCount == 2) {
+				ValidateMonthSpan(segment);
+			} else if (segmentCount == 3) {
+				ValidateDaySpan(segment);
+			}
+		}
+	}
+
+	private static void ValidateYearSpan(ReadOnlySpan<char> value) {
+		if (!int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out _)) {
 			throw new DataValidationException($"'{value}' is not a valid integer.");
 		}
 	}
-	private static void ValidateMonthString(string value) {
-		if (!int.TryParse(value, out var month)) {
+
+	private static void ValidateMonthSpan(ReadOnlySpan<char> value) {
+		if (!int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var month)) {
 			throw new DataValidationException($"'{value}' is not a valid integer.");
 		}
 		if (month is < 1 or > 12) {
 			throw new DataValidationException($"'{value}' is not a valid month, it should be between 1 and 12.");
 		}
 	}
-	private static void ValidateDayString(string value) {
-		if (!int.TryParse(value, out var day)) {
+
+	private static void ValidateDaySpan(ReadOnlySpan<char> value) {
+		if (!int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var day)) {
 			throw new DataValidationException($"'{value}' is not a valid integer.");
 		}
 		if (day is < 1 or > 31) {
