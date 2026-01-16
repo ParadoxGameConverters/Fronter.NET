@@ -80,29 +80,21 @@ internal sealed class DateSelector : ReactiveObject {
 				continue;
 			}
 
-			var segment = span.Slice(start, i - start).Trim();
+			var segment = span[start..i].Trim();
 			start = i + 1;
 
 			if (segment.Length == 0) {
-				continue;
+				throw new DataValidationException($"'{value}' is not a valid date, it should be in the format YYYY.MM.DD.");
 			}
 
 			segmentCount++;
-			switch (segmentCount) {
-				case 1:
-					ValidateYearSpan(segment);
-					break;
-				case 2:
-					ValidateMonthSpan(segment);
-					break;
-				case 3:
-					ValidateDaySpan(segment);
-					return; // matches previous behavior: validate first 3 non-empty segments only
+			if (segmentCount == 1) {
+				ValidateYearSpan(segment);
+			} else if (segmentCount == 2) {
+				ValidateMonthSpan(segment);
+			} else if (segmentCount == 3) {
+				ValidateDaySpan(segment);
 			}
-		}
-
-		if (segmentCount == 0) {
-			throw new DataValidationException($"'{value}' is not a valid date, it should be in the format YYYY.MM.DD.");
 		}
 	}
 
