@@ -159,12 +159,8 @@ internal sealed class Config {
 	}
 
 	private void InitializeFolders(string documentsDir) {
-		foreach (var folder in RequiredFolders) {
+		foreach (var folder in RequiredFolders.Where(f => string.IsNullOrEmpty(f.Value))) {
 			string? initialValue = null;
-
-			if (!string.IsNullOrEmpty(folder.Value)) {
-				continue;
-			}
 
 			if (folder.SearchPathType.Equals("windowsUsersFolder")) {
 				initialValue = Path.Combine(documentsDir, folder.SearchPath);
