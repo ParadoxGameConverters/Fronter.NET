@@ -1,4 +1,6 @@
 ﻿using Fronter.Models.Configuration;
+using System;
+using System.IO;
 using System.Linq;
 using Xunit;
 namespace Fronter.Tests.Models;
@@ -8,7 +10,7 @@ public class ConfigurationTests {
 	public void SimpleValuesAreLoaded() {
 		var config = new Config();
 		Assert.Equal("ImperatorToCK3", config.Name);
-		Assert.Equal("ImperatorToCK3", config.ConverterFolder);
+		Assert.Equal(Path.Combine(AppContext.BaseDirectory, "ImperatorToCK3"), config.ConverterFolder);
 		Assert.Equal("ImperatorToCK3Converter", config.BackendExePath);
 		Assert.Equal("IMPDISPLAYNAME", config.DisplayName);
 		Assert.Equal("IMPGAME", config.SourceGame);
