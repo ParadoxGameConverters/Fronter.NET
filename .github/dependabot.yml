@@ -9,13 +9,6 @@ updates:
     schedule:
       interval: "weekly"
     ignore:
-      - dependency-name: "Avalonia"
-        versions: [">= 11.2.0"]
-      - dependency-name: "Avalonia.Controls.DataGrid"
-      - dependency-name: "Avalonia.Desktop"
-      - dependency-name: "Avalonia.Diagnostics"
-      - dependency-name: "Avalonia.ReactiveUI"
-      - dependency-name: "Avalonia.Themes.Fluent"
       - dependency-name: "AWSSDK.S3"
         versions: [">= 3.7.411.7"]
 

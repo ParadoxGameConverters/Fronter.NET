@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Notification;
 using Avalonia.Threading;
+using commonItems;
 using commonItems.Collections;
 using Fronter.Extensions;
 using Fronter.LogAppenders;
@@ -251,7 +252,6 @@ internal sealed class MainWindowViewModel : ViewModelBase {
 				Icon = Icon.Error,
 				ContentTitle = loc.Translate("CONVERSION_FAILED"),
 				ContentMessage = loc.Translate("CONVERSION_FAILED_MESSAGE"),
-				Markdown = true,
 				ButtonDefinitions = ButtonEnum.OkCancel,
 			});
 		var result = await messageBoxWindow.ShowWindowDialogAsync(MainWindow.Instance);
@@ -283,8 +283,8 @@ internal sealed class MainWindowViewModel : ViewModelBase {
 				Icon = Icon.Info,
 				ContentTitle = loc.Translate("NEW_VERSION_TITLE"),
 				ContentHeader = loc.Translate("NEW_VERSION_HEADER"),
-				ContentMessage = msgBody,
-				Markdown = true,
+				ContentMessage = MarkdownPlainTextRenderer.Render(msgBody), // We need to render markdown to plain text until `Markdown = true` is re-enabled.
+				// Markdown = true, // disabled until this PR is merged and Markdown.Avalonia is updated: https://github.com/whistyun/Markdown.Avalonia/pull/154
 				ButtonDefinitions = [
 					new() {Name = updateNowStr, IsDefault = true},
 					new() {Name = maybeLaterStr, IsCancel = true},

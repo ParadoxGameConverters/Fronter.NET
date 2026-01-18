@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <LangVersion>preview</LangVersion>
         <RuntimeIdentifiers>win-x64;osx-arm64;linux-x64</RuntimeIdentifiers>
         <Nullable>enable</Nullable>
@@ -12,7 +12,7 @@
         <IsPackable>false</IsPackable>
         
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-        <AvaloniaVersion>[11.1.5]</AvaloniaVersion>
+        <AvaloniaVersion>[11.3.11]</AvaloniaVersion>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
         <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -63,29 +63,29 @@
         <PackageReference Include="Avalonia.Desktop" Version="$(AvaloniaVersion)" />
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
-        <PackageReference Include="Avalonia.ReactiveUI" Version="$(AvaloniaVersion)" />
+        <PackageReference Include="Avalonia.ReactiveUI" Version="11.3.9" />
         <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
         <PackageReference Include="AWSSDK.S3" Version="[3.7.411.7]" /> <!-- versions >= 3.7.412.0 didn't work correctly with Backblaze B2 as of 2025-05-17: https://www.backblaze.com/docs/en/cloud-storage-use-the-aws-sdk-for-net-with-backblaze-b2?highlight=Data%20Integrity%20Protection%20Headers -->
         <PackageReference Include="DynamicData" Version="9.4.1" />
-        <PackageReference Include="MessageBox.Avalonia" Version="3.2.0" />
+        <PackageReference Include="MessageBox.Avalonia" Version="3.3.1.1" />
         <PackageReference Include="MessageBox.Avalonia.Markdown" Version="3.2.0" />
-        <PackageReference Include="Meziantou.Analyzer" Version="2.0.205">
+        <PackageReference Include="Meziantou.Analyzer" Version="2.0.277">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.7">
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.2">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.7" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.2" />
         <PackageReference Include="Mono.Posix.NETStandard" Version="1.0.0" />
-        <PackageReference Include="Notification.Avalonia" Version="2.1.0" />
-        <PackageReference Include="PGCG.commonItems" Version="15.2.0" />
-        <PackageReference Include="Roslynator.Analyzers" Version="4.13.1">
+        <PackageReference Include="Notification.Avalonia" Version="2.2.0" />
+        <PackageReference Include="PGCG.commonItems" Version="18.0.4" />
+        <PackageReference Include="Roslynator.Analyzers" Version="4.15.0">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Sentry" Version="5.11.2" />
+        <PackageReference Include="Sentry" Version="6.0.0" />
     </ItemGroup>
 
     <ItemGroup>

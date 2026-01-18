@@ -42,7 +42,7 @@ internal sealed class Config {
 	public Config() {
 		var parser = new Parser();
 		RegisterKeys(parser);
-		var fronterConfigurationPath = Path.Combine("Configuration", "fronter-configuration.txt");
+		var fronterConfigurationPath = Path.Combine(AppContext.BaseDirectory, "Configuration", "fronter-configuration.txt");
 		if (File.Exists(fronterConfigurationPath)) {
 			parser.ParseFile(fronterConfigurationPath);
 			logger.Info("Frontend configuration loaded.");
@@ -50,7 +50,7 @@ internal sealed class Config {
 			logger.Warn($"{fronterConfigurationPath} not found!");
 		}
 
-		var fronterOptionsPath = Path.Combine("Configuration", "fronter-options.txt");
+		var fronterOptionsPath = Path.Combine(AppContext.BaseDirectory, "Configuration", "fronter-options.txt");
 		if (File.Exists(fronterOptionsPath)) {
 			parser.ParseFile(fronterOptionsPath);
 			logger.Info("Frontend options loaded.");
@@ -158,12 +158,8 @@ internal sealed class Config {
 	}
 
 	private void InitializeFolders(string documentsDir) {
-		foreach (var folder in RequiredFolders) {
+		foreach (var folder in RequiredFolders.Where(f => string.IsNullOrEmpty(f.Value))) {
 			string? initialValue = null;
-
-			if (!string.IsNullOrEmpty(folder.Value)) {
-				continue;
-			}
 
 			if (folder.SearchPathType.Equals("windowsUsersFolder")) {
 				initialValue = Path.Combine(documentsDir, folder.SearchPath);

@@ -13,7 +13,7 @@ namespace Fronter.Extensions;
 internal sealed partial class TranslationSource : ReactiveObject {
 	private static readonly ILog logger = LogManager.GetLogger("Translator");
 	private TranslationSource() {
-		const string languagesPath = "languages.txt";
+		string languagesPath = Path.Combine(AppContext.BaseDirectory, "languages.txt");
 		if (!File.Exists(languagesPath)) {
 			logger.Error("No languages dictionary found!");
 			return;
@@ -42,7 +42,7 @@ internal sealed partial class TranslationSource : ReactiveObject {
 
 		LoadLanguages();
 
-		var fronterLanguagePath = Path.Combine("Configuration", "fronter-language.txt");
+		var fronterLanguagePath = Path.Combine(AppContext.BaseDirectory, "Configuration", "fronter-language.txt");
 		if (File.Exists(fronterLanguagePath)) {
 			var parser = new Parser();
 			parser.RegisterKeyword("language", reader => CurrentLanguage = reader.GetString());
@@ -85,21 +85,21 @@ internal sealed partial class TranslationSource : ReactiveObject {
 		}
 		CurrentLanguage = languageKey;
 
-		var langFilePath = Path.Combine("Configuration", "fronter-language.txt");
+		var langFilePath = Path.Combine(AppContext.BaseDirectory, "Configuration", "fronter-language.txt");
 		using var fs = new FileStream(langFilePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
 		using var writer = new StreamWriter(fs);
 		writer.WriteLine($"language={languageKey}");
 		writer.Close();
 	}
 	private void LoadLanguages() {
-		var fileNames = SystemUtils.GetAllFilesInFolder("Configuration");
+		var fileNames = SystemUtils.GetAllFilesInFolder(Path.Combine(AppContext.BaseDirectory, "Configuration"));
 
 		foreach (var fileName in fileNames) {
 			if (!fileName.EndsWith(".yml", StringComparison.OrdinalIgnoreCase)) {
 				continue;
 			}
 
-			var langFilePath = Path.Combine("Configuration", fileName);
+			var langFilePath = Path.Combine(AppContext.BaseDirectory, "Configuration", fileName);
 			using var langFileStream = File.OpenRead(langFilePath);
 			using var langFileReader = new StreamReader(langFileStream);
 
