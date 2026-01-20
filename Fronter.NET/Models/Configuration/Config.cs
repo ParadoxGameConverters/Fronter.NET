@@ -66,7 +66,9 @@ internal sealed class Config {
 	private void RegisterKeys(Parser parser) {
 		parser.RegisterKeyword("name", reader => Name = reader.GetString());
 		parser.RegisterKeyword("sentryDsn", reader => SentryDsn = reader.GetString());
-		parser.RegisterKeyword("converterFolder", reader => ConverterFolder = reader.GetString());
+		parser.RegisterKeyword("converterFolder", reader => {
+			ConverterFolder = Path.Combine(AppContext.BaseDirectory, reader.GetString());
+		});
 		parser.RegisterKeyword("backendExePath", reader => BackendExePath = reader.GetString());
 		parser.RegisterKeyword("requiredFolder", reader => {
 			var newFolder = new RequiredFolder(reader, this);
