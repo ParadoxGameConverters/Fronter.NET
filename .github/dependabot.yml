@@ -1,16 +1,22 @@
 version: 2
 updates:
 
-  # Enable version updates for nuget
+  # Enable version updates for nuget (Fronter.NET)
   - package-ecosystem: "nuget"
-    # Look for NuGet dependency info from the `root` directory
-    directory: "/"
+    directory: "/Fronter.NET"
     # Check the nuget registry for updates every week:
     schedule:
-      interval: "weekly"
+      interval: "daily"
     ignore:
       - dependency-name: "AWSSDK.S3"
         versions: [">= 3.7.411.7"]
+
+  # Enable version updates for nuget (Fronter.NET.Tests)
+  - package-ecosystem: "nuget"
+    directory: "/Fronter.NET.Tests"
+    # Check the nuget registry for updates every week:
+    schedule:
+      interval: "weekly"
 
   - package-ecosystem: "dotnet-sdk"
     directory: "/"
