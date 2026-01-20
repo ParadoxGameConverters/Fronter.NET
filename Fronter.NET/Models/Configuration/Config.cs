@@ -94,19 +94,19 @@ internal sealed class Config {
 		parser.RegisterKeyword("sourceGame", reader => SourceGame = reader.GetString());
 		parser.RegisterKeyword("targetGame", reader => TargetGame = reader.GetString());
 		parser.RegisterKeyword("targetPlaysetSelectionEnabled", reader => {
-			TargetPlaysetSelectionEnabled = reader.GetBool();
+			TargetPlaysetSelectionEnabled = reader.GetString().Equals("true", StringComparison.OrdinalIgnoreCase);
 		});
 		parser.RegisterKeyword("copyToTargetGameModDirectory", reader => {
-			CopyToTargetGameModDirectory = reader.GetString().Equals("true");
+			CopyToTargetGameModDirectory = reader.GetString().Equals("true", StringComparison.OrdinalIgnoreCase);
 		});
 		parser.RegisterKeyword("progressOnCopyingComplete", reader => {
 			ProgressOnCopyingComplete = (ushort)reader.GetInt();
 		});
 		parser.RegisterKeyword("enableUpdateChecker", reader => {
-			UpdateCheckerEnabled = reader.GetString().Equals("true");
+			UpdateCheckerEnabled = reader.GetString().Equals("true", StringComparison.OrdinalIgnoreCase);
 		});
 		parser.RegisterKeyword("checkForUpdatesOnStartup", reader => {
-			CheckForUpdatesOnStartup = reader.GetString().Equals("true");
+			CheckForUpdatesOnStartup = reader.GetString().Equals("true", StringComparison.OrdinalIgnoreCase);
 		});
 		parser.RegisterKeyword("converterReleaseForumThread", reader => {
 			ConverterReleaseForumThread = reader.GetString();
@@ -317,7 +317,7 @@ internal sealed class Config {
 	public string? TargetGameModsPath {
 		get {
 			var targetGameModPath = RequiredFolders
-				.FirstOrDefault(f => f?.Name == "targetGameModPath", defaultValue: null);
+				.FirstOrDefault(f => string.Equals(f?.Name, "targetGameModPath", StringComparison.OrdinalIgnoreCase), defaultValue: null);
 			return targetGameModPath?.Value;
 		}
 	}

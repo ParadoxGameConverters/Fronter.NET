@@ -37,11 +37,11 @@
     </UserControl.Styles>
 
     <Grid RowDefinitions="Auto,*,*,*,*">
-        <TextBlock Grid.Column="0" Grid.Row="0" Text="{ns:Loc MODSNOTFOUND}" IsVisible="{Binding !TargetPlaysets.Count}"></TextBlock>
+        <TextBlock Grid.Column="0" Grid.Row="0" Text="{ns:Loc PLAYSETS_NOT_FOUND}" IsVisible="{Binding !TargetPlaysets.Count}"></TextBlock>
 
         <ScrollViewer Grid.Column="0" Grid.Row="0" >
             <StackPanel>
-                <TextBlock Text="If you select a target game playset, the application will create its copy with the conversion mod included."></TextBlock>
+                <TextBlock Text="{ns:Loc SELECT_PLAYSET_INFO}"></TextBlock>
                 <StackPanel Orientation="Horizontal">
                     <ComboBox 
                         x:Name="PlaysetComboBox" 
@@ -56,7 +56,7 @@
                             </DataTemplate>
                         </ComboBox.ItemTemplate>
                     </ComboBox>
-                    <Button Content="Reload" Command="{Binding ReloadPlaysets}"/>
+                    <Button Content="&#x21bb;" Command="{Binding ReloadPlaysets}"/>
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>

@@ -2,6 +2,7 @@
 using DynamicData.Binding;
 using Fronter.Models.Configuration;
 using Fronter.Models.Database;
+using log4net;
 using System;
 using System.Collections.ObjectModel;
 
@@ -11,7 +12,8 @@ namespace Fronter.ViewModels;
 ///     The TargetPlaysetPickerViewModel lets the user select paths to various stuff the converter needs to know where to find.
 /// </summary>
 internal class TargetPlaysetPickerViewModel : ViewModelBase {
-	private Config config;
+	private readonly Config config;
+	private readonly ILog logger = LogManager.GetLogger("Mod copier");
 	
 	public TargetPlaysetPickerViewModel(Config config) {
 		this.config = config;
@@ -34,9 +36,17 @@ internal class TargetPlaysetPickerViewModel : ViewModelBase {
 		config.SelectedPlayset = null;
 		config.AutoLocatePlaysets();
 	}
-	
+
 	public Playset? SelectedPlayset {
 		get => config.SelectedPlayset;
-		set => config.SelectedPlayset = value;
+		set {
+			config.SelectedPlayset = value;
+
+			if (value is null) {
+				logger.Info("Unset the target playset.");
+			} else {
+				logger.Info("Set the target playset to \"" + value.Name + "\".");
+			}
+		}
 	}
 }
