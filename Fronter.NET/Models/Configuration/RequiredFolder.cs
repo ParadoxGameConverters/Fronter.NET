@@ -46,7 +46,8 @@ internal sealed class RequiredFolder : RequiredPath {
 			base.Value = value;
 			logger.Info($"{TranslationSource.Instance[DisplayName]} set to: {value}");
 
-			if (config.TargetPlaysetSelectionEnabled && Name.Equals("targetGameModPath", StringComparison.OrdinalIgnoreCase)) {
+			if (config.TargetPlaysetSelectionEnabled
+				&& Name.Equals("targetGameModPath", StringComparison.OrdinalIgnoreCase)) {
 				config.AutoLocatePlaysets();
 			}
 		}

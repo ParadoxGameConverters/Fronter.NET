@@ -146,6 +146,14 @@ internal sealed class Config {
 					option.SetCheckBoxSelectorPreloaded();
 				}
 			}
+			if (incomingKey.Equals("selectedPlayset", StringComparison.OrdinalIgnoreCase)) {
+				string selectedPlaysetId = valueStr;
+
+				if (!string.IsNullOrWhiteSpace(selectedPlaysetId)) {
+					SelectedPlayset = AutoLocatedPlaysets.FirstOrDefault(p =>
+						string.Equals(p.Id, selectedPlaysetId, StringComparison.Ordinal));
+				}
+			}
 		});
 		parser.RegisterRegex(CommonRegexes.Catchall, ParserHelpers.IgnoreAndLogItem);
 	}
