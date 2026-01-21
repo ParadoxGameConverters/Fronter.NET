@@ -4,13 +4,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:viewModels="clr-namespace:Fronter.ViewModels"
              xmlns:ns="clr-namespace:Fronter.Extensions"
-             x:Class="Fronter.Views.ModsPickerView"
-             x:DataType="viewModels:ModsPickerViewModel"
+             x:Class="Fronter.Views.TargetPlaysetPickerView"
+             x:DataType="viewModels:TargetPlaysetPickerViewModel"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
 
     <Design.DataContext>
-        <viewModels:ModsPickerViewModel />
+        <viewModels:TargetPlaysetPickerViewModel />
     </Design.DataContext>
     
     <UserControl.Styles>
@@ -37,23 +37,27 @@
     </UserControl.Styles>
 
     <Grid RowDefinitions="Auto,*,*,*,*">
-        <TextBlock Grid.Column="0" Grid.Row="0" Text="{ns:Loc MODSDISABLED}" IsVisible="{Binding ModsDisabled}"></TextBlock>
-        <TextBlock Grid.Column="0" Grid.Row="0" Text="{ns:Loc MODSNOTFOUND}" IsVisible="{Binding !AutoLocatedMods.Count}"></TextBlock>
-        <TextBlock Grid.Column="0" Grid.Row="0" Text="{ns:Loc MODSFOUND}" IsVisible="{Binding AutoLocatedMods.Count}"></TextBlock>
-        
-        <ScrollViewer Grid.Column="0" Grid.Row="1" >
+        <TextBlock Grid.Column="0" Grid.Row="0" Text="{ns:Loc PLAYSETS_NOT_FOUND}" IsVisible="{Binding !TargetPlaysets.Count}"></TextBlock>
+
+        <ScrollViewer Grid.Column="0" Grid.Row="0" >
             <StackPanel>
-                <ItemsControl ItemsSource="{Binding AutoLocatedMods}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <CheckBox
-                                Content="{Binding Name}"
-                                ToolTip.Tip="{Binding FileName}"
-                                IsChecked="{Binding Enabled, Mode=TwoWay}"
-                            />
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                <TextBlock Text="{ns:Loc SELECT_PLAYSET_INFO}" Margin="0 10" />
+                <StackPanel Orientation="Horizontal">
+                    <ComboBox 
+                        x:Name="PlaysetComboBox" 
+                        SelectedIndex="0" 
+                        ItemsSource="{Binding TargetPlaysetsWithBlank}"
+                        SelectedItem="{Binding SelectedPlayset}"
+                        Margin="0 10 10 10"
+                        >
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name, FallbackValue=—}" ToolTip.Tip="{Binding Name, FallbackValue=—}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <Button Content="&#x21bb;" Command="{Binding ReloadPlaysets}"/>
+                </StackPanel>
             </StackPanel>
         </ScrollViewer>
     </Grid>

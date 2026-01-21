@@ -30,10 +30,12 @@ l_german:
   MODSDISABLED: "Mod-Autodetection durch Konfiguration deaktiviert / nicht erforderlich."
   MODSNOTFOUND: "Mods nicht im Mod-Verzeichnis gefunden."
   MODSFOUND: "Mods automatisch erkannt:"
+  TARGET_PLAYSET_TAB: "Ziel-Playset"
+  PLAYSETS_NOT_FOUND: "Keine Playsets gefunden."
+  SELECT_PLAYSET_INFO: "Wenn Sie ein Ziel-Playset des Spiels auswählen, erstellt die Anwendung eine Kopie davon, die den Konvertierungsmod enthält."
   BROWSE: "Durchsuchen"
   LOGLEVEL: "Filtriere die Meldungen nach ihrer Art"
   LOGLEVEL0: "Fehler"
   LOGLEVEL1: "Warnung"
   LOGLEVEL2: "Info"
   LOGLEVEL3: "Debug"
-
