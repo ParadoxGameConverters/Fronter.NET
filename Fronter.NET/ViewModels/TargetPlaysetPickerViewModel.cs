@@ -5,6 +5,7 @@ using Fronter.Models.Database;
 using log4net;
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace Fronter.ViewModels;
 
@@ -22,6 +23,13 @@ internal class TargetPlaysetPickerViewModel : ViewModelBase {
 			.Bind(out targetPlaysets)
 			.Subscribe();
 
+		// Keep a ComboBox-friendly list in sync, but with an extra leading null entry ("no selection").
+		config.AutoLocatedPlaysets.ToObservableChangeSet()
+			.ToCollection()
+			.Subscribe(playsets => {
+				TargetPlaysetsWithBlank = new(new Playset?[] { null }.Concat(playsets));
+			});
+
 		if (!config.TargetPlaysetSelectionEnabled) {
 			TabDisabled = true;
 		}
@@ -29,6 +37,8 @@ internal class TargetPlaysetPickerViewModel : ViewModelBase {
 
 	private readonly ReadOnlyObservableCollection<Playset> targetPlaysets;
 	public ReadOnlyObservableCollection<Playset> TargetPlaysets => targetPlaysets;
+
+	public ObservableCollection<Playset?> TargetPlaysetsWithBlank { get; private set; } = [];
 
 	public bool TabDisabled { get; } = false;
 
