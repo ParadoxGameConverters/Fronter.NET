@@ -5,6 +5,7 @@ using Fronter.Models.Database;
 using Fronter.Services;
 using Fronter.ViewModels;
 using log4net;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -256,6 +257,7 @@ internal sealed class Config {
 			WriteRequiredFiles(writer);
 			if (SelectedPlayset is not null) {
 				writer.WriteLine($"selectedPlayset = {SelectedPlayset.Id}");
+				WriteSelectedMods(writer, SelectedPlayset);
 			}
 
 			WriteOptions(writer);
@@ -314,6 +316,55 @@ internal sealed class Config {
 		}
 	}
 
+	private void WriteSelectedMods(StreamWriter writer, Playset selectedPlayset) {
+		writer.WriteLine("selectedMods = {");
+		var dbContext = TargetDbManager.GetLauncherDbContext(this);
+		if (dbContext is null) {
+			writer.WriteLine("}");
+			return;
+		}
+
+		var playsetMods = dbContext.PlaysetsMods
+			.Include(playsetMod => playsetMod.Mod)
+			.Where(playsetMod => playsetMod.PlaysetId == selectedPlayset.Id)
+			.OrderBy(playsetMod => playsetMod.Position ?? long.MaxValue)
+			.ToList();
+
+		foreach (var playsetMod in playsetMods) {
+			if (!IsPlaysetModEnabled(playsetMod)) {
+				continue;
+			}
+
+			var modPath = GetModPath(playsetMod.Mod);
+			if (string.IsNullOrWhiteSpace(modPath)) {
+				continue;
+			}
+
+			modPath = modPath.Replace('\\', '/');
+			writer.WriteLine($"\t\"{modPath}\"");
+		}
+
+		writer.WriteLine("}");
+	}
+
+	private static bool IsPlaysetModEnabled(PlaysetsMod playsetMod) {
+		var enabled = playsetMod.Enabled;
+		if (enabled is null || enabled.Length == 0) {
+			return true;
+		}
+
+		return enabled.Any(b => b != 0);
+	}
+
+	private static string? GetModPath(Mod mod) {
+		if (!string.IsNullOrWhiteSpace(mod.GameRegistryId)) {
+			return mod.GameRegistryId;
+		}
+
+		Logger.Warn($"Mod {mod.Name} has no GameRegistryId set in the launcher's DB, cannot determine its path!");
+		return null;
+	}
+
 	public string? TargetGameModsPath {
 		get {
 			var targetGameModPath = RequiredFolders
@@ -336,29 +387,10 @@ internal sealed class Config {
 					AutoLocatedPlaysets.Add(playset);
 				}
 			}
-			
+
 			locatedPlaysetsCount = AutoLocatedPlaysets.Count;
 		}
-		
+
 		logger.Debug($"Autolocated {locatedPlaysetsCount} playsets.");
-	}
-
-	private static List<string> GetValidModFiles(string modPath) {
-		var validModFiles = new List<string>();
-		foreach (var file in SystemUtils.GetAllFilesInFolder(modPath)) {
-			var lastDot = file.LastIndexOf('.');
-			if (lastDot == -1) {
-				continue;
-			}
-
-			var extension = CommonFunctions.GetExtension(file);
-			if (!extension.Equals("mod")) {
-				continue;
-			}
-
-			validModFiles.Add(file);
-		}
-
-		return validModFiles;
 	}
 }
