@@ -33,6 +33,12 @@ then
   printf "\nBuilding updater...\n"
 
   cd "${FRONTER_DIR}/Updater"
+  python3 -m venv venv
+  if [ "$RUNNER_OS" == "Windows" ]; then
+    ./venv/Scripts/activate.bat
+  else
+    source venv/bin/activate
+  fi
   PIP_BREAK_SYSTEM_PACKAGES=1 pip3 install pip-tools
   python3 -m piptools compile -o requirements.txt pyproject.toml
 
