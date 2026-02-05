@@ -10,12 +10,9 @@ using Mod = Fronter.Models.Database.Mod;
 
 namespace Fronter.Services;
 
-internal sealed class ModCopier {
-	private readonly Config config;
+internal sealed class ModCopier(Config config) {
+	private readonly Config config = config;
 	private readonly ILog logger = LogManager.GetLogger("Mod copier");
-	public ModCopier(Config config) {
-		this.config = config;
-	}
 
 	public bool CopyMod() {
 		logger.Notice("Mod Copying Started.");
@@ -141,18 +138,13 @@ internal sealed class ModCopier {
 			logger.Warn($"Couldn't get parent directory of \"{targetModsDirectory}\".");
 			return;
 		}
-		var latestDbFilePath = TargetDbManager.GetLastUpdatedLauncherDbPath(gameDocsDirectory);
-		if (latestDbFilePath is null) {
-			logger.Debug("Launcher's database not found.");
-			return;
-		}
-		logger.Debug($"Launcher's database found at \"{latestDbFilePath}\".");
-
-		logger.Info("Setting up playset...");
-		string connectionString = $"Data Source={latestDbFilePath};";
 		try {
+			var dbContext = TargetDbManager.GetLauncherDbContext(config);
+			if (dbContext is null) {
+				logger.Debug("Launcher's database not found.");
+				return;
+			}
 			logger.Debug("Connecting to launcher's DB...");
-			var dbContext = new LauncherDbContext(connectionString);
 
 			var playsetName = $"{config.Name}: {modName}";
 			var dateTimeOffset = new DateTimeOffset(DateTime.UtcNow);
