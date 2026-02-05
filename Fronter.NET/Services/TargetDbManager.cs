@@ -1,4 +1,4 @@
-﻿using Fronter.Models.Configuration;
+using Fronter.Models.Configuration;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,7 +9,7 @@ internal static class TargetDbManager {
 	public static string? GetLastUpdatedLauncherDbPath(string gameDocsDirectory) {
 		var possibleDbFileNames = new List<string> { "launcher-v2.sqlite", "launcher-v2_openbeta.sqlite" };
 		var latestDbFilePath = possibleDbFileNames
-			.Select(name => Path.Join(gameDocsDirectory, name))
+			.Select(name => Path.Combine(gameDocsDirectory, name))
 			.Where(File.Exists)
 			.OrderByDescending(File.GetLastWriteTimeUtc)
 			.FirstOrDefault(defaultValue: null);
@@ -21,7 +21,8 @@ internal static class TargetDbManager {
 		if (string.IsNullOrWhiteSpace(targetGameModsPath)) {
 			return null;
 		}
-		var gameDocsDirectory = Directory.GetParent(targetGameModsPath)?.FullName;
+		var normalizedTargetGameModsPath = Path.TrimEndingDirectorySeparator(targetGameModsPath);
+		var gameDocsDirectory = Directory.GetParent(normalizedTargetGameModsPath)?.FullName;
 		if (gameDocsDirectory is null) {
 			return null;
 		}
