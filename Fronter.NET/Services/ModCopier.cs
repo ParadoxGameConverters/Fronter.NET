@@ -11,7 +11,6 @@ using Mod = Fronter.Models.Database.Mod;
 namespace Fronter.Services;
 
 internal sealed class ModCopier(Config config) {
-	private readonly Config config = config;
 	private readonly ILog logger = LogManager.GetLogger("Mod copier");
 
 	public bool CopyMod() {
