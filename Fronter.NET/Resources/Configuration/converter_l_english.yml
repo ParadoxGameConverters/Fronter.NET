@@ -64,8 +64,8 @@ l_english:
   
   MENU_HELP: "Help"
   
-  SAVE_UPLOAD_CONSENT_TITLE: "Save upload consent"
-  SAVE_UPLOAD_CONSENT_BODY: "Would you like the application to automatically upload your save file to our error database, in order to help us fix this issue?"
+  SAVE_UPLOAD_CONSENT_TITLE: "Diagnostic data upload consent"
+  SAVE_UPLOAD_CONSENT_BODY: "Would you like the application to upload diagnostic data (error message, log file, your save file) to help us investigate this issue?"
   
   FAILED_TO_START_CONVERTER: "Failed to start converter"
   FAILED_TO_START_CONVERTER_BACKEND: "Failed to start converter backend"

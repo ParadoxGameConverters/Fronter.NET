@@ -216,13 +216,8 @@ internal sealed class ConverterLauncher {
 	}
 
 	private static async Task UploadSaveArchiveToBackblaze(string archivePath, SentryHelper sentryHelper) {
-		// Add Backblaze credentials to breadcrumbs for debugging.
 		var keyId = Secrets.BackblazeKeyId;
 		var applicationKey = Secrets.BackblazeApplicationKey;
-		var bucketId = Secrets.BackblazeBucketId;
-		sentryHelper.AddBreadcrumb($"Backblaze key ID: \"{keyId}\"");
-		sentryHelper.AddBreadcrumb($"Backblaze application key: \"{applicationKey}\"");
-		sentryHelper.AddBreadcrumb($"Backblaze bucket ID: \"{bucketId}\"");
 		sentryHelper.AddBreadcrumb($"Archive name: {Path.GetFileName(archivePath)}");
 
 		var s3Config = new AmazonS3Config {
