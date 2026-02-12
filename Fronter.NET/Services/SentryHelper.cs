@@ -41,6 +41,9 @@ internal sealed class SentryHelper {
 			// See https://docs.sentry.io/product/sentry-basics/dsn-explainer/
 			options.Dsn = config.SentryDsn;
 
+			// GDPR/data-minimization: avoid sending personally identifiable information by default.
+			options.SendDefaultPii = false;
+
 			// This option enables Sentry's "Release Health" feature.
 			options.AutoSessionTracking = false;
 
@@ -79,13 +82,6 @@ internal sealed class SentryHelper {
 	}
 
 	public void SendMessageToSentry(string message, SentryLevel level) {
-		// Identify user by IP address and machine/user name.
-		string name = Environment.MachineName;
-		if (string.IsNullOrWhiteSpace(name)) {
-			name = Environment.UserName;
-		}
-		SentrySdk.ConfigureScope(scope => scope.User = new() { Username = name, IpAddress = "{{auto}}" });
-
 		SentrySdk.CaptureMessage(message, level);
 	}
 
