@@ -35,14 +35,14 @@ then
   cd "${FRONTER_DIR}/Updater"
   python3 -m venv venv
   if [ "$RUNNER_OS" == "Windows" ]; then
-    ./venv/Scripts/activate.bat
+    source venv/Scripts/activate
   else
     source venv/bin/activate
   fi
-  PIP_BREAK_SYSTEM_PACKAGES=1 pip3 install pip-tools
+  python3 -m pip install --upgrade "pip<25.3" "pip-tools==7.4.0"
   python3 -m piptools compile -o requirements.txt pyproject.toml
 
-  PIP_BREAK_SYSTEM_PACKAGES=1 pip3 install -r requirements.txt 
+  python3 -m pip install -r requirements.txt
   python3 -m PyInstaller --onefile --icon=updater.ico updater.py
   mkdir -p "${GITHUB_WORKSPACE}/${RELEASE_DIR}/Updater"
   mv dist/* "${GITHUB_WORKSPACE}/${RELEASE_DIR}/Updater/"
