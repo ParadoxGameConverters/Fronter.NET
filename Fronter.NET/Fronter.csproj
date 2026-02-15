@@ -17,10 +17,10 @@
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <OutputPath>..\..\Release\</OutputPath>
-        <NoWarn>1701;1702;MA0001;MA0004;MA0011;MA0075;MA0076</NoWarn>
+        <NoWarn>1701;1702;MA0001;MA0004;MA0009;MA0011;MA0075;MA0076</NoWarn>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-        <NoWarn>1701;1702;MA0001;MA0004;MA0011;MA0075;MA0076</NoWarn>
+        <NoWarn>1701;1702;MA0001;MA0004;MA0009;MA0011;MA0075;MA0076</NoWarn>
     </PropertyGroup>
     <ItemGroup>
         <AvaloniaResource Include="Assets\**" />
@@ -40,10 +40,10 @@
     
     <!-- https://stackoverflow.com/a/50905092/10249243 -->
     <Target Name="Secrets" BeforeTargets="BeforeBuild">
-        <WriteLinesToFile File="$(IntermediateOutputPath)gen.cs" Lines="static partial class Secrets {&#xD;&#xA;			    public static string BackblazeKeyId = %22$(BACKBLAZE_KEY_ID)%22 %3B&#xD;&#xA;			    public static string BackblazeApplicationKey = %22$(BACKBLAZE_APPLICATION_KEY)%22 %3B&#xD;&#xA;			    public static string BackblazeBucketId = %22$(BACKBLAZE_BUCKET_ID)%22 %3B&#xD;&#xA;			}" Overwrite="true" />
+        <WriteLinesToFile File="$(IntermediateOutputPath)Secrets.cs" Lines="namespace Fronter.Services {&#xD;&#xA;			    static partial class Secrets {&#xD;&#xA;				    public static string BackblazeKeyId = %22$(BACKBLAZE_KEY_ID)%22 %3B&#xD;&#xA;				    public static string BackblazeApplicationKey = %22$(BACKBLAZE_APPLICATION_KEY)%22 %3B&#xD;&#xA;				    public static string BackblazeBucketId = %22$(BACKBLAZE_BUCKET_ID)%22 %3B&#xD;&#xA;			    }&#xD;&#xA;			}" Overwrite="true" />
 	</Target>
 	<ItemGroup>
-		<Compile Include="$(IntermediateOutputPath)gen.cs" />
+        <Compile Include="$(IntermediateOutputPath)Secrets.cs" />
 	</ItemGroup>
     
     <Target Name="CopyCustomContent" AfterTargets="Build">

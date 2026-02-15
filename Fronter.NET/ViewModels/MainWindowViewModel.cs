@@ -3,7 +3,6 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Notification;
 using Avalonia.Threading;
-using commonItems;
 using commonItems.Collections;
 using Fronter.Extensions;
 using Fronter.LogAppenders;

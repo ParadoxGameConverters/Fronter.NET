@@ -69,8 +69,7 @@ internal sealed partial class TranslationSource : ReactiveObject {
 			return string.Empty;
 		}
 
-		toReturn = NewLineInStringRegex().Replace(toReturn, Environment.NewLine);
-		return toReturn;
+		return NewLineInStringRegex().Replace(toReturn, Environment.NewLine);
 	}
 
 	public string TranslateLanguage(string language) {
@@ -113,7 +112,7 @@ internal sealed partial class TranslationSource : ReactiveObject {
 				logger.Error($"Invalid localization language: {firstLine}");
 				continue;
 			}
-			var language = firstLine.Substring(2, pos - 2);
+			var language = firstLine[2..pos];
 
 			while (!langFileReader.EndOfStream) {
 				var line = langFileReader.ReadLine();

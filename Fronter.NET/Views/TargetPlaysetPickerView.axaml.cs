@@ -3,7 +3,7 @@ using Avalonia.Markup.Xaml;
 
 namespace Fronter.Views;
 
-internal partial class TargetPlaysetPickerView : UserControl {
+internal sealed partial class TargetPlaysetPickerView : UserControl {
 	public TargetPlaysetPickerView() {
 		InitializeComponent();
 	}

@@ -12,13 +12,13 @@ namespace Fronter.ViewModels;
 /// <summary>
 ///     The TargetPlaysetPickerViewModel lets the user select paths to various stuff the converter needs to know where to find.
 /// </summary>
-internal class TargetPlaysetPickerViewModel : ViewModelBase {
+internal sealed class TargetPlaysetPickerViewModel : ViewModelBase {
 	private readonly Config config;
 	private readonly ILog logger = LogManager.GetLogger("Mod copier");
-	
+
 	public TargetPlaysetPickerViewModel(Config config) {
 		this.config = config;
-		
+
 		config.AutoLocatedPlaysets.ToObservableChangeSet()
 			.Bind(out targetPlaysets)
 			.Subscribe();
