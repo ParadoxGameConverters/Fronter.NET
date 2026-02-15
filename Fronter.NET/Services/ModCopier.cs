@@ -38,7 +38,7 @@ internal sealed class ModCopier(Config config) {
 			logger.Error("Copy failed - Target Folder does not exist!");
 			return false;
 		}
-		string? targetName = DetermineTargetModName(config.Options);
+		string? targetName = DetermineTargetModName();
 		if (string.IsNullOrEmpty(targetName)) {
 			return false;
 		}
@@ -73,9 +73,9 @@ internal sealed class ModCopier(Config config) {
 		return true;
 	}
 
-	private string? DetermineTargetModName(List<Option> options) {
+	private string? DetermineTargetModName() {
 		string? targetName = null;
-		foreach (var option in options) {
+		foreach (var option in config.Options) {
 			var value = option.GetValue();
 			if (option.Name.Equals("output_name") && !string.IsNullOrEmpty(value)) {
 				targetName = value;
