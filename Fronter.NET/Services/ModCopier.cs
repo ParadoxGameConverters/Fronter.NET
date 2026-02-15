@@ -1,8 +1,10 @@
 ﻿using commonItems;
 using Fronter.Models.Configuration;
+using Fronter.Models.Configuration.Options;
 using Fronter.Models.Database;
 using log4net;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -36,9 +38,44 @@ internal sealed class ModCopier(Config config) {
 			logger.Error("Copy failed - Target Folder does not exist!");
 			return false;
 		}
-		var options = config.Options;
+		string? targetName = DetermineTargetModName();
+		if (string.IsNullOrEmpty(targetName)) {
+			return false;
+		}
+
+		var modFolderPath = Path.Combine(outputFolder, targetName);
+		if (!Directory.Exists(modFolderPath)) {
+			logger.Error($"Copy Failed - Could not find mod folder: {modFolderPath}");
+			return false;
+		}
+
+		// For games using mods with .metadata folders we need to skip .mod file requirement.
+		bool skipModFile = ShouldModFileBeSkipped(outputFolder, targetName);
+
+		var modFilePath = Path.Combine(outputFolder, $"{targetName}.mod");
+		if (!skipModFile && !File.Exists(modFilePath)) {
+			logger.Error($"Copy Failed - Could not find mod: {modFilePath}");
+			return false;
+		}
+
+		var destModFilePath = Path.Combine(destModsFolder, $"{targetName}.mod");
+		var destModFolderPath = Path.Combine(destModsFolder, targetName);
+		if (!TryDeletePreviousModFileAndFolder(skipModFile, destModFilePath, destModFolderPath)) {
+			return false;
+		}
+
+		if (!TryCopyModFileAndFolder(skipModFile, modFilePath, modFolderPath, destModFilePath, destModFolderPath)) {
+			return false;
+		}
+
+		CreatePlayset(destModsFolder, targetName, destModFolderPath);
+
+		return true;
+	}
+
+	private string? DetermineTargetModName() {
 		string? targetName = null;
-		foreach (var option in options) {
+		foreach (var option in config.Options) {
 			var value = option.GetValue();
 			if (option.Name.Equals("output_name") && !string.IsNullOrEmpty(value)) {
 				targetName = value;
@@ -48,21 +85,21 @@ internal sealed class ModCopier(Config config) {
 		if (string.IsNullOrEmpty(targetName)) {
 			var saveGame = requiredFiles.FirstOrDefault(f => string.Equals(f?.Name, "SaveGame", StringComparison.Ordinal), defaultValue: null);
 			if (saveGame is null) {
-				logger.Error("Copy failed - SaveGame is does not exist!");
-				return false;
+				logger.Error("Copy failed - SaveGame does not exist!");
+				return null;
 			}
 			var saveGamePath = saveGame.Value;
 			if (string.IsNullOrEmpty(saveGamePath)) {
 				logger.Error("Copy Failed - save game path is empty, did we even convert anything?");
-				return false;
+				return null;
 			}
 			if (!File.Exists(saveGamePath)) {
 				logger.Error("Copy Failed - save game does not exist, did we even convert anything?");
-				return false;
+				return null;
 			}
 			if (Directory.Exists(saveGamePath)) {
 				logger.Error("Copy Failed - Save game is a directory...");
-				return false;
+				return null;
 			}
 			saveGamePath = CommonFunctions.TrimPath(saveGamePath);
 			saveGamePath = CommonFunctions.NormalizeStringPath(saveGamePath);
@@ -77,58 +114,58 @@ internal sealed class ModCopier(Config config) {
 		targetName = CommonFunctions.ReplaceCharacter(targetName, ' ');
 		targetName = CommonFunctions.NormalizeUTF8Path(targetName);
 
-		var modFolderPath = Path.Combine(outputFolder, targetName);
-		if (!Directory.Exists(modFolderPath)) {
-			logger.Error($"Copy Failed - Could not find mod folder: {modFolderPath}");
-			return false;
-		}
+		return targetName;
+	}
 
-		// For games using mods with .metadata folders we need to skip .mod file requirement.
-		bool skipModFile = false;
-		var metadataPath = Path.Combine(outputFolder, $"{targetName}/.metadata");
-		if (Directory.Exists(metadataPath)) {
-			skipModFile = true;
-		}
+	private static bool ShouldModFileBeSkipped(string outputFolder, string targetModName) {
+		var metadataPath = Path.Combine(outputFolder, $"{targetModName}/.metadata");
+		return Directory.Exists(metadataPath);
+	}
 
-		var modFilePath = Path.Combine(outputFolder, $"{targetName}.mod");
-		if (!skipModFile && !File.Exists(modFilePath)) {
-			logger.Error($"Copy Failed - Could not find mod: {modFilePath}");
-			return false;
-		}
-
-		var destModFilePath = Path.Combine(destModsFolder, $"{targetName}.mod");
-		if (!skipModFile && File.Exists(destModFilePath)) {
-			logger.Info("Previous mod file found, deleting...");
-			File.Delete(destModFilePath);
-		}
-
-		var destModFolderPath = Path.Combine(destModsFolder, targetName);
-		if (Directory.Exists(destModFolderPath)) {
-			logger.Info("Previous mod directory found, deleting...");
-			if (!SystemUtils.TryDeleteFolder(destModFolderPath)) {
-				logger.Error($"Could not delete directory: {destModFolderPath}");
-				return false;
-			}
-		}
+	private bool TryCopyModFileAndFolder(bool skipModFile, string modFilePath, string modFolderPath, string destModFilePath, string destModFolderPath) {
 		try {
 			logger.Info("Copying mod to target location...");
 			if (!skipModFile) {
 				if (!SystemUtils.TryCopyFile(modFilePath, destModFilePath)) {
 					logger.Error($"Could not copy file: {modFilePath}\nto {destModFilePath}");
+					return false;
 				}
 			}
 			if (!SystemUtils.TryCopyFolder(modFolderPath, destModFolderPath)) {
 				logger.Error($"Could not copy folder: {modFolderPath}\nto {destModFolderPath}");
+				return false;
 			}
 		} catch (Exception e) {
-			logger.Error(e.ToString());
+			logger.Error("Error while copying mod to target location.", e);
 			return false;
 		}
+
 		logger.Notice($"Mod successfully copied to: {destModFolderPath}");
-
-		CreatePlayset(destModsFolder, targetName, destModFolderPath);
-
 		return true;
+	}
+
+	private bool TryDeletePreviousModFileAndFolder(bool skipModFile, string destModFilePath, string destModFolderPath) {
+		if (!skipModFile && File.Exists(destModFilePath)) {
+			logger.Info("Previous mod file found, deleting...");
+			try {
+				File.Delete(destModFilePath);
+			} catch (Exception e) {
+				logger.Error($"Could not delete file: {destModFilePath}", e);
+				return false;
+			}
+		}
+
+		if (!Directory.Exists(destModFolderPath)) {
+			return true;
+		}
+
+		logger.Info("Previous mod directory found, deleting...");
+		if (SystemUtils.TryDeleteFolder(destModFolderPath)) {
+			return true;
+		}
+
+		logger.Error($"Could not delete directory: {destModFolderPath}");
+		return false;
 	}
 
 	private void CreatePlayset(string targetModsDirectory, string modName, string destModFolder) {
