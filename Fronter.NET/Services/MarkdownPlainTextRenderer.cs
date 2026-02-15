@@ -182,7 +182,7 @@ internal static class MarkdownPlainTextRenderer {
 		}
 
 		// If backticks are unbalanced, treat as plain text.
-		int backtickCount = input.Where(c => c == '`').Count();
+		int backtickCount = input.Count(c => c == '`');
 		if (backtickCount % 2 != 0) {
 			return ProcessInlineOutsideCode(input);
 		}
