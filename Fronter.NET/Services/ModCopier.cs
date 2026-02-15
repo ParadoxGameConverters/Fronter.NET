@@ -119,7 +119,7 @@ internal sealed class ModCopier(Config config) {
 
 	private static bool ShouldModFileBeSkipped(string outputFolder, string targetModName) {
 		bool skipModFile = false;
-		var metadataPath = Path.Combine(outputFolder, $"{targetModName}/.metadata");
+		var metadataPath = Path.Combine(outputFolder, targetModName, ".metadata");
 		if (Directory.Exists(metadataPath)) {
 			skipModFile = true;
 		}
