@@ -85,7 +85,7 @@ internal sealed class ModCopier(Config config) {
 		if (string.IsNullOrEmpty(targetName)) {
 			var saveGame = requiredFiles.FirstOrDefault(f => string.Equals(f?.Name, "SaveGame", StringComparison.Ordinal), defaultValue: null);
 			if (saveGame is null) {
-				logger.Error("Copy failed - SaveGame is does not exist!");
+				logger.Error("Copy failed - SaveGame does not exist!");
 				return null;
 			}
 			var saveGamePath = saveGame.Value;
