@@ -150,7 +150,12 @@ internal sealed class ModCopier(Config config) {
 	private bool TryDeletePreviousModFileAndFolder(bool skipModFile, string destModFilePath, string destModFolderPath) {
 		if (!skipModFile && File.Exists(destModFilePath)) {
 			logger.Info("Previous mod file found, deleting...");
-			File.Delete(destModFilePath);
+			try {
+				File.Delete(destModFilePath);
+			} catch (Exception e) {
+				logger.Error($"Could not delete file: {destModFilePath}", e);
+				return false;
+			}
 		}
 
 		if (!Directory.Exists(destModFolderPath)) {
