@@ -199,33 +199,13 @@ internal sealed class MainWindowViewModel : ViewModelBase {
 			ConvertStatus = "CONVERTSTATUSIN";
 
 			try {
-				var launchConverterTask = converterLauncher.LaunchConverter();
-				launchConverterTask.Wait();
-				success = launchConverterTask.Result;
+				success = await converterLauncher.LaunchConverter();
 			} catch (TaskCanceledException e) {
 				logger.Debug($"Converter backend task was cancelled: {e.Message}");
 				success = false;
 			} catch (Exception e) {
 				logger.Error($"Failed to start converter backend: {e.Message}");
-				var messageText = $"{loc.Translate("FAILED_TO_START_CONVERTER_BACKEND")}: {e.Message}";
-				if (!ElevatedPrivilegesDetector.IsAdministrator) {
-					messageText += "\n\n" + loc.Translate("ELEVATED_PRIVILEGES_REQUIRED");
-					if (OperatingSystem.IsWindows()) {
-						messageText += "\n\n" + loc.Translate("RUN_AS_ADMIN");
-					} else if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS() || OperatingSystem.IsFreeBSD()) {
-						messageText += "\n\n" + loc.Translate("RUN_WITH_SUDO");
-					}
-				} else {
-					messageText += "\n\n" + loc.Translate("FAILED_TO_START_CONVERTER_POSSIBLE_BUG");
-				}
-
-				Dispatcher.UIThread.Post(() => MessageBoxManager.GetMessageBoxStandard(
-					title: loc.Translate("FAILED_TO_START_CONVERTER"),
-					text: messageText,
-					ButtonEnum.Ok,
-					Icon.Error
-				).ShowWindowDialogAsync(MainWindow.Instance).Wait());
-
+				await ShowFailedToStartConverterMsBox(e.Message);
 				success = false;
 			}
 
@@ -243,6 +223,29 @@ internal sealed class MainWindowViewModel : ViewModelBase {
 				ConvertButtonEnabled = true;
 			}
 		});
+	}
+
+	private async Task ShowFailedToStartConverterMsBox(string errorMessage) {
+		var messageText = $"{loc.Translate("FAILED_TO_START_CONVERTER_BACKEND")}: {errorMessage}";
+		if (!ElevatedPrivilegesDetector.IsAdministrator) {
+			messageText += "\n\n" + loc.Translate("ELEVATED_PRIVILEGES_REQUIRED");
+			if (OperatingSystem.IsWindows()) {
+				messageText += "\n\n" + loc.Translate("RUN_AS_ADMIN");
+			} else if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS() || OperatingSystem.IsFreeBSD()) {
+				messageText += "\n\n" + loc.Translate("RUN_WITH_SUDO");
+			}
+		} else {
+			messageText += "\n\n" + loc.Translate("FAILED_TO_START_CONVERTER_POSSIBLE_BUG");
+		}
+
+		await Dispatcher.UIThread.InvokeAsync(async () => {
+			await MessageBoxManager.GetMessageBoxStandard(
+				title: loc.Translate("FAILED_TO_START_CONVERTER"),
+				text: messageText,
+				ButtonEnum.Ok,
+				Icon.Error
+			).ShowWindowDialogAsync(MainWindow.Instance);
+		}, DispatcherPriority.Normal);
 	}
 
 	private async Task ShowErrorMessageBox() {
