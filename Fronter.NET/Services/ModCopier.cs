@@ -136,7 +136,7 @@ internal sealed class ModCopier(Config config) {
 				return false;
 			}
 		} catch (Exception e) {
-			logger.Error(e.ToString());
+			logger.Error("Error while copying mod to target location.", e);
 			return false;
 		}
 
