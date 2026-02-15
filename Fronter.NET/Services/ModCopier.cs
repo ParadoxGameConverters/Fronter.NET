@@ -118,13 +118,8 @@ internal sealed class ModCopier(Config config) {
 	}
 
 	private static bool ShouldModFileBeSkipped(string outputFolder, string targetModName) {
-		bool skipModFile = false;
-		var metadataPath = Path.Combine(outputFolder, targetModName, ".metadata");
-		if (Directory.Exists(metadataPath)) {
-			skipModFile = true;
-		}
-
-		return skipModFile;
+		var metadataPath = Path.Combine(outputFolder, $"{targetModName}/.metadata");
+		return Directory.Exists(metadataPath);
 	}
 
 	private bool TryCopyModFileAndFolder(bool skipModFile, string modFilePath, string modFolderPath, string destModFilePath, string destModFolderPath) {
@@ -133,10 +128,12 @@ internal sealed class ModCopier(Config config) {
 			if (!skipModFile) {
 				if (!SystemUtils.TryCopyFile(modFilePath, destModFilePath)) {
 					logger.Error($"Could not copy file: {modFilePath}\nto {destModFilePath}");
+					return false;
 				}
 			}
 			if (!SystemUtils.TryCopyFolder(modFolderPath, destModFolderPath)) {
 				logger.Error($"Could not copy folder: {modFolderPath}\nto {destModFolderPath}");
+				return false;
 			}
 		} catch (Exception e) {
 			logger.Error(e.ToString());
