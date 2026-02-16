@@ -32,8 +32,10 @@ public partial class LauncherDbContext : DbContext {
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseSqlite(connectionString);
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
+#pragma warning disable MA0051 // Method is too long
+	protected override void OnModelCreating(ModelBuilder modelBuilder)
+#pragma warning restore MA0051 // Method is too long
+	{
         modelBuilder.Entity<Dlc>(entity =>
         {
             entity.ToTable("dlc");

@@ -68,7 +68,7 @@ internal sealed class ModCopier(Config config) {
 			return false;
 		}
 
-		CreatePlayset(destModsFolder, targetName, destModFolderPath);
+		SetUpPlayset(destModsFolder, targetName, destModFolderPath);
 
 		return true;
 	}
@@ -168,7 +168,7 @@ internal sealed class ModCopier(Config config) {
 		return false;
 	}
 
-	private void CreatePlayset(string targetModsDirectory, string modName, string destModFolder) {
+	private void SetUpPlayset(string targetModsDirectory, string modName, string destModFolder) {
 		var gameDocsDirectory = Directory.GetParent(targetModsDirectory)?.FullName;
 		if (gameDocsDirectory is null) {
 			logger.Warn($"Couldn't get parent directory of \"{targetModsDirectory}\".");
@@ -180,9 +180,8 @@ internal sealed class ModCopier(Config config) {
 				logger.Debug("Launcher's database not found.");
 				return;
 			}
-			logger.Debug("Connecting to launcher's DB...");
 
-			var playsetName = $"{config.Name}: {modName}";
+			string playsetName = $"{config.Name}: {modName}";
 			var dateTimeOffset = new DateTimeOffset(DateTime.UtcNow);
 			string unixTimeMilliSeconds = dateTimeOffset.ToUnixTimeMilliseconds().ToString(CultureInfo.InvariantCulture);
 
@@ -191,71 +190,85 @@ internal sealed class ModCopier(Config config) {
 			// Check if a playset with the same name already exists.
 			var playset = dbContext.Playsets.FirstOrDefault(p => p.Name == playsetName);
 			if (playset is not null) {
-				logger.Debug("Removing mods from existing playset...");
-				dbContext.PlaysetsMods.RemoveRange(dbContext.PlaysetsMods.Where(pm => pm.PlaysetId == playset.Id));
-				dbContext.SaveChanges();
-
-				logger.Debug("Re-activating existing playset...");
-				// Set isActive to true and updatedOn to current time.
-				playset.IsActive = true;
-				playset.UpdatedOn = unixTimeMilliSeconds;
-				dbContext.SaveChanges();
-
-				logger.Notice("Updated existing playset.");
+				UpdateExistingPlayset(dbContext, playset, unixTimeMilliSeconds);
 			} else {
-				logger.Debug("Creating new playset...");
-				playset = new Playset {
-					Id = Guid.NewGuid().ToString(),
-					Name = playsetName,
-					IsActive = true,
-					IsRemoved = false,
-					HasNotApprovedChanges = false,
-					CreatedOn = unixTimeMilliSeconds
-				};
-				dbContext.Playsets.Add(playset);
-				dbContext.SaveChanges();
+				playset = CreateNewPlayset(dbContext, playsetName, unixTimeMilliSeconds);
 			}
 
-			Logger.Debug("Adding mods to playset...");
-			var playsetInfo = LoadPlaysetInfo();
-			if (playsetInfo.Count == 0) {
-				var gameRegistryId = $"mod/{modName}.mod";
-				var mod = AddModToDb(dbContext, modName, gameRegistryId, destModFolder);
-				AddModToPlayset(dbContext, mod, playset);
-			}
-			foreach (var (playsetModName, playsetModPath) in playsetInfo) {
-				string playsetModPathWithBackSlashes = playsetModPath.Replace('/', '\\');
-
-				// Try to get an ID of existing matching mod.
-				var mod = dbContext.Mods.FirstOrDefault(m => m.Name == playsetModName ||
-															  m.DirPath == playsetModPath ||
-															  m.DirPath == playsetModPathWithBackSlashes);
-				if (mod is not null) {
-					AddModToPlayset(dbContext, mod, playset);
-				} else {
-					var gameRegistryId = playsetModPath;
-					if (!gameRegistryId.StartsWith("mod/", StringComparison.Ordinal)) {
-						gameRegistryId = $"mod/{gameRegistryId}";
-					}
-					if (!gameRegistryId.EndsWith(".mod", StringComparison.Ordinal)) {
-						gameRegistryId = $"{gameRegistryId}.mod";
-					}
-
-					string dirPath;
-					if (Path.IsPathRooted(playsetModPath)) {
-						dirPath = playsetModPath;
-					} else {
-						dirPath = Path.Combine(gameDocsDirectory, gameRegistryId);
-					}
-
-					mod = AddModToDb(dbContext, modName, gameRegistryId, dirPath);
-					AddModToPlayset(dbContext, mod, playset);
-				}
-			}
+			AddModsToPlayset(modName, destModFolder, gameDocsDirectory, dbContext, playset);
 
 			logger.Notice("Successfully set up playset.");
 		} catch (Exception e) {
 			logger.Error(e);
+		}
+	}
+
+	private void UpdateExistingPlayset(LauncherDbContext dbContext, Playset playset, string unixTimeMilliSeconds) {
+		logger.Debug("Removing mods from existing playset...");
+		dbContext.PlaysetsMods.RemoveRange(dbContext.PlaysetsMods.Where(pm => pm.PlaysetId == playset.Id));
+		dbContext.SaveChanges();
+
+		logger.Debug("Re-activating existing playset...");
+		playset.IsActive = true;
+		playset.UpdatedOn = unixTimeMilliSeconds;
+		dbContext.SaveChanges();
+
+		logger.Notice("Updated existing playset.");
+	}
+
+	private Playset CreateNewPlayset(LauncherDbContext dbContext, string playsetName, string unixTimeMilliSeconds) {
+		logger.Debug("Creating new playset...");
+		var playset = new Playset {
+			Id = Guid.NewGuid().ToString(),
+			Name = playsetName,
+			IsActive = true,
+			IsRemoved = false,
+			HasNotApprovedChanges = false,
+			CreatedOn = unixTimeMilliSeconds,
+		};
+		dbContext.Playsets.Add(playset);
+		dbContext.SaveChanges();
+
+		return playset;
+	}
+
+	private void AddModsToPlayset(string modName, string destModFolder, string gameDocsDirectory, LauncherDbContext dbContext, Playset playset) {
+		logger.Debug("Adding mods to playset...");
+
+		var playsetInfo = LoadPlaysetInfo();
+		if (playsetInfo.Count == 0) {
+			var gameRegistryId = $"mod/{modName}.mod";
+			var mod = AddModToDb(dbContext, modName, gameRegistryId, destModFolder);
+			AddModToPlayset(dbContext, mod, playset);
+		}
+		foreach (var (playsetModName, playsetModPath) in playsetInfo) {
+			string playsetModPathWithBackSlashes = playsetModPath.Replace('/', '\\');
+
+			// Try to get an ID of existing matching mod.
+			var mod = dbContext.Mods.FirstOrDefault(m => m.Name == playsetModName ||
+													m.DirPath == playsetModPath ||
+													m.DirPath == playsetModPathWithBackSlashes);
+			if (mod is not null) {
+				AddModToPlayset(dbContext, mod, playset);
+			} else {
+				var gameRegistryId = playsetModPath;
+				if (!gameRegistryId.StartsWith("mod/", StringComparison.Ordinal)) {
+					gameRegistryId = $"mod/{gameRegistryId}";
+				}
+				if (!gameRegistryId.EndsWith(".mod", StringComparison.Ordinal)) {
+					gameRegistryId = $"{gameRegistryId}.mod";
+				}
+
+				string dirPath;
+				if (Path.IsPathRooted(playsetModPath)) {
+					dirPath = playsetModPath;
+				} else {
+					dirPath = Path.Combine(gameDocsDirectory, gameRegistryId);
+				}
+
+				mod = AddModToDb(dbContext, modName, gameRegistryId, dirPath);
+				AddModToPlayset(dbContext, mod, playset);
+			}
 		}
 	}
 
