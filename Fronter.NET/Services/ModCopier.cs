@@ -38,28 +38,28 @@ internal sealed class ModCopier(Config config) {
 			logger.Error("Copy failed - Target Folder does not exist!");
 			return false;
 		}
-		string? targetName = DetermineTargetModName();
-		if (string.IsNullOrEmpty(targetName)) {
+		string? targetModName = DetermineTargetModName();
+		if (string.IsNullOrEmpty(targetModName)) {
 			return false;
 		}
 
-		var modFolderPath = Path.Combine(outputFolder, targetName);
+		var modFolderPath = Path.Combine(outputFolder, targetModName);
 		if (!Directory.Exists(modFolderPath)) {
 			logger.Error($"Copy Failed - Could not find mod folder: {modFolderPath}");
 			return false;
 		}
 
 		// For games using mods with .metadata folders we need to skip .mod file requirement.
-		bool skipModFile = ShouldModFileBeSkipped(outputFolder, targetName);
+		bool skipModFile = ShouldModFileBeSkipped(outputFolder, targetModName);
 
-		var modFilePath = Path.Combine(outputFolder, $"{targetName}.mod");
+		var modFilePath = Path.Combine(outputFolder, $"{targetModName}.mod");
 		if (!skipModFile && !File.Exists(modFilePath)) {
 			logger.Error($"Copy Failed - Could not find mod: {modFilePath}");
 			return false;
 		}
 
-		var destModFilePath = Path.Combine(destModsFolder, $"{targetName}.mod");
-		var destModFolderPath = Path.Combine(destModsFolder, targetName);
+		var destModFilePath = Path.Combine(destModsFolder, $"{targetModName}.mod");
+		var destModFolderPath = Path.Combine(destModsFolder, targetModName);
 		if (!TryDeletePreviousModFileAndFolder(skipModFile, destModFilePath, destModFolderPath)) {
 			return false;
 		}
@@ -68,7 +68,7 @@ internal sealed class ModCopier(Config config) {
 			return false;
 		}
 
-		SetUpPlayset(destModsFolder, targetName, destModFolderPath);
+		SetUpPlayset(destModsFolder, targetModName, destModFolderPath);
 
 		return true;
 	}
@@ -168,7 +168,7 @@ internal sealed class ModCopier(Config config) {
 		return false;
 	}
 
-	private void SetUpPlayset(string targetModsDirectory, string modName, string destModFolder) {
+	private void SetUpPlayset(string targetModsDirectory, string targetModName, string destModFolder) {
 		var gameDocsDirectory = Directory.GetParent(targetModsDirectory)?.FullName;
 		if (gameDocsDirectory is null) {
 			logger.Warn($"Couldn't get parent directory of \"{targetModsDirectory}\".");
@@ -181,7 +181,7 @@ internal sealed class ModCopier(Config config) {
 				return;
 			}
 
-			string playsetName = $"{config.Name}: {modName}";
+			string playsetName = $"{config.Name}: {targetModName}";
 			var dateTimeOffset = new DateTimeOffset(DateTime.UtcNow);
 			string unixTimeMilliSeconds = dateTimeOffset.ToUnixTimeMilliseconds().ToString(CultureInfo.InvariantCulture);
 
@@ -195,7 +195,7 @@ internal sealed class ModCopier(Config config) {
 				playset = CreateNewPlayset(dbContext, playsetName, unixTimeMilliSeconds);
 			}
 
-			AddModsToPlayset(modName, destModFolder, gameDocsDirectory, dbContext, playset);
+			AddModsToPlayset(targetModName, destModFolder, gameDocsDirectory, dbContext, playset);
 
 			logger.Notice("Successfully set up playset.");
 		} catch (Exception e) {
@@ -232,13 +232,13 @@ internal sealed class ModCopier(Config config) {
 		return playset;
 	}
 
-	private void AddModsToPlayset(string modName, string destModFolder, string gameDocsDirectory, LauncherDbContext dbContext, Playset playset) {
+	private void AddModsToPlayset(string targetModName, string destModFolder, string gameDocsDirectory, LauncherDbContext dbContext, Playset playset) {
 		logger.Debug("Adding mods to playset...");
 
 		var playsetInfo = LoadPlaysetInfo();
 		if (playsetInfo.Count == 0) {
-			var gameRegistryId = $"mod/{modName}.mod";
-			var mod = AddModToDb(dbContext, modName, gameRegistryId, destModFolder);
+			var gameRegistryId = $"mod/{targetModName}.mod";
+			var mod = AddModToDb(dbContext, targetModName, gameRegistryId, destModFolder);
 			AddModToPlayset(dbContext, mod, playset);
 		}
 		foreach (var (playsetModName, playsetModPath) in playsetInfo) {
@@ -266,7 +266,7 @@ internal sealed class ModCopier(Config config) {
 					dirPath = Path.Combine(gameDocsDirectory, gameRegistryId);
 				}
 
-				mod = AddModToDb(dbContext, modName, gameRegistryId, dirPath);
+				mod = AddModToDb(dbContext, playsetModName, gameRegistryId, dirPath);
 				AddModToPlayset(dbContext, mod, playset);
 			}
 		}
