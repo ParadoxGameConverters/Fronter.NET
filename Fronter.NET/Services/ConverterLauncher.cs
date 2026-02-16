@@ -66,8 +66,10 @@ internal sealed class ConverterLauncher {
 
 		process.Start();
 		process.EnableRaisingEvents = true;
-		process.PriorityClass = ProcessPriorityClass.RealTime;
-		process.PriorityBoostEnabled = OperatingSystem.IsWindows();
+		if (OperatingSystem.IsWindows()) {
+			process.PriorityClass = ProcessPriorityClass.RealTime;
+			process.PriorityBoostEnabled = true;
+		}
 
 		process.BeginOutputReadLine();
 		SubscribeToFrontendShutdownToKillBackend(process.Id);
