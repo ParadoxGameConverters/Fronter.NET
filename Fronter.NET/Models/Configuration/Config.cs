@@ -326,7 +326,7 @@ internal sealed class Config {
 
 	private void WriteSelectedMods(StreamWriter writer, Playset selectedPlayset) {
 		writer.WriteLine("selectedMods = {");
-		var dbContext = TargetDbManager.GetLauncherDbContext(this);
+		using var dbContext = TargetDbManager.GetLauncherDbContext(this);
 		if (dbContext is null) {
 			writer.WriteLine("}");
 			return;
@@ -389,7 +389,7 @@ internal sealed class Config {
 		var destModsFolder = TargetGameModsPath;
 		var locatedPlaysetsCount = 0;
 		if (destModsFolder is not null) {
-			var dbContext = TargetDbManager.GetLauncherDbContext(this);
+			using var dbContext = TargetDbManager.GetLauncherDbContext(this);
 			if (dbContext is not null) {
 				foreach (var playset in dbContext.Playsets.Where(p => p.IsRemoved == null || p.IsRemoved == false )) {
 					AutoLocatedPlaysets.Add(playset);
