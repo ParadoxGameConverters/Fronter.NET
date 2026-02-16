@@ -175,7 +175,7 @@ internal sealed class ModCopier(Config config) {
 			return;
 		}
 		try {
-			var dbContext = TargetDbManager.GetLauncherDbContext(config);
+			using var dbContext = TargetDbManager.GetLauncherDbContext(config);
 			if (dbContext is null) {
 				logger.Debug("Launcher's database not found.");
 				return;
