@@ -59,6 +59,84 @@ internal sealed class ConverterLauncher {
 		}
 
 		logger.Debug($"Using {backendExePathRelativeToFrontend} as converter backend...");
+		using Process process = SetUpConverterBackendProcess(backendExePathRelativeToFrontend);
+
+		var timer = new Stopwatch();
+		timer.Start();
+
+		process.Start();
+		process.EnableRaisingEvents = true;
+		if (OperatingSystem.IsWindows()) {
+			process.PriorityClass = ProcessPriorityClass.RealTime;
+			process.PriorityBoostEnabled = true;
+		}
+
+		process.BeginOutputReadLine();
+		SubscribeToFrontendShutdownToKillBackend(process.Id);
+
+		await process.WaitForExitAsync();
+
+		timer.Stop();
+
+		if (process.ExitCode == 0) {
+			logger.Info($"Converter exited at {timer.Elapsed.TotalSeconds} seconds.");
+			return true;
+		}
+
+		if (process.ExitCode == 1) {
+			// Exit code 1 is for user errors, so we don't need to send it to Sentry.
+			logger.Error($"Converter failed and exited at {timer.Elapsed.TotalSeconds} seconds.");
+			return false;
+		}
+
+		LogExitCodeWithProbableCauseIfKnown(process.ExitCode);
+
+		var helpPageOpened = await TryOpenHelpPage(process.ExitCode);
+		if (!helpPageOpened && config.SentryDsn is not null) {
+			var saveUploadConsent = await Dispatcher.UIThread.InvokeAsync(GetSaveUploadConsent);
+			if (!saveUploadConsent) {
+				return false;
+			}
+
+			await SendReportToSentry(config, process.ExitCode, saveUploadConsent);
+		} else {
+			logger.Error("If you require assistance, please visit the converter's forum thread " +
+			             "for a detailed postmortem.");
+		}
+		return false;
+	}
+
+	private static void LogExitCodeWithProbableCauseIfKnown(int exitCode) {
+		if (exitCode == -532462766) {
+			logger.Error("Converter exited with code -532462766. This is most likely an antivirus issue.");
+			logger.Notice("Please add the converter to your antivirus' whitelist.");
+		} else {
+			logger.Debug($"Converter exit code: {exitCode}");
+			logger.Error("Converter error! See log.txt for details.");
+		}
+	}
+
+	private static async Task SendReportToSentry(Config config, int exitCode, bool saveUploadConsent) {
+		var sentryHelper = new SentryHelper(config);
+		try {
+			await AttachLogAndSaveToSentry(config, sentryHelper);
+		} catch (Exception e) {
+			var warnMessage = $"Failed to attach log and save to Sentry event: {e.Message}";
+			logger.Warn(warnMessage);
+			sentryHelper.AddBreadcrumb(warnMessage);
+		}
+
+		try {
+			sentryHelper.SendMessageToSentry(exitCode);
+			if (saveUploadConsent) {
+				Logger.Notice("Uploaded information about the error, thank you!");
+			}
+		} catch (Exception e) {
+			logger.Warn($"Failed to send message to Sentry: {e.Message}");
+		}
+	}
+
+	private Process SetUpConverterBackendProcess(string backendExePathRelativeToFrontend) {
 		var startInfo = new ProcessStartInfo {
 			FileName = backendExePathRelativeToFrontend,
 			WorkingDirectory = CommonFunctions.GetPath(backendExePathRelativeToFrontend),
@@ -73,8 +151,9 @@ internal sealed class ConverterLauncher {
 			startInfo.Arguments = $"-jar {CommonFunctions.TrimPath(backendExePathRelativeToFrontend)}";
 		}
 
-		using Process process = new();
-		process.StartInfo = startInfo;
+		Process process = new() {
+			StartInfo = startInfo,
+		};
 		process.OutputDataReceived += (sender, args) => {
 			var logLine = MessageSlicer.SliceMessage(args.Data ?? string.Empty);
 			var level = logLine.Level;
@@ -92,19 +171,12 @@ internal sealed class ConverterLauncher {
 			}
 		};
 
-		var timer = new Stopwatch();
-		timer.Start();
+		return process;
+	}
 
-		process.Start();
-		process.EnableRaisingEvents = true;
-		process.PriorityClass = ProcessPriorityClass.RealTime;
-		process.PriorityBoostEnabled = OperatingSystem.IsWindows();
-
-		process.BeginOutputReadLine();
-
+	private static void SubscribeToFrontendShutdownToKillBackend(int processId) {
 		// Kill converter backend when frontend is closed.
 		if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
-			var processId = process.Id;
 			desktop.ShutdownRequested += (sender, args) => {
 				try {
 					var backendProcess = Process.GetProcessById(processId);
@@ -115,60 +187,6 @@ internal sealed class ConverterLauncher {
 				}
 			};
 		}
-
-		await process.WaitForExitAsync();
-
-		timer.Stop();
-
-		if (process.ExitCode == 0) {
-			logger.Info($"Converter exited at {timer.Elapsed.TotalSeconds} seconds.");
-			return true;
-		}
-
-		if (process.ExitCode == 1) {
-			// Exit code 1 is for user errors, so we don't need to send it to Sentry.
-			logger.Error($"Converter failed and exited at {timer.Elapsed.TotalSeconds} seconds.");
-			return false;
-		}
-
-		if (process.ExitCode == -532462766) {
-			logger.Error("Converter exited with code -532462766. This is a most likely an antivirus issue.");
-			logger.Notice("Please add the converter to your antivirus' whitelist.");
-		} else {
-			logger.Debug($"Converter exit code: {process.ExitCode}");
-			logger.Error("Converter error! See log.txt for details.");
-		}
-
-		var helpPageOpened = await TryOpenHelpPage(process.ExitCode);
-
-		if (!helpPageOpened && config.SentryDsn is not null) {
-			var saveUploadConsent = await Dispatcher.UIThread.InvokeAsync(GetSaveUploadConsent);
-			if (!saveUploadConsent) {
-				return false;
-			}
-
-			var sentryHelper = new SentryHelper(config);
-			try {
-				await AttachLogAndSaveToSentry(config, sentryHelper);
-			} catch (Exception e) {
-				var warnMessage = $"Failed to attach log and save to Sentry event: {e.Message}";
-				logger.Warn(warnMessage);
-				sentryHelper.AddBreadcrumb(warnMessage);
-			}
-
-			try {
-				sentryHelper.SendMessageToSentry(process.ExitCode);
-				if (saveUploadConsent) {
-					Logger.Notice("Uploaded information about the error, thank you!");
-				}
-			} catch (Exception e) {
-				logger.Warn($"Failed to send message to Sentry: {e.Message}");
-			}
-		} else {
-			logger.Error("If you require assistance, please visit the converter's forum thread " +
-			             "for a detailed postmortem.");
-		}
-		return false;
 	}
 
 	private static async Task<bool> GetSaveUploadConsent() {
