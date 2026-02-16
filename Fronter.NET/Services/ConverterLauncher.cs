@@ -106,7 +106,7 @@ internal sealed class ConverterLauncher {
 
 	private static void LogExitCodeWithProbableCauseIfKnown(int exitCode) {
 		if (exitCode == -532462766) {
-			logger.Error("Converter exited with code -532462766. This is a most likely an antivirus issue.");
+			logger.Error("Converter exited with code -532462766. This is most likely an antivirus issue.");
 			logger.Notice("Please add the converter to your antivirus' whitelist.");
 		} else {
 			logger.Debug($"Converter exit code: {exitCode}");
