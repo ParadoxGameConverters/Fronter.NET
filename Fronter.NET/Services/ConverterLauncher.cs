@@ -63,26 +63,12 @@ internal sealed class ConverterLauncher {
 		using Process process = SetUpConverterBackendProcess(backendExePathRelativeToFrontend);
 
 		// if caller cancels, kill the backend process as well
-		using var registration = cancellationToken.Register(() => {
-			try {
-				process.Kill(entireProcessTree: true);
-				logger.Debug("Backend process killed due to cancellation.");
-			} catch {
-				// ignore, might already be exiting
-			}
-		});
+		await using var registration = RegisterKillOnCancellation(process, cancellationToken);
 
 		var timer = new Stopwatch();
 		timer.Start();
 
-		process.Start();
-		process.EnableRaisingEvents = true;
-		if (OperatingSystem.IsWindows()) {
-			process.PriorityClass = ProcessPriorityClass.RealTime;
-			process.PriorityBoostEnabled = true;
-		}
-
-		process.BeginOutputReadLine();
+		StartBackendProcessAndBeginReadingOutput(process);
 		SubscribeToFrontendShutdownToKillBackend(process.Id);
 
 		try {
@@ -188,6 +174,36 @@ internal sealed class ConverterLauncher {
 		};
 
 		return process;
+	}
+
+	/// <summary>
+	/// Starts the given process and applies common configuration such as
+	/// enabling output redirection and boosting priority on Windows.
+	/// </summary>
+	private static void StartBackendProcessAndBeginReadingOutput(Process process) {
+		process.Start();
+		process.BeginOutputReadLine();
+		process.EnableRaisingEvents = true;
+		if (OperatingSystem.IsWindows()) {
+			process.PriorityClass = ProcessPriorityClass.RealTime;
+			process.PriorityBoostEnabled = true;
+		}
+	}
+
+	/// <summary>
+	/// Register a callback that will kill the given process if the provided
+	/// cancellation token is signalled.  The returned registration should be
+	/// disposed when the process is no longer needed (the caller uses await using).
+	/// </summary>
+	private CancellationTokenRegistration RegisterKillOnCancellation(Process process, CancellationToken cancellationToken) {
+		return cancellationToken.Register(() => {
+			try {
+				process.Kill(entireProcessTree: true);
+				logger.Debug("Backend process killed due to cancellation.");
+			} catch {
+				// ignore, might already be exiting
+			}
+		});
 	}
 
 	private static void SubscribeToFrontendShutdownToKillBackend(int processId) {
