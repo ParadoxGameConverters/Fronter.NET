@@ -2,7 +2,6 @@
 using commonItems;
 using Fronter.Models.Configuration.Options;
 using Fronter.ViewModels;
-using System.Reactive;
 using Xunit;
 
 namespace Fronter.Tests.ViewModels;
@@ -30,12 +29,12 @@ public class MainWindowViewModelTests {
 		Assert.True(vm.OptionsTabVisible);
 	}
 
-
 	[Fact]
 	public void CancelCommand_enables_convert_button() {
-		var vm = new MainWindowViewModel(new DataGrid());
-		// simulate conversion in progress by disabling the convert button
-		vm.ConvertButtonEnabled = false;
+		var vm = new MainWindowViewModel(new DataGrid()) {
+			// simulate conversion in progress by disabling the convert button
+			ConvertButtonEnabled = false
+		};
 
 		// invoke cancel helper directly rather than going through reactive pipeline
 		vm.CancelConversion();
