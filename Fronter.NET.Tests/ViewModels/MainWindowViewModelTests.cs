@@ -28,4 +28,17 @@ public class MainWindowViewModelTests {
 		Assert.NotEmpty(vm.Options.Items);
 		Assert.True(vm.OptionsTabVisible);
 	}
+
+	[Fact]
+	public void CancelCommand_enables_convert_button() {
+		var vm = new MainWindowViewModel(new DataGrid()) {
+			// simulate conversion in progress by disabling the convert button
+			ConvertButtonEnabled = false
+		};
+
+		// invoke cancel helper directly rather than going through reactive pipeline
+		vm.CancelConversion();
+
+		Assert.True(vm.ConvertButtonEnabled);
+	}
 }

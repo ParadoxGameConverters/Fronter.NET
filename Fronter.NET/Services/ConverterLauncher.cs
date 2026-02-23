@@ -18,6 +18,7 @@ using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Fronter.Services;
@@ -47,7 +48,7 @@ internal sealed class ConverterLauncher {
 		return backendExePathRelativeToFrontend;
 	}
 
-	public async Task<bool> LaunchConverter() {
+	public async Task<bool> LaunchConverter(CancellationToken cancellationToken = default) {
 		var backendExePathRelativeToFrontend = GetBackendExePathRelativeToFrontend();
 		if (backendExePathRelativeToFrontend is null) {
 			return false;
@@ -61,20 +62,21 @@ internal sealed class ConverterLauncher {
 		logger.Debug($"Using {backendExePathRelativeToFrontend} as converter backend...");
 		using Process process = SetUpConverterBackendProcess(backendExePathRelativeToFrontend);
 
+		// if caller cancels, kill the backend process as well
+		await using var registration = RegisterKillOnCancellation(process, cancellationToken);
+
 		var timer = new Stopwatch();
 		timer.Start();
 
-		process.Start();
-		process.EnableRaisingEvents = true;
-		if (OperatingSystem.IsWindows()) {
-			process.PriorityClass = ProcessPriorityClass.RealTime;
-			process.PriorityBoostEnabled = true;
-		}
-
-		process.BeginOutputReadLine();
+		StartBackendProcessAndBeginReadingOutput(process);
 		SubscribeToFrontendShutdownToKillBackend(process.Id);
 
-		await process.WaitForExitAsync();
+		try {
+			await process.WaitForExitAsync(cancellationToken);
+		} catch (OperationCanceledException) {
+			// propagate as TaskCanceledException for callers who expect it
+			throw new TaskCanceledException("Converter launch cancelled");
+		}
 
 		timer.Stop();
 
@@ -172,6 +174,36 @@ internal sealed class ConverterLauncher {
 		};
 
 		return process;
+	}
+
+	/// <summary>
+	/// Starts the given process and applies common configuration such as
+	/// enabling output redirection and boosting priority on Windows.
+	/// </summary>
+	private static void StartBackendProcessAndBeginReadingOutput(Process process) {
+		process.Start();
+		process.BeginOutputReadLine();
+		process.EnableRaisingEvents = true;
+		if (OperatingSystem.IsWindows()) {
+			process.PriorityClass = ProcessPriorityClass.RealTime;
+			process.PriorityBoostEnabled = true;
+		}
+	}
+
+	/// <summary>
+	/// Register a callback that will kill the given process if the provided
+	/// cancellation token is signalled.  The returned registration should be
+	/// disposed when the process is no longer needed (the caller uses await using).
+	/// </summary>
+	private CancellationTokenRegistration RegisterKillOnCancellation(Process process, CancellationToken cancellationToken) {
+		return cancellationToken.Register(() => {
+			try {
+				process.Kill(entireProcessTree: true);
+				logger.Debug("Backend process killed due to cancellation.");
+			} catch {
+				// ignore, might already be exiting
+			}
+		});
 	}
 
 	private static void SubscribeToFrontendShutdownToKillBackend(int processId) {
