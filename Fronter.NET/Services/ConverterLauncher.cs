@@ -18,6 +18,7 @@ using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Fronter.Services;
@@ -47,7 +48,7 @@ internal sealed class ConverterLauncher {
 		return backendExePathRelativeToFrontend;
 	}
 
-	public async Task<bool> LaunchConverter() {
+	public async Task<bool> LaunchConverter(CancellationToken cancellationToken = default) {
 		var backendExePathRelativeToFrontend = GetBackendExePathRelativeToFrontend();
 		if (backendExePathRelativeToFrontend is null) {
 			return false;
@@ -60,6 +61,16 @@ internal sealed class ConverterLauncher {
 
 		logger.Debug($"Using {backendExePathRelativeToFrontend} as converter backend...");
 		using Process process = SetUpConverterBackendProcess(backendExePathRelativeToFrontend);
+
+		// if caller cancels, kill the backend process as well
+		using var registration = cancellationToken.Register(() => {
+			try {
+				process.Kill(entireProcessTree: true);
+				logger.Debug("Backend process killed due to cancellation.");
+			} catch {
+				// ignore, might already be exiting
+			}
+		});
 
 		var timer = new Stopwatch();
 		timer.Start();
@@ -74,7 +85,12 @@ internal sealed class ConverterLauncher {
 		process.BeginOutputReadLine();
 		SubscribeToFrontendShutdownToKillBackend(process.Id);
 
-		await process.WaitForExitAsync();
+		try {
+			await process.WaitForExitAsync(cancellationToken);
+		} catch (OperationCanceledException) {
+			// propagate as TaskCanceledException for callers who expect it
+			throw new TaskCanceledException("Converter launch cancelled");
+		}
 
 		timer.Stop();
 

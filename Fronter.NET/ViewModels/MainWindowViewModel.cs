@@ -54,6 +54,11 @@ internal sealed class MainWindowViewModel : ViewModelBase {
 			Items = Array.Empty<MenuItemViewModel>(),
 		});
 
+	// Conversion control
+	private CancellationTokenSource? conversionCts;
+	
+	public ReactiveCommand<Unit, Unit> CancelConversionCommand { get; }
+
 	internal Config Config { get; }
 
 	internal PathPickerViewModel PathPicker { get; }
@@ -106,6 +111,8 @@ internal sealed class MainWindowViewModel : ViewModelBase {
 		ToggleLogFilterLevelCommand = ReactiveCommand.Create<string>(ToggleLogFilterLevel);
 		SetLanguageCommand = ReactiveCommand.Create<string>(SetLanguage);
 		SetThemeCommand = ReactiveCommand.Create<string>(SetTheme);
+
+		CancelConversionCommand = ReactiveCommand.Create(CancelConversion);
 	}
 
 	public ReadOnlyObservableCollection<LogLine> FilteredLogLines => LogGridAppender.FilteredLogLines;
@@ -195,14 +202,19 @@ internal sealed class MainWindowViewModel : ViewModelBase {
 
 		var converterLauncher = new ConverterLauncher(Config);
 		bool success;
+		conversionCts = new CancellationTokenSource();
+		var token = conversionCts.Token;
+
+		bool wasCancelled = false;
 		await Task.Run(async () => {
 			ConvertStatus = "CONVERTSTATUSIN";
 
 			try {
-				success = await converterLauncher.LaunchConverter();
+				success = await converterLauncher.LaunchConverter(token);
 			} catch (TaskCanceledException e) {
 				logger.Debug($"Converter backend task was cancelled: {e.Message}");
 				success = false;
+				wasCancelled = true;
 			} catch (Exception e) {
 				logger.Error($"Failed to start converter backend: {e.Message}");
 				await ShowFailedToStartConverterMsBox(e.Message);
@@ -218,11 +230,19 @@ internal sealed class MainWindowViewModel : ViewModelBase {
 					ConvertButtonEnabled = true;
 				}
 			} else {
-				ConvertStatus = "CONVERTSTATUSPOSTFAIL";
-				await Dispatcher.UIThread.InvokeAsync(ShowErrorMessageBox);
+				if (wasCancelled) {
+					ConvertStatus = "CONVERTSTATUSPOSTCANCEL";
+					// don't pop up error dialog on user cancellation
+				} else {
+					ConvertStatus = "CONVERTSTATUSPOSTFAIL";
+					await Dispatcher.UIThread.InvokeAsync(ShowErrorMessageBox);
+				}
 				ConvertButtonEnabled = true;
 			}
 		});
+
+		conversionCts?.Dispose();
+		conversionCts = null;
 	}
 
 	private async Task ShowFailedToStartConverterMsBox(string errorMessage) {
@@ -327,6 +347,14 @@ internal sealed class MainWindowViewModel : ViewModelBase {
 		if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
 			desktop.Shutdown(exitCode: 0);
 		}
+	}
+
+	public void CancelConversion() {
+		// User requested cancellation.  Signal the running launch and reset UI state.
+		conversionCts?.Cancel();
+		conversionCts?.Dispose();
+		conversionCts = null;
+		ConvertButtonEnabled = true;
 	}
 
 #pragma warning disable CA1822

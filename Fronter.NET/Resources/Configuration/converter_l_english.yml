@@ -22,6 +22,7 @@ l_english:
   CONVERTSTATUSIN: "In Progress."
   CONVERTSTATUSPOSTSUCCESS: "Finished."
   CONVERTSTATUSPOSTFAIL: "Failed!"
+  CONVERTSTATUSPOSTCANCEL: "Cancelled"
   CONVERTBUTTON: "Convert Save"
   LANGUAGE: "Language"
   LANGUAGESAVED: "Language saved"
@@ -73,3 +74,4 @@ l_english:
   RUN_AS_ADMIN: "Run ConverterFrontend as administrator."
   RUN_WITH_SUDO: "Run ConverterFrontend with sudo."
   FAILED_TO_START_CONVERTER_POSSIBLE_BUG: "If you believe this is a bug, please report it on the converter's forum thread."
+  CANCEL: "Cancel"
