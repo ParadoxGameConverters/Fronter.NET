@@ -7,6 +7,10 @@
     <IsPackable>false</IsPackable>
 
     <LangVersion>preview</LangVersion>
+
+    <!-- The new xUnit.net v3/Microsoft Testing Platform model requires test
+         projects to be executable rather than libraries. -->
+    <OutputType>Exe</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,12 +18,11 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.3.0" />
+
+    <!-- xunit.v3 already bundles MTP support; we no longer depend on the
+         VSTest adapter packages. -->
     <PackageReference Include="xunit.v3" Version="3.2.2" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
+
     <PackageReference Include="coverlet.collector" Version="8.0.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -36,5 +39,12 @@
   <Target Name="CopyCustomContent" AfterTargets="Build">
     <Copy SourceFiles="@(TestFiles)" DestinationFolder="$(OutDir)/%(RecursiveDir)" SkipUnchangedFiles="true" />
   </Target>
+
+  <!-- enable the Microsoft Testing Platform runner and make sure `dotnet test`
+       uses MTP instead of the legacy VSTest driver -->
+  <PropertyGroup>
+    <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
+    <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
+  </PropertyGroup>
 
 </Project>
