@@ -22,14 +22,12 @@ jobs:
       working-directory: Fronter.NET.Tests
       shell: pwsh
       run: |
-       $env:CoverletOutput='./TestResults/coverage.info'
-       $env:CoverletOutputFormat='lcov'
-       dotnet test /p:CollectCoverage=true /p:Exclude=[commonItems]*
+       dotnet test --coverlet --coverlet-output-format lcov --coverlet-exclude "[commonItems]*"
     - name: Publish coverage report to coveralls.io
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        path-to-lcov: Fronter.NET.Tests/TestResults/coverage.info
+        path-to-lcov: Fronter.NET.Tests/bin/Debug/net10.0/TestResults/coverage.info
 
   test:
     strategy:
