@@ -112,6 +112,10 @@ internal sealed class ConverterLauncher {
 		if (exitCode == -532462766) {
 			logger.Error("Converter exited with code -532462766. This is most likely an antivirus issue.");
 			logger.Notice("Please add the converter to your antivirus' whitelist.");
+		} else if (exitCode == -2147450730) { // 0x80008096
+			var requiredVersion = Environment.Version.ToString();
+			logger.Error($"Converter exited with code -2147450730 (0x80008096). The required .NET {requiredVersion} runtime is missing or incompatible.");
+			logger.Notice($"Please install the .NET {requiredVersion} runtime for your system from https://dotnet.microsoft.com/download");
 		} else {
 			logger.Debug($"Converter exit code: {exitCode}");
 			logger.Error("Converter error! See log.txt for details.");
@@ -304,6 +308,7 @@ internal sealed class ConverterLauncher {
 				{-1073741790, "https://answers.microsoft.com/en-us/windows/forum/all/the-application-was-unable-to-start-correctly/e06ee08a-26c5-447a-80bd-ed339488d0f3"}, // -1073741790 = 0xC0000022
 				{-1073741795, "https://ugetfix.com/ask/how-to-fix-file-system-error-1073741795-in-windows/"},
 				{-532462766, "https://www.thewindowsclub.com/add-file-or-folder-to-antivirus-exception-list-in-windows"},
+				{-2147450730, "https://dotnet.microsoft.com/download"}, // 0x80008096 - .NET runtime not found
 			};
 			if (!exitCodeToHelpDict.TryGetValue(exitCode, out var helpLink)) {
 				return false;
