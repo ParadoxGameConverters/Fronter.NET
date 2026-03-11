@@ -21,9 +21,9 @@ internal static class MarkdownPlainTextRenderer {
 	private static readonly Regex LinkRegex = R(@"\[(?<text>[^\]]+)\]\((?<url>[^\)]*)\)");
 
 	private static readonly Regex BoldAsteriskRegex = R(@"\*\*(?<text>[^*]+)\*\*");
-	private static readonly Regex BoldUnderscoreRegex = R(@"__(?<text>[^_]+)__");
+	private static readonly Regex BoldUnderscoreRegex = R(@"(?<![a-zA-Z0-9_])__(?<text>[^_]+)__(?![a-zA-Z0-9_])");
 	private static readonly Regex ItalicAsteriskRegex = R(@"(?<!\*)\*(?<text>[^*]+)\*(?!\*)");
-	private static readonly Regex ItalicUnderscoreRegex = R(@"(?<!_)_(?<text>[^_]+)_(?!_)");
+	private static readonly Regex ItalicUnderscoreRegex = R(@"(?<![a-zA-Z0-9_])_(?<text>[^_]+)_(?![a-zA-Z0-9_])");
 
 	private static readonly Regex InlineHtmlTagRegex = R(@"<[^>]+>");
 	private static readonly Regex HorizontalRuleRegex = R(@"^\s{0,3}(-{3,}|\*{3,}|_{3,})\s*$");

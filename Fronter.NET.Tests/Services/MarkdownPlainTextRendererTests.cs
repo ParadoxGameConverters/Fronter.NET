@@ -50,4 +50,10 @@ public class MarkdownPlainTextRendererTests {
 		const string markdown = "### Title ###";
 		Assert.Equal("Title", MarkdownPlainTextRenderer.Render(markdown));
 	}
+
+	[Fact]
+	public void PreservesUnderscoresInIdentifiers() {
+		const string markdown = "- Remove unused irtock3_tfe_imperial_authority_3_time_trigger #2981 by @IhateTrains";
+		Assert.Equal("- Remove unused irtock3_tfe_imperial_authority_3_time_trigger #2981 by @IhateTrains", MarkdownPlainTextRenderer.Render(markdown));
+	}
 }
