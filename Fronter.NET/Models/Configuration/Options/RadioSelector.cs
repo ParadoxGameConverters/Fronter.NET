@@ -78,7 +78,7 @@ internal sealed class RadioSelector {
 				foreach (var option in RadioOptions) {
 					option.Value = option == def;
 				}
-				logger.Warn($"Attempted setting a radio selector value that does not exist! Falling back to default '{def.Name}' (id {def.Id}).");
+				logger.Debug($"Attempted setting a radio selector value that does not exist! Falling back to default '{def.Name}' (id {def.Id}).");
 			} else {
 				logger.Warn("Attempted setting a radio selector value that does not exist and no default option is available!");
 			}
