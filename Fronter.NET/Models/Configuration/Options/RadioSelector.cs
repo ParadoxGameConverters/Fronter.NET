@@ -32,6 +32,13 @@ internal sealed class RadioSelector {
 		return RadioOptions.Where(option => option.Value).Select(option => option.Id).FirstOrDefault();
 	}
 
+	// helper returning the option marked default (pending initial value)
+	// or the first option if none has that flag.
+	private ToggleableOption? GetDefaultOption() {
+		return RadioOptions.FirstOrDefault(opt => opt.PendingInitialValue == true)
+		       ?? RadioOptions.FirstOrDefault();
+	}
+
 	public void SetSelectedId(int selection) {
 		var isSet = false;
 		foreach (var option in RadioOptions) {
@@ -44,7 +51,15 @@ internal sealed class RadioSelector {
 		}
 
 		if (!isSet) {
-			logger.Warn("Attempted setting a radio selector ID that does not exist!");
+			var def = GetDefaultOption();
+			if (def is not null) {
+				foreach (var option in RadioOptions) {
+					option.Value = option == def;
+				}
+				logger.Warn($"Attempted setting a radio selector ID that does not exist! Falling back to default '{def.Name}' (id {def.Id}).");
+			} else {
+				logger.Warn("Attempted setting a radio selector ID that does not exist and no default option is available!");
+			}
 		}
 	}
 	public void SetSelectedValue(string selection) {
@@ -57,8 +72,17 @@ internal sealed class RadioSelector {
 				option.Value = false;
 			}
 		}
-		if (!isSet)
-			logger.Warn("Attempted setting a radio selector value that does not exist!");
+		if (!isSet) {
+			var def = GetDefaultOption();
+			if (def is not null) {
+				foreach (var option in RadioOptions) {
+					option.Value = option == def;
+				}
+				logger.Warn($"Attempted setting a radio selector value that does not exist! Falling back to default '{def.Name}' (id {def.Id}).");
+			} else {
+				logger.Warn("Attempted setting a radio selector value that does not exist and no default option is available!");
+			}
+		}
 	}
 
 	public ToggleableOption? SelectedOption {
