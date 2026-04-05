@@ -5,6 +5,7 @@ using Xunit;
 
 namespace Fronter.Tests.Services; 
 
+[Collection("Sequential")]
 public class LoggingConfiguratorTests {
 	[Fact]
 	public void MessagesAreLoggedToLogTxtFile() {
