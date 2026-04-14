@@ -59,6 +59,7 @@ l_english:
   MENU_THEME: "Theme"
   THEME_LIGHT: "Light"
   THEME_DARK: "Dark"
+  THEME_SYSTEM: "Follow System"
   THEME_FLUENT_LIGHT: "Fluent Light"
   THEME_FLUENT_DARK: "Fluent Dark"
   THEME_HIGH_CONTRAST: "High contrast"

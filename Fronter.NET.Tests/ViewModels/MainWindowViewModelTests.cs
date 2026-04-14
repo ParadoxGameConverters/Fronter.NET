@@ -2,6 +2,7 @@
 using commonItems;
 using Fronter.Models.Configuration.Options;
 using Fronter.ViewModels;
+using System.Linq;
 using Xunit;
 
 namespace Fronter.Tests.ViewModels;
@@ -40,5 +41,26 @@ public class MainWindowViewModelTests {
 		vm.CancelConversion();
 
 		Assert.True(vm.ConvertButtonEnabled);
+	}
+
+	[Fact]
+	public void ThemeMenuItems_HasThreeEntries() {
+		var vm = new MainWindowViewModel(new DataGrid());
+		Assert.Equal(3, vm.ThemeMenuItems.Count());
+	}
+
+	[Fact]
+	public void ThemeMenuItems_FirstEntryIsFollowSystem() {
+		var vm = new MainWindowViewModel(new DataGrid());
+		var first = vm.ThemeMenuItems.First();
+		Assert.Equal("Default", first.CommandParameter);
+	}
+
+	[Fact]
+	public void ThemeMenuItems_ContainsLightAndDark() {
+		var vm = new MainWindowViewModel(new DataGrid());
+		var ids = vm.ThemeMenuItems.Select(i => (string?)i.CommandParameter).ToList();
+		Assert.Contains("Light", ids);
+		Assert.Contains("Dark", ids);
 	}
 }

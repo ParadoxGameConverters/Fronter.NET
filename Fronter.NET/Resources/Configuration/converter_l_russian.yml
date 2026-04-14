@@ -47,6 +47,7 @@ l_russian:
   MENU_THEME: "Тема"
   THEME_LIGHT: "Светлая"
   THEME_DARK: "Темная"
+  THEME_SYSTEM: "Системная тема"
   THEME_FLUENT_LIGHT: "Fluent светлая"
   THEME_FLUENT_DARK: "Fluent тёмная"
   THEME_HIGH_CONTRAST: "Высокая контрастность"
