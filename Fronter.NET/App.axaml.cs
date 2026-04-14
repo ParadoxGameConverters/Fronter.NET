@@ -18,7 +18,7 @@ namespace Fronter;
 internal sealed class App : Application {
 	private static readonly ILog logger = LogManager.GetLogger("Frontend");
 	private const string FronterThemePath = "Configuration/fronter-theme.txt";
-	private const string DefaultTheme = "Dark";
+	private const string DefaultTheme = "Default";
 
 	public override void Initialize() {
 		LoggingConfigurator.ConfigureLogging();
@@ -71,6 +71,12 @@ internal sealed class App : Application {
 
 		Dispatcher.UIThread.Post(() => {
 			switch (themeName) {
+				case "Default":
+					if (app.RequestedThemeVariant != ThemeVariant.Default) {
+						app.RequestedThemeVariant = ThemeVariant.Default;
+					}
+
+					break;
 				case "Light":
 					if (app.RequestedThemeVariant != ThemeVariant.Light) {
 						app.RequestedThemeVariant = ThemeVariant.Light;

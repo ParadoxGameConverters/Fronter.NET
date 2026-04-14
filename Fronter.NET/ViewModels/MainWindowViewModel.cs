@@ -43,6 +43,7 @@ internal sealed class MainWindowViewModel : ViewModelBase {
 	public INotificationMessageManager NotificationManager { get; } = new NotificationMessageManager();
 
 	private IdObjectCollection<string, FrontendTheme> Themes { get; } = [
+		new() {Id = "Default", LocKey = "THEME_SYSTEM"},
 		new() {Id = "Light", LocKey = "THEME_LIGHT"},
 		new() {Id = "Dark", LocKey = "THEME_DARK"},
 	];
