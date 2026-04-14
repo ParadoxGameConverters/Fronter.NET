@@ -1,20 +1,26 @@
-﻿using Avalonia.Data;
+﻿using Avalonia;
+using Avalonia.Data;
 using Fronter.ValueConverters;
 
 namespace Fronter.Extensions;
 
-internal sealed class DynamicLocExtension : MultiBinding {
+internal sealed class DynamicLocExtension {
+	private readonly string _path;
+
 	public DynamicLocExtension(string path) {
-		Bindings.Add(new Binding(path));
-
-		var binding = new Binding {Path = "CurrentLanguage", Source = TranslationSource.Instance};
-		Bindings.Add(binding);
-
-		Converter = new LocKeyToValueConverter();
+		_path = path;
 	}
+
+	public object? FallbackValue { get; set; }
 
 	// ReSharper disable once UnusedMember.Global
 	public MultiBinding ProvideValue() {
-		return this;
+		var multiBinding = new MultiBinding {
+			Converter = new LocKeyToValueConverter(),
+			FallbackValue = FallbackValue ?? AvaloniaProperty.UnsetValue
+		};
+		multiBinding.Bindings.Add(new Binding(_path));
+		multiBinding.Bindings.Add(new Binding { Path = "CurrentLanguage", Source = TranslationSource.Instance });
+		return multiBinding;
 	}
 }
