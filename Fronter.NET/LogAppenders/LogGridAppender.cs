@@ -13,6 +13,7 @@ using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Fronter.LogAppenders;
 
@@ -51,15 +52,22 @@ internal sealed class LogGridAppender : AppenderSkeleton {
 		lastVisibleRow = filteredLogLines.LastOrDefault();
 	}
 
-	public void ClearDisplayedLogLines() {
-		while (pendingLogLines.TryDequeue(out _)) {
-		}
+	public async Task ClearDisplayedLogLines() {
+		void ClearCore() {
+			while (pendingLogLines.TryDequeue(out _)) {
+			}
 
-		Dispatcher.UIThread.Post(() => {
 			LogLines.Clear();
 			lastLogRow = null;
 			lastVisibleRow = null;
-		}, DispatcherPriority.Normal);
+		}
+
+		if (Dispatcher.UIThread.CheckAccess()) {
+			ClearCore();
+			return;
+		}
+
+		await Dispatcher.UIThread.InvokeAsync(ClearCore, DispatcherPriority.Normal);
 	}
 
 	protected override void OnClose() {

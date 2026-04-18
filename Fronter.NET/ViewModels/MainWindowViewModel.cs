@@ -166,8 +166,8 @@ internal sealed class MainWindowViewModel : ViewModelBase {
 		return true;
 	}
 
-	private void ClearLogGrid() {
-		LogGridAppender.ClearDisplayedLogLines();
+	private Task ClearLogGrid() {
+		return LogGridAppender.ClearDisplayedLogLines();
 	}
 
 	private void CopyToTargetGameModDirectory() {
@@ -188,7 +188,7 @@ internal sealed class MainWindowViewModel : ViewModelBase {
 	}
 	public async Task LaunchConverter() {
 		ConvertButtonEnabled = false;
-		ClearLogGrid();
+		await ClearLogGrid();
 
 		Progress = 0;
 		SaveStatus = "CONVERTSTATUSPRE";

@@ -2,6 +2,7 @@ using commonItems;
 using Fronter.LogAppenders;
 using Fronter.Models;
 using log4net.Core;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Fronter.Tests.LogAppenders;
@@ -42,5 +43,17 @@ public class LogGridAppenderTests {
 		var success = LogGridAppender.TryGetProgressValue(logLine, out _);
 
 		Assert.False(success);
+	}
+
+	[Fact]
+	public async Task ClearDisplayedLogLines_ClearsRows_WhenAwaited() {
+		var appender = new LogGridAppender();
+		appender.LogLines.Add(new LogLine(System.DateTime.Now, Level.Warn, "warning"));
+		appender.LogLines.Add(new LogLine(System.DateTime.Now, Level.Error, "error"));
+
+		await appender.ClearDisplayedLogLines();
+
+		Assert.Empty(appender.LogLines);
+		Assert.Empty(appender.FilteredLogLines);
 	}
 }
