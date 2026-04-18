@@ -40,8 +40,7 @@ internal sealed class LogGridAppender : AppenderSkeleton {
 	protected override bool RequiresLayout => false;
 
 	protected override void Append(LoggingEvent loggingEvent) {
-		// Tab characters are incorrectly displayed in the log grid as of Avalonia 0.10.18.
-		string message = loggingEvent.RenderedMessage?.Replace("\t", "    ") ?? string.Empty;
+		string message = loggingEvent.RenderedMessage ?? string.Empty;
 		var newLogLine = new LogLine(loggingEvent.TimeStamp, loggingEvent.Level, message);
 		pendingLogLines.Enqueue(newLogLine);
 		ScheduleFlush();
