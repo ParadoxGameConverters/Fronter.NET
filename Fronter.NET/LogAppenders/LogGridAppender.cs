@@ -84,7 +84,7 @@ internal sealed class LogGridAppender : AppenderSkeleton {
 	}
 
 	private bool IsVisibleForCurrentFilter(LogLine line) {
-		return line.Level == Level.Notice || line.Level is not null && line.Level >= LogFilterLevel;
+		return line.Level == Level.Notice || (line.Level is not null && line.Level >= LogFilterLevel);
 	}
 
 	private void ScheduleFlush() {
