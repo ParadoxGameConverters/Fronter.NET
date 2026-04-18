@@ -20,7 +20,6 @@ internal sealed class LogGridAppender : AppenderSkeleton {
 	private readonly ConcurrentQueue<LogLine> pendingLogLines = new();
 	private IDisposable? logFilterSubscription;
 	private int flushScheduled;
-	private ushort? latestProgressValue;
 	private LogLine? lastLogRow;
 	private LogLine? lastVisibleRow;
 
@@ -44,12 +43,6 @@ internal sealed class LogGridAppender : AppenderSkeleton {
 		string message = loggingEvent.RenderedMessage?.Replace("\t", "    ") ?? string.Empty;
 		var newLogLine = new LogLine(loggingEvent.TimeStamp, loggingEvent.Level, message);
 		pendingLogLines.Enqueue(newLogLine);
-
-		if (loggingEvent.Level == LogExtensions.ProgressLevel &&
-		    ushort.TryParse(message.Trim().TrimEnd('%'), out var progressValue)) {
-			latestProgressValue = progressValue;
-		}
-
 		ScheduleFlush();
 	}
 
@@ -62,7 +55,6 @@ internal sealed class LogGridAppender : AppenderSkeleton {
 		while (pendingLogLines.TryDequeue(out _)) {
 		}
 
-		latestProgressValue = null;
 		Dispatcher.UIThread.Post(() => {
 			LogLines.Clear();
 			lastLogRow = null;
@@ -98,6 +90,7 @@ internal sealed class LogGridAppender : AppenderSkeleton {
 	private void FlushPendingLogLines() {
 		try {
 			bool shouldScroll = false;
+			ushort? latestProgressValueInBatch = null;
 			while (pendingLogLines.TryDequeue(out var logLine)) {
 				if (logLine.Level is null) {
 					AppendToLastLogRow(logLine);
@@ -106,13 +99,16 @@ internal sealed class LogGridAppender : AppenderSkeleton {
 
 				LogLines.Add(logLine);
 				lastLogRow = logLine;
+				if (TryGetProgressValue(logLine, out var progressValue)) {
+					latestProgressValueInBatch = progressValue;
+				}
 				if (IsVisibleForCurrentFilter(logLine)) {
 					lastVisibleRow = logLine;
 					shouldScroll = true;
 				}
 			}
 
-			UpdateProgressIfNeeded();
+			UpdateProgressIfNeeded(latestProgressValueInBatch);
 
 			if (shouldScroll) {
 				ScrollToLogEnd();
@@ -125,12 +121,21 @@ internal sealed class LogGridAppender : AppenderSkeleton {
 		}
 	}
 
-	private void UpdateProgressIfNeeded() {
-		if (latestProgressValue is not ushort progressValue) {
+	internal static bool TryGetProgressValue(LogLine logLine, out ushort progressValue) {
+		if (logLine.Level == LogExtensions.ProgressLevel &&
+		    ushort.TryParse(logLine.Message.Trim().TrimEnd('%'), out progressValue)) {
+			return true;
+		}
+
+		progressValue = 0;
+		return false;
+	}
+
+	private void UpdateProgressIfNeeded(ushort? latestProgressValueInBatch) {
+		if (latestProgressValueInBatch is not ushort progressValue) {
 			return;
 		}
 
-		latestProgressValue = null;
 		if (Avalonia.Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop) {
 			return;
 		}

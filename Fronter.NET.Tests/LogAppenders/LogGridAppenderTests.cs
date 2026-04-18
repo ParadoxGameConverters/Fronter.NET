@@ -1,3 +1,4 @@
+using commonItems;
 using Fronter.LogAppenders;
 using Fronter.Models;
 using log4net.Core;
@@ -20,5 +21,26 @@ public class LogGridAppenderTests {
 		appender.ToggleLogFilterLevel();
 
 		Assert.Single(appender.FilteredLogLines);
+	}
+
+	[Theory]
+	[InlineData("42%", (ushort)42)]
+	[InlineData(" 7 ", (ushort)7)]
+	public void TryGetProgressValue_ReturnsParsedProgressForProgressRows(string message, ushort expectedValue) {
+		var logLine = new LogLine(System.DateTime.Now, LogExtensions.ProgressLevel, message);
+
+		var success = LogGridAppender.TryGetProgressValue(logLine, out var progressValue);
+
+		Assert.True(success);
+		Assert.Equal(expectedValue, progressValue);
+	}
+
+	[Fact]
+	public void TryGetProgressValue_ReturnsFalseForNonProgressRows() {
+		var logLine = new LogLine(System.DateTime.Now, Level.Info, "42%");
+
+		var success = LogGridAppender.TryGetProgressValue(logLine, out _);
+
+		Assert.False(success);
 	}
 }
