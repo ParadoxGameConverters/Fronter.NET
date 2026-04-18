@@ -22,12 +22,25 @@ jobs:
       working-directory: Fronter.NET.Tests
       shell: pwsh
       run: |
-       dotnet test --coverlet --coverlet-output-format lcov --coverlet-exclude "[commonItems]*"
+       dotnet test --coverlet --coverlet-output-format lcov --coverlet-exclude "[commonItems]*" --coverlet-file-prefix fronter
+    - name: "Locate coverage report"
+      id: coverage_report
+      shell: pwsh
+      run: |
+        $coverageFile = Get-ChildItem "Fronter.NET.Tests/bin/Debug/net10.0/TestResults/fronter.coverage*.info" |
+          Sort-Object LastWriteTime -Descending |
+          Select-Object -First 1 -ExpandProperty FullName
+
+        if (-not $coverageFile) {
+          throw "Coverage report not found."
+        }
+
+        "path=$coverageFile" >> $env:GITHUB_OUTPUT
     - name: Publish coverage report to coveralls.io
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        path-to-lcov: Fronter.NET.Tests/bin/Debug/net10.0/TestResults/coverage.info
+        path-to-lcov: ${{ steps.coverage_report.outputs.path }}
 
   test:
     strategy:
