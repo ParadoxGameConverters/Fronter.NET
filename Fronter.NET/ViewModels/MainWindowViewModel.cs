@@ -167,7 +167,7 @@ internal sealed class MainWindowViewModel : ViewModelBase {
 	}
 
 	private void ClearLogGrid() {
-		LogGridAppender.LogLines.Clear();
+		LogGridAppender.ClearDisplayedLogLines();
 	}
 
 	private void CopyToTargetGameModDirectory() {
