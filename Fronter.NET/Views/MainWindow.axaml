@@ -153,11 +153,13 @@
             <DataGrid Name="LogGrid" Grid.Column="0" Grid.Row="2"
                       ItemsSource="{Binding FilteredLogLines}"
                       AutoGenerateColumns="False"
+                      IsReadOnly="True"
                       CanUserReorderColumns="False"
+                      CanUserResizeColumns="False"
                       CanUserSortColumns="False"
                       RowBackground="Transparent"
                       VerticalScrollBarVisibility="Visible"
-                      GridLinesVisibility="All"
+                      GridLinesVisibility="Horizontal"
                       >
                 <DataGrid.Resources>
                     <vc:LogLevelToColorNameConverter x:Key="LogLevelToColorNameConverter"/>
@@ -168,9 +170,9 @@
                     </Style>
                 </DataGrid.Styles>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="{ns:Loc LOGTIME}" IsReadOnly="True" Binding="{Binding Timestamp}" />
-                    <DataGridTextColumn Header="{ns:Loc LOGSEVERITY}" IsReadOnly="True" Binding="{Binding LevelName}" />
-                    <DataGridTextColumn Header="{ns:Loc LOGMESSAGE}" IsReadOnly="True" Binding="{Binding Message}" />
+                    <DataGridTextColumn Header="{ns:Loc LOGTIME}" Width="160" IsReadOnly="True" Binding="{Binding Timestamp}" />
+                    <DataGridTextColumn Header="{ns:Loc LOGSEVERITY}" Width="110" IsReadOnly="True" Binding="{Binding LevelName}" />
+                    <DataGridTextColumn Header="{ns:Loc LOGMESSAGE}" Width="*" IsReadOnly="True" Binding="{Binding Message}" />
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>
