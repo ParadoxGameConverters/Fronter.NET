@@ -306,8 +306,8 @@ internal sealed class MainWindowViewModel : ViewModelBase {
 				Icon = Icon.Info,
 				ContentTitle = loc.Translate("NEW_VERSION_TITLE"),
 				ContentHeader = loc.Translate("NEW_VERSION_HEADER"),
-				ContentMessage = MarkdownPlainTextRenderer.Render(msgBody), // We need to render markdown to plain text until `Markdown = true` is re-enabled.
-				// Markdown = true, // disabled until this PR is merged and Markdown.Avalonia is updated: https://github.com/whistyun/Markdown.Avalonia/pull/154
+				ContentMessage = msgBody,
+				Markdown = true,
 				ButtonDefinitions = [
 					new() {Name = updateNowStr, IsDefault = true},
 					new() {Name = maybeLaterStr, IsCancel = true},
