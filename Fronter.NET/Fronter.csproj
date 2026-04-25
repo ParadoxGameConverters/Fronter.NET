@@ -76,7 +76,7 @@
         </PackageReference>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.7" />
         <PackageReference Include="Mono.Posix.NETStandard" Version="1.0.0" />
-        <PackageReference Include="Notification.Avalonia" Version="2.2.0" />
+        <PackageReference Include="Notification.Avalonia" Version="2.2.0" /> <!-- TODO: update Notification.Avalonia for Avalonia 12 -->
         <PackageReference Include="PGCG.commonItems" Version="22.0.1" />
         <PackageReference Include="Roslynator.Analyzers" Version="4.15.0">
           <PrivateAssets>all</PrivateAssets>
