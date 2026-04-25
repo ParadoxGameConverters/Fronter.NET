@@ -68,7 +68,7 @@
         <PackageReference Include="DynamicData" Version="9.4.31" />
         <PackageReference Include="MessageBox.Avalonia" Version="3.3.1.1" />
         <PackageReference Include="MessageBox.Avalonia.Markdown" Version="3.2.0" />
-        <PackageReference Include="Meziantou.Analyzer" Version="3.0.50">
+        <PackageReference Include="Meziantou.Analyzer" Version="3.0.54">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -76,15 +76,15 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.6" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.7" />
         <PackageReference Include="Mono.Posix.NETStandard" Version="1.0.0" />
         <PackageReference Include="Notification.Avalonia" Version="2.2.0" />
-        <PackageReference Include="PGCG.commonItems" Version="22.0.0" />
+        <PackageReference Include="PGCG.commonItems" Version="22.0.1" />
         <PackageReference Include="Roslynator.Analyzers" Version="4.15.0">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Sentry" Version="6.4.0" />
+        <PackageReference Include="Sentry" Version="6.4.1" />
     </ItemGroup>
 
     <ItemGroup>
