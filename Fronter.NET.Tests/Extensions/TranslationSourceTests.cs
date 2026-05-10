@@ -76,12 +76,12 @@ public sealed class TranslationSourceTests {
 	}
 
 	private static void WriteSavedLanguage(string rootPath, string language) {
-		File.WriteAllText(Path.Combine(rootPath, "Configuration", "fronter-language.txt"), $"language={language}\n");
+		File.WriteAllText(Path.Combine(rootPath, "Configuration/fronter-language.txt"), $"language={language}\n");
 	}
 
 	private static void WriteLocalizationFile(string rootPath, string language, string key, string text) {
 		var content = $"l_{language}:\n  {key}: \"{text}\"\n";
-		File.WriteAllText(Path.Combine(rootPath, "Configuration", $"converter_l_{language}.yml"), content);
+		File.WriteAllText(Path.Combine(rootPath, $"Configuration/converter_l_{language}.yml"), content);
 	}
 
 	private static void Cleanup(string path) {
