@@ -71,7 +71,7 @@ public sealed class TranslationSourceTests {
 	private static string CreateLocalizationRoot() {
 		var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
 		Directory.CreateDirectory(Path.Combine(tempDir, "Configuration"));
-		File.WriteAllText(Path.Combine(tempDir, "Configuration/languages.txt"), "english=en\nfrench=fr\ngerman=de\n");
+		File.WriteAllText(Path.Combine(tempDir, "languages.txt"), "english=en\nfrench=fr\ngerman=de\n");
 		return tempDir;
 	}
 
