@@ -160,7 +160,7 @@ internal sealed class ModCopier(Config config) {
 		}
 
 		logger.Info("Previous mod directory found, deleting...");
-		if (SystemUtils.TryDeleteFolder(destModFolderPath)) {
+		if (FileSystemHelper.TryDeleteFolder(destModFolderPath)) {
 			return true;
 		}
 
