@@ -30,6 +30,7 @@ internal sealed class Config {
 	public ushort ProgressOnCopyingComplete { get; set; } = 109;
 	public bool UpdateCheckerEnabled { get; private set; } = false;
 	public bool CheckForUpdatesOnStartup { get; private set; } = false;
+	public bool CheckUpdatesBySemver { get; private set; } = false;
 	public string ConverterReleaseForumThread { get; private set; } = string.Empty;
 	public string LatestGitHubConverterReleaseUrl { get; private set; } = string.Empty;
 	public string PagesCommitIdUrl { get; private set; } = string.Empty;
@@ -115,6 +116,9 @@ internal sealed class Config {
 		});
 		parser.RegisterKeyword("checkForUpdatesOnStartup", reader => {
 			CheckForUpdatesOnStartup = reader.GetString().Equals("true", StringComparison.OrdinalIgnoreCase);
+		});
+		parser.RegisterKeyword("checkUpdatesBySemver", reader => {
+			CheckUpdatesBySemver = reader.GetString().Equals("true", StringComparison.OrdinalIgnoreCase);
 		});
 		parser.RegisterKeyword("converterReleaseForumThread", reader => {
 			ConverterReleaseForumThread = reader.GetString();

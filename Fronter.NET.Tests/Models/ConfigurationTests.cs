@@ -16,7 +16,8 @@ public class ConfigurationTests {
 		Assert.Equal("IMPGAME", config.SourceGame);
 		Assert.Equal("CK3GAME", config.TargetGame);
 		Assert.True(config.UpdateCheckerEnabled);
-		Assert.True(config.CheckForUpdatesOnStartup );
+		Assert.True(config.CheckForUpdatesOnStartup);
+		Assert.True(config.CheckUpdatesBySemver);
 		Assert.Equal("https://github.com/ParadoxGameConverters/ImperatorToCK3/releases/latest", config.LatestGitHubConverterReleaseUrl);
 		Assert.Equal("https://forum.paradoxplaza.com/forum/threads/imperator-to-ck3-release-thread.1415172", config.ConverterReleaseForumThread);
 		Assert.Equal("https://paradoxgameconverters.com/commit_ids/ImperatorToCK3.txt", config.PagesCommitIdUrl);

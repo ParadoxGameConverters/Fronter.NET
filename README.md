@@ -26,6 +26,10 @@ sourceGame = SOURCEGAME
 targetGame = TARGETGAME
 copyToTargetGameModDirectory = true
 progressOnCopyingComplete = 109 # Final progressbar value after completion of mod copying.
+enableUpdateChecker = true
+checkForUpdatesOnStartup = true
+checkUpdatesBySemver = false # Optional. Defaults to commit_id.txt comparison when omitted or false.
+pagesCommitIdUrl = "https://paradoxgameconverters.com/commit_ids/CK2ToEU4.txt"
 
 requiredFile = {
 	name = SaveGame
@@ -72,6 +76,19 @@ mandatory:
 
 outputtable (relevant for files only):
 -   true - will be sent to configuration.txt
+
+enableUpdateChecker:
+-   true - enables update checks in the frontend.
+
+checkForUpdatesOnStartup:
+-   true - runs the update check automatically when the frontend opens.
+
+checkUpdatesBySemver:
+-   false or omitted - default behavior; compares local `commit_id.txt` against `pagesCommitIdUrl`.
+-   true - reads `<converterFolder>/configurables/version.txt`, fetches GitHub releases, ignores draft/prerelease/beta/rc releases, and shows a combined changelog for every newer stable release.
+
+pagesCommitIdUrl:
+-   Used by the default commit-ID update mode. You can leave it configured even when semver mode is enabled.
 
 Rest is self-explanatory! Shoestring Budget!
 
