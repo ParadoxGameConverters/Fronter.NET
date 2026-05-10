@@ -37,13 +37,20 @@ internal sealed class Config {
 	public List<RequiredFolder> RequiredFolders { get; } = [];
 	public List<Option> Options { get; } = [];
 	private int optionCounter;
+	private readonly string baseDirectory;
+	private string? deferredSelectedPlaysetId;
+	private bool autoLocateOnTargetPathChangeEnabled;
 
 	private static readonly ILog logger = LogManager.GetLogger("Configuration");
 
-	public Config() {
+	public Config(): this(AppContext.BaseDirectory) {
+	}
+
+	internal Config(string baseDirectory) {
+		this.baseDirectory = baseDirectory;
 		var parser = new Parser();
 		RegisterKeys(parser);
-		var fronterConfigurationPath = Path.Combine(AppContext.BaseDirectory, "Configuration", "fronter-configuration.txt");
+		var fronterConfigurationPath = Path.Combine(baseDirectory, "Configuration/fronter-configuration.txt");
 		if (File.Exists(fronterConfigurationPath)) {
 			parser.ParseFile(fronterConfigurationPath);
 			logger.Info("Frontend configuration loaded.");
@@ -51,7 +58,7 @@ internal sealed class Config {
 			logger.Warn($"{fronterConfigurationPath} not found!");
 		}
 
-		var fronterOptionsPath = Path.Combine(AppContext.BaseDirectory, "Configuration", "fronter-options.txt");
+		var fronterOptionsPath = Path.Combine(baseDirectory, "Configuration/fronter-options.txt");
 		if (File.Exists(fronterOptionsPath)) {
 			parser.ParseFile(fronterOptionsPath);
 			logger.Info("Frontend options loaded.");
@@ -68,7 +75,7 @@ internal sealed class Config {
 		parser.RegisterKeyword("name", reader => Name = reader.GetString());
 		parser.RegisterKeyword("sentryDsn", reader => SentryDsn = reader.GetString());
 		parser.RegisterKeyword("converterFolder", reader => {
-			ConverterFolder = Path.Combine(AppContext.BaseDirectory, reader.GetString());
+			ConverterFolder = Path.Combine(baseDirectory, reader.GetString());
 		});
 		parser.RegisterKeyword("backendExePath", reader => BackendExePath = reader.GetString());
 		parser.RegisterKeyword("requiredFolder", reader => {
@@ -147,12 +154,7 @@ internal sealed class Config {
 				}
 			}
 			if (incomingKey.Equals("selectedPlayset", StringComparison.OrdinalIgnoreCase)) {
-				string selectedPlaysetId = valueStr;
-
-				if (!string.IsNullOrWhiteSpace(selectedPlaysetId)) {
-					SelectedPlayset = AutoLocatedPlaysets.FirstOrDefault(p =>
-						string.Equals(p.Id, selectedPlaysetId, StringComparison.Ordinal));
-				}
+				deferredSelectedPlaysetId = valueStr;
 			}
 		});
 		parser.RegisterRegex(CommonRegexes.Catchall, ParserHelpers.IgnoreAndLogItem);
@@ -214,8 +216,7 @@ internal sealed class Config {
 					initialValue = Path.Combine(initialDirectory, file.FileName);
 				}
 			} else if (file.SearchPathType.Equals("converterFolder")) {
-				var currentDir = Directory.GetCurrentDirectory();
-				initialDirectory = Path.Combine(currentDir, file.SearchPath);
+				initialDirectory = Path.Combine(baseDirectory, file.SearchPath);
 				if (!string.IsNullOrEmpty(file.FileName)) {
 					initialValue = Path.Combine(initialDirectory, file.FileName);
 				}
@@ -241,6 +242,23 @@ internal sealed class Config {
 
 		logger.Info("Previous configuration located, preloading selections...");
 		parser.ParseFile(converterConfigurationPath);
+	}
+
+	public void ApplyDeferredPlaysetAutoLocation() {
+		if (!TargetPlaysetSelectionEnabled) {
+			return;
+		}
+
+		AutoLocatePlaysets();
+		autoLocateOnTargetPathChangeEnabled = true;
+	}
+
+	public void HandleTargetGameModPathChanged() {
+		if (!TargetPlaysetSelectionEnabled || !autoLocateOnTargetPathChangeEnabled) {
+			return;
+		}
+
+		AutoLocatePlaysets();
 	}
 
 	public bool ExportConfiguration() {
@@ -386,19 +404,21 @@ internal sealed class Config {
 		AutoLocatedPlaysets.Clear();
 		logger.Debug("Autolocating playsets...");
 
-		var destModsFolder = TargetGameModsPath;
-		var locatedPlaysetsCount = 0;
-		if (destModsFolder is not null) {
-			using var dbContext = TargetDbManager.GetLauncherDbContext(this);
-			if (dbContext is not null) {
-				foreach (var playset in dbContext.Playsets.Where(p => p.IsRemoved == null || p.IsRemoved == false )) {
-					AutoLocatedPlaysets.Add(playset);
-				}
+		using var dbContext = TargetDbManager.GetLauncherDbContext(this);
+		if (dbContext is not null) {
+			foreach (var playset in dbContext.Playsets.Where(p => p.IsRemoved == null || p.IsRemoved == false )) {
+				AutoLocatedPlaysets.Add(playset);
 			}
-
-			locatedPlaysetsCount = AutoLocatedPlaysets.Count;
 		}
 
+		var locatedPlaysetsCount = AutoLocatedPlaysets.Count;
+
 		logger.Debug($"Autolocated {locatedPlaysetsCount} playsets.");
+
+		if (!string.IsNullOrWhiteSpace(deferredSelectedPlaysetId)) {
+			SelectedPlayset = AutoLocatedPlaysets.FirstOrDefault(p =>
+				string.Equals(p.Id, deferredSelectedPlaysetId, StringComparison.Ordinal));
+			deferredSelectedPlaysetId = null;
+		}
 	}
 }

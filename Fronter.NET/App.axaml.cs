@@ -38,6 +38,7 @@ internal sealed class App : Application {
 			window.DataContext = mainWindowViewModel;
 
 			desktop.MainWindow.Opened += (sender, args) => _ = TranslationSource.Instance.StartDeferredTranslationsLoad();
+			desktop.MainWindow.Opened += (sender, args) => mainWindowViewModel.Config.ApplyDeferredPlaysetAutoLocation();
 			desktop.MainWindow.Opened += (sender, args) => _ = Task.Run(DebugInfo.LogEverything);
 			desktop.MainWindow.Opened += (sender, args) => _ = mainWindowViewModel.CheckForUpdatesOnStartup();
 		}
