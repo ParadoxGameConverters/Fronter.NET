@@ -166,7 +166,7 @@ internal static class UpdateChecker {
 		var apiUrl = $"https://api.github.com/repos/ParadoxGameConverters/{converterName}/releases?per_page=100";
 		var client = httpClient ?? SharedHttpClient;
 		var releaseInfos = new List<ConverterReleaseInfo>();
-		var nextPageUrl = apiUrl;
+		string? nextPageUrl = apiUrl;
 
 		try {
 			while (nextPageUrl is not null) {
