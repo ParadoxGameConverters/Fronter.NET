@@ -144,7 +144,7 @@ internal static class UpdateChecker {
 
 	private static async Task<ConverterReleaseInfo?> GetLatestRelease(string converterName, HttpClient? httpClient) {
 		var apiUrl = $"https://api.github.com/repos/ParadoxGameConverters/{converterName}/releases/latest";
-		var requestMessage = CreateGitHubRequest(apiUrl);
+		using var requestMessage = CreateGitHubRequest(apiUrl);
 
 		var client = httpClient ?? SharedHttpClient;
 		try {
