@@ -163,23 +163,55 @@ internal static class UpdateChecker {
 	}
 
 	private static async Task<ConverterReleaseInfo[]> GetReleaseInfos(string converterName, HttpClient? httpClient) {
-		var apiUrl = $"https://api.github.com/repos/ParadoxGameConverters/{converterName}/releases";
-		var requestMessage = CreateGitHubRequest(apiUrl);
-
+		var apiUrl = $"https://api.github.com/repos/ParadoxGameConverters/{converterName}/releases?per_page=100";
 		var client = httpClient ?? SharedHttpClient;
+		var releaseInfos = new List<ConverterReleaseInfo>();
+		var nextPageUrl = apiUrl;
+
 		try {
-			using var responseMessage = await client.SendAsync(requestMessage);
-			if (!responseMessage.IsSuccessStatusCode) {
-				Logger.Warn($"Failed to get release info from \"{apiUrl}\"; status code: {responseMessage.StatusCode}!");
-				return [];
+			while (nextPageUrl is not null) {
+				using var requestMessage = CreateGitHubRequest(nextPageUrl);
+				using var responseMessage = await client.SendAsync(requestMessage);
+				if (!responseMessage.IsSuccessStatusCode) {
+					Logger.Warn($"Failed to get release info from \"{nextPageUrl}\"; status code: {responseMessage.StatusCode}!");
+					return [];
+				}
+
+				await using var responseStream = await responseMessage.Content.ReadAsStreamAsync();
+				var pageReleaseInfos = await JsonSerializer.DeserializeAsync<ConverterReleaseInfo[]>(responseStream) ?? [];
+				releaseInfos.AddRange(pageReleaseInfos);
+				nextPageUrl = GetNextPageUrl(responseMessage);
 			}
 
-			await using var responseStream = await responseMessage.Content.ReadAsStreamAsync();
-			return await JsonSerializer.DeserializeAsync<ConverterReleaseInfo[]>(responseStream) ?? [];
+			return [.. releaseInfos];
 		} catch (Exception e) {
 			Logger.Warn($"Failed to get release info from \"{apiUrl}\": {e}!");
 			return [];
 		}
+	}
+
+	private static string? GetNextPageUrl(HttpResponseMessage responseMessage) {
+		if (!responseMessage.Headers.TryGetValues("Link", out var linkHeaderValues)) {
+			return null;
+		}
+
+		foreach (var linkHeaderValue in linkHeaderValues) {
+			var links = linkHeaderValue.Split(',');
+			foreach (var link in links) {
+				var trimmedLink = link.Trim();
+				if (!trimmedLink.Contains("rel=\"next\"", StringComparison.Ordinal)) {
+					continue;
+				}
+
+				var startIndex = trimmedLink.IndexOf('<');
+				var endIndex = trimmedLink.IndexOf('>');
+				if (startIndex >= 0 && endIndex > startIndex) {
+					return trimmedLink.Substring(startIndex + 1, endIndex - startIndex - 1);
+				}
+			}
+		}
+
+		return null;
 	}
 
 	private static HttpRequestMessage CreateGitHubRequest(string apiUrl) {
