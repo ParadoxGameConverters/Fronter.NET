@@ -311,11 +311,17 @@ internal sealed class ModCopier(Config config) {
 		}
 
 		var parser = new Parser();
-		parser.RegisterRegex(CommonRegexes.QuotedString, (reader, modName) => {
-			toReturn.Add(modName, reader.GetString().RemQuotes());
+		parser.RegisterRegex(CommonRegexes.String, (reader, modName) => {
+			var normalizedModName = NormalizePlaysetInfoString(modName);
+			var modPath = NormalizePlaysetInfoString(reader.GetStringOfItem().ToString());
+			toReturn.Add(normalizedModName, modPath);
 		});
 		parser.ParseFile(filePath);
 		return toReturn;
+	}
+
+	private static string NormalizePlaysetInfoString(string value) {
+		return value.RemQuotes().Replace("\\\"", "\"");
 	}
 
 	private void DeactivateCurrentPlayset(LauncherDbContext dbContext) {
