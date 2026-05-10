@@ -85,7 +85,7 @@ checkForUpdatesOnStartup:
 
 checkUpdatesBySemver:
 -   false or omitted - default behavior; compares local `commit_id.txt` against `pagesCommitIdUrl`.
--   true - reads `<converterFolder>/configurables/version.txt`, fetches GitHub releases, ignores draft/prerelease/beta/rc releases, and shows a combined changelog for every newer stable release.
+-   true - reads `<converterFolder>/configurables/version.txt`, fetches GitHub releases, ignores draft/prerelease/alpha/beta/rc/pre releases, and shows a combined changelog for every newer stable release.
 
 pagesCommitIdUrl:
 -   Used by the default commit-ID update mode. You can leave it configured even when semver mode is enabled.
