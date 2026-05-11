@@ -2,6 +2,8 @@
 .idea/
 Fronter.NET.Tests/bin/
 Fronter.NET.Tests/obj/
+Fronter.NET.Benchmarks/
 DEBUG_RESOURCES/
 Release/
 .vscode/settings.json
+BenchmarkDotNet.Artifacts/
