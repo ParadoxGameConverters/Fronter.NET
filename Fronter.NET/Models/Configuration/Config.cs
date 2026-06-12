@@ -404,21 +404,24 @@ internal sealed class Config {
 		AutoLocatedPlaysets.Clear();
 		logger.Debug("Autolocating playsets...");
 
-		using var dbContext = TargetDbManager.GetLauncherDbContext(this);
-		if (dbContext is not null) {
-			foreach (var playset in dbContext.Playsets.Where(p => p.IsRemoved == null || p.IsRemoved == false )) {
-				AutoLocatedPlaysets.Add(playset);
+		try {
+			using var dbContext = TargetDbManager.GetLauncherDbContext(this);
+			if (dbContext is not null) {
+				foreach (var playset in dbContext.Playsets.Where(p => p.IsRemoved == null || p.IsRemoved == false)) {
+					AutoLocatedPlaysets.Add(playset);
+				}
 			}
-		}
 
-		var locatedPlaysetsCount = AutoLocatedPlaysets.Count;
+			var locatedPlaysetsCount = AutoLocatedPlaysets.Count;
+			logger.Debug($"Autolocated {locatedPlaysetsCount} playsets.");
 
-		logger.Debug($"Autolocated {locatedPlaysetsCount} playsets.");
-
-		if (!string.IsNullOrWhiteSpace(deferredSelectedPlaysetId)) {
-			SelectedPlayset = AutoLocatedPlaysets.FirstOrDefault(p =>
-				string.Equals(p.Id, deferredSelectedPlaysetId, StringComparison.Ordinal));
-			deferredSelectedPlaysetId = null;
+			if (!string.IsNullOrWhiteSpace(deferredSelectedPlaysetId)) {
+				SelectedPlayset = AutoLocatedPlaysets.FirstOrDefault(p =>
+					string.Equals(p.Id, deferredSelectedPlaysetId, StringComparison.Ordinal));
+				deferredSelectedPlaysetId = null;
+			}
+		} catch (Exception ex) {
+			logger.Warn("Failed to autolocate playsets. The launcher database may be unavailable or invalid.", ex);
 		}
 	}
 }
