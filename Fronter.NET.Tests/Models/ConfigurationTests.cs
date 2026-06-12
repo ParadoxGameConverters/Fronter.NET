@@ -84,4 +84,24 @@ public class ConfigurationTests {
 		bookmarkDateOption.SetValue(string.Empty);
 		Assert.Equal(string.Empty, bookmarkDateOption.GetValue());
 	}
+
+	[Fact]
+	public void AutoLocatePlaysets_DoesNotThrowWhenLauncherDbIsInvalid() {
+		var config = new Config();
+		var tempRoot = Path.Combine(Path.GetTempPath(), "Fronter.Tests", Guid.NewGuid().ToString("N"));
+		var targetGameModPath = Path.Combine(tempRoot, "mod");
+
+		Directory.CreateDirectory(targetGameModPath);
+		File.WriteAllText(Path.Combine(tempRoot, "launcher-v2.sqlite"), "not a real sqlite database");
+
+		var targetGameFolder = config.RequiredFolders.First(f =>
+			string.Equals(f.Name, "targetGameModPath", StringComparison.OrdinalIgnoreCase));
+
+		targetGameFolder.Value = targetGameModPath;
+
+		var exception = Record.Exception(() => config.AutoLocatePlaysets());
+
+		Assert.Null(exception);
+		Assert.Empty(config.AutoLocatedPlaysets);
+	}
 }
