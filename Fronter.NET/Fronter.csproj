@@ -60,13 +60,13 @@
         <PackageReference Include="Avalonia" Version="12.0.4" />
         <PackageReference Include="Avalonia.Controls.DataGrid" Version="12.0.0" />
         <PackageReference Include="Avalonia.Desktop" Version="12.0.4" />
-        <PackageReference Include="ReactiveUI.Avalonia" Version="12.0.1" />
+        <PackageReference Include="ReactiveUI.Avalonia" Version="12.0.3" />
         <PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.4" />
         <PackageReference Include="AWSSDK.S3" Version="[3.7.411.7]" /> <!-- versions >= 3.7.412.0 didn't work correctly with Backblaze B2 as of 2025-05-17: https://www.backblaze.com/docs/en/cloud-storage-use-the-aws-sdk-for-net-with-backblaze-b2?highlight=Data%20Integrity%20Protection%20Headers -->
         <PackageReference Include="DynamicData" Version="9.4.31" />
         <PackageReference Include="MessageBox.Avalonia" Version="12.0.0" />
         <PackageReference Include="MessageBox.Avalonia.Markdown" Version="3.2.0" />
-        <PackageReference Include="Meziantou.Analyzer" Version="3.0.102">
+        <PackageReference Include="Meziantou.Analyzer" Version="3.0.103">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
