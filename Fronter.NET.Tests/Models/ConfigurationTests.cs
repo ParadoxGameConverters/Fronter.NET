@@ -1,4 +1,5 @@
 ﻿using Fronter.Models.Configuration;
+using Microsoft.Data.Sqlite;
 using System;
 using System.IO;
 using System.Linq;
@@ -103,5 +104,66 @@ public class ConfigurationTests {
 
 		Assert.Null(exception);
 		Assert.Empty(config.AutoLocatedPlaysets);
+	}
+
+	[Fact]
+	public void AutoLocatePlaysets_WorksWithCurrentLauncherSchema() {
+		var config = new Config();
+		var tempRoot = Path.Combine(Path.GetTempPath(), "Fronter.Tests", Guid.NewGuid().ToString("N"));
+		var targetGameModPath = Path.Combine(tempRoot, "mod");
+
+		Directory.CreateDirectory(targetGameModPath);
+		var dbPath = Path.Combine(tempRoot, "launcher-v2.sqlite");
+
+		using (var connection = new SqliteConnection($"Data Source={dbPath}")) {
+			connection.Open();
+			var createTableCommand = connection.CreateCommand();
+			// Mirrors the current launcher-v2 schema (no "lastServerChecksum" column, it was renamed to "deprecatedLastServerChecksum").
+			createTableCommand.CommandText = """
+				CREATE TABLE "playsets" (
+					"id" char(36) NOT NULL,
+					"name" varchar(255) NOT NULL,
+					"isActive" boolean,
+					"loadOrder" varchar(255),
+					"pdxId" INT,
+					"pdxUserId" char(36),
+					"createdOn" datetime NOT NULL,
+					"updatedOn" datetime,
+					"syncedOn" datetime,
+					"deprecatedLastServerChecksum" varchar(255),
+					"isRemoved" boolean DEFAULT false,
+					"hasNotApprovedChanges" boolean DEFAULT '0',
+					"syncState" varchar(255),
+					"state" varchar(255) DEFAULT 'private' NOT NULL,
+					"owned" boolean DEFAULT '1' NOT NULL,
+					"author" varchar(255) DEFAULT '' NOT NULL,
+					"subscribersCount" integer DEFAULT '0' NOT NULL,
+					"ratingsCount" integer DEFAULT '0' NOT NULL,
+					"thumbnailFileUrl" varchar(255),
+					"description" varchar(255) DEFAULT '',
+					"offDisk" boolean DEFAULT '0' NOT NULL,
+					"version" varchar(255),
+					"lastSyncAttemptAt" datetime
+				);
+				""";
+			createTableCommand.ExecuteNonQuery();
+
+			var insertCommand = connection.CreateCommand();
+			insertCommand.CommandText = """
+				INSERT INTO "playsets" ("id", "name", "createdOn")
+				VALUES ('00000000-0000-0000-0000-000000000001', 'test playset', '2026-01-01 00:00:00');
+				""";
+			insertCommand.ExecuteNonQuery();
+		}
+
+		var targetGameFolder = config.RequiredFolders.First(f =>
+			string.Equals(f.Name, "targetGameModPath", StringComparison.OrdinalIgnoreCase));
+		targetGameFolder.Value = targetGameModPath;
+
+		var exception = Record.Exception(() => config.AutoLocatePlaysets());
+
+		Assert.Null(exception);
+		var playset = Assert.Single(config.AutoLocatedPlaysets);
+		Assert.Equal("test playset", playset.Name);
 	}
 }
