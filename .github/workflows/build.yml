@@ -14,8 +14,8 @@ jobs:
       with:
         submodules: recursive
     - name: "Setup Dotnet for use with actions"
-      # don't run on self-hosted Windows
-      if: ${{ !contains(toJSON(matrix.os), 'windows') || !contains(toJSON(matrix.os), 'self-hosted') }}
+      # Only run on GitHub-hosted runners, because self-hosted runners already have the SDK installed.
+      if: ${{ runner.environment == 'github-hosted' }}
       uses: actions/setup-dotnet@v5
       with:
         global-json-file: global.json
