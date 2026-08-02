@@ -8,7 +8,6 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -63,6 +62,7 @@ public class UpdateCheckerTests {
 		var releaseInfo = new {
 			body = "Bug fixes and improvements.",
 			name = "1.2.3",
+			tag_name = "1.2.3",
 			assets = new[] {
 				new {
 					name = "ImperatorToCK3-win-x64.exe",
@@ -105,6 +105,207 @@ public class UpdateCheckerTests {
 		} else {
 			Assert.Equal("tgz", extension);
 		}
+	}
+
+	[Fact]
+	public async Task SemverUpdateInfoAggregatesAllNewerStableReleaseNotes() {
+		var releaseInfo = new object[] {
+			new {
+				body = "Beta fixes that should not be shown.",
+				name = "1.3.0-beta.1",
+				tag_name = "1.3.0-beta.1",
+				prerelease = true,
+				draft = false,
+				assets = new object[] {
+					new {
+						name = "ImperatorToCK3-win-x64.exe",
+						browser_download_url = "https://github.com/ParadoxGameConverters/ImperatorToCK3/releases/download/1.3.0-beta.1/ImperatorToCK3-win-x64.exe"
+					}
+				}
+			},
+			new {
+				body = "Stable 1.2.0 changes.",
+				name = "Imperator To CK3 1.2.0",
+				tag_name = "1.2.0",
+				prerelease = false,
+				draft = false,
+				assets = new object[] {
+					new {
+						name = "ImperatorToCK3-win-x64.exe",
+						browser_download_url = "https://github.com/ParadoxGameConverters/ImperatorToCK3/releases/download/1.2.0/ImperatorToCK3-win-x64.exe"
+					},
+					new {
+						name = "ImperatorToCK3-win-x64.zip",
+						browser_download_url = "https://github.com/ParadoxGameConverters/ImperatorToCK3/releases/download/1.2.0/ImperatorToCK3-win-x64.zip"
+					},
+					new {
+						name = "ImperatorToCK3-linux-x64.tgz",
+						browser_download_url = "https://github.com/ParadoxGameConverters/ImperatorToCK3/releases/download/1.2.0/ImperatorToCK3-linux-x64.tgz"
+					},
+					new {
+						name = "ImperatorToCK3-osx-arm64.tgz",
+						browser_download_url = "https://github.com/ParadoxGameConverters/ImperatorToCK3/releases/download/1.2.0/ImperatorToCK3-osx-arm64.tgz"
+					}
+				}
+			},
+			new {
+				body = "Stable 1.1.0 changes.",
+				name = "Imperator To CK3 1.1.0",
+				tag_name = "v1.1.0",
+				prerelease = false,
+				draft = false,
+				assets = new object[] {
+					new {
+						name = "ImperatorToCK3-win-x64.exe",
+						browser_download_url = "https://github.com/ParadoxGameConverters/ImperatorToCK3/releases/download/1.1.0/ImperatorToCK3-win-x64.exe"
+					}
+				}
+			},
+			new {
+				body = "Initial release notes.",
+				name = "1.0.0",
+				tag_name = "1.0.0",
+				prerelease = false,
+				draft = false,
+				assets = Array.Empty<object>()
+			}
+		};
+
+		using var testHttpClient = CreateTestHttpClient(releaseInfo);
+		UpdateInfoModel info = await UpdateChecker.GetAvailableSemverUpdateInfo("ImperatorToCK3", new Version(1, 0, 0), testHttpClient);
+
+		Assert.Equal("1.2.0", info.Version);
+		Assert.NotNull(info.AssetUrl);
+		Assert.Contains("Version 1.2.0", info.Description);
+		Assert.Contains("Stable 1.2.0 changes.", info.Description);
+		Assert.Contains("Version v1.1.0", info.Description);
+		Assert.Contains("Stable 1.1.0 changes.", info.Description);
+		Assert.DoesNotContain("Beta fixes that should not be shown.", info.Description);
+
+		string extension = CommonFunctions.GetExtension(info.AssetUrl);
+		if (OperatingSystem.IsWindows()) {
+			List<string> expectedExtensions = ["exe", "zip"];
+			Assert.Contains(extension, expectedExtensions);
+		} else {
+			Assert.Equal("tgz", extension);
+		}
+	}
+
+	[Fact]
+	public async Task SemverUpdateInfoIgnoresPrereleaseOnlyReleases() {
+		var releaseInfo = new object[] {
+			new {
+				body = "Still unstable.",
+				name = "1.3.0-beta.1",
+				tag_name = "1.3.0-beta.1",
+				prerelease = true,
+				draft = false,
+				assets = new object[] {
+					new {
+						name = "ImperatorToCK3-win-x64.exe",
+						browser_download_url = "https://github.com/ParadoxGameConverters/ImperatorToCK3/releases/download/1.3.0-beta.1/ImperatorToCK3-win-x64.exe"
+					}
+				}
+			},
+			new {
+				body = "Draft release.",
+				name = "1.2.0",
+				tag_name = "1.2.0",
+				prerelease = false,
+				draft = true,
+				assets = Array.Empty<object>()
+			}
+		};
+
+		using var testHttpClient = CreateTestHttpClient(releaseInfo);
+		UpdateInfoModel info = await UpdateChecker.GetAvailableSemverUpdateInfo("ImperatorToCK3", new Version(1, 0, 0), testHttpClient);
+
+		Assert.Null(info.Version);
+		Assert.Null(info.Description);
+		Assert.Null(info.AssetUrl);
+	}
+
+	[Fact]
+	public async Task SemverUpdateInfoFollowsGitHubPaginationHeaders() {
+		const string firstPageUrl = "https://api.github.com/repos/ParadoxGameConverters/ImperatorToCK3/releases?per_page=100";
+		const string secondPageUrl = "https://api.github.com/repos/ParadoxGameConverters/ImperatorToCK3/releases?per_page=100&page=2";
+
+		var firstPageReleaseInfo = new object[] {
+			new {
+				body = "Stable 1.2.0 changes.",
+				name = "Imperator To CK3 1.2.0",
+				tag_name = "1.2.0",
+				prerelease = false,
+				draft = false,
+				assets = new object[] {
+					new {
+						name = "ImperatorToCK3-win-x64.exe",
+						browser_download_url = "https://github.com/ParadoxGameConverters/ImperatorToCK3/releases/download/1.2.0/ImperatorToCK3-win-x64.exe"
+					},
+					new {
+						name = "ImperatorToCK3-linux-x64.tgz",
+						browser_download_url = "https://github.com/ParadoxGameConverters/ImperatorToCK3/releases/download/1.2.0/ImperatorToCK3-linux-x64.tgz"
+					},
+					new {
+						name = "ImperatorToCK3-osx-arm64.tgz",
+						browser_download_url = "https://github.com/ParadoxGameConverters/ImperatorToCK3/releases/download/1.2.0/ImperatorToCK3-osx-arm64.tgz"
+					}
+				}
+			}
+		};
+
+		var secondPageReleaseInfo = new object[] {
+			new {
+				body = "Stable 1.1.0 changes from page 2.",
+				name = "Imperator To CK3 1.1.0",
+				tag_name = "1.1.0",
+				prerelease = false,
+				draft = false,
+				assets = Array.Empty<object>()
+			}
+		};
+
+		var firstPageJson = JsonSerializer.Serialize(firstPageReleaseInfo);
+		var secondPageJson = JsonSerializer.Serialize(secondPageReleaseInfo);
+
+		var requestCount = 0;
+		var httpMessageHandler = new MockHttpMessageHandler(request => {
+			requestCount++;
+			var requestUri = request.RequestUri?.ToString();
+
+			if (string.Equals(requestUri, firstPageUrl, StringComparison.Ordinal)) {
+				var response = new HttpResponseMessage(HttpStatusCode.OK) {
+					Content = new StringContent(firstPageJson, Encoding.UTF8, "application/json")
+				};
+				response.Headers.TryAddWithoutValidation("Link", $"<{secondPageUrl}>; rel=\"next\"");
+				return response;
+			}
+
+			if (string.Equals(requestUri, secondPageUrl, StringComparison.Ordinal)) {
+				return new HttpResponseMessage(HttpStatusCode.OK) {
+					Content = new StringContent(secondPageJson, Encoding.UTF8, "application/json")
+				};
+			}
+
+			return new HttpResponseMessage(HttpStatusCode.NotFound);
+		});
+
+		using var testHttpClient = new HttpClient(httpMessageHandler) { Timeout = TimeSpan.FromMinutes(5) };
+		UpdateInfoModel info = await UpdateChecker.GetAvailableSemverUpdateInfo("ImperatorToCK3", new Version(1, 0, 0), testHttpClient);
+
+		Assert.Equal(2, requestCount);
+		Assert.Equal("1.2.0", info.Version);
+		Assert.NotNull(info.AssetUrl);
+		Assert.Contains("Stable 1.2.0 changes.", info.Description);
+		Assert.Contains("Stable 1.1.0 changes from page 2.", info.Description);
+	}
+
+	private static HttpClient CreateTestHttpClient<T>(T payload) {
+		string json = JsonSerializer.Serialize(payload);
+		var httpMessageHandler = new MockHttpMessageHandler(_ => new HttpResponseMessage(HttpStatusCode.OK) {
+			Content = new StringContent(json, Encoding.UTF8, "application/json")
+		});
+		return new HttpClient(httpMessageHandler) { Timeout = TimeSpan.FromMinutes(5) };
 	}
 
 	private sealed class MockHttpMessageHandler : HttpMessageHandler {

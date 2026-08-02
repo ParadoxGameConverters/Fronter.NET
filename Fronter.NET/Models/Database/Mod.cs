@@ -22,7 +22,7 @@ public partial class Mod
 
     public string? Version { get; set; }
 
-    public byte[]? Tags { get; set; }
+    public string? Tags { get; set; }
 
     public string? RequiredVersion { get; set; }
 
@@ -69,4 +69,12 @@ public partial class Mod
     public string? DescriptionSteam { get; set; }
 
     public string? ShortDescriptionPdx { get; set; }
+
+    public bool? KeepLatest { get; set; }
+
+    public bool? UserVersion { get; set; }
+
+    public string? RemotePdxUserId { get; set; }
+
+    public string? RemoteSteamUserId { get; set; }
 }
