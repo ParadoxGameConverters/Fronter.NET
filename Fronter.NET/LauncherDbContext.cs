@@ -25,6 +25,8 @@ public partial class LauncherDbContext : DbContext {
 
     public virtual DbSet<Playset> Playsets { get; set; }
 
+    public virtual DbSet<PlaysetsDlc> PlaysetsDlcs { get; set; }
+
     public virtual DbSet<PlaysetsMod> PlaysetsMods { get; set; }
 
     public virtual DbSet<Ugc> Ugcs { get; set; }
@@ -140,6 +142,20 @@ public partial class LauncherDbContext : DbContext {
             entity.Property(e => e.IsNew)
                 .HasColumnType("boolean")
                 .HasColumnName("isNew");
+            entity.Property(e => e.KeepLatest)
+                .HasDefaultValueSql("'1'")
+                .HasColumnType("boolean")
+                .HasColumnName("keepLatest");
+            entity.Property(e => e.RemotePdxUserId)
+                .HasColumnType("varchar(255)")
+                .HasColumnName("remotePdxUserId");
+            entity.Property(e => e.RemoteSteamUserId)
+                .HasColumnType("varchar(255)")
+                .HasColumnName("remoteSteamUserId");
+            entity.Property(e => e.UserVersion)
+                .HasDefaultValueSql("null")
+                .HasColumnType("boolean")
+                .HasColumnName("userVersion");
             entity.Property(e => e.MetadataGameId)
                 .HasColumnType("varchar(255)")
                 .HasColumnName("metadataGameId");
@@ -240,7 +256,7 @@ public partial class LauncherDbContext : DbContext {
                 .HasDefaultValueSql("false")
                 .HasColumnType("boolean")
                 .HasColumnName("isRemoved");
-            entity.Property(e => e.LastServerChecksum).HasColumnName("lastServerChecksum");
+            entity.Property(e => e.DeprecatedLastServerChecksum).HasColumnName("deprecatedLastServerChecksum");
             entity.Property(e => e.LoadOrder)
                 .HasColumnType("varchar(255)")
                 .HasColumnName("loadOrder");
@@ -262,6 +278,60 @@ public partial class LauncherDbContext : DbContext {
             entity.Property(e => e.UpdatedOn)
                 .HasColumnType("datetime")
                 .HasColumnName("updatedOn");
+            entity.Property(e => e.Author)
+                .HasDefaultValue("")
+                .HasColumnType("varchar(255)")
+                .HasColumnName("author");
+            entity.Property(e => e.Description)
+                .HasDefaultValue("")
+                .HasColumnType("varchar(255)")
+                .HasColumnName("description");
+            entity.Property(e => e.LastSyncAttemptAt)
+                .HasColumnType("datetime")
+                .HasColumnName("lastSyncAttemptAt");
+            entity.Property(e => e.OffDisk)
+                .HasDefaultValueSql("'0'")
+                .HasColumnType("boolean")
+                .HasColumnName("offDisk");
+            entity.Property(e => e.Owned)
+                .HasDefaultValueSql("'1'")
+                .HasColumnType("boolean")
+                .HasColumnName("owned");
+            entity.Property(e => e.RatingsCount)
+                .HasDefaultValueSql("'0'")
+                .HasColumnName("ratingsCount");
+            entity.Property(e => e.State)
+                .HasDefaultValue("private")
+                .HasColumnName("state");
+            entity.Property(e => e.SubscribersCount)
+                .HasDefaultValueSql("'0'")
+                .HasColumnName("subscribersCount");
+            entity.Property(e => e.ThumbnailFileUrl)
+                .HasColumnType("varchar(255)")
+                .HasColumnName("thumbnailFileUrl");
+            entity.Property(e => e.Version)
+                .HasColumnType("varchar(255)")
+                .HasColumnName("version");
+        });
+
+        modelBuilder.Entity<PlaysetsDlc>(entity =>
+        {
+            entity.HasKey(e => new { e.PlaysetId, e.DlcId });
+
+            entity.ToTable("playsets_dlcs");
+
+            entity.HasIndex(e => e.DlcId, "playsets_dlcs_dlcid_index");
+
+            entity.HasIndex(e => e.PlaysetId, "playsets_dlcs_playsetid_index");
+
+            entity.Property(e => e.PlaysetId)
+                .HasColumnType("char(36)")
+                .HasColumnName("playsetId");
+            entity.Property(e => e.DlcId).HasColumnName("dlcId");
+            entity.Property(e => e.Enabled)
+                .HasDefaultValueSql("'0'")
+                .HasColumnType("boolean")
+                .HasColumnName("enabled");
         });
 
         modelBuilder.Entity<PlaysetsMod>(entity =>
