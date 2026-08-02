@@ -39,6 +39,8 @@ jobs:
           "/opt/dotnet"; do
           if [ -x "$candidate/dotnet" ]; then
             echo "Found dotnet at $candidate"
+            export DOTNET_ROOT="$candidate"
+            export PATH="$candidate:$PATH"
             echo "DOTNET_ROOT=$candidate" >> "$GITHUB_ENV"
             echo "$candidate" >> "$GITHUB_PATH"
             break
