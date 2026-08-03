@@ -1,4 +1,6 @@
-﻿namespace Fronter.Models.Database;
+﻿using System;
+
+namespace Fronter.Models.Database;
 
 public partial class Playset
 {
@@ -38,7 +40,7 @@ public partial class Playset
 
     public int RatingsCount { get; set; }
 
-    public string? ThumbnailFileUrl { get; set; }
+    public string? CoverImagePath { get; set; }
 
     public string? Description { get; set; }
 
@@ -47,4 +49,6 @@ public partial class Playset
     public string? Version { get; set; }
 
     public string? LastSyncAttemptAt { get; set; }
+
+    public DateTime? CoverImageUpdatedOn { get; set; }
 }
