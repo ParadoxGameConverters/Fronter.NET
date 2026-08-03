@@ -306,9 +306,12 @@ public partial class LauncherDbContext : DbContext {
             entity.Property(e => e.SubscribersCount)
                 .HasDefaultValueSql("'0'")
                 .HasColumnName("subscribersCount");
-            entity.Property(e => e.ThumbnailFileUrl)
+            entity.Property(e => e.CoverImagePath)
                 .HasColumnType("varchar(255)")
-                .HasColumnName("thumbnailFileUrl");
+                .HasColumnName("coverImagePath");
+            entity.Property(e => e.CoverImageUpdatedOn)
+                .HasColumnType("datetime")
+                .HasColumnName("coverImageUpdatedOn");
             entity.Property(e => e.Version)
                 .HasColumnType("varchar(255)")
                 .HasColumnName("version");
