@@ -119,7 +119,7 @@ public class ConfigurationTests {
 		using (var connection = new SqliteConnection($"Data Source={dbPath}")) {
 			connection.Open();
 			var createTableCommand = connection.CreateCommand();
-			// Mirrors the current launcher-v2 schema (no "lastServerChecksum" column, it was renamed to "deprecatedLastServerChecksum").
+			// Mirrors the current launcher-v2 schema (no "lastServerChecksum" or "thumbnailFileUrl" columns).
 			createTableCommand.CommandText = """
 				CREATE TABLE "playsets" (
 					"id" char(36) NOT NULL,
@@ -140,7 +140,8 @@ public class ConfigurationTests {
 					"author" varchar(255) DEFAULT '' NOT NULL,
 					"subscribersCount" integer DEFAULT '0' NOT NULL,
 					"ratingsCount" integer DEFAULT '0' NOT NULL,
-					"thumbnailFileUrl" varchar(255),
+					"coverImagePath" varchar(255),
+					"coverImageUpdatedOn" datetime,
 					"description" varchar(255) DEFAULT '',
 					"offDisk" boolean DEFAULT '0' NOT NULL,
 					"version" varchar(255),
