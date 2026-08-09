@@ -16,7 +16,7 @@ jobs:
     - name: "Setup Dotnet for use with actions"
       # Only run on GitHub-hosted runners, because self-hosted runners already have the SDK installed.
       if: ${{ runner.environment == 'github-hosted' }}
-      uses: actions/setup-dotnet@v5
+      uses: actions/setup-dotnet@v6
       with:
         global-json-file: global.json
     - name: "Locate self-hosted dotnet"
