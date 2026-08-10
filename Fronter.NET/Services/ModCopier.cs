@@ -3,6 +3,7 @@ using Fronter.Models.Configuration;
 using Fronter.Models.Configuration.Options;
 using Fronter.Models.Database;
 using log4net;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -188,14 +189,19 @@ internal sealed class ModCopier(Config config) {
 			DeactivateCurrentPlayset(dbContext);
 
 			// Check if a playset with the same name already exists.
-			var playset = dbContext.Playsets.FirstOrDefault(p => p.Name == playsetName);
-			if (playset is not null) {
-				UpdateExistingPlayset(dbContext, playset, unixTimeMilliSeconds);
+			// Project only the playset id, so the query doesn't reference columns
+			// that may be missing from older launcher databases (e.g. coverImagePath).
+			string? playsetId = dbContext.Playsets
+				.Where(p => p.Name == playsetName)
+				.Select(p => (string?)p.Id)
+				.FirstOrDefault();
+			if (playsetId is not null) {
+				UpdateExistingPlayset(dbContext, playsetId, unixTimeMilliSeconds);
 			} else {
-				playset = CreateNewPlayset(dbContext, playsetName, unixTimeMilliSeconds);
+				playsetId = CreateNewPlayset(dbContext, playsetName, unixTimeMilliSeconds).Id;
 			}
 
-			AddModsToPlayset(targetModName, destModFolder, gameDocsDirectory, dbContext, playset);
+			AddModsToPlayset(targetModName, destModFolder, gameDocsDirectory, dbContext, playsetId);
 
 			logger.Notice("Successfully set up playset.");
 		} catch (Exception e) {
@@ -203,15 +209,18 @@ internal sealed class ModCopier(Config config) {
 		}
 	}
 
-	private void UpdateExistingPlayset(LauncherDbContext dbContext, Playset playset, string unixTimeMilliSeconds) {
+	private void UpdateExistingPlayset(LauncherDbContext dbContext, string playsetId, string unixTimeMilliSeconds) {
 		logger.Debug("Removing mods from existing playset...");
-		dbContext.PlaysetsMods.RemoveRange(dbContext.PlaysetsMods.Where(pm => pm.PlaysetId == playset.Id));
-		dbContext.SaveChanges();
+		dbContext.PlaysetsMods
+			.Where(pm => pm.PlaysetId == playsetId)
+			.ExecuteDelete();
 
 		logger.Debug("Re-activating existing playset...");
-		playset.IsActive = true;
-		playset.UpdatedOn = unixTimeMilliSeconds;
-		dbContext.SaveChanges();
+		dbContext.Playsets
+			.Where(p => p.Id == playsetId)
+			.ExecuteUpdate(setters => setters
+				.SetProperty(p => p.IsActive, true)
+				.SetProperty(p => p.UpdatedOn, unixTimeMilliSeconds));
 
 		logger.Notice("Updated existing playset.");
 	}
@@ -232,14 +241,14 @@ internal sealed class ModCopier(Config config) {
 		return playset;
 	}
 
-	private void AddModsToPlayset(string targetModName, string destModFolder, string gameDocsDirectory, LauncherDbContext dbContext, Playset playset) {
+	private void AddModsToPlayset(string targetModName, string destModFolder, string gameDocsDirectory, LauncherDbContext dbContext, string playsetId) {
 		logger.Debug("Adding mods to playset...");
 
 		var playsetInfo = LoadPlaysetInfo();
 		if (playsetInfo.Count == 0) {
 			var gameRegistryId = $"mod/{targetModName}.mod";
 			var mod = AddModToDb(dbContext, targetModName, gameRegistryId, destModFolder);
-			AddModToPlayset(dbContext, mod, playset);
+			AddModToPlayset(dbContext, mod, playsetId);
 		}
 		foreach (var (playsetModName, playsetModPath) in playsetInfo) {
 			string playsetModPathWithBackSlashes = playsetModPath.Replace('/', '\\');
@@ -249,7 +258,7 @@ internal sealed class ModCopier(Config config) {
 													m.DirPath == playsetModPath ||
 													m.DirPath == playsetModPathWithBackSlashes);
 			if (mod is not null) {
-				AddModToPlayset(dbContext, mod, playset);
+				AddModToPlayset(dbContext, mod, playsetId);
 			} else {
 				var gameRegistryId = playsetModPath;
 				if (!gameRegistryId.StartsWith("mod/", StringComparison.Ordinal)) {
@@ -267,7 +276,7 @@ internal sealed class ModCopier(Config config) {
 				}
 
 				mod = AddModToDb(dbContext, playsetModName, gameRegistryId, dirPath);
-				AddModToPlayset(dbContext, mod, playset);
+				AddModToPlayset(dbContext, mod, playsetId);
 			}
 		}
 	}
@@ -291,9 +300,9 @@ internal sealed class ModCopier(Config config) {
 		return mod;
 	}
 
-	private static void AddModToPlayset(LauncherDbContext dbContext, Mod mod, Playset playset) {
+	private static void AddModToPlayset(LauncherDbContext dbContext, Mod mod, string playsetId) {
 		var playsetMod = new PlaysetsMod {
-			Playset = playset,
+			PlaysetId = playsetId,
 			Mod = mod,
 		};
 		dbContext.PlaysetsMods.Add(playsetMod);
@@ -328,8 +337,6 @@ internal sealed class ModCopier(Config config) {
 		logger.Debug("Deactivating currently active playset...");
 		dbContext.Playsets
 			.Where(p => p.IsActive == true)
-			.ToList()
-			.ForEach(p => p.IsActive = false);
-		dbContext.SaveChanges();
+			.ExecuteUpdate(setters => setters.SetProperty(p => p.IsActive, false));
 	}
 }

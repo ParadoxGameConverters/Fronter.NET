@@ -62,9 +62,6 @@ requiredFolder = {
 }
 ```
 
-autoGenerateModsFrom:
--   Looks in that directory for mods to show in Fronter Mod tab. If "/mod/" subdirectory exists, it swaps to that instead. (Ie. you can use documents directory if you want)
-
 searchPathType:
 -   converterFolder - looks in the provided converterFolder in current directory
 -   storeFolder - uses steamGameID and gogGameID to look for an "installation path" from Steam/GOG registry. If there's a match it will also append searchPath at the end so you can use this for Vic2 installdir/mods.
@@ -210,7 +207,6 @@ targetGameModPath = "d:\somePath\to\mods"
 shatter_hre_level = "1"
 output_name = "some user input"
 some_checkbox_control = { "yes", "1", "sausage" }
-selectedMods  = { "modfilename1.mod" "second mod filena.me.mod" "oddlynamed.mod.mod.mod" } # this one is done if autoGenerateModsFrom was used and valid
 ```
 
 Slashes and backslashes depend on OS, so Converter is responsible for parsing them.
