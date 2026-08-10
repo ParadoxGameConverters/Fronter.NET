@@ -411,7 +411,16 @@ internal sealed class Config {
 		try {
 			using var dbContext = TargetDbManager.GetLauncherDbContext(this);
 			if (dbContext is not null) {
-				foreach (var playset in dbContext.Playsets.Where(p => p.IsRemoved == null || p.IsRemoved == false)) {
+				var playsets = dbContext.Playsets
+					.Where(p => p.IsRemoved == null || p.IsRemoved == false)
+					.Select(p => new Playset {
+						Id = p.Id,
+						Name = p.Name,
+						IsRemoved = p.IsRemoved,
+					})
+					.ToList();
+
+				foreach (var playset in playsets) {
 					AutoLocatedPlaysets.Add(playset);
 				}
 			}
