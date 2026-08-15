@@ -60,7 +60,7 @@ jobs:
       id: coverage_report
       shell: pwsh
       run: |
-        $coverageFile = Get-ChildItem "Fronter.NET.Tests/bin/Debug/net10.0/TestResults/fronter.coverage*.info" |
+        $coverageFile = Get-ChildItem "Fronter.NET.Tests/TestResults/fronter.coverage*.info" |
           Sort-Object LastWriteTime -Descending |
           Select-Object -First 1 -ExpandProperty FullName
 
