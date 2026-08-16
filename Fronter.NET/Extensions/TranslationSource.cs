@@ -265,8 +265,8 @@ internal sealed partial class TranslationSource : ReactiveObject {
 	}
 
 	public List<string> LoadedLanguages { get; } = [];
-	private readonly Dictionary<string, CultureInfo> languages = [];
-	private readonly Dictionary<string, Dictionary<string, string>> translations = []; // key, <language, text>
+	private readonly Dictionary<string, CultureInfo> languages = [with(StringComparer.OrdinalIgnoreCase)];
+	private readonly Dictionary<string, Dictionary<string, string>> translations = [with(StringComparer.Ordinal)]; // key, <language, text>
 
 	public string CurrentLanguage {
 		get;
