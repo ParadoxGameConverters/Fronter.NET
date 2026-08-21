@@ -306,12 +306,11 @@ public partial class LauncherDbContext : DbContext {
             entity.Property(e => e.SubscribersCount)
                 .HasDefaultValueSql("'0'")
                 .HasColumnName("subscribersCount");
-            entity.Property(e => e.CoverImagePath)
-                .HasColumnType("varchar(255)")
-                .HasColumnName("coverImagePath");
-            entity.Property(e => e.CoverImageUpdatedOn)
-                .HasColumnType("datetime")
-                .HasColumnName("coverImageUpdatedOn");
+            // The frontend never uses cover image data, so these columns are not mapped.
+            // Older launcher databases may lack them entirely, and unmapped properties
+            // are excluded from SELECT/INSERT/RETURNING statements.
+            entity.Ignore(e => e.CoverImagePath);
+            entity.Ignore(e => e.CoverImageUpdatedOn);
             entity.Property(e => e.Version)
                 .HasColumnType("varchar(255)")
                 .HasColumnName("version");
