@@ -1,4 +1,5 @@
-﻿using Amazon.S3;
+﻿using Amazon.Runtime;
+using Amazon.S3;
 using Amazon.S3.Transfer;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -276,6 +277,9 @@ internal sealed class ConverterLauncher {
 
 		var s3Config = new AmazonS3Config {
 			ServiceURL = "https://s3.eu-central-003.backblazeb2.com",
+			// Backblaze B2's S3-compatible API doesn't support the checksum headers that the SDK sends by default.
+			RequestChecksumCalculation = RequestChecksumCalculation.WHEN_REQUIRED,
+			ResponseChecksumValidation = ResponseChecksumValidation.WHEN_REQUIRED,
 		};
 
 		var s3Client = new AmazonS3Client(keyId, applicationKey, s3Config);
