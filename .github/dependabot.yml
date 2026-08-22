@@ -7,9 +7,6 @@ updates:
     # Check the nuget registry for updates every week:
     schedule:
       interval: "daily"
-    ignore:
-      - dependency-name: "AWSSDK.S3"
-        versions: [">= 3.7.411.7"]
 
   # Enable version updates for nuget (Fronter.NET.Tests)
   - package-ecosystem: "nuget"
