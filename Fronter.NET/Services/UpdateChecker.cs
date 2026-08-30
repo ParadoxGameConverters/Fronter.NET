@@ -434,8 +434,8 @@ internal static class UpdateChecker {
 	}
 
 	public static void StartUpdaterAndDie(string archiveUrl, string converterBackendDirName) {
-		var updaterDirPath = Path.Combine(".", "Updater");
-		var updaterRunningDirPath = Path.Combine(".", "Updater-running");
+		var updaterDirPath = Path.Combine(AppContext.BaseDirectory, "Updater");
+		var updaterRunningDirPath = Path.Combine(AppContext.BaseDirectory, "Updater-running");
 
 		const string manualUpdateHint = "Try updating the converter manually.";
 		if (Directory.Exists(updaterRunningDirPath) && !FileSystemHelper.TryDeleteFolder(updaterRunningDirPath)) {

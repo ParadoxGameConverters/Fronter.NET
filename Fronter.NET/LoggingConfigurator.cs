@@ -2,12 +2,16 @@ using Fronter.LogAppenders;
 using log4net.Appender;
 using log4net.Core;
 using log4net.Layout;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using Logger = commonItems.Logger;
 
 namespace Fronter;
 
 internal static class LoggingConfigurator {
+    public static string LogFilePath => Path.Combine(AppContext.BaseDirectory, "log.txt");
+
 	public static void ConfigureLogging(bool useConsole = false) {
 		var appenders = new List<IAppender>();
 
@@ -26,7 +30,7 @@ internal static class LoggingConfigurator {
             layout.ActivateOptions();
             var fileAppender = new FileAppender {
                 Name = "file",
-                File = "log.txt",
+                File = LogFilePath,
                 AppendToFile = false,
                 Threshold = Level.All,
                 Layout = layout,

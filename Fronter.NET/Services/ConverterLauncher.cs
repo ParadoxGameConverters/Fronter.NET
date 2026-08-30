@@ -237,19 +237,20 @@ internal sealed class ConverterLauncher {
 	}
 
 	private static async Task AttachLogAndSaveToSentry(Config config, SentryHelper sentryHelper) {
-		sentryHelper.AddAttachment("log.txt");
+		sentryHelper.AddAttachment(LoggingConfigurator.LogFilePath);
 
 		var saveLocation = config.RequiredFiles.FirstOrDefault(f => f.Name.Equals("SaveGame"))?.Value;
 		if (saveLocation is null) {
 			return;
 		}
 
-		Directory.CreateDirectory("temp");
+		var tempDirPath = Path.Combine(AppContext.BaseDirectory, "temp");
+		Directory.CreateDirectory(tempDirPath);
 
 		// Create zip with save file.
 		var dateTimeString = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss", CultureInfo.InvariantCulture);
 		var asciiSaveName = CommonFunctions.TrimExtension(Path.GetFileName(saveLocation)).FoldToASCII();
-		var archivePath = $"temp/SaveGame_{dateTimeString}_{asciiSaveName}.zip";
+		var archivePath = Path.Combine(tempDirPath, $"SaveGame_{dateTimeString}_{asciiSaveName}.zip");
 		using (var zip = ZipFile.Open(archivePath, ZipArchiveMode.Create)) {
 			zip.CreateEntryFromFile(saveLocation, new FileInfo(saveLocation).Name);
 		}
@@ -257,7 +258,7 @@ internal sealed class ConverterLauncher {
 		// Sentry allows up to 20 MB per compressed request.
 		// So we need to calculate whether we can fit the save archive.
 		// Otherwise we upload it to Backblaze.
-		var logSize = new FileInfo("log.txt").Length; // Size in bytes.
+		var logSize = new FileInfo(LoggingConfigurator.LogFilePath).Length; // Size in bytes.
 		const int spaceForBaseRequest = 1024 * 1024 / 2; // 0.5 MB, arbitrary.
 		var saveSizeLimitForSentry = (20 * 1024 * 1024) - (logSize + spaceForBaseRequest);
 		var saveArchiveSize = new FileInfo(archivePath).Length;
