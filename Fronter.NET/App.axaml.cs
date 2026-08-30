@@ -18,7 +18,7 @@ namespace Fronter;
 
 internal sealed class App : Application {
 	private static readonly ILog logger = LogManager.GetLogger("Frontend");
-	private const string FronterThemePath = "Configuration/fronter-theme.txt";
+	private static readonly string FronterThemePath = FronterPaths.ThemeFilePath;
 	private const string DefaultTheme = "Default";
 
 	public override void Initialize() {
