@@ -1,6 +1,10 @@
-﻿using Fronter.Models.Configuration;
+﻿using Avalonia.Data;
+using commonItems;
+using Fronter.Models.Configuration;
+using Fronter.Models.Configuration.Options;
 using Microsoft.Data.Sqlite;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Xunit;
@@ -85,6 +89,50 @@ public class ConfigurationTests {
 		var bookmarkDateOption = config.Options.First(o => o.Name == "bookmark_date");
 		bookmarkDateOption.SetValue(string.Empty);
 		Assert.Equal(string.Empty, bookmarkDateOption.GetValue());
+	}
+
+	[Fact]
+	public void CheckBoxSelector_TracksSelectedValuesAndIds() {
+		var selector = new CheckBoxSelector(new BufferedReader(string.Empty));
+		selector.CheckBoxOptions.Add(new ToggleableOption(new BufferedReader("name = alpha default = true"), 1));
+		selector.CheckBoxOptions.Add(new ToggleableOption(new BufferedReader("name = beta default = false"), 2));
+
+		selector.SetSelectedValues(new HashSet<string>(new[] { "beta" }));
+
+		Assert.Equal(new HashSet<string> { "beta" }, selector.GetSelectedValues());
+		Assert.Equal(new HashSet<int> { 2 }, selector.GetSelectedIds());
+	}
+
+	[Fact]
+	public void TextSelector_ParsesEditableValueAndTooltip() {
+		var selector = new TextSelector(new BufferedReader("editable = false\nvalue = \"chosen-name\"\ntooltip = \"example tooltip\""));
+
+		Assert.False(selector.Editable);
+		Assert.Equal("chosen-name", selector.Value);
+		Assert.Equal("example tooltip", selector.Tooltip);
+	}
+
+	[Fact]
+	public void DateSelector_TextValue_AllowsValidDatesAndClearsEmptyValues() {
+		var selector = new DateSelector(new BufferedReader("editable = true\nvalue = \"2025.05.04\"\ntooltip = \"example date\""));
+
+		Assert.Equal("2025.5.4", selector.TextValue);
+
+		selector.TextValue = "2026.06.15";
+		Assert.Equal("2026.6.15", selector.TextValue);
+
+		selector.TextValue = string.Empty;
+		Assert.Null(selector.Value);
+	}
+
+	[Theory]
+	[InlineData("2025.13.01")]
+	[InlineData("2025.00.01")]
+	[InlineData("2025.12.32")]
+	public void DateSelector_TextValue_RejectsInvalidDates(string invalidDate) {
+		var selector = new DateSelector(new BufferedReader(string.Empty));
+
+		Assert.Throws<DataValidationException>(() => selector.TextValue = invalidDate);
 	}
 
 	[Fact]

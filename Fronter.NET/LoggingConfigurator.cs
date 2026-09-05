@@ -26,7 +26,7 @@ internal static class LoggingConfigurator {
             layout.ActivateOptions();
             var fileAppender = new FileAppender {
                 Name = "file",
-                File = "log.txt",
+                File = FronterPaths.LogFilePath,
                 AppendToFile = false,
                 Threshold = Level.All,
                 Layout = layout,

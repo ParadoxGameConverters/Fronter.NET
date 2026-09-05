@@ -20,7 +20,7 @@ internal sealed partial class TranslationSource : ReactiveObject {
 	private readonly Lock translationsLock = new();
 	private readonly string baseDirectory;
 	private readonly Dictionary<string, List<string>> localizationFilePathsByLanguage = new(StringComparer.Ordinal);
-	private readonly HashSet<string> loadedTranslationLanguages = new(StringComparer.Ordinal);
+	private readonly HashSet<string> loadedTranslationLanguages = [with(StringComparer.Ordinal)];
 	private int deferredTranslationsLoadStarted;
 	private Task? deferredTranslationsLoadTask;
 
@@ -32,7 +32,7 @@ internal sealed partial class TranslationSource : ReactiveObject {
 
 		string languagesPath = Path.Combine(baseDirectory, "languages.txt");
 		if (!File.Exists(languagesPath)) {
-			logger.Error("No languages dictionary found!");
+			logger.Error($"No languages dictionary found at {languagesPath}!");
 			return;
 		}
 
