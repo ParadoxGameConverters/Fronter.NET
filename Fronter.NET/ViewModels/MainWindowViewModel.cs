@@ -16,13 +16,13 @@ using MsBox.Avalonia;
 using MsBox.Avalonia.Dto;
 using MsBox.Avalonia.Enums;
 using ReactiveUI;
+using ReactiveUI.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Reactive;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -58,7 +58,7 @@ internal sealed class MainWindowViewModel : ViewModelBase {
 	// Conversion control
 	private CancellationTokenSource? conversionCts;
 	
-	public ReactiveCommand<Unit, Unit> CancelConversionCommand { get; }
+	public ReactiveCommand<RxVoid, RxVoid> CancelConversionCommand { get; }
 
 	internal Config Config { get; }
 
@@ -120,9 +120,9 @@ internal sealed class MainWindowViewModel : ViewModelBase {
 
 	#region Reactive commands
 
-	public ReactiveCommand<string, Unit> ToggleLogFilterLevelCommand { get; }
-	public ReactiveCommand<string, Unit> SetLanguageCommand { get; }
-	public ReactiveCommand<string, Unit> SetThemeCommand { get; }
+	public ReactiveCommand<string, RxVoid> ToggleLogFilterLevelCommand { get; }
+	public ReactiveCommand<string, RxVoid> SetLanguageCommand { get; }
+	public ReactiveCommand<string, RxVoid> SetThemeCommand { get; }
 
 	#endregion
 

@@ -4,12 +4,12 @@ using Fronter.Extensions;
 using Fronter.Models.Configuration;
 using Fronter.Views;
 using ReactiveUI;
+using ReactiveUI.Primitives;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Reactive;
 using System.Threading.Tasks;
 
 namespace Fronter.ViewModels;
@@ -30,8 +30,8 @@ internal sealed class PathPickerViewModel : ViewModelBase {
 	public ObservableCollection<RequiredFolder> RequiredFolders { get; }
 	public ObservableCollection<RequiredFile> RequiredFiles { get; }
 
-	public ReactiveCommand<RequiredFolder, Unit> OpenFolderDialogCommand { get; }
-	public ReactiveCommand<RequiredFile, Unit> OpenFileDialogCommand { get; }
+	public ReactiveCommand<RequiredFolder, RxVoid> OpenFolderDialogCommand { get; }
+	public ReactiveCommand<RequiredFile, RxVoid> OpenFileDialogCommand { get; }
 
 	private static async Task<IStorageFolder?> GetStartLocationForFile(RequiredFile file, IStorageProvider storageProvider) {
 		string? path = null;
