@@ -61,7 +61,9 @@ internal sealed class LogGridAppender : AppenderSkeleton {
 			lastVisibleRow = null;
 		}
 
-		if (Dispatcher.UIThread.CheckAccess()) {
+		// Without a bound LogGrid there is no UI to marshal to (e.g. in tests): running the clear
+		// inline avoids a deadlock when no dispatcher loop is pumping.
+		if (LogGrid is null || Dispatcher.UIThread.CheckAccess()) {
 			ClearCore();
 			return;
 		}
