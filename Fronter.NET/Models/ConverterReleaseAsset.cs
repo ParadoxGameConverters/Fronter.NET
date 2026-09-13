@@ -2,7 +2,7 @@
 
 namespace Fronter.Models;
 
-public sealed class ConverterReleaseAsset {
+internal sealed class ConverterReleaseAsset {
 	[JsonPropertyName("name")] public string? Name { get; set; }
 	[JsonPropertyName("browser_download_url")] public string? BrowserDownloadUrl { get; set; }
 }

@@ -1,31 +1,30 @@
-﻿using Avalonia;
+﻿using Amazon.Runtime;
+using Amazon.S3;
+using Amazon.S3.Transfer;
+using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
-using Bytewizer.Backblaze.Client;
 using commonItems;
 using Fronter.Extensions;
-using Fronter.LogAppenders;
-using Fronter.Models;
 using Fronter.Models.Configuration;
 using Fronter.Views;
 using log4net;
 using log4net.Core;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Enums;
-using Sentry;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Fronter.Services;
 
-internal class ConverterLauncher {
+internal sealed class ConverterLauncher {
 	private static readonly ILog logger = LogManager.GetLogger("Converter launcher");
 	private Level? lastLevelFromBackend;
 	internal ConverterLauncher(Config config) {
@@ -50,7 +49,7 @@ internal class ConverterLauncher {
 		return backendExePathRelativeToFrontend;
 	}
 
-	public async Task<bool> LaunchConverter() {
+	public async Task<bool> LaunchConverter(CancellationToken cancellationToken = default) {
 		var backendExePathRelativeToFrontend = GetBackendExePathRelativeToFrontend();
 		if (backendExePathRelativeToFrontend is null) {
 			return false;
@@ -62,6 +61,89 @@ internal class ConverterLauncher {
 		}
 
 		logger.Debug($"Using {backendExePathRelativeToFrontend} as converter backend...");
+		using Process process = SetUpConverterBackendProcess(backendExePathRelativeToFrontend);
+
+		// if caller cancels, kill the backend process as well
+		await using var registration = RegisterKillOnCancellation(process, cancellationToken);
+
+		var timer = new Stopwatch();
+		timer.Start();
+
+		StartBackendProcessAndBeginReadingOutput(process);
+		SubscribeToFrontendShutdownToKillBackend(process.Id);
+
+		try {
+			await process.WaitForExitAsync(cancellationToken);
+		} catch (OperationCanceledException) {
+			// propagate as TaskCanceledException for callers who expect it
+			throw new TaskCanceledException("Converter launch cancelled");
+		}
+
+		timer.Stop();
+
+		if (process.ExitCode == 0) {
+			logger.Info($"Converter exited at {timer.Elapsed.TotalSeconds} seconds.");
+			return true;
+		}
+
+		if (process.ExitCode == 1) {
+			// Exit code 1 is for user errors, so we don't need to send it to Sentry.
+			logger.Error($"Converter failed and exited at {timer.Elapsed.TotalSeconds} seconds.");
+			return false;
+		}
+
+		LogExitCodeWithProbableCauseIfKnown(process.ExitCode);
+
+		var helpPageOpened = await TryOpenHelpPage(process.ExitCode);
+		if (!helpPageOpened && config.SentryDsn is not null) {
+			var saveUploadConsent = await Dispatcher.UIThread.InvokeAsync(GetSaveUploadConsent);
+			if (!saveUploadConsent) {
+				return false;
+			}
+
+			await SendReportToSentry(config, process.ExitCode, saveUploadConsent);
+		} else {
+			logger.Error("If you require assistance, please visit the converter's forum thread " +
+			             "for a detailed postmortem.");
+		}
+		return false;
+	}
+
+	private static void LogExitCodeWithProbableCauseIfKnown(int exitCode) {
+		if (exitCode == -532462766) {
+			logger.Error("Converter exited with code -532462766. This is most likely an antivirus issue.");
+			logger.Notice("Please add the converter to your antivirus' whitelist.");
+		} else if (exitCode == -2147450730) { // 0x80008096
+			var requiredVersion = Environment.Version.ToString();
+			logger.Error($"Converter exited with code -2147450730 (0x80008096). The required .NET {requiredVersion} runtime is missing or incompatible.");
+			logger.Notice($"Please install the .NET {requiredVersion} runtime for your system from https://dotnet.microsoft.com/download");
+		} else {
+			logger.Debug($"Converter exit code: {exitCode}");
+			logger.Error("Converter error! See log.txt for details.");
+		}
+	}
+
+	private static async Task SendReportToSentry(Config config, int exitCode, bool saveUploadConsent) {
+		var sentryHelper = new SentryHelper(config);
+		try {
+			await AttachLogAndSaveToSentry(config, sentryHelper);
+		} catch (Exception e) {
+			var warnMessage = $"Failed to attach log and save to Sentry event: {e.Message}";
+			logger.Warn(warnMessage);
+			sentryHelper.AddBreadcrumb(warnMessage);
+		}
+
+		try {
+			sentryHelper.SendMessageToSentry(exitCode);
+			if (saveUploadConsent) {
+				Logger.Notice("Uploaded information about the error, thank you!");
+			}
+		} catch (Exception e) {
+			logger.Warn($"Failed to send message to Sentry: {e.Message}");
+		}
+	}
+
+	private Process SetUpConverterBackendProcess(string backendExePathRelativeToFrontend) {
 		var startInfo = new ProcessStartInfo {
 			FileName = backendExePathRelativeToFrontend,
 			WorkingDirectory = CommonFunctions.GetPath(backendExePathRelativeToFrontend),
@@ -71,13 +153,14 @@ internal class ConverterLauncher {
 			RedirectStandardInput = true,
 		};
 		var extension = CommonFunctions.GetExtension(backendExePathRelativeToFrontend);
-		if (extension == "jar") {
+		if (string.Equals(extension, "jar", StringComparison.OrdinalIgnoreCase)) {
 			startInfo.FileName = "javaw";
 			startInfo.Arguments = $"-jar {CommonFunctions.TrimPath(backendExePathRelativeToFrontend)}";
 		}
 
-		using Process process = new();
-		process.StartInfo = startInfo;
+		Process process = new() {
+			StartInfo = startInfo,
+		};
 		process.OutputDataReceived += (sender, args) => {
 			var logLine = MessageSlicer.SliceMessage(args.Data ?? string.Empty);
 			var level = logLine.Level;
@@ -85,31 +168,51 @@ internal class ConverterLauncher {
 				return;
 			}
 
-			// Get timestamp datetime.
-			DateTime timestamp = logLine.TimestampAsDateTime;
-
 			// Get level to display.
 			var logLevel = level ?? lastLevelFromBackend ?? Level.Info;
 
-			logger.LogWithCustomTimestamp(timestamp, logLevel, logLine.Message);
+			logger.LogWithCustomTimestamp(logLine.Timestamp, logLevel, logLine.Message);
 
 			if (level is not null) {
 				lastLevelFromBackend = level;
 			}
 		};
 
-		var timer = new Stopwatch();
-		timer.Start();
+		return process;
+	}
 
+	/// <summary>
+	/// Starts the given process and applies common configuration such as
+	/// enabling output redirection and boosting priority on Windows.
+	/// </summary>
+	private static void StartBackendProcessAndBeginReadingOutput(Process process) {
 		process.Start();
-		process.EnableRaisingEvents = true;
-		process.PriorityClass = ProcessPriorityClass.RealTime;
-		process.PriorityBoostEnabled = OperatingSystem.IsWindows();
-
 		process.BeginOutputReadLine();
+		process.EnableRaisingEvents = true;
+		if (OperatingSystem.IsWindows()) {
+			process.PriorityClass = ProcessPriorityClass.RealTime;
+			process.PriorityBoostEnabled = true;
+		}
+	}
 
+	/// <summary>
+	/// Register a callback that will kill the given process if the provided
+	/// cancellation token is signalled.  The returned registration should be
+	/// disposed when the process is no longer needed (the caller uses await using).
+	/// </summary>
+	private CancellationTokenRegistration RegisterKillOnCancellation(Process process, CancellationToken cancellationToken) {
+		return cancellationToken.Register(() => {
+			try {
+				process.Kill(entireProcessTree: true);
+				logger.Debug("Backend process killed due to cancellation.");
+			} catch {
+				// ignore, might already be exiting
+			}
+		});
+	}
+
+	private static void SubscribeToFrontendShutdownToKillBackend(int processId) {
 		// Kill converter backend when frontend is closed.
-		var processId = process.Id;
 		if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
 			desktop.ShutdownRequested += (sender, args) => {
 				try {
@@ -121,177 +224,116 @@ internal class ConverterLauncher {
 				}
 			};
 		}
-
-		await process.WaitForExitAsync();
-		timer.Stop();
-		
-		if (process.ExitCode == 0) {
-			logger.Info($"Converter exited at {timer.Elapsed.TotalSeconds} seconds.");
-			return true;
-		}
-
-		if (process.ExitCode == 1) {
-			// Exit code 1 is for user errors, so we don't need to send it to Sentry.
-			logger.Error($"Converter failed and exited at {timer.Elapsed.TotalSeconds} seconds.");
-			return false;
-		}
-		
-		logger.Debug($"Converter exit code: {process.ExitCode}");
-		logger.Error("Converter error! See log.txt for details.");
-		if (SentrySdk.IsEnabled) {
-			bool logProvided = false;
-			var saveUploadConsent = await Dispatcher.UIThread.InvokeAsync(GetSaveUploadConsent);
-			if (saveUploadConsent) {
-				try {
-					AttachLogAndSaveToSentry(config);
-					logProvided = true;
-				} catch (Exception e) {
-					var warnMessage = $"Failed to attach log and save to Sentry event: {e.Message}";
-					logger.Warn(warnMessage);
-					SentrySdk.AddBreadcrumb(warnMessage);
-				}
-			} 
-			SentrySdk.ConfigureScope(scope => {
-				scope.SetTag("logProvided", logProvided.ToString());
-			});
-			
-			try {
-				SendMessageToSentry(process.ExitCode);
-				if (saveUploadConsent) {
-					Logger.Notice("Uploaded information about the error, thank you!");
-				}
-			} catch (Exception e) {
-				logger.Warn($"Failed to send message to Sentry: {e.Message}");
-			}
-		} else {
-			logger.Error("If you require assistance, please visit the converter's forum thread " +
-			             "for a detailed postmortem.");
-		}
-		return false;
 	}
-	
+
 	private static async Task<bool> GetSaveUploadConsent() {
 		var saveUploadConsent = await MessageBoxManager.GetMessageBoxStandard(
-			title: "Save upload consent",
-			text: "Would you like the application to automatically upload your save file to our error database, " +
-			      "in order to help us fix this issue?",
+			title: TranslationSource.Instance.Translate("SAVE_UPLOAD_CONSENT_TITLE"),
+			text: TranslationSource.Instance.Translate("SAVE_UPLOAD_CONSENT_BODY"),
 			ButtonEnum.OkCancel,
 			Icon.Question
 		).ShowWindowDialogAsync(MainWindow.Instance);
 		return saveUploadConsent == ButtonResult.Ok;
 	}
 
-	private static async void AttachLogAndSaveToSentry(Config config) {
-		SentrySdk.ConfigureScope(scope => scope.AddAttachment("log.txt"));
-		
-		var saveLocation = config.RequiredFiles.FirstOrDefault(f => f.Name == "SaveGame")?.Value;
+	private static async Task AttachLogAndSaveToSentry(Config config, SentryHelper sentryHelper) {
+		sentryHelper.AddAttachment(FronterPaths.LogFilePath);
+
+		var saveLocation = config.RequiredFiles.FirstOrDefault(f => f.Name.Equals("SaveGame"))?.Value;
 		if (saveLocation is null) {
 			return;
 		}
 
-		Directory.CreateDirectory("temp");
-		
+		Directory.CreateDirectory(FronterPaths.TempDirectoryPath);
+
 		// Create zip with save file.
 		var dateTimeString = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss", CultureInfo.InvariantCulture);
-		var archivePath = $"temp/SaveGame_{dateTimeString}.zip";
+		var asciiSaveName = CommonFunctions.TrimExtension(Path.GetFileName(saveLocation)).FoldToASCII();
+		var archivePath = Path.Combine(FronterPaths.TempDirectoryPath, $"SaveGame_{dateTimeString}_{asciiSaveName}.zip");
 		using (var zip = ZipFile.Open(archivePath, ZipArchiveMode.Create)) {
 			zip.CreateEntryFromFile(saveLocation, new FileInfo(saveLocation).Name);
 		}
-		
+
 		// Sentry allows up to 20 MB per compressed request.
 		// So we need to calculate whether we can fit the save archive.
 		// Otherwise we upload it to Backblaze.
-		var logSize = new FileInfo("log.txt").Length; // Size in bytes.
+		var logSize = new FileInfo(FronterPaths.LogFilePath).Length; // Size in bytes.
 		const int spaceForBaseRequest = 1024 * 1024 / 2; // 0.5 MB, arbitrary.
-		var saveSizeLimitForSentry = 20 * 1024 * 1024 - (logSize + spaceForBaseRequest);
+		var saveSizeLimitForSentry = (20 * 1024 * 1024) - (logSize + spaceForBaseRequest);
 		var saveArchiveSize = new FileInfo(archivePath).Length;
 		if (saveArchiveSize <= saveSizeLimitForSentry) {
 			logger.Debug($"Save file is {saveArchiveSize} bytes, uploading to Sentry.");
-			SentrySdk.ConfigureScope(scope => { scope.AddAttachment(archivePath); });
+			sentryHelper.AddAttachment(archivePath);
 		} else {
 			logger.Debug($"Save file is {saveArchiveSize} bytes, uploading to Backblaze.");
-			await UploadSaveArchiveToBackblaze(archivePath);
+			await UploadSaveArchiveToBackblaze(archivePath, sentryHelper);
 		}
 	}
 
-	private static async Task<IPAddress?> GetExternalIpAddress() {
-		try {
-			var externalIpString = (await new HttpClient().GetStringAsync("https://icanhazip.com/"))
-				.Replace(@"\r", "")
-				.Replace(@"\n", "")
-				.Trim();
-			return !IPAddress.TryParse(externalIpString, out var ipAddress) ? null : ipAddress;
-		} catch (Exception e) {
-			SentrySdk.AddBreadcrumb($"Failed to get IP address: {e.Message}");
-			return null;
-		}
-	}
-
-	private static LogLine? GetFirstErrorLogLineFromGrid() {
-		var gridAppender = LogManager.GetRepository().GetAppenders().First(a => a.Name == "grid");
-		if (gridAppender is LogGridAppender logGridAppender) {
-			return logGridAppender.LogLines
-				.FirstOrDefault(l => l.Level is not null && l.Level >= Level.Error);
-		}
-		return null;
-	}
-
-	private static async void SendMessageToSentry(int processExitCode) {
-		// Identify user by username or IP address.
-		var ip = (await GetExternalIpAddress())?.ToString();
-		SentrySdk.ConfigureScope(scope => {
-			scope.User = ip is null ? new User {Username = Environment.UserName} : new User {IpAddress = ip};
-		});
-
-		var error = GetFirstErrorLogLineFromGrid();
-		if (error is not null) {
-			var sentryMessageLevel = error.Level == Level.Fatal ? SentryLevel.Fatal : SentryLevel.Error;
-			SentrySdk.CaptureMessage(error.Message, sentryMessageLevel);
-		} else {
-			var message = $"Converter exited with code {processExitCode}";
-			SentrySdk.CaptureMessage(message, SentryLevel.Error);
-		}
-	}
-
-	private static async Task UploadSaveArchiveToBackblaze(string archivePath) {
-		// Add Backblaze credentials to breadcrumbs for debugging.
-		var client = new BackblazeClient();
+	private static async Task UploadSaveArchiveToBackblaze(string archivePath, SentryHelper sentryHelper) {
 		var keyId = Secrets.BackblazeKeyId;
 		var applicationKey = Secrets.BackblazeApplicationKey;
-		var bucketId = Secrets.BackblazeBucketId;
-		SentrySdk.AddBreadcrumb($"Backblaze key ID: \"{keyId}\"");
-		SentrySdk.AddBreadcrumb($"Backblaze application key: \"{applicationKey}\"");
-		SentrySdk.AddBreadcrumb($"Backblaze bucket ID: \"{bucketId}\"");
+		sentryHelper.AddBreadcrumb($"Archive name: {Path.GetFileName(archivePath)}");
 
-		// Init Backblaze B2 client.
+		var s3Config = new AmazonS3Config {
+			ServiceURL = "https://s3.eu-central-003.backblazeb2.com",
+			// Backblaze B2's S3-compatible API doesn't support the checksum headers that the SDK sends by default.
+			RequestChecksumCalculation = RequestChecksumCalculation.WHEN_REQUIRED,
+			ResponseChecksumValidation = ResponseChecksumValidation.WHEN_REQUIRED,
+		};
+
+		var s3Client = new AmazonS3Client(keyId, applicationKey, s3Config);
+		var fileTransferUtility = new TransferUtility(s3Client);
+
 		try {
-			await client.ConnectAsync(keyId, applicationKey);
-		} catch (Exception e) {
-			var message = $"Failed to connect to Backblaze: {e.Message}";
-			logger.Debug(message);
-			SentrySdk.AddBreadcrumb(message);
-			return;
+			await fileTransferUtility.UploadAsync(archivePath, "save-zips");
+			Logger.Info("Upload completed.");
 		}
-			
-		// Upload zip to Backblaze B2.
-		try {
-			await using var stream = File.OpenRead(archivePath);
-			var archiveName = new FileInfo(archivePath).Name;
-			var results = await client.UploadAsync(bucketId, archiveName, stream);
-			if (results.IsSuccessStatusCode) {
-				logger.Debug("Uploaded save file to Backblaze.");
-				var backblazeFileName = results.Response.FileName;
-				var backblazeFileId = results.Response.FileId;
-				SentrySdk.AddBreadcrumb($"Backblaze file name: {backblazeFileName}; file ID: {backblazeFileId}");
-			} else {
-				logger.Debug($"Save archive upload failed with status {results.StatusCode}");
-			}
-		} catch (Exception e) {
-			var message = $"Failed to upload save file to Backblaze: {e.Message}";
-			logger.Debug(message);
-			SentrySdk.AddBreadcrumb(message);
+		catch (AmazonS3Exception e) {
+			string message = $"Error encountered on server. Message:'{e.Message}' when writing an object.";
+			Logger.Error(message);
+			sentryHelper.AddBreadcrumb(message);
+		}
+		catch (Exception e) {
+			string message = $"Unknown encountered on server. Message:'{e.Message}' when writing an object.";
+			Logger.Error(message);
+			sentryHelper.AddBreadcrumb(message);
 		}
 	}
-	
+
+	/// <summary>
+	/// Tries to open a help page based on the converter backend exit code.
+	/// </summary>
+	/// <param name="exitCode">Exit code of the converter backend.</param>
+	/// <returns>true if a help page was opened, otherwise false</returns>
+	private static async Task<bool> TryOpenHelpPage(int exitCode) {
+		if (OperatingSystem.IsWindows()) {
+			var exitCodeToHelpDict = new Dictionary<int, string> {
+				{-1073741790, "https://answers.microsoft.com/en-us/windows/forum/all/the-application-was-unable-to-start-correctly/e06ee08a-26c5-447a-80bd-ed339488d0f3"}, // -1073741790 = 0xC0000022
+				{-1073741795, "https://ugetfix.com/ask/how-to-fix-file-system-error-1073741795-in-windows/"},
+				{-532462766, "https://www.thewindowsclub.com/add-file-or-folder-to-antivirus-exception-list-in-windows"},
+				{-2147450730, "https://dotnet.microsoft.com/download"}, // 0x80008096 - .NET runtime not found
+			};
+			if (!exitCodeToHelpDict.TryGetValue(exitCode, out var helpLink)) {
+				return false;
+			}
+
+			var msgBoxResult = await Dispatcher.UIThread.InvokeAsync(() => MessageBoxManager.GetMessageBoxStandard(
+				title: "Fix suggestion",
+				text: "Would you like to open a help page with instructions on how to fix this issue?",
+				ButtonEnum.YesNo,
+				Icon.Info
+			).ShowWindowDialogAsync(MainWindow.Instance));
+
+			if (msgBoxResult == ButtonResult.Yes) {
+				BrowserLauncher.Open(helpLink);
+				return true;
+			}
+			Logger.Debug("User declined to open help page.");
+		}
+
+		return false;
+	}
+
 	private readonly Config config;
 }

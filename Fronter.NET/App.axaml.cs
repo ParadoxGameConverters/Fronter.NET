@@ -3,27 +3,30 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
+using Avalonia.Threading;
 using commonItems;
+using Fronter.Extensions;
 using Fronter.ViewModels;
 using Fronter.Views;
 using log4net;
-using log4net.Config;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Fronter;
 
-public class App : Application {
+internal sealed class App : Application {
 	private static readonly ILog logger = LogManager.GetLogger("Frontend");
-	private const string FronterThemePath = "Configuration/fronter-theme.txt";
-	private const string DefaultTheme = "Dark";
+	private static readonly string FronterThemePath = FronterPaths.ThemeFilePath;
+	private const string DefaultTheme = "Default";
 
 	public override void Initialize() {
-		ConfigureLogging();
+		LoggingConfigurator.ConfigureLogging();
 
 		AvaloniaXamlLoader.Load(this);
 
-		LoadTheme();
+		_ = Task.Run(LoadTheme);
 	}
 
 	public override void OnFrameworkInitializationCompleted() {
@@ -34,25 +37,16 @@ public class App : Application {
 			var mainWindowViewModel = new MainWindowViewModel(window.FindControl<DataGrid>("LogGrid")!);
 			window.DataContext = mainWindowViewModel;
 
-			desktop.MainWindow.Opened += (sender, args) => DebugInfo.LogEverything();
-			desktop.MainWindow.Opened += (sender, args) => mainWindowViewModel.CheckForUpdatesOnStartup();
+			desktop.MainWindow.Opened += (sender, args) => _ = TranslationSource.Instance.StartDeferredTranslationsLoad();
+			desktop.MainWindow.Opened += (sender, args) => mainWindowViewModel.Config.ApplyDeferredPlaysetAutoLocation();
+			desktop.MainWindow.Opened += (sender, args) => _ = Task.Run(DebugInfo.LogEverything);
+			desktop.MainWindow.Opened += (sender, args) => _ = mainWindowViewModel.CheckForUpdatesOnStartup();
 		}
 
 		base.OnFrameworkInitializationCompleted();
 	}
 
-	public static void ConfigureLogging() {
-		var repository = LogManager.GetRepository();
-
-		// add custom "PROGRESS" level
-		repository.LevelMap.Add(LogExtensions.ProgressLevel);
-
-		// configure log4net
-		var logConfiguration = new FileInfo("log4net_Fronter.config");
-		XmlConfigurator.Configure(logConfiguration);
-	}
-
-	private static async void LoadTheme() {
+	private static async Task LoadTheme() {
 		if (!File.Exists(FronterThemePath)) {
 			SetTheme(DefaultTheme);
 			return;
@@ -71,31 +65,42 @@ public class App : Application {
 	/// Sets a theme
 	/// </summary>
 	/// <param name="themeName">Name of the theme to set.</param>
+	[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 	public static void SetTheme(string themeName) {
 		var app = Application.Current;
 		if (app is null) {
 			return;
 		}
 
-		switch (themeName) {
-			case "Light":
-				if (app.RequestedThemeVariant != ThemeVariant.Light) {
-					app.RequestedThemeVariant = ThemeVariant.Light;
-				}
-				break;
-			case "Dark":
-				if (app.RequestedThemeVariant != ThemeVariant.Dark) {
-					app.RequestedThemeVariant = ThemeVariant.Dark;
-				}
-				break;
-		}
+		Dispatcher.UIThread.Post(() => {
+			switch (themeName) {
+				case "Default":
+					if (app.RequestedThemeVariant != ThemeVariant.Default) {
+						app.RequestedThemeVariant = ThemeVariant.Default;
+					}
+
+					break;
+				case "Light":
+					if (app.RequestedThemeVariant != ThemeVariant.Light) {
+						app.RequestedThemeVariant = ThemeVariant.Light;
+					}
+
+					break;
+				case "Dark":
+					if (app.RequestedThemeVariant != ThemeVariant.Dark) {
+						app.RequestedThemeVariant = ThemeVariant.Dark;
+					}
+
+					break;
+			}
+		});
 	}
 
 	/// <summary>
 	/// Sets and saves a theme
 	/// </summary>
 	/// <param name="themeName" >Name of the theme to set and save.</param>
-	public static async void SaveTheme(string themeName) {
+	public static async Task SaveTheme(string themeName) {
 		SetTheme(themeName);
 		try {
 			await using var fs = new FileStream(FronterThemePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);

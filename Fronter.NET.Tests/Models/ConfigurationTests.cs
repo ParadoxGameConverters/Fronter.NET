@@ -1,4 +1,12 @@
-﻿using Fronter.Models.Configuration;
+﻿using Avalonia.Data;
+using commonItems;
+using Fronter.Models.Configuration;
+using Fronter.Models.Configuration.Options;
+using Microsoft.Data.Sqlite;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Xunit;
 namespace Fronter.Tests.Models;
 
@@ -7,13 +15,14 @@ public class ConfigurationTests {
 	public void SimpleValuesAreLoaded() {
 		var config = new Config();
 		Assert.Equal("ImperatorToCK3", config.Name);
-		Assert.Equal("ImperatorToCK3", config.ConverterFolder);
+		Assert.Equal(Path.Combine(AppContext.BaseDirectory, "ImperatorToCK3"), config.ConverterFolder);
 		Assert.Equal("ImperatorToCK3Converter", config.BackendExePath);
 		Assert.Equal("IMPDISPLAYNAME", config.DisplayName);
 		Assert.Equal("IMPGAME", config.SourceGame);
 		Assert.Equal("CK3GAME", config.TargetGame);
 		Assert.True(config.UpdateCheckerEnabled);
-		Assert.True(config.CheckForUpdatesOnStartup );
+		Assert.True(config.CheckForUpdatesOnStartup);
+		Assert.True(config.CheckUpdatesBySemver);
 		Assert.Equal("https://github.com/ParadoxGameConverters/ImperatorToCK3/releases/latest", config.LatestGitHubConverterReleaseUrl);
 		Assert.Equal("https://forum.paradoxplaza.com/forum/threads/imperator-to-ck3-release-thread.1415172", config.ConverterReleaseForumThread);
 		Assert.Equal("https://paradoxgameconverters.com/commit_ids/ImperatorToCK3.txt", config.PagesCommitIdUrl);
@@ -40,7 +49,7 @@ public class ConfigurationTests {
 			},
 			folder => {
 				Assert.Equal("targetGameModPath", folder.Name);
-				Assert.Equal("Paradox Interactive\\Crusader Kings III\\mod", folder.SearchPath);
+				Assert.Equal(@"Paradox Interactive\Crusader Kings III\mod", folder.SearchPath);
 			}
 		);
 
@@ -52,8 +61,219 @@ public class ConfigurationTests {
 				Assert.True(file.Mandatory);
 				Assert.True(file.Outputtable);
 				Assert.Equal("windowsUsersFolder", file.SearchPathType);
-				Assert.Equal("Paradox Interactive\\Imperator\\save games", file.SearchPath );
+				Assert.Equal(@"Paradox Interactive\Imperator\save games", file.SearchPath );
 				Assert.Equal("*.rome", file.AllowedExtension);
 			});
+	}
+
+	[Fact]
+	public void ExistingConverterConfigurationIsCorrectlyLoaded() {
+		var config = new Config();
+		config.LoadExistingConfiguration();
+		
+		Assert.Equal("1", config.Options.First(o => o.Name == "HeresiesInHistoricalAreas").GetValue());
+		Assert.Equal("1", config.Options.First(o => o.Name == "StaticDeJure").GetValue());
+		Assert.Equal("1", config.Options.First(o => o.Name == "FillerDukes").GetValue());
+		Assert.Equal("1", config.Options.First(o => o.Name == "UseCK3Flags").GetValue());
+		Assert.Equal("1.0", config.Options.First(o => o.Name == "ImperatorCurrencyRate").GetValue());
+		Assert.Equal("0.4", config.Options.First(o => o.Name == "ImperatorCivilizationWorth").GetValue());
+		Assert.Equal("0", config.Options.First(o => o.Name == "LegionConversion").GetValue());
+		Assert.Equal("test_save", config.Options.First(o => o.Name == "output_name").GetValue());
+		Assert.Equal("867.1.1", config.Options.First(o => o.Name == "bookmark_date").GetValue());
+	}
+	
+	[Fact]
+	public void EmptyStringCanBeUsedAsDateOptionValue() {
+		var config = new Config();
+		config.LoadExistingConfiguration();
+		var bookmarkDateOption = config.Options.First(o => o.Name == "bookmark_date");
+		bookmarkDateOption.SetValue(string.Empty);
+		Assert.Equal(string.Empty, bookmarkDateOption.GetValue());
+	}
+
+	[Fact]
+	public void CheckBoxSelector_TracksSelectedValuesAndIds() {
+		var selector = new CheckBoxSelector(new BufferedReader(string.Empty));
+		selector.CheckBoxOptions.Add(new ToggleableOption(new BufferedReader("name = alpha default = true"), 1));
+		selector.CheckBoxOptions.Add(new ToggleableOption(new BufferedReader("name = beta default = false"), 2));
+
+		selector.SetSelectedValues(new HashSet<string>(new[] { "beta" }));
+
+		Assert.Equal(new HashSet<string> { "beta" }, selector.GetSelectedValues());
+		Assert.Equal(new HashSet<int> { 2 }, selector.GetSelectedIds());
+	}
+
+	[Fact]
+	public void TextSelector_ParsesEditableValueAndTooltip() {
+		var selector = new TextSelector(new BufferedReader("editable = false\nvalue = \"chosen-name\"\ntooltip = \"example tooltip\""));
+
+		Assert.False(selector.Editable);
+		Assert.Equal("chosen-name", selector.Value);
+		Assert.Equal("example tooltip", selector.Tooltip);
+	}
+
+	[Fact]
+	public void DateSelector_TextValue_AllowsValidDatesAndClearsEmptyValues() {
+		var selector = new DateSelector(new BufferedReader("editable = true\nvalue = \"2025.05.04\"\ntooltip = \"example date\""));
+
+		Assert.Equal("2025.5.4", selector.TextValue);
+
+		selector.TextValue = "2026.06.15";
+		Assert.Equal("2026.6.15", selector.TextValue);
+
+		selector.TextValue = string.Empty;
+		Assert.Null(selector.Value);
+	}
+
+	[Theory]
+	[InlineData("2025.13.01")]
+	[InlineData("2025.00.01")]
+	[InlineData("2025.12.32")]
+	public void DateSelector_TextValue_RejectsInvalidDates(string invalidDate) {
+		var selector = new DateSelector(new BufferedReader(string.Empty));
+
+		Assert.Throws<DataValidationException>(() => selector.TextValue = invalidDate);
+	}
+
+	[Fact]
+	public void AutoLocatePlaysets_DoesNotThrowWhenLauncherDbIsInvalid() {
+		var config = new Config();
+		var tempRoot = Path.Combine(Path.GetTempPath(), "Fronter.Tests", Guid.NewGuid().ToString("N"));
+		var targetGameModPath = Path.Combine(tempRoot, "mod");
+
+		Directory.CreateDirectory(targetGameModPath);
+		File.WriteAllText(Path.Combine(tempRoot, "launcher-v2.sqlite"), "not a real sqlite database");
+
+		var targetGameFolder = config.RequiredFolders.First(f =>
+			string.Equals(f.Name, "targetGameModPath", StringComparison.OrdinalIgnoreCase));
+
+		targetGameFolder.Value = targetGameModPath;
+
+		var exception = Record.Exception(() => config.AutoLocatePlaysets());
+
+		Assert.Null(exception);
+		Assert.Empty(config.AutoLocatedPlaysets);
+	}
+
+	[Fact]
+	public void AutoLocatePlaysets_WorksWithCurrentLauncherSchema() {
+		var config = new Config();
+		var tempRoot = Path.Combine(Path.GetTempPath(), "Fronter.Tests", Guid.NewGuid().ToString("N"));
+		var targetGameModPath = Path.Combine(tempRoot, "mod");
+
+		Directory.CreateDirectory(targetGameModPath);
+		var dbPath = Path.Combine(tempRoot, "launcher-v2.sqlite");
+
+		using (var connection = new SqliteConnection($"Data Source={dbPath}")) {
+			connection.Open();
+			var createTableCommand = connection.CreateCommand();
+			// Mirrors the current launcher-v2 schema (no "lastServerChecksum" or "thumbnailFileUrl" columns).
+			createTableCommand.CommandText = """
+				CREATE TABLE "playsets" (
+					"id" char(36) NOT NULL,
+					"name" varchar(255) NOT NULL,
+					"isActive" boolean,
+					"loadOrder" varchar(255),
+					"pdxId" INT,
+					"pdxUserId" char(36),
+					"createdOn" datetime NOT NULL,
+					"updatedOn" datetime,
+					"syncedOn" datetime,
+					"deprecatedLastServerChecksum" varchar(255),
+					"isRemoved" boolean DEFAULT false,
+					"hasNotApprovedChanges" boolean DEFAULT '0',
+					"syncState" varchar(255),
+					"state" varchar(255) DEFAULT 'private' NOT NULL,
+					"owned" boolean DEFAULT '1' NOT NULL,
+					"author" varchar(255) DEFAULT '' NOT NULL,
+					"subscribersCount" integer DEFAULT '0' NOT NULL,
+					"ratingsCount" integer DEFAULT '0' NOT NULL,
+					"coverImagePath" varchar(255),
+					"coverImageUpdatedOn" datetime,
+					"description" varchar(255) DEFAULT '',
+					"offDisk" boolean DEFAULT '0' NOT NULL,
+					"version" varchar(255),
+					"lastSyncAttemptAt" datetime
+				);
+				""";
+			createTableCommand.ExecuteNonQuery();
+
+			var insertCommand = connection.CreateCommand();
+			insertCommand.CommandText = """
+				INSERT INTO "playsets" ("id", "name", "createdOn")
+				VALUES ('00000000-0000-0000-0000-000000000001', 'test playset', '2026-01-01 00:00:00');
+				""";
+			insertCommand.ExecuteNonQuery();
+		}
+
+		var targetGameFolder = config.RequiredFolders.First(f =>
+			string.Equals(f.Name, "targetGameModPath", StringComparison.OrdinalIgnoreCase));
+		targetGameFolder.Value = targetGameModPath;
+
+		var exception = Record.Exception(() => config.AutoLocatePlaysets());
+
+		Assert.Null(exception);
+		var playset = Assert.Single(config.AutoLocatedPlaysets);
+		Assert.Equal("test playset", playset.Name);
+	}
+
+	[Fact]
+	public void AutoLocatePlaysets_WorksWhenCoverImageColumnsAreMissing() {
+		var config = new Config();
+		var tempRoot = Path.Combine(Path.GetTempPath(), "Fronter.Tests", Guid.NewGuid().ToString("N"));
+		var targetGameModPath = Path.Combine(tempRoot, "mod");
+
+		Directory.CreateDirectory(targetGameModPath);
+		var dbPath = Path.Combine(tempRoot, "launcher-v2.sqlite");
+
+		using (var connection = new SqliteConnection($"Data Source={dbPath}")) {
+			connection.Open();
+			var createTableCommand = connection.CreateCommand();
+			createTableCommand.CommandText = """
+				CREATE TABLE "playsets" (
+					"id" char(36) NOT NULL,
+					"name" varchar(255) NOT NULL,
+					"isActive" boolean,
+					"loadOrder" varchar(255),
+					"pdxId" INT,
+					"pdxUserId" char(36),
+					"createdOn" datetime NOT NULL,
+					"updatedOn" datetime,
+					"syncedOn" datetime,
+					"deprecatedLastServerChecksum" varchar(255),
+					"isRemoved" boolean DEFAULT false,
+					"hasNotApprovedChanges" boolean DEFAULT '0',
+					"syncState" varchar(255),
+					"state" varchar(255) DEFAULT 'private' NOT NULL,
+					"owned" boolean DEFAULT '1' NOT NULL,
+					"author" varchar(255) DEFAULT '' NOT NULL,
+					"subscribersCount" integer DEFAULT '0' NOT NULL,
+					"ratingsCount" integer DEFAULT '0' NOT NULL,
+					"description" varchar(255) DEFAULT '',
+					"offDisk" boolean DEFAULT '0' NOT NULL,
+					"version" varchar(255),
+					"lastSyncAttemptAt" datetime
+				);
+				""";
+			createTableCommand.ExecuteNonQuery();
+
+			var insertCommand = connection.CreateCommand();
+			insertCommand.CommandText = """
+				INSERT INTO "playsets" ("id", "name", "createdOn")
+				VALUES ('00000000-0000-0000-0000-000000000001', 'test playset', '2026-01-01 00:00:00');
+				""";
+			insertCommand.ExecuteNonQuery();
+		}
+
+		var targetGameFolder = config.RequiredFolders.First(f =>
+			string.Equals(f.Name, "targetGameModPath", StringComparison.OrdinalIgnoreCase));
+		targetGameFolder.Value = targetGameModPath;
+
+		var exception = Record.Exception(() => config.AutoLocatePlaysets());
+
+		Assert.Null(exception);
+		var playset = Assert.Single(config.AutoLocatedPlaysets);
+		Assert.Equal("00000000-0000-0000-0000-000000000001", playset.Id);
+		Assert.Equal("test playset", playset.Name);
 	}
 }

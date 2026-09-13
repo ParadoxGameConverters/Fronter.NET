@@ -2,11 +2,12 @@
 using commonItems;
 using Fronter.Extensions;
 using log4net;
+using System;
 using System.IO;
 
 namespace Fronter.Models.Configuration;
 
-public sealed class RequiredFolder : RequiredPath {
+internal sealed class RequiredFolder : RequiredPath {
 	private static readonly ILog logger = LogManager.GetLogger("Required folder");
 	public RequiredFolder(BufferedReader reader, Config config) {
 		this.config = config;
@@ -19,8 +20,8 @@ public sealed class RequiredFolder : RequiredPath {
 		parser.RegisterKeyword("name", reader => Name = reader.GetString());
 		parser.RegisterKeyword("tooltip", reader => Tooltip = reader.GetString());
 		parser.RegisterKeyword("displayName", reader => DisplayName = reader.GetString());
-		parser.RegisterKeyword("mandatory", reader => Mandatory = reader.GetString() == "true");
-		parser.RegisterKeyword("outputtable", reader => Outputtable = reader.GetString() == "true");
+		parser.RegisterKeyword("mandatory", reader => Mandatory = reader.GetString().Equals("true", StringComparison.OrdinalIgnoreCase));
+		parser.RegisterKeyword("outputtable", reader => Outputtable = reader.GetString().Equals("true", StringComparison.OrdinalIgnoreCase));
 
 		parser.RegisterKeyword("searchPathType", reader => SearchPathType = reader.GetString());
 		parser.RegisterKeyword("steamGameID", reader => SteamGameId = reader.GetString());
@@ -45,8 +46,8 @@ public sealed class RequiredFolder : RequiredPath {
 			base.Value = value;
 			logger.Info($"{TranslationSource.Instance[DisplayName]} set to: {value}");
 
-			if (Name == config.ModAutoGenerationSource) {
-				config.AutoLocateMods();
+			if (Name.Equals("targetGameModPath", StringComparison.OrdinalIgnoreCase)) {
+				config.HandleTargetGameModPathChanged();
 			}
 		}
 	}

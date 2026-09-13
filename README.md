@@ -26,6 +26,10 @@ sourceGame = SOURCEGAME
 targetGame = TARGETGAME
 copyToTargetGameModDirectory = true
 progressOnCopyingComplete = 109 # Final progressbar value after completion of mod copying.
+enableUpdateChecker = true
+checkForUpdatesOnStartup = true
+checkUpdatesBySemver = false # Optional. Defaults to commit_id.txt comparison when omitted or false.
+pagesCommitIdUrl = "https://paradoxgameconverters.com/commit_ids/CK2ToEU4.txt"
 
 requiredFile = {
 	name = SaveGame
@@ -58,9 +62,6 @@ requiredFolder = {
 }
 ```
 
-autoGenerateModsFrom:
--   Looks in that directory for mods to show in Fronter Mod tab. If "/mod/" subdirectory exists, it swaps to that instead. (Ie. you can use documents directory if you want)
-
 searchPathType:
 -   converterFolder - looks in the provided converterFolder in current directory
 -   storeFolder - uses steamGameID and gogGameID to look for an "installation path" from Steam/GOG registry. If there's a match it will also append searchPath at the end so you can use this for Vic2 installdir/mods.
@@ -72,6 +73,19 @@ mandatory:
 
 outputtable (relevant for files only):
 -   true - will be sent to configuration.txt
+
+enableUpdateChecker:
+-   true - enables update checks in the frontend.
+
+checkForUpdatesOnStartup:
+-   true - runs the update check automatically when the frontend opens.
+
+checkUpdatesBySemver:
+-   false or omitted - default behavior; compares local `commit_id.txt` against `pagesCommitIdUrl`.
+-   true - reads `<converterFolder>/configurables/version.txt`, fetches GitHub releases, ignores draft/prerelease/alpha/beta/rc/pre releases, and shows a combined changelog for every newer stable release.
+
+pagesCommitIdUrl:
+-   Used by the default commit-ID update mode. You can leave it configured even when semver mode is enabled.
 
 Rest is self-explanatory! Shoestring Budget!
 
@@ -193,7 +207,6 @@ targetGameModPath = "d:\somePath\to\mods"
 shatter_hre_level = "1"
 output_name = "some user input"
 some_checkbox_control = { "yes", "1", "sausage" }
-selectedMods  = { "modfilename1.mod" "second mod filena.me.mod" "oddlynamed.mod.mod.mod" } # this one is done if autoGenerateModsFrom was used and valid
 ```
 
 Slashes and backslashes depend on OS, so Converter is responsible for parsing them.

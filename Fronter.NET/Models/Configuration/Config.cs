@@ -1,18 +1,21 @@
 ﻿using Avalonia.Controls.ApplicationLifetimes;
 using commonItems;
 using Fronter.Models.Configuration.Options;
+using Fronter.Models.Database;
+using Fronter.Services;
 using Fronter.ViewModels;
 using log4net;
-using Sentry;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 
 namespace Fronter.Models.Configuration;
 
-public class Config {
+internal sealed class Config {
 	public string Name { get; private set; } = string.Empty;
 	public string ConverterFolder { get; private set; } = string.Empty;
 	public string BackendExePath { get; private set; } = string.Empty; // relative to ConverterFolder
@@ -20,26 +23,35 @@ public class Config {
 	public string SourceGame { get; private set; } = string.Empty;
 	public string TargetGame { get; private set; } = string.Empty;
 	public string? SentryDsn { get; private set; }
-	public string? ModAutoGenerationSource { get; private set; } = null;
-	public ObservableCollection<Mod> AutoLocatedMods { get; } = new();
+	public bool TargetPlaysetSelectionEnabled { get; private set; } = false;
+	public ObservableCollection<Playset> AutoLocatedPlaysets { get; } = [];
+	public Playset? SelectedPlayset { get; set; }
 	public bool CopyToTargetGameModDirectory { get; set; } = true;
 	public ushort ProgressOnCopyingComplete { get; set; } = 109;
 	public bool UpdateCheckerEnabled { get; private set; } = false;
 	public bool CheckForUpdatesOnStartup { get; private set; } = false;
+	public bool CheckUpdatesBySemver { get; private set; } = false;
 	public string ConverterReleaseForumThread { get; private set; } = string.Empty;
 	public string LatestGitHubConverterReleaseUrl { get; private set; } = string.Empty;
 	public string PagesCommitIdUrl { get; private set; } = string.Empty;
-	public IList<RequiredFile> RequiredFiles { get; } = new List<RequiredFile>();
-	public IList<RequiredFolder> RequiredFolders { get; } = new List<RequiredFolder>();
-	public IList<Option> Options { get; } = new List<Option>();
+	public List<RequiredFile> RequiredFiles { get; } = [];
+	public List<RequiredFolder> RequiredFolders { get; } = [];
+	public List<Option> Options { get; } = [];
 	private int optionCounter;
+	private readonly string baseDirectory;
+	private string? deferredSelectedPlaysetId;
+	private bool autoLocateOnTargetPathChangeEnabled;
 
 	private static readonly ILog logger = LogManager.GetLogger("Configuration");
 
-	public Config() {
+	public Config(): this(AppContext.BaseDirectory) {
+	}
+
+	internal Config(string baseDirectory) {
+		this.baseDirectory = baseDirectory;
 		var parser = new Parser();
 		RegisterKeys(parser);
-		var fronterConfigurationPath = Path.Combine("Configuration", "fronter-configuration.txt");
+		var fronterConfigurationPath = Path.Combine(baseDirectory, "Configuration/fronter-configuration.txt");
 		if (File.Exists(fronterConfigurationPath)) {
 			parser.ParseFile(fronterConfigurationPath);
 			logger.Info("Frontend configuration loaded.");
@@ -47,16 +59,12 @@ public class Config {
 			logger.Warn($"{fronterConfigurationPath} not found!");
 		}
 
-		var fronterOptionsPath = Path.Combine("Configuration", "fronter-options.txt");
+		var fronterOptionsPath = Path.Combine(baseDirectory, "Configuration/fronter-options.txt");
 		if (File.Exists(fronterOptionsPath)) {
 			parser.ParseFile(fronterOptionsPath);
 			logger.Info("Frontend options loaded.");
 		} else {
 			logger.Warn($"{fronterOptionsPath} not found!");
-		}
-
-		if (SentryDsn is not null) {
-			InitSentry(SentryDsn);
 		}
 
 		InitializePaths();
@@ -67,7 +75,9 @@ public class Config {
 	private void RegisterKeys(Parser parser) {
 		parser.RegisterKeyword("name", reader => Name = reader.GetString());
 		parser.RegisterKeyword("sentryDsn", reader => SentryDsn = reader.GetString());
-		parser.RegisterKeyword("converterFolder", reader => ConverterFolder = reader.GetString());
+		parser.RegisterKeyword("converterFolder", reader => {
+			ConverterFolder = Path.Combine(baseDirectory, reader.GetString());
+		});
 		parser.RegisterKeyword("backendExePath", reader => BackendExePath = reader.GetString());
 		parser.RegisterKeyword("requiredFolder", reader => {
 			var newFolder = new RequiredFolder(reader, this);
@@ -92,18 +102,23 @@ public class Config {
 		parser.RegisterKeyword("displayName", reader => DisplayName = reader.GetString());
 		parser.RegisterKeyword("sourceGame", reader => SourceGame = reader.GetString());
 		parser.RegisterKeyword("targetGame", reader => TargetGame = reader.GetString());
-		parser.RegisterKeyword("autoGenerateModsFrom", reader => ModAutoGenerationSource = reader.GetString());
+		parser.RegisterKeyword("targetPlaysetSelectionEnabled", reader => {
+			TargetPlaysetSelectionEnabled = reader.GetString().Equals("true", StringComparison.OrdinalIgnoreCase);
+		});
 		parser.RegisterKeyword("copyToTargetGameModDirectory", reader => {
-			CopyToTargetGameModDirectory = reader.GetString() == "true";
+			CopyToTargetGameModDirectory = reader.GetString().Equals("true", StringComparison.OrdinalIgnoreCase);
 		});
 		parser.RegisterKeyword("progressOnCopyingComplete", reader => {
 			ProgressOnCopyingComplete = (ushort)reader.GetInt();
 		});
 		parser.RegisterKeyword("enableUpdateChecker", reader => {
-			UpdateCheckerEnabled = reader.GetString() == "true";
+			UpdateCheckerEnabled = reader.GetString().Equals("true", StringComparison.OrdinalIgnoreCase);
 		});
 		parser.RegisterKeyword("checkForUpdatesOnStartup", reader => {
-			CheckForUpdatesOnStartup = reader.GetString() == "true";
+			CheckForUpdatesOnStartup = reader.GetString().Equals("true", StringComparison.OrdinalIgnoreCase);
+		});
+		parser.RegisterKeyword("checkUpdatesBySemver", reader => {
+			CheckUpdatesBySemver = reader.GetString().Equals("true", StringComparison.OrdinalIgnoreCase);
 		});
 		parser.RegisterKeyword("converterReleaseForumThread", reader => {
 			ConverterReleaseForumThread = reader.GetString();
@@ -114,83 +129,36 @@ public class Config {
 		parser.RegisterKeyword("pagesCommitIdUrl", reader => PagesCommitIdUrl = reader.GetString());
 		parser.IgnoreAndLogUnregisteredItems();
 	}
-	
-	private void InitSentry(string dsn) {
-		string? release = null;
-		// Try to get version from converter's version.txt
-		var versionFilePath = Path.Combine(ConverterFolder, "configurables/version.txt");
-		if (File.Exists(versionFilePath)) {
-			var version = new ConverterVersion();
-			version.LoadVersion(versionFilePath);
-			release = version.Version;
-		}
-		if (release is null) {
-			Logger.Debug("Skipping Sentry initialization because converter version could not be determined.");
-			return;
-		}
-		
-		SentrySdk.Init(options => {
-			// A Sentry Data Source Name (DSN) is required.
-			// See https://docs.sentry.io/product/sentry-basics/dsn-explainer/
-			options.Dsn = dsn;
-
-			// This option is recommended. It enables Sentry's "Release Health" feature.
-			options.AutoSessionTracking = true;
-
-			// This option is recommended for client applications only. It ensures all threads use the same global scope.
-			// If you're writing a background service of any kind, you should remove this.
-			options.IsGlobalModeEnabled = true;
-
-			// This option will enable Sentry's tracing features. You still need to start transactions and spans.
-			options.EnableTracing = true;
-			options.AttachStacktrace = false;
-
-			options.MaxBreadcrumbs = int.MaxValue;
-			options.MaxAttachmentSize = long.MaxValue;
-
-			options.Release = release;
-#if DEBUG
-			options.Environment = "Debug";
-#else
-			options.Environment = "Release"; 
-#endif
-		});
-		Logger.Debug("Sentry initialized.");
-	}
 
 	private void RegisterPreloadKeys(Parser parser) {
 		parser.RegisterRegex(CommonRegexes.String, (reader, incomingKey) => {
-			var valueStringOfItem = reader.GetStringOfItem();
-			var valueStr = valueStringOfItem.ToString().RemQuotes();
+			StringOfItem valueStringOfItem = reader.GetStringOfItem();
+			string valueStr = valueStringOfItem.ToString().RemQuotes();
 			var valueReader = new BufferedReader(valueStr);
 
 			foreach (var folder in RequiredFolders) {
-				if (folder.Name == incomingKey && Directory.Exists(valueStr)) {
+				if (folder.Name.Equals(incomingKey) && Directory.Exists(valueStr)) {
 					folder.Value = valueStr;
 				}
 			}
 
 			foreach (var file in RequiredFiles) {
-				if (file.Name == incomingKey && File.Exists(valueStr)) {
+				if (file.Name.Equals(incomingKey) && File.Exists(valueStr)) {
 					file.Value = valueStr;
 				}
 			}
 			foreach (var option in Options) {
-				if (option.Name == incomingKey && option.CheckBoxSelector is null) {
+				if (option.Name.Equals(incomingKey) && option.CheckBoxSelector is null) {
 					option.SetValue(valueStr);
-				} else if (option.Name == incomingKey && option.CheckBoxSelector is not null) {
+				} else if (option.Name.Equals(incomingKey) && option.CheckBoxSelector is not null) {
 					var selections = valueReader.GetStrings();
-					var values = selections.ToHashSet();
+					var values = selections.ToHashSet(StringComparer.Ordinal);
 					option.SetValue(values);
 					option.SetCheckBoxSelectorPreloaded();
 				}
 			}
-			if (incomingKey == "selectedMods") {
-				var theList = valueReader.GetStrings();
-				var matchingMods = AutoLocatedMods.Where(m => theList.Contains(m.FileName));
-				foreach (var mod in matchingMods) {
-					mod.Enabled = true;
-				}
+			if (incomingKey.Equals("selectedPlayset", StringComparison.OrdinalIgnoreCase)) {
+				deferredSelectedPlaysetId = valueStr;
 			}
 		});
 		parser.RegisterRegex(CommonRegexes.Catchall, ParserHelpers.IgnoreAndLogItem);
@@ -207,21 +175,17 @@ public class Config {
 	}
 
 	private void InitializeFolders(string documentsDir) {
-		foreach (var folder in RequiredFolders) {
+		foreach (var folder in RequiredFolders.Where(f => string.IsNullOrEmpty(f.Value))) {
 			string? initialValue = null;
 
-			if (!string.IsNullOrEmpty(folder.Value)) {
-				continue;
-			}
-
-			if (folder.SearchPathType == "windowsUsersFolder") {
+			if (folder.SearchPathType.Equals("windowsUsersFolder")) {
 				initialValue = Path.Combine(documentsDir, folder.SearchPath);
-			} else if (folder.SearchPathType == "storeFolder") {
+			} else if (folder.SearchPathType.Equals("storeFolder")) {
 				string? possiblePath = null;
 				if (uint.TryParse(folder.SteamGameId, out uint steamId)) {
 					possiblePath = CommonFunctions.GetSteamInstallPath(steamId);
 				}
-				if (possiblePath is null && long.TryParse(folder.GOGGameId, out long gogId)) {
+				if (possiblePath is null && long.TryParse(folder.GOGGameId, CultureInfo.InvariantCulture, out long gogId)) {
 					possiblePath = CommonFunctions.GetGOGInstallPath(gogId);
 				}
 
@@ -233,16 +197,12 @@ public class Config {
 				if (!string.IsNullOrEmpty(folder.SearchPath)) {
 					initialValue = Path.Combine(initialValue, folder.SearchPath);
 				}
-			} else if (folder.SearchPathType == "direct") {
+			} else if (folder.SearchPathType.Equals("direct")) {
 				initialValue = folder.SearchPath;
 			}
 
 			if (Directory.Exists(initialValue)) {
 				folder.Value = initialValue;
-			}
-
-			if (folder.Name == ModAutoGenerationSource) {
-				AutoLocateMods();
 			}
 		}
 	}
@@ -254,14 +214,13 @@ public class Config {
 
 			if (!string.IsNullOrEmpty(file.Value)) {
 				initialDirectory = CommonFunctions.GetPath(file.Value);
-			} else if (file.SearchPathType == "windowsUsersFolder") {
+			} else if (file.SearchPathType.Equals("windowsUsersFolder")) {
 				initialDirectory = Path.Combine(documentsDir, file.SearchPath);
 				if (!string.IsNullOrEmpty(file.FileName)) {
 					initialValue = Path.Combine(initialDirectory, file.FileName);
 				}
-			} else if (file.SearchPathType == "converterFolder") {
-				var currentDir = Directory.GetCurrentDirectory();
-				initialDirectory = Path.Combine(currentDir, file.SearchPath);
+			} else if (file.SearchPathType.Equals("converterFolder")) {
+				initialDirectory = Path.Combine(baseDirectory, file.SearchPath);
 				if (!string.IsNullOrEmpty(file.FileName)) {
 					initialValue = Path.Combine(initialDirectory, file.FileName);
 				}
@@ -289,6 +248,23 @@ public class Config {
 		parser.ParseFile(converterConfigurationPath);
 	}
 
+	public void ApplyDeferredPlaysetAutoLocation() {
+		if (!TargetPlaysetSelectionEnabled) {
+			return;
+		}
+
+		AutoLocatePlaysets();
+		autoLocateOnTargetPathChangeEnabled = true;
+	}
+
+	public void HandleTargetGameModPathChanged() {
+		if (!TargetPlaysetSelectionEnabled || !autoLocateOnTargetPathChangeEnabled) {
+			return;
+		}
+
+		AutoLocatePlaysets();
+	}
+
 	public bool ExportConfiguration() {
 		SetSavingStatus("CONVERTSTATUSIN");
 
@@ -306,38 +282,15 @@ public class Config {
 		var outConfPath = Path.Combine(ConverterFolder, "configuration.txt");
 		try {
 			using var writer = new StreamWriter(outConfPath);
-			foreach (var folder in RequiredFolders) {
-				writer.WriteLine($"{folder.Name} = \"{folder.Value}\"");
+
+			WriteRequiredFolders(writer);
+			WriteRequiredFiles(writer);
+			if (SelectedPlayset is not null) {
+				writer.WriteLine($"selectedPlayset = {SelectedPlayset.Id}");
+				WriteSelectedMods(writer, SelectedPlayset);
 			}
 
-			foreach (var file in RequiredFiles) {
-				if (!file.Outputtable) {
-					continue;
-				}
-				writer.WriteLine($"{file.Name} = \"{file.Value}\"");
-			}
-
-			if (ModAutoGenerationSource is not null) {
-				writer.WriteLine("selectedMods = {");
-				foreach (var mod in AutoLocatedMods) {
-					if (mod.Enabled) {
-						writer.WriteLine($"\t\"{mod.FileName}\"");
-					}
-				}
-				writer.WriteLine("}");
-			}
-
-			foreach (var option in Options) {
-				if (option.CheckBoxSelector is not null) {
-					writer.Write($"{option.Name} = {{ ");
-					foreach (var value in option.GetValues()) {
-						writer.Write($"\"{value}\" ");
-					}
-					writer.WriteLine("}");
-				} else {
-					writer.WriteLine($"{option.Name} = \"{option.GetValue()}\"");
-				}
-			}
+			WriteOptions(writer);
 
 			SetSavingStatus("CONVERTSTATUSPOSTSUCCESS");
 			return true;
@@ -345,6 +298,41 @@ public class Config {
 			logger.Error($"Could not open configuration.txt! Error: {ex}");
 			SetSavingStatus("CONVERTSTATUSPOSTFAIL");
 			return false;
+		}
+	}
+
+	private void WriteOptions(StreamWriter writer) {
+		foreach (var option in Options) {
+			if (option.CheckBoxSelector is not null) {
+				writer.Write($"{option.Name} = {{ ");
+				foreach (var value in option.GetValues()) {
+					writer.Write($"\"{value}\" ");
+				}
+
+				writer.WriteLine("}");
+			} else {
+				writer.WriteLine($"{option.Name} = \"{option.GetValue()}\"");
+			}
+		}
+	}
+
+	private void WriteRequiredFiles(StreamWriter writer) {
+		foreach (var file in RequiredFiles) {
+			if (!file.Outputtable) {
+				continue;
+			}
+
+			// In the file path, replace backslashes with forward slashes.
+			string pathToWrite = file.Value.Replace('\\', '/');
+			writer.WriteLine($"{file.Name} = \"{pathToWrite}\"");
+		}
+	}
+
+	private void WriteRequiredFolders(StreamWriter writer) {
+		foreach (var folder in RequiredFolders) {
+			// In the folder path, replace backslashes with forward slashes.
+			string pathToWrite = folder.Value.Replace('\\', '/');
+			writer.WriteLine($"{folder.Name} = \"{pathToWrite}\"");
 		}
 	}
 
@@ -358,66 +346,95 @@ public class Config {
 		}
 	}
 
-	public void AutoLocateMods() {
-		logger.Debug("Clearing previously located mods...");
-		AutoLocatedMods.Clear();
-		logger.Debug("Autolocating mods...");
-
-		// Do we have a mod path?
-		string? modPath = null;
-		foreach (var folder in RequiredFolders) {
-			if (folder.Name == ModAutoGenerationSource) {
-				modPath = folder.Value;
-			}
-		}
-		if (modPath is null) {
-			logger.Warn("No folder found as source for mods autolocation.");
+	private void WriteSelectedMods(StreamWriter writer, Playset selectedPlayset) {
+		writer.WriteLine("selectedMods = {");
+		using var dbContext = TargetDbManager.GetLauncherDbContext(this);
+		if (dbContext is null) {
+			writer.WriteLine("}");
 			return;
 		}
 
-		// Does it exist?
-		if (!Directory.Exists(modPath)) {
-			logger.Warn($"Mod path \"{modPath}\" does not exist or can not be accessed!");
-			return;
-		}
+		var playsetMods = dbContext.PlaysetsMods
+			.Include(playsetMod => playsetMod.Mod)
+			.Where(playsetMod => playsetMod.PlaysetId == selectedPlayset.Id)
+			.OrderBy(playsetMod => playsetMod.Position ?? long.MaxValue)
+			.ToList();
 
-		// Are we looking at documents directory?
-		var combinedPath = Path.Combine(modPath, "mod");
-		if (Directory.Exists(combinedPath)) {
-			modPath = combinedPath;
-		}
-		logger.Debug($"Mods autolocation path set to: \"{modPath}\"");
-
-		// Are there mods inside?
-		var validModFiles = new List<string>();
-		foreach (var file in SystemUtils.GetAllFilesInFolder(modPath)) {
-			var lastDot = file.LastIndexOf('.');
-			if (lastDot == -1) {
+		foreach (var playsetMod in playsetMods) {
+			if (!IsPlaysetModEnabled(playsetMod)) {
 				continue;
 			}
 
-			var extension = CommonFunctions.GetExtension(file);
-			if (extension != "mod") {
+			var modPath = GetModPath(playsetMod.Mod);
+			if (string.IsNullOrWhiteSpace(modPath)) {
 				continue;
 			}
 
-			validModFiles.Add(file);
+			modPath = modPath.Replace('\\', '/');
+			writer.WriteLine($"\t\"{modPath}\"");
 		}
 
-		if (validModFiles.Count == 0) {
-			logger.Debug($"No mod files could be found in \"{modPath}\"");
-			return;
+		writer.WriteLine("}");
+	}
+
+	private static bool IsPlaysetModEnabled(PlaysetsMod playsetMod) {
+		var enabled = playsetMod.Enabled;
+		if (enabled is null || enabled.Length == 0) {
+			return true;
 		}
 
-		foreach (var modFile in validModFiles) {
-			var path = Path.Combine(modPath, modFile);
-			var theMod = new Mod(path);
-			if (string.IsNullOrEmpty(theMod.Name)) {
-				logger.Warn($"Mod at \"{path}\" has no defined name, skipping.");
-				continue;
+		return enabled.Any(b => b != 0);
+	}
+
+	private static string? GetModPath(Mod mod) {
+		if (!string.IsNullOrWhiteSpace(mod.GameRegistryId)) {
+			return mod.GameRegistryId;
+		}
+
+		Logger.Warn($"Mod {mod.Name} has no GameRegistryId set in the launcher's DB, cannot determine its path!");
+		return null;
+	}
+
+	public string? TargetGameModsPath {
+		get {
+			var targetGameModPath = RequiredFolders
+				.FirstOrDefault(f => string.Equals(f?.Name, "targetGameModPath", StringComparison.OrdinalIgnoreCase), defaultValue: null);
+			return targetGameModPath?.Value;
+		}
+	}
+
+	public void AutoLocatePlaysets() {
+		logger.Debug("Clearing previously located playsets...");
+		AutoLocatedPlaysets.Clear();
+		logger.Debug("Autolocating playsets...");
+
+		try {
+			using var dbContext = TargetDbManager.GetLauncherDbContext(this);
+			if (dbContext is not null) {
+				var playsets = dbContext.Playsets
+					.Where(p => p.IsRemoved == null || p.IsRemoved == false)
+					.Select(p => new Playset {
+						Id = p.Id,
+						Name = p.Name,
+						IsRemoved = p.IsRemoved,
+					})
+					.ToList();
+
+				foreach (var playset in playsets) {
+					AutoLocatedPlaysets.Add(playset);
+				}
 			}
-			AutoLocatedMods.Add(theMod);
+
+			var locatedPlaysetsCount = AutoLocatedPlaysets.Count;
+			logger.Debug($"Autolocated {locatedPlaysetsCount} playsets.");
+
+			if (!string.IsNullOrWhiteSpace(deferredSelectedPlaysetId)) {
+				SelectedPlayset = AutoLocatedPlaysets.FirstOrDefault(p =>
+					string.Equals(p.Id, deferredSelectedPlaysetId, StringComparison.Ordinal));
+				deferredSelectedPlaysetId = null;
+			}
+		} catch (Exception ex) {
+			logger.Warn("Failed to autolocate playsets. The launcher database may be unavailable or invalid.", ex);
 		}
-		logger.Debug($"Autolocated {AutoLocatedMods.Count} mods");
 	}
 }

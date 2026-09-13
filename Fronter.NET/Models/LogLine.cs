@@ -1,20 +1,22 @@
 ﻿using log4net.Core;
 using ReactiveUI;
 using System;
-using System.Globalization;
 
 namespace Fronter.Models;
 
-public sealed class LogLine : ReactiveObject {
-	public string Timestamp { get; set; } = string.Empty;
-	public DateTime TimestampAsDateTime => 
-		string.IsNullOrWhiteSpace(Timestamp) ? DateTime.Now : Convert.ToDateTime(Timestamp, CultureInfo.InvariantCulture);
+internal sealed class LogLine : ReactiveObject {
+	public DateTime Timestamp { get; set; }
 	public Level? Level { get; set; }
 	public string LevelName => Level?.Name ?? string.Empty;
 
-	private string message = string.Empty;
 	public string Message {
-		get => message;
-		set => this.RaiseAndSetIfChanged(ref message, value);
+		get;
+		set => this.RaiseAndSetIfChanged(ref field, value);
+	} = string.Empty;
+
+	internal LogLine(DateTime timestamp, Level? level, string message) {
+		Timestamp = timestamp;
+		Level = level;
+		Message = message;
 	}
 }

@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Notification;
 using Avalonia.Threading;
 using commonItems.Collections;
 using Fronter.Extensions;
@@ -14,7 +15,6 @@ using log4net.Core;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Dto;
 using MsBox.Avalonia.Enums;
-using MsBox.Avalonia.Models;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
@@ -24,11 +24,12 @@ using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Fronter.ViewModels;
 
 [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
-public sealed class MainWindowViewModel : ViewModelBase {
+internal sealed class MainWindowViewModel : ViewModelBase {
 	private static readonly ILog logger = LogManager.GetLogger("Frontend");
 	private readonly TranslationSource loc = TranslationSource.Instance;
 	public IEnumerable<MenuItemViewModel> LanguageMenuItems => loc.LoadedLanguages
@@ -36,26 +37,34 @@ public sealed class MainWindowViewModel : ViewModelBase {
 			Command = SetLanguageCommand,
 			CommandParameter = l,
 			Header = loc.TranslateLanguage(l),
-			Items = Array.Empty<MenuItemViewModel>()
+			Items = Array.Empty<MenuItemViewModel>(),
 		});
-	
-	private IdObjectCollection<string, FrontendTheme> Themes { get; } = new() {
-		new FrontendTheme {Id = "Light", LocKey = "THEME_LIGHT"},
-		new FrontendTheme {Id = "Dark", LocKey = "THEME_DARK"}
-	};
+
+	public INotificationMessageManager NotificationManager { get; } = new NotificationMessageManager();
+
+	private IdObjectCollection<string, FrontendTheme> Themes { get; } = [
+		new() {Id = "Default", LocKey = "THEME_SYSTEM"},
+		new() {Id = "Light", LocKey = "THEME_LIGHT"},
+		new() {Id = "Dark", LocKey = "THEME_DARK"},
+	];
 	public IEnumerable<MenuItemViewModel> ThemeMenuItems => Themes
 		.Select(theme => new MenuItemViewModel {
 			Command = SetThemeCommand,
 			CommandParameter = theme.Id,
 			Header = loc.Translate(theme.LocKey),
-			Items = Array.Empty<MenuItemViewModel>()
+			Items = Array.Empty<MenuItemViewModel>(),
 		});
+
+	// Conversion control
+	private CancellationTokenSource? conversionCts;
+	
+	public ReactiveCommand<Unit, Unit> CancelConversionCommand { get; }
 
 	internal Config Config { get; }
 
 	internal PathPickerViewModel PathPicker { get; }
-	internal ModsPickerViewModel ModsPicker { get; }
-	public bool ModsPickerTabVisible => Config.ModAutoGenerationSource is not null;
+	internal TargetPlaysetPickerViewModel TargetPlaysetPicker { get; }
+	public bool TargetPlaysetPickerTabVisible => Config.TargetPlaysetSelectionEnabled;
 	public OptionsViewModel Options { get; }
 	public bool OptionsTabVisible => Options.Items.Any();
 
@@ -64,34 +73,31 @@ public sealed class MainWindowViewModel : ViewModelBase {
 		private set => this.RaiseAndSetIfChanged(ref LogGridAppender.LogFilterLevel, value);
 	}
 
-	private string saveStatus = "CONVERTSTATUSPRE";
-	private string convertStatus = "CONVERTSTATUSPRE";
-	private string copyStatus = "CONVERTSTATUSPRE";
-
 	public string SaveStatus {
-		get => saveStatus;
-		set => this.RaiseAndSetIfChanged(ref saveStatus, value);
-	}
-	public string ConvertStatus {
-		get => convertStatus;
-		set => this.RaiseAndSetIfChanged(ref convertStatus, value);
-	}
-	public string CopyStatus {
-		get => copyStatus;
-		set => this.RaiseAndSetIfChanged(ref copyStatus, value);
-	}
+		get;
+		set => this.RaiseAndSetIfChanged(ref field, value);
+	} = "CONVERTSTATUSPRE";
 
-	private bool convertButtonEnabled = true;
+	public string ConvertStatus {
+		get;
+		set => this.RaiseAndSetIfChanged(ref field, value);
+	} = "CONVERTSTATUSPRE";
+
+	public string CopyStatus {
+		get;
+		set => this.RaiseAndSetIfChanged(ref field, value);
+	} = "CONVERTSTATUSPRE";
+
 	public bool ConvertButtonEnabled {
-		get => convertButtonEnabled;
-		set => this.RaiseAndSetIfChanged(ref convertButtonEnabled, value);
-	}
+		get;
+		set => this.RaiseAndSetIfChanged(ref field, value);
+	} = true;
 
 	public MainWindowViewModel(DataGrid logGrid) {
 		Config = new Config();
 
 		var appenders = LogManager.GetRepository().GetAppenders();
-		var gridAppender = appenders.First(a => a.Name == "grid");
+		var gridAppender = appenders.First(a => a.Name.Equals("grid"));
 		if (gridAppender is not LogGridAppender logGridAppender) {
 			throw new LogException($"Log appender \"{gridAppender.Name}\" is not a {typeof(LogGridAppender)}");
 		}
@@ -99,13 +105,15 @@ public sealed class MainWindowViewModel : ViewModelBase {
 		LogGridAppender.LogGrid = logGrid;
 
 		PathPicker = new PathPickerViewModel(Config);
-		ModsPicker = new ModsPickerViewModel(Config);
+		TargetPlaysetPicker = new TargetPlaysetPickerViewModel(Config);
 		Options = new OptionsViewModel(Config.Options);
 
 		// Create reactive commands.
 		ToggleLogFilterLevelCommand = ReactiveCommand.Create<string>(ToggleLogFilterLevel);
 		SetLanguageCommand = ReactiveCommand.Create<string>(SetLanguage);
 		SetThemeCommand = ReactiveCommand.Create<string>(SetTheme);
+
+		CancelConversionCommand = ReactiveCommand.Create(CancelConversion);
 	}
 
 	public ReadOnlyObservableCollection<LogLine> FilteredLogLines => LogGridAppender.FilteredLogLines;
@@ -119,23 +127,26 @@ public sealed class MainWindowViewModel : ViewModelBase {
 	#endregion
 
 	public void ToggleLogFilterLevel(string value) {
-		LogFilterLevel = LogManager.GetRepository().LevelMap[value];
+		var level = LogManager.GetRepository().LevelMap[value];
+		if (level is null) {
+			logger.Error($"Unknown log level: {value}");
+		} else {
+			LogFilterLevel = level;
+		}
 		LogGridAppender.ToggleLogFilterLevel();
 		this.RaisePropertyChanged(nameof(FilteredLogLines));
 		Dispatcher.UIThread.Post(ScrollToLogEnd, DispatcherPriority.Normal);
 	}
 
-	private ushort progress = 0;
 	public ushort Progress {
-		get => progress;
-		set => this.RaiseAndSetIfChanged(ref progress, value);
-	}
+		get;
+		set => this.RaiseAndSetIfChanged(ref field, value);
+	} = 0;
 
-	private bool indeterminateProgress = false;
 	public bool IndeterminateProgress {
-		get => indeterminateProgress;
-		set => this.RaiseAndSetIfChanged(ref indeterminateProgress, value);
-	}
+		get;
+		set => this.RaiseAndSetIfChanged(ref field, value);
+	} = false;
 
 	private bool VerifyMandatoryPaths() {
 		foreach (var folder in Config.RequiredFolders) {
@@ -155,8 +166,8 @@ public sealed class MainWindowViewModel : ViewModelBase {
 		return true;
 	}
 
-	private void ClearLogGrid() {
-		LogGridAppender.LogLines.Clear();
+	private Task ClearLogGrid() {
+		return LogGridAppender.ClearDisplayedLogLines();
 	}
 
 	private void CopyToTargetGameModDirectory() {
@@ -175,9 +186,9 @@ public sealed class MainWindowViewModel : ViewModelBase {
 		});
 		copyThread.Start();
 	}
-	public void LaunchConverter() {
+	public async Task LaunchConverter() {
 		ConvertButtonEnabled = false;
-		ClearLogGrid();
+		await ClearLogGrid();
 
 		Progress = 0;
 		SaveStatus = "CONVERTSTATUSPRE";
@@ -192,11 +203,25 @@ public sealed class MainWindowViewModel : ViewModelBase {
 
 		var converterLauncher = new ConverterLauncher(Config);
 		bool success;
-		var converterThread = new Thread(() => {
+		conversionCts = new CancellationTokenSource();
+		var token = conversionCts.Token;
+
+		bool wasCancelled = false;
+		await Task.Run(async () => {
 			ConvertStatus = "CONVERTSTATUSIN";
-			var launchConverterTask = converterLauncher.LaunchConverter();
-			launchConverterTask.Wait();
-			success = launchConverterTask.Result;
+
+			try {
+				success = await converterLauncher.LaunchConverter(token);
+			} catch (TaskCanceledException e) {
+				logger.Debug($"Converter backend task was cancelled: {e.Message}");
+				success = false;
+				wasCancelled = true;
+			} catch (Exception e) {
+				logger.Error($"Failed to start converter backend: {e.Message}");
+				await ShowFailedToStartConverterMsBox(e.Message);
+				success = false;
+			}
+
 			if (success) {
 				ConvertStatus = "CONVERTSTATUSPOSTSUCCESS";
 
@@ -206,22 +231,51 @@ public sealed class MainWindowViewModel : ViewModelBase {
 					ConvertButtonEnabled = true;
 				}
 			} else {
-				ConvertStatus = "CONVERTSTATUSPOSTFAIL";
-				Dispatcher.UIThread.Post(ShowErrorMessageBox);
+				if (wasCancelled) {
+					ConvertStatus = "CONVERTSTATUSPOSTCANCEL";
+					// don't pop up error dialog on user cancellation
+				} else {
+					ConvertStatus = "CONVERTSTATUSPOSTFAIL";
+					await Dispatcher.UIThread.InvokeAsync(ShowErrorMessageBox);
+				}
 				ConvertButtonEnabled = true;
 			}
 		});
-		converterThread.Start();
+
+		conversionCts?.Dispose();
+		conversionCts = null;
 	}
 
-	private async void ShowErrorMessageBox() {
+	private async Task ShowFailedToStartConverterMsBox(string errorMessage) {
+		var messageText = $"{loc.Translate("FAILED_TO_START_CONVERTER_BACKEND")}: {errorMessage}";
+		if (!ElevatedPrivilegesDetector.IsAdministrator) {
+			messageText += "\n\n" + loc.Translate("ELEVATED_PRIVILEGES_REQUIRED");
+			if (OperatingSystem.IsWindows()) {
+				messageText += "\n\n" + loc.Translate("RUN_AS_ADMIN");
+			} else if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS() || OperatingSystem.IsFreeBSD()) {
+				messageText += "\n\n" + loc.Translate("RUN_WITH_SUDO");
+			}
+		} else {
+			messageText += "\n\n" + loc.Translate("FAILED_TO_START_CONVERTER_POSSIBLE_BUG");
+		}
+
+		await Dispatcher.UIThread.InvokeAsync(async () => {
+			await MessageBoxManager.GetMessageBoxStandard(
+				title: loc.Translate("FAILED_TO_START_CONVERTER"),
+				text: messageText,
+				ButtonEnum.Ok,
+				Icon.Error
+			).ShowWindowDialogAsync(MainWindow.Instance);
+		}, DispatcherPriority.Normal);
+	}
+
+	private async Task ShowErrorMessageBox() {
 		var messageBoxWindow = MessageBoxManager
 			.GetMessageBoxStandard(new MessageBoxStandardParams {
 				Icon = Icon.Error,
 				ContentTitle = loc.Translate("CONVERSION_FAILED"),
 				ContentMessage = loc.Translate("CONVERSION_FAILED_MESSAGE"),
-				Markdown = true,
-				ButtonDefinitions = ButtonEnum.OkCancel
+				ButtonDefinitions = ButtonEnum.OkCancel,
 			});
 		var result = await messageBoxWindow.ShowWindowDialogAsync(MainWindow.Instance);
 		if (result == ButtonResult.Ok) {
@@ -229,17 +283,26 @@ public sealed class MainWindowViewModel : ViewModelBase {
 		}
 	}
 
-	public async void CheckForUpdates() {
+	public async Task CheckForUpdates() {
 		if (!Config.UpdateCheckerEnabled) {
 			return;
 		}
 
-		bool isUpdateAvailable = await UpdateChecker.IsUpdateAvailable("commit_id.txt", Config.PagesCommitIdUrl);
-		if (!isUpdateAvailable) {
-			return;
+		UpdateInfoModel info;
+		if (Config.CheckUpdatesBySemver) {
+			info = await UpdateChecker.GetAvailableSemverUpdateInfo(Config.Name, Config.ConverterFolder);
+		} else {
+			bool isUpdateAvailable = await UpdateChecker.IsUpdateAvailable("commit_id.txt", Config.PagesCommitIdUrl);
+			if (!isUpdateAvailable) {
+				return;
+			}
+
+			info = await UpdateChecker.GetLatestReleaseInfo(Config.Name);
 		}
 
-		var info = await UpdateChecker.GetLatestReleaseInfo(Config.Name);
+		if (info.AssetUrl is null) {
+			return;
+		}
 
 		var updateNowStr = loc.Translate("UPDATE_NOW");
 		var maybeLaterStr = loc.Translate("MAYBE_LATER");
@@ -249,46 +312,60 @@ public sealed class MainWindowViewModel : ViewModelBase {
 				Icon = Icon.Info,
 				ContentTitle = loc.Translate("NEW_VERSION_TITLE"),
 				ContentHeader = loc.Translate("NEW_VERSION_HEADER"),
-				ContentMessage = msgBody,
-				Markdown = true,
-				ButtonDefinitions = new[] {
-					new ButtonDefinition {Name = updateNowStr, IsDefault = true},
-					new ButtonDefinition {Name = maybeLaterStr, IsCancel = true}
-				},
+				ContentMessage = MarkdownPlainTextRenderer.Render(msgBody), // We need to render markdown to plain text until `Markdown = true` is re-enabled.
+				// Markdown = true, // disabled until this PR is merged and Markdown.Avalonia is updated: https://github.com/whistyun/Markdown.Avalonia/pull/154
+				ButtonDefinitions = [
+					new() {Name = updateNowStr, IsDefault = true},
+					new() {Name = maybeLaterStr, IsCancel = true},
+				],
 				MaxWidth = 1280,
 				MaxHeight = 720,
 			});
-		var result = await messageBoxWindow.ShowWindowDialogAsync(MainWindow.Instance);
-		if (result != updateNowStr) {
+
+		bool performUpdate = false;
+		await Dispatcher.UIThread.InvokeAsync(async () => {
+			string result = await messageBoxWindow.ShowWindowDialogAsync(MainWindow.Instance);
+			performUpdate = result.Equals(updateNowStr);
+		}, DispatcherPriority.Normal);
+
+		if (!performUpdate) {
 			logger.Info($"Update to version {info.Version} postponed.");
 			return;
 		}
 
-		if (info.ArchiveUrl is not null) {
-			UpdateChecker.StartUpdaterAndDie(info.ArchiveUrl, Config.ConverterFolder);
+		// If we can use an installer, download it, run it, and exit.
+		if (info.UseInstaller) {
+			await UpdateChecker.RunInstallerAndDie(info.AssetUrl, Config, NotificationManager);
 		} else {
-			BrowserLauncher.Open(Config.ConverterReleaseForumThread);
-			BrowserLauncher.Open(Config.LatestGitHubConverterReleaseUrl);
+			UpdateChecker.StartUpdaterAndDie(info.AssetUrl, Config.ConverterFolder);
 		}
 	}
 
-	public void CheckForUpdatesOnStartup() {
+	public async Task CheckForUpdatesOnStartup() {
 		if (!Config.CheckForUpdatesOnStartup) {
 			return;
 		}
-		CheckForUpdates();
+		await CheckForUpdates();
 	}
 
 #pragma warning disable CA1822
 	public void Exit() {
 #pragma warning restore CA1822
 		if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
-			desktop.Shutdown(0);
+			desktop.Shutdown(exitCode: 0);
 		}
 	}
 
+	public void CancelConversion() {
+		// User requested cancellation.  Signal the running launch and reset UI state.
+		conversionCts?.Cancel();
+		conversionCts?.Dispose();
+		conversionCts = null;
+		ConvertButtonEnabled = true;
+	}
+
 #pragma warning disable CA1822
-	public async void OpenAboutDialog() {
+	public async Task OpenAboutDialog() {
 #pragma warning restore CA1822
 		var messageBoxWindow = MessageBoxManager
 			.GetMessageBoxStandard(new MessageBoxStandardParams {
@@ -300,12 +377,14 @@ public sealed class MainWindowViewModel : ViewModelBase {
 				SizeToContent = SizeToContent.WidthAndHeight,
 				MinHeight = 250,
 				ShowInCenter = true,
-				WindowStartupLocation = WindowStartupLocation.CenterOwner
+				WindowStartupLocation = WindowStartupLocation.CenterOwner,
 			});
 		await messageBoxWindow.ShowWindowDialogAsync(MainWindow.Instance);
 	}
 
+#pragma warning disable CA1822
 	public void OpenPatreonPage() {
+#pragma warning restore CA1822
 		BrowserLauncher.Open("https://www.patreon.com/ParadoxGameConverters");
 	}
 
@@ -313,8 +392,10 @@ public sealed class MainWindowViewModel : ViewModelBase {
 		loc.SaveLanguage(languageKey);
 	}
 
+#pragma warning disable CA1822
 	public void SetTheme(string themeName) {
-		App.SaveTheme(themeName);
+#pragma warning restore CA1822
+		_ = App.SaveTheme(themeName);
 	}
 
 	public string WindowTitle {

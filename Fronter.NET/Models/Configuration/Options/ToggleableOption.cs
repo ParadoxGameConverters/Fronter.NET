@@ -3,7 +3,7 @@ using ReactiveUI;
 
 namespace Fronter.Models.Configuration.Options;
 
-public class ToggleableOption : ReactiveObject {
+internal sealed class ToggleableOption : ReactiveObject {
 	public ToggleableOption(BufferedReader reader, int id) {
 		Id = id;
 
@@ -16,7 +16,7 @@ public class ToggleableOption : ReactiveObject {
 		parser.RegisterKeyword("tooltip", reader => Tooltip = reader.GetString());
 		parser.RegisterKeyword("displayName", reader => DisplayName = reader.GetString());
 		parser.RegisterKeyword("default", reader => {
-			var value = reader.GetString() == "true";
+			var value = reader.GetString().Equals("true", System.StringComparison.OrdinalIgnoreCase);
 			PendingInitialValue = value;
 			if (value) {
 				Value = true;
@@ -29,7 +29,11 @@ public class ToggleableOption : ReactiveObject {
 	public string DisplayName { get; private set; } = string.Empty;
 	public string? Tooltip { get; private set; }
 	public bool? PendingInitialValue { get; set; }
-	private bool boolValue = false;
-	public bool Value { get => boolValue; set => this.RaiseAndSetIfChanged(ref boolValue, value); }
+
+	public bool Value {
+		get;
+		set => this.RaiseAndSetIfChanged(ref field, value);
+	} = false;
+
 	public int Id { get; } = 0;
 }

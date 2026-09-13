@@ -1,7 +1,10 @@
-﻿namespace Fronter.Models;
+﻿using commonItems;
 
-public sealed class UpdateInfoModel {
+namespace Fronter.Models;
+
+internal sealed class UpdateInfoModel {
 	public string? Version { get; set; }
 	public string? Description { get; set; }
-	public string? ArchiveUrl { get; set; }
+	public string? AssetUrl { get; set; }
+	public bool UseInstaller => CommonFunctions.GetExtension(AssetUrl ?? string.Empty).Equals("exe", System.StringComparison.OrdinalIgnoreCase);
 }

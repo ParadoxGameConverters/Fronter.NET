@@ -1,28 +1,30 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net7.0</TargetFramework>
-        <LangVersion>11</LangVersion>
+        <TargetFramework>net10.0</TargetFramework>
+        <LangVersion>preview</LangVersion>
         <RuntimeIdentifiers>win-x64;osx-arm64;linux-x64</RuntimeIdentifiers>
         <Nullable>enable</Nullable>
+        <CETCompat>false</CETCompat> <!-- see https://github.com/ParadoxGameConverters/ImperatorToCK3/issues/2638 -->
         
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <AssemblyName>ConverterFrontend</AssemblyName>
         <IsPackable>false</IsPackable>
         
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-        <AvaloniaVersion>11.0.4</AvaloniaVersion>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <ApplicationManifest>app.manifest</ApplicationManifest>
         <OutputPath>..\..\Release\</OutputPath>
+        <NoWarn>1701;1702;MA0001;MA0004;MA0009;MA0011;MA0075;MA0076</NoWarn>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <NoWarn>1701;1702;MA0001;MA0004;MA0009;MA0011;MA0075;MA0076</NoWarn>
     </PropertyGroup>
     <ItemGroup>
         <AvaloniaResource Include="Assets\**" />
         <AvaloniaResource Include="Styles\**" />
         <None Remove=".gitignore" />
-        <None Update="log4net_Fronter.config">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
     </ItemGroup>
     
     <ItemGroup>
@@ -37,18 +39,10 @@
     
     <!-- https://stackoverflow.com/a/50905092/10249243 -->
     <Target Name="Secrets" BeforeTargets="BeforeBuild">
-        <WriteLinesToFile 
-            File="$(IntermediateOutputPath)gen.cs"
-            Lines="static partial class Secrets {
-			    public static string BackblazeKeyId = %22$(BACKBLAZE_KEY_ID)%22 %3B
-			    public static string BackblazeApplicationKey = %22$(BACKBLAZE_APPLICATION_KEY)%22 %3B
-			    public static string BackblazeBucketId = %22$(BACKBLAZE_BUCKET_ID)%22 %3B
-			}"
-            Overwrite="true"
-        />
+        <WriteLinesToFile File="$(IntermediateOutputPath)Secrets.cs" Lines="namespace Fronter.Services {&#xD;&#xA;			    static partial class Secrets {&#xD;&#xA;				    public static string BackblazeKeyId = %22$(BACKBLAZE_KEY_ID)%22 %3B&#xD;&#xA;				    public static string BackblazeApplicationKey = %22$(BACKBLAZE_APPLICATION_KEY)%22 %3B&#xD;&#xA;				    public static string BackblazeBucketId = %22$(BACKBLAZE_BUCKET_ID)%22 %3B&#xD;&#xA;			    }&#xD;&#xA;			}" Overwrite="true" />
 	</Target>
 	<ItemGroup>
-		<Compile Include="$(IntermediateOutputPath)gen.cs" />
+        <Compile Include="$(IntermediateOutputPath)Secrets.cs" />
 	</ItemGroup>
     
     <Target Name="CopyCustomContent" AfterTargets="Build">
@@ -63,29 +57,34 @@
     </Target>
 
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
-        <PackageReference Include="Avalonia.Controls.DataGrid" Version="$(AvaloniaVersion)" />
-        <PackageReference Include="Avalonia.Desktop" Version="$(AvaloniaVersion)" />
+        <PackageReference Include="Avalonia" Version="11.3.20" />
+        <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.3.13" />
+        <PackageReference Include="Avalonia.Desktop" Version="11.3.20" />
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
-        <PackageReference Include="Avalonia.ReactiveUI" Version="$(AvaloniaVersion)" />
-        <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
-        <PackageReference Include="Backblaze.Client" Version="1.0.1" />
-        <PackageReference Include="DynamicData" Version="8.0.2" />
-        <PackageReference Include="MessageBox.Avalonia" Version="3.1.4" />
-        <PackageReference Include="Meziantou.Analyzer" Version="2.0.85">
+        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.20" />
+        <PackageReference Include="ReactiveUI.Avalonia" Version="11.4.13" />
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.20" />
+        <PackageReference Include="AWSSDK.S3" Version="4.0.102.4" />
+        <PackageReference Include="DynamicData" Version="9.4.33" />
+        <PackageReference Include="MessageBox.Avalonia" Version="3.3.1.1" />
+        <PackageReference Include="MessageBox.Avalonia.Markdown" Version="3.2.0" />
+        <PackageReference Include="Meziantou.Analyzer" Version="3.0.203">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.11">
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.11">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.11" />
-        <PackageReference Include="PGCG.commonItems" Version="8.4.0" />
-        <PackageReference Include="Sentry" Version="3.39.1" />
-        <PackageReference Include="system.io.filesystem" Version="4.3.0" />
-        <PackageReference Include="System.Net.Primitives" Version="4.3.1" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.11" />
+        <PackageReference Include="Mono.Posix.NETStandard" Version="1.0.0" />
+        <PackageReference Include="Notification.Avalonia" Version="2.2.0" />
+        <PackageReference Include="PGCG.commonItems" Version="23.2.0" />
+        <PackageReference Include="Roslynator.Analyzers" Version="5.0.0">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Sentry" Version="6.10.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -94,5 +93,9 @@
 
     <ItemGroup>
       <Folder Include="Models\Database\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="Fronter.Tests" />
     </ItemGroup>
 </Project>

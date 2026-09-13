@@ -1,5 +1,5 @@
 ﻿using Avalonia;
-using Avalonia.ReactiveUI;
+using ReactiveUI.Avalonia;
 using System;
 
 namespace Fronter;
@@ -17,5 +17,5 @@ internal static class Program {
 		=> AppBuilder.Configure<App>()
 			.UsePlatformDetect()
 			.LogToTrace()
-			.UseReactiveUI();
+			.UseReactiveUI(_ => { });
 }

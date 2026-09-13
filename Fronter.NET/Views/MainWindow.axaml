@@ -9,6 +9,7 @@
         xmlns:vc="clr-namespace:Fronter.ValueConverters"
         xmlns:log4netCore="clr-namespace:log4net.Core;assembly=log4net"
         xmlns:models="clr-namespace:Fronter.Models"
+        xmlns:controls="clr-namespace:Avalonia.Notification.Controls;assembly=Notification.Avalonia"
         mc:Ignorable="d" d:DesignWidth="710" d:DesignHeight="400"
         x:DataType="viewModels:MainWindowViewModel"
         x:Class="Fronter.Views.MainWindow"
@@ -21,10 +22,13 @@
     <Design.DataContext>
         <viewModels:MainWindowViewModel />
     </Design.DataContext>
+    <Window.Resources>
+        <vc:BooleanNegationConverter x:Key="InverseBool" />
+    </Window.Resources>
 
     <DockPanel>
         <DockPanel.Background>
-            <ImageBrush Source="/Assets/Images/background.png" Stretch="UniformToFill" Opacity="0.2" />
+            <ImageBrush Source="/Assets/Images/background.png" Stretch="UniformToFill" Opacity="0.18" />
         </DockPanel.Background>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="{ns:Loc MENUCONVERTER}">
@@ -64,6 +68,12 @@
         </Menu>
         
         <Grid RowDefinitions="6*, 4, 4*" DockPanel.Dock="Bottom">
+            <Border Grid.Column="0" Grid.Row="0" ZIndex="1000">
+                <controls:NotificationMessageContainer 
+                    Manager="{Binding NotificationManager}"
+                />
+            </Border>
+
             <TabControl Grid.Column="0" Grid.Row="0" MinHeight="150">
                 <TabItem Header="{ns:Loc PATHSTAB}" VerticalContentAlignment="Center">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" MinHeight="150">
@@ -71,9 +81,9 @@
                     </ScrollViewer>
                 </TabItem>
                 
-                <TabItem Header="{ns:Loc MODSTAB}" VerticalContentAlignment="Center" IsVisible="{Binding ModsPickerTabVisible}">
+                <TabItem Header="{ns:Loc TARGET_PLAYSET_TAB}" VerticalContentAlignment="Center" IsVisible="{Binding TargetPlaysetPickerTabVisible}">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" MinHeight="150">
-                        <views:ModsPickerView DataContext="{Binding ModsPicker}"/>
+                        <views:TargetPlaysetPickerView DataContext="{Binding TargetPlaysetPicker}"/>
                     </ScrollViewer>
                 </TabItem>
                 
@@ -131,7 +141,8 @@
                             </Grid>
                             <ProgressBar Margin="4" Height="20" Value="{Binding Progress}" BorderThickness="1" BorderBrush="Gray" IsIndeterminate="{Binding IndeterminateProgress}"/>
                             <TextBlock Text="{Binding Progress, StringFormat={}{0}%}" HorizontalAlignment="Center"></TextBlock>
-                            <Button Margin="4,15,4,4" HorizontalAlignment="Center" Name="ConvertButton" Command="{Binding LaunchConverter}" IsEnabled="{Binding ConvertButtonEnabled}" Content="{ns:Loc CONVERTBUTTON}"/>
+                            <Button Margin="4,15,4,4" HorizontalAlignment="Center" Name="ConvertButton" Command="{Binding LaunchConverter}" IsEnabled="{Binding ConvertButtonEnabled}" Content="{ns:Loc CONVERTBUTTON}" IsVisible="{Binding ConvertButtonEnabled}"/>
+                            <Button Margin="4,15,4,4" HorizontalAlignment="Center" Name="CancelButton" Command="{Binding CancelConversionCommand}" Content="{ns:Loc CANCEL}" IsVisible="{Binding ConvertButtonEnabled, Converter={StaticResource InverseBool}}"/>
                         </StackPanel>
                     </Grid>
                 </TabItem>
@@ -142,11 +153,13 @@
             <DataGrid Name="LogGrid" Grid.Column="0" Grid.Row="2"
                       ItemsSource="{Binding FilteredLogLines}"
                       AutoGenerateColumns="False"
+                      IsReadOnly="True"
                       CanUserReorderColumns="False"
+                      CanUserResizeColumns="False"
                       CanUserSortColumns="False"
                       RowBackground="Transparent"
                       VerticalScrollBarVisibility="Visible"
-                      GridLinesVisibility="All"
+                      GridLinesVisibility="Horizontal"
                       >
                 <DataGrid.Resources>
                     <vc:LogLevelToColorNameConverter x:Key="LogLevelToColorNameConverter"/>
@@ -157,9 +170,9 @@
                     </Style>
                 </DataGrid.Styles>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="{ns:Loc LOGTIME}" IsReadOnly="True" Binding="{Binding Timestamp}" />
-                    <DataGridTextColumn Header="{ns:Loc LOGSEVERITY}" IsReadOnly="True" Binding="{Binding LevelName}" />
-                    <DataGridTextColumn Header="{ns:Loc LOGMESSAGE}" IsReadOnly="True" Binding="{Binding Message}" />
+                    <DataGridTextColumn Header="{ns:Loc LOGTIME}" Width="160" IsReadOnly="True" Binding="{Binding Timestamp}" />
+                    <DataGridTextColumn Header="{ns:Loc LOGSEVERITY}" Width="110" IsReadOnly="True" Binding="{Binding LevelName}" />
+                    <DataGridTextColumn Header="{ns:Loc LOGMESSAGE}" Width="*" IsReadOnly="True" Binding="{Binding Message}" />
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>

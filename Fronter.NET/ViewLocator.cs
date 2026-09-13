@@ -5,7 +5,7 @@ using System;
 
 namespace Fronter;
 
-public class ViewLocator : IDataTemplate {
+internal sealed class ViewLocator : IDataTemplate {
 	public Control Build(object? data) {
 		if (data is null) {
 			return new TextBlock { Text = "Not Found." };
@@ -15,9 +15,9 @@ public class ViewLocator : IDataTemplate {
 
 		if (type != null) {
 			return (Control)Activator.CreateInstance(type)!;
-		} else {
-			return new TextBlock { Text = "Not Found: " + name };
 		}
+
+		return new TextBlock { Text = "Not Found: " + name };
 	}
 
 	public bool Match(object? data) {
