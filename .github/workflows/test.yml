@@ -55,7 +55,7 @@ jobs:
       working-directory: Fronter.NET.Tests
       shell: pwsh
       run: |
-       dotnet test --coverlet --coverlet-output-format lcov --coverlet-exclude "[commonItems]*" --coverlet-file-prefix fronter
+       dotnet run -- --results-directory TestResults --minimum-expected-tests 1 --coverlet --coverlet-output-format lcov --coverlet-exclude "[commonItems]*" --coverlet-file-prefix fronter
     - name: "Locate coverage report"
       id: coverage_report
       shell: pwsh
@@ -125,4 +125,59 @@ jobs:
     - name: "Test"
       working-directory: Fronter.NET.Tests
       run: |
-       dotnet test
+       dotnet run -- --minimum-expected-tests 1
+
+  try_running_executable_on_macos:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        fetch-depth: 0
+        submodules: recursive
+    - name: "Setup Dotnet for use with actions"
+      uses: actions/setup-dotnet@v6
+      with:
+        global-json-file: global.json
+    - name: "Build frontend"
+      uses: ./.github/actions/build_frontend
+      with:
+        fronter_dir: .
+        release_dir: Publish
+        build_ConverterFrontend: true
+        self_contained: true
+        build_updater: false
+    - name: "Run executable"
+      working-directory: Publish
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        nohup ./ConverterFrontend >/tmp/ConverterFrontend.log 2>&1 &
+        app_pid=$!
+
+        echo "Started ConverterFrontend in background (pid $app_pid)"
+        sleep 5
+
+        if ! kill -0 "$app_pid" 2>/dev/null; then
+          echo "ConverterFrontend exited immediately after launch." >&2
+          cat /tmp/ConverterFrontend.log || true
+          exit 1
+        fi
+
+        log_file="$(pwd)/log.txt"
+        if [ ! -f "$log_file" ]; then
+          echo "ConverterFrontend did not create log.txt." >&2
+          cat /tmp/ConverterFrontend.log || true
+          exit 1
+        fi
+
+        if ! grep -Eqi 'WARN|ERROR|Exception|Failed|panic|fatal' "$log_file"; then
+          echo "log.txt was created but no warnings/errors were emitted." >&2
+          echo "--- log.txt preview ---" >&2
+          tail -n 50 "$log_file" >&2 || true
+          exit 1
+        fi
+
+        echo "ConverterFrontend launched successfully and wrote warnings/errors to log.txt; terminating background process to allow CI to continue."
+        kill -TERM "$app_pid" || true
+        sleep 1
