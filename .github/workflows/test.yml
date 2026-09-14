@@ -148,5 +148,22 @@ jobs:
         build_updater: false
     - name: "Run executable"
       working-directory: Publish
+      shell: bash
       run: |
-       ./ConverterFrontend
+        set -euo pipefail
+
+        nohup ./ConverterFrontend >/tmp/ConverterFrontend.log 2>&1 &
+        app_pid=$!
+
+        echo "Started ConverterFrontend in background (pid $app_pid)"
+        sleep 5
+
+        if ! kill -0 "$app_pid" 2>/dev/null; then
+          echo "ConverterFrontend exited immediately after launch." >&2
+          cat /tmp/ConverterFrontend.log || true
+          exit 1
+        fi
+
+        kill -TERM "$app_pid" || true
+        sleep 1
+        echo "ConverterFrontend launched successfully; terminating background process to allow CI to continue."
