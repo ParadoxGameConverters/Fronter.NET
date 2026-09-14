@@ -164,6 +164,20 @@ jobs:
           exit 1
         fi
 
+        log_file="$(pwd)/log.txt"
+        if [ ! -f "$log_file" ]; then
+          echo "ConverterFrontend did not create log.txt." >&2
+          cat /tmp/ConverterFrontend.log || true
+          exit 1
+        fi
+
+        if ! grep -Eqi 'WARN|ERROR|Exception|Failed|panic|fatal' "$log_file"; then
+          echo "log.txt was created but no warnings/errors were emitted." >&2
+          echo "--- log.txt preview ---" >&2
+          tail -n 50 "$log_file" >&2 || true
+          exit 1
+        fi
+
+        echo "ConverterFrontend launched successfully and wrote warnings/errors to log.txt; terminating background process to allow CI to continue."
         kill -TERM "$app_pid" || true
         sleep 1
-        echo "ConverterFrontend launched successfully; terminating background process to allow CI to continue."
