@@ -62,11 +62,11 @@
         <PackageReference Include="Avalonia.Desktop" Version="12.1.6" />
         <PackageReference Include="ReactiveUI.Avalonia" Version="12.1.6" />
         <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.6" />
-        <PackageReference Include="AWSSDK.S3" Version="4.0.104.12" />
+        <PackageReference Include="AWSSDK.S3" Version="4.1.0" />
         <PackageReference Include="DynamicData" Version="9.5.0" />
         <PackageReference Include="MessageBox.Avalonia" Version="12.1.0" />
         <PackageReference Include="MessageBox.Avalonia.Markdown" Version="4.1.0" />
-        <PackageReference Include="Meziantou.Analyzer" Version="3.0.325">
+        <PackageReference Include="Meziantou.Analyzer" Version="3.0.340">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -82,7 +82,7 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Sentry" Version="6.12.1" />
+        <PackageReference Include="Sentry" Version="7.0.0" />
     </ItemGroup>
 
     <ItemGroup>
