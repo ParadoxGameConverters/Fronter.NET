@@ -22,32 +22,39 @@ public class UpdateCheckerTests {
 
 	[Fact]
 	public async Task IncorrectCommitIdTxtPathIsLogged() {
-		var stringWriter = new StringWriter();
-		Console.SetOut(stringWriter);
-		LoggingConfigurator.ConfigureLogging(useConsole: true);
-
 		const string wrongCommitIdTxtPath = "missingFile.txt";
 
-		var isUpdateAvailable = await UpdateChecker.IsUpdateAvailable(wrongCommitIdTxtPath, ImperatorToCK3CommitUrl);
-		Assert.False(isUpdateAvailable);
+		var (isUpdateAvailable, consoleOutput) = await CaptureUpdateCheckOutput(
+			() => UpdateChecker.IsUpdateAvailable(wrongCommitIdTxtPath, ImperatorToCK3CommitUrl));
 
-		var consoleOutput = stringWriter.ToString();
+		Assert.False(isUpdateAvailable);
 		Assert.Contains($"File \"{wrongCommitIdTxtPath}\" does not exist!", consoleOutput);
 	}
 
 	[Fact]
 	public async Task IncorrectCommitIdUrlIsLogged() {
-		var stringWriter = new StringWriter();
-		Console.SetOut(stringWriter);
-		LoggingConfigurator.ConfigureLogging(useConsole: true);
-
 		const string wrongCommitIdUrl = "https://paradoxgameconverters.com/wrong_url";
 
-		var isUpdateAvailable = await UpdateChecker.IsUpdateAvailable(TestImperatorToCK3CommitIdTxtPath, wrongCommitIdUrl);
-		Assert.False(isUpdateAvailable);
+		var (isUpdateAvailable, consoleOutput) = await CaptureUpdateCheckOutput(
+			() => UpdateChecker.IsUpdateAvailable(TestImperatorToCK3CommitIdTxtPath, wrongCommitIdUrl));
 
-		var consoleOutput = stringWriter.ToString();
-		Assert.Contains($"Failed to get commit id from \"{wrongCommitIdUrl}\"; status code: NotFound!", consoleOutput);
+		Assert.False(isUpdateAvailable);
+		// The real server may answer with any non-success status code, or the request may fail
+		// outright, depending on the platform and network. Only the logged prefix is guaranteed.
+		Assert.Contains($"Failed to get commit id from \"{wrongCommitIdUrl}\";", consoleOutput);
+	}
+
+	[Fact]
+	public async Task CommitIdFetchFailureStatusCodeIsLogged() {
+		const string commitIdUrl = "https://paradoxgameconverters.com/commit_ids/missing.txt";
+		var httpMessageHandler = new MockHttpMessageHandler(_ => new HttpResponseMessage(HttpStatusCode.NotFound));
+		using var httpClient = new HttpClient(httpMessageHandler) { Timeout = TimeSpan.FromMinutes(5) };
+
+		var (isUpdateAvailable, consoleOutput) = await CaptureUpdateCheckOutput(
+			() => UpdateChecker.IsUpdateAvailable(TestImperatorToCK3CommitIdTxtPath, commitIdUrl, httpClient));
+
+		Assert.False(isUpdateAvailable);
+		Assert.Contains($"Failed to get commit id from \"{commitIdUrl}\"; status code: NotFound!", consoleOutput);
 	}
 
 	[Fact]
@@ -298,6 +305,19 @@ public class UpdateCheckerTests {
 		Assert.NotNull(info.AssetUrl);
 		Assert.Contains("Stable 1.2.0 changes.", info.Description);
 		Assert.Contains("Stable 1.1.0 changes from page 2.", info.Description);
+	}
+
+	private static async Task<(bool IsUpdateAvailable, string ConsoleOutput)> CaptureUpdateCheckOutput(Func<Task<bool>> updateCheck) {
+		var originalOut = Console.Out;
+		var stringWriter = new StringWriter();
+		Console.SetOut(stringWriter);
+		try {
+			LoggingConfigurator.ConfigureLogging(useConsole: true);
+			bool isUpdateAvailable = await updateCheck();
+			return (isUpdateAvailable, stringWriter.ToString());
+		} finally {
+			Console.SetOut(originalOut);
+		}
 	}
 
 	private static HttpClient CreateTestHttpClient<T>(T payload) {
