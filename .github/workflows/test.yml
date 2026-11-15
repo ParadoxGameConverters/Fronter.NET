@@ -55,7 +55,7 @@ jobs:
       working-directory: Fronter.NET.Tests
       shell: pwsh
       run: |
-       dotnet run -- --results-directory TestResults --minimum-expected-tests 1 --coverlet --coverlet-output-format lcov --coverlet-exclude "[commonItems]*" --coverlet-file-prefix fronter
+       dotnet run -- --results-directory TestResults --minimum-expected-tests 1 --coverlet --coverlet-output-format lcov --coverlet-file-prefix fronter
     - name: "Locate coverage report"
       id: coverage_report
       shell: pwsh
