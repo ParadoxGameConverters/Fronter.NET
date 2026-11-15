@@ -35,6 +35,11 @@
   <ItemGroup>
     <TestFiles Include="TestFiles/**/*.*" />
   </ItemGroup>
+
+  <ItemGroup>
+    <!-- Makes assertion failures print whole strings instead of truncating them. -->
+    <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
   <Target Name="CopyCustomContent" AfterTargets="Build">
     <Copy SourceFiles="@(TestFiles)" DestinationFolder="$(OutDir)/%(RecursiveDir)" SkipUnchangedFiles="true" />
   </Target>
