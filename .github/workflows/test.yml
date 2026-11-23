@@ -51,11 +51,16 @@ jobs:
           echo "dotnet was not found in the expected installation locations." >&2
           exit 1
         fi
+    - name: "Build tests"
+      working-directory: Fronter.NET.Tests
+      shell: pwsh
+      run: |
+        dotnet build -m:16
     - name: "Test"
       working-directory: Fronter.NET.Tests
       shell: pwsh
       run: |
-       dotnet run -- --results-directory TestResults --minimum-expected-tests 1 --coverlet --coverlet-output-format lcov --coverlet-file-prefix fronter
+       dotnet run --no-build -- --results-directory TestResults --minimum-expected-tests 1 --coverlet --coverlet-output-format lcov --coverlet-file-prefix fronter --max-threads 16
     - name: "Locate coverage report"
       id: coverage_report
       shell: pwsh
@@ -122,10 +127,14 @@ jobs:
           echo "dotnet was not found in the expected installation locations." >&2
           exit 1
         fi
+    - name: "Build tests"
+      working-directory: Fronter.NET.Tests
+      run: |
+        dotnet build ${{ runner.environment == 'self-hosted' && '-m:16' || '' }}
     - name: "Test"
       working-directory: Fronter.NET.Tests
       run: |
-       dotnet run -- --minimum-expected-tests 1
+       dotnet run --no-build -- --minimum-expected-tests 1 --max-threads ${{ runner.environment == 'self-hosted' && '16' || 'default' }}
 
   try_running_executable_on_macos:
     runs-on: macos-latest
