@@ -57,32 +57,32 @@
     </Target>
 
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="12.1.6" />
+        <PackageReference Include="Avalonia" Version="12.2.0" />
         <PackageReference Include="Avalonia.Controls.DataGrid" Version="12.1.2" />
-        <PackageReference Include="Avalonia.Desktop" Version="12.1.6" />
-        <PackageReference Include="ReactiveUI.Avalonia" Version="12.1.6" />
-        <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.6" />
-        <PackageReference Include="AWSSDK.S3" Version="4.1.0" />
+        <PackageReference Include="Avalonia.Desktop" Version="12.2.0" />
+        <PackageReference Include="ReactiveUI.Avalonia" Version="12.1.9" />
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="12.2.0" />
+        <PackageReference Include="AWSSDK.S3" Version="4.1.2" />
         <PackageReference Include="DynamicData" Version="9.5.0" />
         <PackageReference Include="MessageBox.Avalonia" Version="12.1.0" />
         <PackageReference Include="MessageBox.Avalonia.Markdown" Version="4.1.0" />
-        <PackageReference Include="Meziantou.Analyzer" Version="3.0.340">
+        <PackageReference Include="Meziantou.Analyzer" Version="3.0.342">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.12">
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="11.0.0">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.12" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="11.0.0" />
         <PackageReference Include="Mono.Posix.NETStandard" Version="1.0.0" />
         <PackageReference Include="Notification.Avalonia" Version="2.2.0" /> <!-- TODO: update Notification.Avalonia for Avalonia 12 -->
-        <PackageReference Include="PGCG.commonItems" Version="23.2.0" />
+        <PackageReference Include="PGCG.commonItems" Version="23.3.1" />
         <PackageReference Include="Roslynator.Analyzers" Version="5.0.1">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Sentry" Version="7.0.0" />
+        <PackageReference Include="Sentry" Version="7.0.1" />
     </ItemGroup>
 
     <ItemGroup>
