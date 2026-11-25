@@ -57,7 +57,7 @@
     </Target>
 
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="11.3.20" />
+        <PackageReference Include="Avalonia" Version="12.2.0" />
         <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.3.13" />
         <PackageReference Include="Avalonia.Desktop" Version="11.3.20" />
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
